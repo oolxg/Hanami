@@ -1,0 +1,588 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* SmugglerApp.swift */; };
+		224C657E2827204100AAEF2E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657D2827204100AAEF2E /* ContentView.swift */; };
+		224C65802827204300AAEF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C657F2827204300AAEF2E /* Assets.xcassets */; };
+		224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C65822827204300AAEF2E /* Preview Assets.xcassets */; };
+		224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* SmugglerTests.swift */; };
+		224C65972827204300AAEF2E /* SmugglerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65962827204300AAEF2E /* SmugglerUITests.swift */; };
+		224C65992827204300AAEF2E /* SmugglerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		224C65892827204300AAEF2E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 224C65702827204000AAEF2E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 224C65772827204000AAEF2E;
+			remoteInfo = Smuggler;
+		};
+		224C65932827204300AAEF2E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 224C65702827204000AAEF2E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 224C65772827204000AAEF2E;
+			remoteInfo = Smuggler;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		224C65782827204100AAEF2E /* Smuggler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Smuggler.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		224C657B2827204100AAEF2E /* SmugglerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerApp.swift; sourceTree = "<group>"; };
+		224C657D2827204100AAEF2E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		224C657F2827204300AAEF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		224C65822827204300AAEF2E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		224C65882827204300AAEF2E /* SmugglerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmugglerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		224C658C2827204300AAEF2E /* SmugglerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerTests.swift; sourceTree = "<group>"; };
+		224C65922827204300AAEF2E /* SmugglerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmugglerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		224C65962827204300AAEF2E /* SmugglerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITests.swift; sourceTree = "<group>"; };
+		224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		224C65752827204000AAEF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C65852827204300AAEF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C658F2827204300AAEF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		224C656F2827204000AAEF2E = {
+			isa = PBXGroup;
+			children = (
+				224C657A2827204100AAEF2E /* Smuggler */,
+				224C658B2827204300AAEF2E /* SmugglerTests */,
+				224C65952827204300AAEF2E /* SmugglerUITests */,
+				224C65792827204100AAEF2E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		224C65792827204100AAEF2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				224C65782827204100AAEF2E /* Smuggler.app */,
+				224C65882827204300AAEF2E /* SmugglerTests.xctest */,
+				224C65922827204300AAEF2E /* SmugglerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		224C657A2827204100AAEF2E /* Smuggler */ = {
+			isa = PBXGroup;
+			children = (
+				224C657B2827204100AAEF2E /* SmugglerApp.swift */,
+				224C657D2827204100AAEF2E /* ContentView.swift */,
+				224C657F2827204300AAEF2E /* Assets.xcassets */,
+				224C65812827204300AAEF2E /* Preview Content */,
+			);
+			path = Smuggler;
+			sourceTree = "<group>";
+		};
+		224C65812827204300AAEF2E /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				224C65822827204300AAEF2E /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		224C658B2827204300AAEF2E /* SmugglerTests */ = {
+			isa = PBXGroup;
+			children = (
+				224C658C2827204300AAEF2E /* SmugglerTests.swift */,
+			);
+			path = SmugglerTests;
+			sourceTree = "<group>";
+		};
+		224C65952827204300AAEF2E /* SmugglerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				224C65962827204300AAEF2E /* SmugglerUITests.swift */,
+				224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */,
+			);
+			path = SmugglerUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		224C65772827204000AAEF2E /* Smuggler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224C659C2827204300AAEF2E /* Build configuration list for PBXNativeTarget "Smuggler" */;
+			buildPhases = (
+				224C65742827204000AAEF2E /* Sources */,
+				224C65752827204000AAEF2E /* Frameworks */,
+				224C65762827204000AAEF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Smuggler;
+			productName = Smuggler;
+			productReference = 224C65782827204100AAEF2E /* Smuggler.app */;
+			productType = "com.apple.product-type.application";
+		};
+		224C65872827204300AAEF2E /* SmugglerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224C659F2827204300AAEF2E /* Build configuration list for PBXNativeTarget "SmugglerTests" */;
+			buildPhases = (
+				224C65842827204300AAEF2E /* Sources */,
+				224C65852827204300AAEF2E /* Frameworks */,
+				224C65862827204300AAEF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				224C658A2827204300AAEF2E /* PBXTargetDependency */,
+			);
+			name = SmugglerTests;
+			productName = SmugglerTests;
+			productReference = 224C65882827204300AAEF2E /* SmugglerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		224C65912827204300AAEF2E /* SmugglerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 224C65A22827204300AAEF2E /* Build configuration list for PBXNativeTarget "SmugglerUITests" */;
+			buildPhases = (
+				224C658E2827204300AAEF2E /* Sources */,
+				224C658F2827204300AAEF2E /* Frameworks */,
+				224C65902827204300AAEF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				224C65942827204300AAEF2E /* PBXTargetDependency */,
+			);
+			name = SmugglerUITests;
+			productName = SmugglerUITests;
+			productReference = 224C65922827204300AAEF2E /* SmugglerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		224C65702827204000AAEF2E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					224C65772827204000AAEF2E = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
+					224C65872827204300AAEF2E = {
+						CreatedOnToolsVersion = 13.3.1;
+						TestTargetID = 224C65772827204000AAEF2E;
+					};
+					224C65912827204300AAEF2E = {
+						CreatedOnToolsVersion = 13.3.1;
+						TestTargetID = 224C65772827204000AAEF2E;
+					};
+				};
+			};
+			buildConfigurationList = 224C65732827204000AAEF2E /* Build configuration list for PBXProject "Smuggler" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 224C656F2827204000AAEF2E;
+			productRefGroup = 224C65792827204100AAEF2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				224C65772827204000AAEF2E /* Smuggler */,
+				224C65872827204300AAEF2E /* SmugglerTests */,
+				224C65912827204300AAEF2E /* SmugglerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		224C65762827204000AAEF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */,
+				224C65802827204300AAEF2E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C65862827204300AAEF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C65902827204300AAEF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		224C65742827204000AAEF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224C657E2827204100AAEF2E /* ContentView.swift in Sources */,
+				224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C65842827204300AAEF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		224C658E2827204300AAEF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				224C65992827204300AAEF2E /* SmugglerUITestsLaunchTests.swift in Sources */,
+				224C65972827204300AAEF2E /* SmugglerUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		224C658A2827204300AAEF2E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 224C65772827204000AAEF2E /* Smuggler */;
+			targetProxy = 224C65892827204300AAEF2E /* PBXContainerItemProxy */;
+		};
+		224C65942827204300AAEF2E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 224C65772827204000AAEF2E /* Smuggler */;
+			targetProxy = 224C65932827204300AAEF2E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		224C659A2827204300AAEF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		224C659B2827204300AAEF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		224C659D2827204300AAEF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Smuggler/Preview Content\"";
+				DEVELOPMENT_TEAM = HJ9678T652;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Smuggler;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		224C659E2827204300AAEF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Smuggler/Preview Content\"";
+				DEVELOPMENT_TEAM = HJ9678T652;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Smuggler;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		224C65A02827204300AAEF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HJ9678T652;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Smuggler.app/Smuggler";
+			};
+			name = Debug;
+		};
+		224C65A12827204300AAEF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HJ9678T652;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Smuggler.app/Smuggler";
+			};
+			name = Release;
+		};
+		224C65A32827204300AAEF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HJ9678T652;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Smuggler;
+			};
+			name = Debug;
+		};
+		224C65A42827204300AAEF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HJ9678T652;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Smuggler;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		224C65732827204000AAEF2E /* Build configuration list for PBXProject "Smuggler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224C659A2827204300AAEF2E /* Debug */,
+				224C659B2827204300AAEF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		224C659C2827204300AAEF2E /* Build configuration list for PBXNativeTarget "Smuggler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224C659D2827204300AAEF2E /* Debug */,
+				224C659E2827204300AAEF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		224C659F2827204300AAEF2E /* Build configuration list for PBXNativeTarget "SmugglerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224C65A02827204300AAEF2E /* Debug */,
+				224C65A12827204300AAEF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		224C65A22827204300AAEF2E /* Build configuration list for PBXNativeTarget "SmugglerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				224C65A32827204300AAEF2E /* Debug */,
+				224C65A42827204300AAEF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 224C65702827204000AAEF2E /* Project object */;
+}
