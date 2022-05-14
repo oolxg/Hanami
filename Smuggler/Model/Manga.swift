@@ -1,0 +1,124 @@
+//
+//  Manga.swift
+//  Smuggler
+//
+//  Created by mk.pwnz on 13/05/2022.
+//
+
+import Foundation
+
+// MARK: - Manga
+struct Manga: Codable, Equatable, Identifiable {
+    let id: UUID
+    let type: String
+    let attributes: Attributes
+    let relationships: [Relationship]
+    
+    // MARK: - Attributes
+    struct Attributes: Codable {
+        let title: LanguageContent
+        let altTitles: LanguageContent
+        let description: LanguageContent
+        let isLocked: Bool
+        let originalLanguage: String
+        let lastVolume: String?
+        let lastChapter: String?
+        let publicationDemographic: PublicationDemographic?
+        let status: Status
+        let year: Int?
+        let contentRating: ContentRatings
+        let chapterNumbersResetOnNewVolume: Bool
+        let tags: [Tag]
+        let state: State
+        let version: Int
+        let createdAt, updatedAt: Date?
+        
+        enum CodingKeys: String, CodingKey {
+            case title, altTitles
+            case description, isLocked, originalLanguage, lastVolume, lastChapter, publicationDemographic, status
+            case year, contentRating, chapterNumbersResetOnNewVolume, tags, state, version, createdAt, updatedAt
+        }
+        
+        struct LanguageContent: Codable, Equatable {
+            var en, ru, jp, jpRo, zh, zhRo: String?
+            
+            init(fromDicts langContent: [LanguageContent]) {
+                langContent.forEach { d in
+                    en = d.en == nil ? en : d.en
+                    ru = d.ru == nil ? ru : d.ru
+                    jp = d.jp == nil ? jp : d.jp
+                    jpRo = d.jpRo == nil ? jpRo : d.jpRo
+                    zh = d.zh == nil ? zh : d.zh
+                    zhRo = d.zhRo == nil ? zhRo : d.zhRo
+                }
+            }
+            
+            enum CodingKeys: String, CodingKey {
+                case en, ru, zh
+                case jp = "ja"
+                case jpRo = "jp-ro"
+                case zhRo = "zh-ro"
+            }
+        }
+        
+        enum Status: String, Codable {
+            case completed, ongoing, cancelled, hiatus
+        }
+        
+        enum PublicationDemographic: String, Codable {
+            case shounen, shoujo, josei, seinen
+        }
+        
+        enum ContentRatings: String, Codable {
+            case safe, suggestive, erotica, pornographic
+        }
+        
+        enum State: String, Codable {
+            case draft, submitted, published, rejected
+        }
+    }
+    
+    static func == (lhs: Manga, rhs: Manga) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+
+// MARK: - Custom init for fucked up MangaDex API
+extension Manga.Attributes {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        title = try container.decode(LanguageContent.self, forKey: .title)
+        do {
+            altTitles = try container.decode(LanguageContent.self, forKey: .altTitles)
+        } catch {
+            let altTitlesDicts = try container.decode([LanguageContent].self, forKey: .altTitles)
+            altTitles = LanguageContent(fromDicts: altTitlesDicts)
+        }
+        do {
+            description = try container.decode(LanguageContent.self, forKey: .description)
+        } catch DecodingError.typeMismatch(_, _) {
+            let descriptions = try container.decode([LanguageContent].self, forKey: .description)
+            description = LanguageContent(fromDicts: descriptions)
+        }
+        isLocked = try container.decode(Bool.self, forKey: .isLocked)
+        originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
+        lastVolume = try container.decode(String?.self, forKey: .lastVolume)
+        lastChapter = try container.decode(String?.self, forKey: .lastChapter)
+        publicationDemographic = try container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
+        status = try container.decode(Status.self, forKey: .status)
+        year = try container.decode(Int?.self, forKey: .year)
+        contentRating = try container.decode(ContentRatings.self, forKey: .contentRating)
+        chapterNumbersResetOnNewVolume = try container.decode(Bool.self, forKey: .chapterNumbersResetOnNewVolume)
+        tags = try container.decode([Tag].self, forKey: .tags)
+        state = try container.decode(State.self, forKey: .state)
+        version = try container.decode(Int.self, forKey: .version)
+        
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
+        createdAt = fmt.date(from: try container.decode(String.self, forKey: .createdAt))
+        updatedAt = fmt.date(from: try container.decode(String.self, forKey: .updatedAt))
+    }
+}
