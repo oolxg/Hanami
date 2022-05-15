@@ -19,7 +19,7 @@ class DeveloperPreview {
     
     private init() { }
     
-    let coverArt: CoverArt = CoverArt(
+    let coverArtInfo: CoverArtInfo = CoverArtInfo(
         id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
         type: "cover_art",
         attributes: .init(

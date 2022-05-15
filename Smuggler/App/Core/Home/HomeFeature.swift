@@ -28,7 +28,12 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
         .forEach(
             state: \.mangaThumbnailStates,
             action: /HomeAction.mangaThumbnailActon,
-            environment: { _ in .live(environment: .init(loadThumbnail: downloadThumbnailInfo)) }
+            environment: { _ in .live(
+                environment: .init(
+                    loadThumbnailInfo: downloadThumbnailInfo,
+                    loadThumbnail: loadThumbnail
+                )
+            ) }
         ),
     Reducer { state, action, env in
         switch action {
@@ -47,7 +52,8 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                 }
                 return .none
                 
-            case .mangaThumbnailActon(id: _, action: _):
+            case .mangaThumbnailActon(_, _):
                 return .none
         }
-    })
+    }
+)

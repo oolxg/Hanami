@@ -15,10 +15,15 @@ struct MangaThumbnailView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                Text(viewStore.coverArt?.id.uuidString ?? "none")
-                    .padding()
-                if viewStore.coverArt == nil {
-                    Text(viewStore.manga.relationships.filter { $0.type == "cover_art" }.first?.id.uuidString ?? "not defined")
+                if let thumbnail = viewStore.thumbnail {
+                    VStack(alignment: .center) {
+                        Text(viewStore.manga.attributes.title.en ?? "Name not found")
+                        
+                        Image(uiImage: thumbnail)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                    }
                 }
             }
             .onAppear {
@@ -34,11 +39,13 @@ struct MangaThumbnailView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(
                     manga: dev.manga,
-                    coverArt: dev.coverArt
-            ),
-                 reducer: mangaThumbnailReducer,
+                    coverArtInfo: dev.coverArtInfo
+                ),
+                reducer: mangaThumbnailReducer,
                 environment: .live(
-                    environment: .init(loadThumbnail: downloadThumbnailInfo)
+                    environment: .init(
+                        loadThumbnailInfo: downloadThumbnailInfo,
+                        loadThumbnail: loadThumbnail)
                 )
             )
         )

@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - CoverArt
-struct CoverArt: Codable {
+struct CoverArtInfo: Codable {
     let id: UUID
     let type: String
     let attributes: Attributes
@@ -30,8 +30,8 @@ struct CoverArt: Codable {
     }
 }
 
-extension CoverArt: Equatable {
-    static func == (lhs: CoverArt, rhs: CoverArt) -> Bool {
+extension CoverArtInfo: Equatable {
+    static func == (lhs: CoverArtInfo, rhs: CoverArtInfo) -> Bool {
         lhs.id == rhs.id
     }
 }

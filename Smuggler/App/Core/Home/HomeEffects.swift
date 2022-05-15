@@ -19,7 +19,7 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
     components.host = "api.mangadex.org"
     components.path = "/manga"
     components.queryItems = [
-        URLQueryItem(name: "limit", value: "100"),
+        URLQueryItem(name: "limit", value: "20"),
         URLQueryItem(name: "includedTagsMode", value: "AND"),
         URLQueryItem(name: "excludedTagsMode", value: "OR"),
         URLQueryItem(name: "contentRating[]", value: "safe"),
@@ -35,6 +35,7 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
     
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
+        .retry(3)
         .map { data, _ in data }
         .decode(type: Response<[Manga]>.self, decoder: decoder)
         .mapError { _ in APIError.decodingError }

@@ -7,9 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import SwiftUI
 
 
-func downloadThumbnailInfo(coverID: UUID?, decoder: JSONDecoder) -> Effect<Response<CoverArt>, APIError> {
+func downloadThumbnailInfo(coverID: UUID?, decoder: JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError> {
     guard let coverID = coverID, let url = URL(string: "https://api.mangadex.org/cover/\(coverID.uuidString.lowercased())") else {
         return .none
     }
@@ -17,8 +18,20 @@ func downloadThumbnailInfo(coverID: UUID?, decoder: JSONDecoder) -> Effect<Respo
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .map { data, _ in data }
-        .decode(type: Response<CoverArt>.self, decoder: decoder)
+        .decode(type: Response<CoverArtInfo>.self, decoder: decoder)
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
 }
 
+
+func loadThumbnail(url: URL?) -> Effect<UIImage?, APIError> {
+    guard let url = url else {
+        return .none
+    }
+    
+    return URLSession.shared.dataTaskPublisher(for: url)
+        .mapError { _ in APIError.downloadError }
+        .retry(3)
+        .map { data, _ in UIImage(data: data) }
+        .eraseToEffect()
+}
