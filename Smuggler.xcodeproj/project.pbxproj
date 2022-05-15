@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2220E14F283074F10046F08A /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E14E283074F10046F08A /* LocalizedString.swift */; };
+		2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15328312D1F0046F08A /* MangaThumbnailView.swift */; };
+		2220E15728312D400046F08A /* ThumbnailFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15628312D400046F08A /* ThumbnailFeature.swift */; };
+		2220E1592831345C0046F08A /* MangaThumbnailEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E1582831345C0046F08A /* MangaThumbnailEffect.swift */; };
+		2220E15B2831355A0046F08A /* CoverArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15A2831355A0046F08A /* CoverArt.swift */; };
+		2220E15E283145290046F08A /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15D283145290046F08A /* PreviewProvider.swift */; };
 		2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D6282ED6C200BBAC5D /* Relationship.swift */; };
 		2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D8282ED6FA00BBAC5D /* Tag.swift */; };
 		224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* SmugglerApp.swift */; };
@@ -45,6 +51,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2220E14E283074F10046F08A /* LocalizedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedString.swift; sourceTree = "<group>"; };
+		2220E15328312D1F0046F08A /* MangaThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailView.swift; sourceTree = "<group>"; };
+		2220E15628312D400046F08A /* ThumbnailFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailFeature.swift; sourceTree = "<group>"; };
+		2220E1582831345C0046F08A /* MangaThumbnailEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailEffect.swift; sourceTree = "<group>"; };
+		2220E15A2831355A0046F08A /* CoverArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArt.swift; sourceTree = "<group>"; };
+		2220E15D283145290046F08A /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		2224D3D6282ED6C200BBAC5D /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		2224D3D8282ED6FA00BBAC5D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		224C65782827204100AAEF2E /* Smuggler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Smuggler.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +105,48 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2220E150283123F10046F08A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				224E6711282E91FF001D214C /* Response.swift */,
+				224E671A282EAA50001D214C /* APIError.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		2220E151283123FD0046F08A /* Service */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		2220E15228312D060046F08A /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				2220E15528312D270046F08A /* MangaThumbnail */,
+			);
+			path = Component;
+			sourceTree = "<group>";
+		};
+		2220E15528312D270046F08A /* MangaThumbnail */ = {
+			isa = PBXGroup;
+			children = (
+				2220E15328312D1F0046F08A /* MangaThumbnailView.swift */,
+				2220E15628312D400046F08A /* ThumbnailFeature.swift */,
+				2220E1582831345C0046F08A /* MangaThumbnailEffect.swift */,
+			);
+			path = MangaThumbnail;
+			sourceTree = "<group>";
+		};
+		2220E15C283145130046F08A /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				2220E15D283145290046F08A /* PreviewProvider.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		224C656F2827204000AAEF2E = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +170,7 @@
 		224C657A2827204100AAEF2E /* Smuggler */ = {
 			isa = PBXGroup;
 			children = (
+				2220E15C283145130046F08A /* Extension */,
 				224E6719282EAA48001D214C /* Shared */,
 				224E6710282E8E18001D214C /* Model */,
 				229F8D88282DB2E900761054 /* App */,
@@ -154,9 +209,10 @@
 			isa = PBXGroup;
 			children = (
 				224E6713282E9781001D214C /* Manga.swift */,
-				224E6711282E91FF001D214C /* Response.swift */,
 				2224D3D6282ED6C200BBAC5D /* Relationship.swift */,
 				2224D3D8282ED6FA00BBAC5D /* Tag.swift */,
+				2220E14E283074F10046F08A /* LocalizedString.swift */,
+				2220E15A2831355A0046F08A /* CoverArt.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -164,7 +220,8 @@
 		224E6719282EAA48001D214C /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				224E671A282EAA50001D214C /* APIError.swift */,
+				2220E151283123FD0046F08A /* Service */,
+				2220E150283123F10046F08A /* Model */,
 				224E671C282EB371001D214C /* SystemEnvironment.swift */,
 			);
 			path = Shared;
@@ -173,6 +230,7 @@
 		229B2C2F282859560028015B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2220E15228312D060046F08A /* Component */,
 				229F8D91282DB9C800761054 /* Home */,
 				229F8D89282DB32700761054 /* Main */,
 			);
@@ -343,15 +401,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2220E15B2831355A0046F08A /* CoverArt.swift in Sources */,
 				2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */,
+				2220E14F283074F10046F08A /* LocalizedString.swift in Sources */,
 				224E6712282E91FF001D214C /* Response.swift in Sources */,
 				224E6716282E9D6F001D214C /* HomeEffects.swift in Sources */,
 				229F8D8B282DB34C00761054 /* RootView.swift in Sources */,
 				229F8D95282DBD9400761054 /* HomeFeature.swift in Sources */,
+				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				229F8D93282DB9D200761054 /* HomeView.swift in Sources */,
 				224E671D282EB371001D214C /* SystemEnvironment.swift in Sources */,
 				229F8D90282DB5E400761054 /* RootFeature.swift in Sources */,
+				2220E15728312D400046F08A /* ThumbnailFeature.swift in Sources */,
+				2220E1592831345C0046F08A /* MangaThumbnailEffect.swift in Sources */,
 				224E6714282E9781001D214C /* Manga.swift in Sources */,
+				2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */,
 				224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */,
 				2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */,
 				224E671B282EAA50001D214C /* APIError.swift in Sources */,

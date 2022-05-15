@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Manga
-struct Manga: Codable, Equatable, Identifiable {
+struct Manga: Codable {
     let id: UUID
     let type: String
     let attributes: Attributes
@@ -16,9 +16,9 @@ struct Manga: Codable, Equatable, Identifiable {
     
     // MARK: - Attributes
     struct Attributes: Codable {
-        let title: LanguageContent
-        let altTitles: LanguageContent
-        let description: LanguageContent
+        let title: LocalizedString
+        let altTitles: LocalizedString
+        let description: LocalizedString
         let isLocked: Bool
         let originalLanguage: String
         let lastVolume: String?
@@ -39,28 +39,6 @@ struct Manga: Codable, Equatable, Identifiable {
             case year, contentRating, chapterNumbersResetOnNewVolume, tags, state, version, createdAt, updatedAt
         }
         
-        struct LanguageContent: Codable, Equatable {
-            var en, ru, jp, jpRo, zh, zhRo: String?
-            
-            init(fromDicts langContent: [LanguageContent]) {
-                langContent.forEach { d in
-                    en = d.en == nil ? en : d.en
-                    ru = d.ru == nil ? ru : d.ru
-                    jp = d.jp == nil ? jp : d.jp
-                    jpRo = d.jpRo == nil ? jpRo : d.jpRo
-                    zh = d.zh == nil ? zh : d.zh
-                    zhRo = d.zhRo == nil ? zhRo : d.zhRo
-                }
-            }
-            
-            enum CodingKeys: String, CodingKey {
-                case en, ru, zh
-                case jp = "ja"
-                case jpRo = "jp-ro"
-                case zhRo = "zh-ro"
-            }
-        }
-        
         enum Status: String, Codable {
             case completed, ongoing, cancelled, hiatus
         }
@@ -77,10 +55,6 @@ struct Manga: Codable, Equatable, Identifiable {
             case draft, submitted, published, rejected
         }
     }
-    
-    static func == (lhs: Manga, rhs: Manga) -> Bool {
-        lhs.id == rhs.id
-    }
 }
 
 
@@ -89,25 +63,25 @@ extension Manga.Attributes {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        title = try container.decode(LanguageContent.self, forKey: .title)
+        title = try container.decode(LocalizedString.self, forKey: .title)
         do {
-            altTitles = try container.decode(LanguageContent.self, forKey: .altTitles)
+            altTitles = try container.decode(LocalizedString.self, forKey: .altTitles)
         } catch {
-            let altTitlesDicts = try container.decode([LanguageContent].self, forKey: .altTitles)
-            altTitles = LanguageContent(fromDicts: altTitlesDicts)
+            let altTitlesDicts = try container.decode([LocalizedString].self, forKey: .altTitles)
+            altTitles = LocalizedString(localizedStrings: altTitlesDicts)
         }
         do {
-            description = try container.decode(LanguageContent.self, forKey: .description)
+            description = try container.decode(LocalizedString.self, forKey: .description)
         } catch DecodingError.typeMismatch(_, _) {
-            let descriptions = try container.decode([LanguageContent].self, forKey: .description)
-            description = LanguageContent(fromDicts: descriptions)
+            let descriptions = try container.decode([LocalizedString].self, forKey: .description)
+            description = LocalizedString(localizedStrings: descriptions)
         }
         isLocked = try container.decode(Bool.self, forKey: .isLocked)
         originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
         lastVolume = try container.decode(String?.self, forKey: .lastVolume)
         lastChapter = try container.decode(String?.self, forKey: .lastChapter)
         publicationDemographic = try container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
-        status = try container.decode(Status.self, forKey: .status)
+        status = try container.decode(Status.self, forKey: .status  )
         year = try container.decode(Int?.self, forKey: .year)
         contentRating = try container.decode(ContentRatings.self, forKey: .contentRating)
         chapterNumbersResetOnNewVolume = try container.decode(Bool.self, forKey: .chapterNumbersResetOnNewVolume)
@@ -122,3 +96,11 @@ extension Manga.Attributes {
         updatedAt = fmt.date(from: try container.decode(String.self, forKey: .updatedAt))
     }
 }
+
+extension Manga: Equatable {
+    static func == (lhs: Manga, rhs: Manga) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+extension Manga: Identifiable { }

@@ -32,7 +32,7 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
         .pullback(
             state: \.homeState,
             action: /AppAction.homeAction,
-            environment: { _ in .live(environment: .init(loadHomePage: homeEffect, decoder: { JSONDecoder() })) }
+            environment: { _ in .live(environment: .init(loadHomePage: downloadMangaList)) }
         ),
     Reducer { state, action, env in
         switch action {
@@ -44,6 +44,3 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
         }
     }
 )
-#if DEBUG
-//    .debug()
-#endif

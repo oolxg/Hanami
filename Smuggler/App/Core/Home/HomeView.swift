@@ -14,14 +14,10 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             WithViewStore(store) { viewStore in
-                VStack {
-                    Text("\(viewStore.downloadedManga.count)")
-                    List {
-                        ForEachStore(store.scope(state: \.downloadedManga, action: HomeAction.mangaActon)) { manga in
-                            WithViewStore(manga) { m in
-                                Text(m.state.attributes.title.en ?? "NOT DEFINED")
-                            }
-                        }
+                List {
+                    Text(viewStore.downloadedManga.count.description)
+                    ForEachStore(store.scope(state: \.mangaThumbnailStates, action: HomeAction.mangaThumbnailActon)) { thumbnailViewStore in
+                        MangaThumbnailView(store: thumbnailViewStore)
                     }
                 }
                 .onAppear {
@@ -37,6 +33,16 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView(store: .init(initialState: HomeState(), reducer: homeReducer, environment: .live(environment: .init(loadHomePage: homeEffect, decoder: { JSONDecoder() }))))
+        HomeView(
+            store: .init(
+                initialState: HomeState(),
+                reducer: homeReducer,
+                environment: .live(
+                    environment: .init(
+                        loadHomePage: downloadMangaList
+                    )
+                )
+            )
+        )
     }
 }

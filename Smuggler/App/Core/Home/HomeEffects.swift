@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-func homeEffect(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIError> {
+func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIError> {
     let today = Calendar.current.startOfDay(for: Date())
     let fmt = DateFormatter()
     fmt.locale = Locale(identifier: "en_US_POSIX")
@@ -25,16 +25,14 @@ func homeEffect(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIError> {
         URLQueryItem(name: "contentRating[]", value: "safe"),
         URLQueryItem(name: "contentRating[]", value: "suggestive"),
         URLQueryItem(name: "contentRating[]", value: "erotica"),
-        URLQueryItem(name: "createdAtSince", value: fmt.string(from: today)),
+        URLQueryItem(name: "updatedAtSince", value: fmt.string(from: today)),
         URLQueryItem(name: "order[latestUploadedChapter]", value: "desc")
     ]
-        
+    
     guard let url = components.url else {
         fatalError("Error on creating URL")
     }
     
-    print(url)
-            
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .map { data, _ in data }

@@ -25,6 +25,13 @@ struct SystemEnvironment<Environment> {
     private static func decoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
+
+        decoder.dateDecodingStrategy = .formatted(fmt)
+        
         return decoder
     }
     
