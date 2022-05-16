@@ -38,10 +38,11 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
     Reducer { state, action, env in
         switch action {
             case .onAppear:
+                if !state.downloadedManga.isEmpty { return .none }
+                
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
-                    .catchToEffect()
-                    .map(HomeAction.dataLoaded)
+                    .catchToEffect(HomeAction.dataLoaded)
             case .dataLoaded(let result):
                 switch result {
                     case .success(let response):

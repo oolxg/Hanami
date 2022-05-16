@@ -10,8 +10,8 @@ import ComposableArchitecture
 import SwiftUI
 
 
-func downloadThumbnailInfo(coverID: UUID?, decoder: JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError> {
-    guard let coverID = coverID, let url = URL(string: "https://api.mangadex.org/cover/\(coverID.uuidString.lowercased())") else {
+func downloadThumbnailInfo(coverID: UUID, decoder: JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError> {
+    guard let url = URL(string: "https://api.mangadex.org/cover/\(coverID.uuidString.lowercased())") else {
         return .none
     }
     

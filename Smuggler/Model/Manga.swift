@@ -10,7 +10,7 @@ import Foundation
 // MARK: - Manga
 struct Manga: Codable {
     let id: UUID
-    let type: String
+    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [Relationship]
     

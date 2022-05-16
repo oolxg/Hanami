@@ -21,7 +21,7 @@ class DeveloperPreview {
     
     let coverArtInfo: CoverArtInfo = CoverArtInfo(
         id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
-        type: "cover_art",
+        type: .coverArt,
         attributes: .init(
             description: "",
             volume: "1",
@@ -34,18 +34,19 @@ class DeveloperPreview {
         relationships: [
             .init(
                 id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
-                type: "manga"
+                type: .manga
             ),
             .init(
                 id: UUID(uuidString: "a8b6d978-9707-4f34-ad78-04c7378b383b")!,
-                type: "user"
+                type: .user
             ),
         ]
     )
     
     let manga: Manga = Manga(
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
-        type: "manga", attributes: .init(
+        type: .manga,
+        attributes: .init(
             title: LocalizedString(
                 en: "JoJo's Bizarre Adventure Part 6: Stone Ocean (Fan-Coloured)",
                 ru: nil,
@@ -81,7 +82,7 @@ class DeveloperPreview {
             tags: [
                 Tag(
                     id: UUID(),
-                    type: "tag",
+                    type: .tag,
                     attributes: .init(
                         name: [
                             "en": "action"
@@ -93,7 +94,7 @@ class DeveloperPreview {
                 ),
                 Tag(
                     id: UUID(),
-                    type: "tag",
+                    type: .tag,
                     attributes: .init(
                         name: [
                             "en": "Fan Colored"
@@ -112,19 +113,19 @@ class DeveloperPreview {
         relationships: [
             Relationship(
                 id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
-                type: "cover_art",
+                type: .coverArt,
                 related: nil,
                 attributes: nil
             ),
             Relationship(
                 id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
-                type: "author",
+                type: .author,
                 related: nil,
                 attributes: nil
             ),
             Relationship(
                 id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
-                type: "artist",
+                type: .artist,
                 related: nil,
                 attributes: nil
             )

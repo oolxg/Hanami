@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIError> {
-    let today = Calendar.current.startOfDay(for: Date())
+    let today = Calendar.current.startOfDay(for: Date(timeIntervalSinceNow: -86400))
     let fmt = DateFormatter()
     fmt.locale = Locale(identifier: "en_US_POSIX")
     fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
@@ -26,7 +26,7 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
         URLQueryItem(name: "contentRating[]", value: "suggestive"),
         URLQueryItem(name: "contentRating[]", value: "erotica"),
         URLQueryItem(name: "updatedAtSince", value: fmt.string(from: today)),
-        URLQueryItem(name: "order[latestUploadedChapter]", value: "desc")
+        URLQueryItem(name: "order[updatedAt]", value: "desc")
     ]
     
     guard let url = components.url else {

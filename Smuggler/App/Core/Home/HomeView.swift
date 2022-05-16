@@ -23,8 +23,6 @@ struct HomeView: View {
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
-                
-                
             }
             .navigationTitle("Smuggler")
         }
