@@ -17,7 +17,7 @@ struct MangaThumbnailView: View {
             VStack {
                 if let thumbnail = viewStore.thumbnail {
                     VStack(alignment: .center) {
-                        Text(viewStore.manga.attributes.title.en ?? "Name not found")
+                        Text(viewStore.manga.attributes.title.getAvailableName())
                         
                         NavigationLink(destination: MangaView(store: store.scope(state: \.mangaState, action: MangaThumbnailAction.mangaAction))) {
                             Image(uiImage: thumbnail)
@@ -25,7 +25,6 @@ struct MangaThumbnailView: View {
                                 .scaledToFit()
                                 .frame(width: 200, height: 200)
                         }
-                        
                     }
                 }
             }
@@ -47,11 +46,11 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                 reducer: mangaThumbnailReducer,
                 environment: .live(
                     environment: .init(
-                        loadThumbnailInfo: downloadThumbnailInfo,
-                        loadThumbnail: loadThumbnail
+                        loadThumbnailInfo: downloadThumbnailInfo
                     )
                 )
             )
         )
     }
 }
+

@@ -22,16 +22,3 @@ func downloadThumbnailInfo(coverID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
 }
-
-
-func loadThumbnail(url: URL?) -> Effect<UIImage?, APIError> {
-    guard let url = url else {
-        return .none
-    }
-    
-    return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
-        .retry(3)
-        .map { data, _ in UIImage(data: data) }
-        .eraseToEffect()
-}

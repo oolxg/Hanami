@@ -6,10 +6,10 @@
 //
 
 import ComposableArchitecture
-
+import SwiftUI
 
 @dynamicMemberLookup
-struct SystemEnvironment<Environment> {
+public struct SystemEnvironment<Environment> {
     var environment: Environment
     
     subscript<Dependency>(
@@ -21,6 +21,7 @@ struct SystemEnvironment<Environment> {
     
     var mainQueue: () -> AnySchedulerOf<DispatchQueue>
     var decoder: () -> JSONDecoder
+    var downloadImage: (URL?) -> Effect<UIImage, APIError>
     
     private static func decoder() -> JSONDecoder {
         let decoder = JSONDecoder()
@@ -36,11 +37,11 @@ struct SystemEnvironment<Environment> {
     }
     
     static func live(environment: Environment) -> Self {
-        Self(environment: environment, mainQueue: { .main }, decoder: decoder)
+        Self(environment: environment, mainQueue: { .main }, decoder: decoder, downloadImage: loadImage)
     }
     
     static func dev(environment: Environment) -> Self {
-        Self(environment: environment, mainQueue: { .main }, decoder: decoder)
+        Self(environment: environment, mainQueue: { .main }, decoder: decoder, downloadImage: loadImage)
     }
 }
 

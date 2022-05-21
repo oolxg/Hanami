@@ -33,3 +33,23 @@ extension LocalizedString {
 }
 
 extension LocalizedString: Equatable { }
+
+extension LocalizedString {
+    func getAvailableName() -> String {
+        if let en = en {
+            return en
+        } else if let jpRo = jpRo {
+            return jpRo
+        } else if let jp = jp {
+            return jp
+        } else if let ru = ru {
+            return ru
+        } else if let zhRo = zhRo {
+            return zhRo
+        } else if let zh = zh {
+            return zh
+        }
+        
+        return "No available name"
+    }
+}

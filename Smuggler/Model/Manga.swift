@@ -14,6 +14,10 @@ struct Manga: Codable {
     let attributes: Attributes
     let relationships: [Relationship]
     
+    var mangaFolderName: String {
+        id.uuidString.lowercased()
+    }
+    
     // MARK: - Attributes
     struct Attributes: Codable {
         let title: LocalizedString

@@ -49,25 +49,15 @@ func downloadPageInfoForChapter(chapterID: UUID, forcePort443: Bool) -> Effect<C
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)
-        .map { data, _ in data }
+//        .map { data, _ in data }
+        .map { data, response in
+            let resp = response as? HTTPURLResponse
+            
+            print("chapter", resp?.statusCode)
+            
+            return data
+        }
         .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
-}
-
-func downloadMangaPagesForChapter(chapterID: UUID, shouldSaveData: Bool) -> Effect<UIImage?, APIError> {
-//    var components = URLComponents()
-//    components.scheme = "https"
-//    components.host = "api.mangadex.org"
-//    components.path = "/chapter"
-//    components.queryItems = [
-//        URLQueryItem(name: "manga", value: "\(mangaID.uuidString.lowercased())"),
-//        URLQueryItem(name: "limit", value: "\(chaptersCount)"),
-//        URLQueryItem(name: "offset", value: "\(offset)")
-//    ]
-//
-//    guard let url = components.url else {
-//        fatalError("Error on creating URL")
-//    }
-    return .none
 }

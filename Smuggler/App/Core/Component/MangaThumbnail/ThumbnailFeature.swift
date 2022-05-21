@@ -12,10 +12,10 @@ import SwiftUI
 struct MangaThumbnailState: Equatable, Identifiable {
     init(manga: Manga, coverArtInfo: CoverArtInfo? = nil) {
         self.manga = manga
-        self.mangaState = MangaState(manga: manga)
+        self.mangaState = MangaViewState(manga: manga)
         self.coverArtInfo = coverArtInfo
     }
-    var mangaState: MangaState
+    var mangaState: MangaViewState
     var manga: Manga
     var coverArtInfo: CoverArtInfo?
     
@@ -37,38 +37,28 @@ struct MangaThumbnailState: Equatable, Identifiable {
 enum MangaThumbnailAction: Equatable {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
-    case thumbnailLoaded(Result<UIImage?, APIError>)
-    case mangaAction(MangaAction)
+    case thumbnailLoaded(Result<UIImage, APIError>)
+    case mangaAction(MangaViewAction)
 }
 
 struct MangaThumbnailEnvironment {
     var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError>
-    var loadThumbnail: (URL?) -> Effect<UIImage?, APIError>
 }
 
 let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, SystemEnvironment<MangaThumbnailEnvironment>>.combine(
-    mangaReducer.pullback(
+    mangaViewReducer.pullback(
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,
         environment: { _ in .live(
             environment: .init(
-                downloadChaptersInfo: downloadChaptersForManga,
-                downloadChapterPageInfo: downloadPageInfoForChapter
+                downloadChapters: downloadChaptersForManga,
+                downloadChapterPagesInfo: downloadPageInfoForChapter
             )
         ) }
     ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if let coverArtInfo = state.coverArtInfo,
-                   let image = LocalFileManager.shared.getImage(
-                    withName: coverArtInfo.attributes.fileName,
-                    from: state.manga.id.uuidString.lowercased()
-                   ) {
-                    state.thumbnail = image
-                    return .none
-                }
-                
                 guard let coverArtID = state.manga.relationships.filter({ $0.type == .coverArt }).first?.id else {
                     return .none
                 }
@@ -81,7 +71,17 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                     case .success(let response):
                         state.coverArtInfo = response.data
                         
-                        return env.loadThumbnail(state.thumbnailURL)
+                        // if we already loaded this thumbnail, we shouldn't load it one more time
+                        if let coverArtInfo = state.coverArtInfo,
+                           let image = ImageFileManager.shared.getImage(
+                            withName: coverArtInfo.attributes.fileName,
+                            from: state.manga.mangaFolderName
+                           ) {
+                            state.thumbnail = image
+                            return .none
+                        }
+                        
+                        return env.downloadImage(state.thumbnailURL)
                             .receive(on: env.mainQueue())
                             .catchToEffect(MangaThumbnailAction.thumbnailLoaded)
                     case .failure(let error):
@@ -92,8 +92,8 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                     case .success(let image):
                         state.thumbnail = image
                         
-                        if let image = image, let coverArtInfo = state.coverArtInfo {
-                            LocalFileManager.shared.saveImage(
+                        if let coverArtInfo = state.coverArtInfo {
+                            ImageFileManager.shared.saveImage(
                                 image: image,
                                 withName: coverArtInfo.attributes.fileName,
                                 inFolder: state.manga.id.uuidString.lowercased()

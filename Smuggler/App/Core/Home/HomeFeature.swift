@@ -30,8 +30,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             action: /HomeAction.mangaThumbnailActon,
             environment: { _ in .live(
                 environment: .init(
-                    loadThumbnailInfo: downloadThumbnailInfo,
-                    loadThumbnail: loadThumbnail
+                    loadThumbnailInfo: downloadThumbnailInfo
                 )
             ) }
         ),
