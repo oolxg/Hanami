@@ -17,7 +17,7 @@ struct MangaThumbnailView: View {
             VStack {
                 if let thumbnail = viewStore.thumbnail {
                     VStack(alignment: .center) {
-                        Text(viewStore.manga.attributes.title.getAvailableName())
+                        Text(viewStore.manga.attributes.title.availableLang)
                         
                         NavigationLink(destination: MangaView(store: store.scope(state: \.mangaState, action: MangaThumbnailAction.mangaAction))) {
                             Image(uiImage: thumbnail)

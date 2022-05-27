@@ -51,8 +51,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
         action: /MangaThumbnailAction.mangaAction,
         environment: { _ in .live(
             environment: .init(
-                downloadChapters: downloadChaptersForManga,
-                downloadChapterPagesInfo: downloadPageInfoForChapter
+                downloadMangaVolumes: downloadChaptersForManga
             )
         ) }
     ),

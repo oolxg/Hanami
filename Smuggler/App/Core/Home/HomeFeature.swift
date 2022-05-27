@@ -1,9 +1,9 @@
-    //
-    //  HomeFeature.swift
-    //  Smuggler
-    //
-    //  Created by mk.pwnz on 13/05/2022.
-    //
+//
+//  HomeFeature.swift
+//  Smuggler
+//
+//  Created by mk.pwnz on 13/05/2022.
+//
 
 import Foundation
 import ComposableArchitecture
@@ -15,6 +15,7 @@ struct HomeState: Equatable {
 
 enum HomeAction: Equatable {
     case onAppear
+    case refresh
     case dataLoaded(Result<Response<[Manga]>, APIError>)
     case mangaThumbnailActon(id: UUID, action: MangaThumbnailAction)
 }
@@ -31,7 +32,8 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             environment: { _ in .live(
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
-                )
+                ),
+                isMainQueueWithAnimation: true
             ) }
         ),
     Reducer { state, action, env in
@@ -39,6 +41,10 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             case .onAppear:
                 if !state.downloadedManga.isEmpty { return .none }
                 
+                return env.loadHomePage(env.decoder())
+                    .receive(on: env.mainQueue())
+                    .catchToEffect(HomeAction.dataLoaded)
+            case .refresh:
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(HomeAction.dataLoaded)

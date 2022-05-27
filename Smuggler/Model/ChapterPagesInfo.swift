@@ -28,3 +28,9 @@ struct ChapterPagesInfo: Codable {
 }
 
 extension ChapterPagesInfo: Equatable { }
+
+extension ChapterPagesInfo: Identifiable {
+    var id: String {
+        chapter.hash
+    }
+}

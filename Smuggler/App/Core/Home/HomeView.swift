@@ -23,6 +23,9 @@ struct HomeView: View {
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
+                .refreshable {
+                    viewStore.send(.refresh)
+                }
             }
             .navigationTitle("Smuggler")
         }

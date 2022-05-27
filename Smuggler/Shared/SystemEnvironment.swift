@@ -36,8 +36,13 @@ public struct SystemEnvironment<Environment> {
         return decoder
     }
     
-    static func live(environment: Environment) -> Self {
-        Self(environment: environment, mainQueue: { .main }, decoder: decoder, downloadImage: loadImage)
+    static func live(environment: Environment, isMainQueueWithAnimation: Bool = false, animationType: Animation = .easeInOut) -> Self {
+        Self(
+            environment: environment,
+            mainQueue: { isMainQueueWithAnimation ? .main.animation(animationType) : .main },
+            decoder: decoder,
+            downloadImage: loadImage
+        )
     }
     
     static func dev(environment: Environment) -> Self {

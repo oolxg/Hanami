@@ -13,6 +13,8 @@ struct Response<ResponseData>: Codable, Equatable where ResponseData: Equatable,
     let result: String
     let response: `Type`
     let data: ResponseData
+    let limit: Int?
+    let total: Int?
     
     enum `Type`: String, Codable {
         case collection, entity

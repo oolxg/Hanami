@@ -12,32 +12,26 @@ struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     
     @State var isExpanded = false
-
+    
     var body: some View {
         WithViewStore(store) { viewStore in
             ScrollView {
-                ForEach(viewStore.chaptersInfo.map(\.key).sorted(), id: \.self) { mangaChapterIndex in
-                    ExpandableList(title: "Chapter \(mangaChapterIndex.clean):",
-                                   items: viewStore.chaptersInfo[mangaChapterIndex]!) { chapterInfo in
-                        ForEach(viewStore.chapterPages[mangaChapterIndex]!, id: \.self) { image in
-                            if let image = image {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .frame(width: 100, height: 100)
-                                    .scaledToFit()
-                            }
-                        }
-                    }
+                ForEachStore(store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)) { volumeStore in
+                    VolumeTabView(store: volumeStore)
+                    
+                    Divider()
                 }
-                Text(viewStore.manga.attributes.title.getAvailableName())
-                Text(viewStore.chaptersInfo.count.description)
+                Text(viewStore.manga.id.uuidString.lowercased())
+                Text(viewStore.manga.attributes.title.availableLang)
             }
             .onAppear {
+                print(viewStore.manga.id.uuidString.lowercased())
                 viewStore.send(.onAppear)
             }
             .onDisappear {
                 viewStore.send(.onDisappear)
             }
+            .navigationTitle(viewStore.manga.title)
         }
     }
 }
@@ -52,8 +46,7 @@ struct MangaView_Previews: PreviewProvider {
                 reducer: mangaViewReducer,
                 environment: .live(
                     environment: .init(
-                        downloadChapters: downloadChaptersForManga,
-                        downloadChapterPagesInfo: downloadPageInfoForChapter
+                        downloadMangaVolumes: downloadChaptersForManga
                     )
                 )
             )

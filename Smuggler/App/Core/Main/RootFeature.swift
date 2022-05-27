@@ -32,7 +32,11 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
         .pullback(
             state: \.homeState,
             action: /AppAction.homeAction,
-            environment: { _ in .live(environment: .init(loadHomePage: downloadMangaList)) }
+            environment: { _ in .live(
+                environment: .init(
+                    loadHomePage: downloadMangaList
+                )
+            ) }
         ),
     Reducer { state, action, env in
         switch action {
