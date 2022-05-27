@@ -19,6 +19,15 @@ class DeveloperPreview {
     
     private init() { }
     
+    let volume: Volume = Volume(dummyInit: true)
+    
+    let chapter: Chapter = Chapter(
+        chapterIndex: 1.2,
+        count: 2,
+        id: UUID(),
+        others: [UUID(), UUID(), UUID()]
+    )
+    
     let coverArtInfo: CoverArtInfo = CoverArtInfo(
         id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
         type: .coverArt,
