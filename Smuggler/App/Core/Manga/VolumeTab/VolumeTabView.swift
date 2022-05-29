@@ -13,17 +13,15 @@ struct VolumeTabView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            // iterates over volumes just to group chapters
             DisclosureGroup {
                 ForEachStore(store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction)) { chapterState in
                     ChapterView(store: chapterState)
                 }
             } label: {
                 Text(viewStore.volume.volumeName)
-                    .font(.title3)
+                    .font(.title2)
                     .fontWeight(.heavy)
             }
-            
             .buttonStyle(PlainButtonStyle())
             .padding()
             .frame(maxWidth: .infinity)

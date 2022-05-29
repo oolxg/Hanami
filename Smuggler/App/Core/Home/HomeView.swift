@@ -15,7 +15,7 @@ struct HomeView: View {
         NavigationView {
             WithViewStore(store) { viewStore in
                 List {
-                    Text(viewStore.downloadedManga.count.description)
+                    Text(viewStore.mangaThumbnailStates.count.description)
                     ForEachStore(store.scope(state: \.mangaThumbnailStates, action: HomeAction.mangaThumbnailActon)) { thumbnailViewStore in
                         MangaThumbnailView(store: thumbnailViewStore)
                     }

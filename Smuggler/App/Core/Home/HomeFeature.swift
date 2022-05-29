@@ -9,7 +9,6 @@ import Foundation
 import ComposableArchitecture
 
 struct HomeState: Equatable {
-    var downloadedManga: IdentifiedArrayOf<Manga> = []
     var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
 }
 
@@ -39,7 +38,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if !state.downloadedManga.isEmpty { return .none }
+                if !state.mangaThumbnailStates.isEmpty { return .none }
                 
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
@@ -51,7 +50,6 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             case .dataLoaded(let result):
                 switch result {
                     case .success(let response):
-                        state.downloadedManga = .init(uniqueElements: response.data)
                         state.mangaThumbnailStates = .init(uniqueElements: response.data.map { MangaThumbnailState(manga: $0) })
                     case .failure(let error):
                         break

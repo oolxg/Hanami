@@ -93,10 +93,10 @@ class DeveloperPreview {
                     id: UUID(),
                     type: .tag,
                     attributes: .init(
-                        name: [
-                            "en": "action"
-                        ],
-                        group: "genre",
+                        name: .init(
+                            en: .action
+                        ),
+                        group: .genre,
                         version: 1
                     ),
                     relationships: nil
@@ -105,10 +105,10 @@ class DeveloperPreview {
                     id: UUID(),
                     type: .tag,
                     attributes: .init(
-                        name: [
-                            "en": "Fan Colored"
-                        ],
-                        group: "format",
+                        name: .init(
+                            en: .fanColored
+                        ),
+                        group: .format,
                         version: 1
                     ),
                     relationships: nil

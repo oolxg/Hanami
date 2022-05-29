@@ -16,13 +16,12 @@ struct MangaViewState: Equatable {
     let manga: Manga
     
     var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
-        // Manga ID - Volumes
-    var volumes: IdentifiedArrayOf<Volume> = []
 }
 
 enum MangaViewAction: Equatable {
     case onAppear
     case onDisappear
+    case onDisappearDelayCompleted
     case volumesDownloaded(Result<Volumes, APIError>)
     // UUID - for chapter ID, Int - chapter index in manga
     case volumeTabAction(UUID, VolumeTabAction)
@@ -45,25 +44,32 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
         ) }
     ),
     Reducer { state, action, env in
-        struct CancelPagesLoading: Hashable { }
+        // this struct is to delete cached info about manga
+        struct CancelClearCache: Hashable { let mangaID: UUID }
         
         switch action {
             case .onAppear:
-                if !state.volumes.isEmpty {
-                    return .none
+                if !state.volumeTabStates.isEmpty {
+                    return .cancel(id: CancelClearCache(mangaID: state.manga.id))
                 }
                 
                 return env.downloadMangaVolumes(state.manga.id, env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(MangaViewAction.volumesDownloaded)
             case .onDisappear:
-                return .cancel(id: CancelPagesLoading())
+                // Runs a delay(60 sec.) when user leave MangaView, after that all downloaded data will be deleted to save RAM
+                // Can be cancelled if user returns wihing 60 sec.
+                return Effect(value: MangaViewAction.onDisappearDelayCompleted)
+                    .delay(for: .seconds(60), scheduler: env.mainQueue())
+                    .eraseToEffect()
+                    .cancellable(id: CancelClearCache(mangaID: state.manga.id))
+            case .onDisappearDelayCompleted:
+                state.volumeTabStates = []
+                return .none
             case .volumesDownloaded(let result):
                 switch result {
                     case .success(let response):
-                        // all chapter IDs are loaded, we can send request to @Home to get hashes
-                        state.volumes = .init(uniqueElements: response.volumes)
-                        for volume in state.volumes {
+                        for volume in response.volumes {
                             state.volumeTabStates = .init(uniqueElements: response.volumes.map( { VolumeTabState(volume: $0) }))
                         }
                         

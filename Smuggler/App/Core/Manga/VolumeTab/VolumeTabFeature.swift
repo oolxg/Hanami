@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct VolumeTabState: Equatable {
     init(volume: Volume) {
         self.volume = volume
-        // чет какая то хуйня тут 
         chapterStates = .init(uniqueElements: volume.chapters.map { ChapterState(chapter: $0) })
     }
     

@@ -10,9 +10,10 @@ import ComposableArchitecture
 
 struct AppState: Equatable {
     var homeState = HomeState()
+    var searchState = SearchState()
     
     enum Tab: Equatable {
-        case home
+        case home, search
     }
     
     var selectedTab: Tab
@@ -21,6 +22,7 @@ struct AppState: Equatable {
 enum AppAction: Equatable {
     case tabChanged(AppState.Tab)
     case homeAction(HomeAction)
+    case searchAction(SearchAction)
 }
 
 struct AppEnvironment {
@@ -38,12 +40,28 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
                 )
             ) }
         ),
+    searchReducer
+        .pullback(
+            state: \.searchState,
+            action: /AppAction.searchAction,
+            environment: { _ in
+                    .live(
+                        environment: .init(
+                            searchManga: makeMangaSearchRequest,
+                            getListOfTags: downloadTagsList
+                        ),
+                        isMainQueueWithAnimation: true
+                    )
+            }
+        ),
     Reducer { state, action, env in
         switch action {
             case .tabChanged(let newTab):
                 state.selectedTab = newTab
                 return .none
             case .homeAction(_):
+                return .none
+            case .searchAction(_):
                 return .none
         }
     }

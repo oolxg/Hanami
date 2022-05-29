@@ -21,9 +21,16 @@ struct RootView: View {
                     }
                     .tag(AppState.Tab.home)
                 
-                
+                SearchView(store: store.scope(state: \.searchState, action: AppAction.searchAction))
+                    .tabItem {
+                        Image(systemName: "magnifyingglass")
+                        Text("Search")
+                    }
+                    .tag(AppState.Tab.search)
             }
-            .accentColor(.gray)
+            .accentColor(.theme.accent)
+            .navigationViewStyle(StackNavigationViewStyle())
+ 
         }
     }
 }

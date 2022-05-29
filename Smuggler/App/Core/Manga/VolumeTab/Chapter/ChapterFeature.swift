@@ -48,7 +48,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 return .none
             }
             
-            // TODO: забахать сюда еще реквесты для chapterDeitals
             var effects: [Effect<ChapterAction, Never>] = []
             
             // need this var because state is 'inout'

@@ -10,6 +10,12 @@ import ComposableArchitecture
 
 @main
 struct SmugglerApp: App {
+    
+    init() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
+    }
+    
     var body: some Scene {
         WindowGroup {
             RootView(
