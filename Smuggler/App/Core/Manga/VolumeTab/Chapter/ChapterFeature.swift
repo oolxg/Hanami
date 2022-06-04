@@ -28,7 +28,7 @@ struct ChapterState: Equatable, Identifiable {
     }
 }
 
-enum ChapterAction: Equatable {
+enum ChapterAction {
     case listIsExpanded
     // UUID - chapter ID
     case mangaPageInfoDownloaded(result: Result<ChapterPagesInfo, APIError>, chapterID: UUID)
@@ -63,7 +63,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             ])
             
             
-            // make it optional
             for otherChapterID in state.chapter.others {
                 effects.append(contentsOf: [
                     env.downloadPagesInfo(otherChapterID)

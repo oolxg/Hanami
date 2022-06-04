@@ -16,8 +16,6 @@ struct VolumeTabState: Equatable {
     
     let volume: Volume
     var chapterStates: IdentifiedArrayOf<ChapterState> = []
-    
-    var chapters: [ChapterDetails] = []
 }
 
 extension VolumeTabState: Identifiable {
@@ -26,7 +24,7 @@ extension VolumeTabState: Identifiable {
     }
 }
 
-enum VolumeTabAction: Equatable {
+enum VolumeTabAction {
     case onTapGesture
     case chapterAction(id: UUID, action: ChapterAction)
 }

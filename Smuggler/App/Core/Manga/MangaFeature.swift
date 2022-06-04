@@ -18,7 +18,7 @@ struct MangaViewState: Equatable {
     var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
 }
 
-enum MangaViewAction: Equatable {
+enum MangaViewAction {
     case onAppear
     case onDisappear
     case onDisappearDelayCompleted

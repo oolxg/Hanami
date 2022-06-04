@@ -126,3 +126,11 @@ extension Tag: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension Tag: Identifiable { }
+
+extension Tag {
+    var name: String {
+        attributes.name.en.rawValue
+    }
+}

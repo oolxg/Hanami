@@ -19,7 +19,7 @@ struct AppState: Equatable {
     var selectedTab: Tab
 }
 
-enum AppAction: Equatable {
+enum AppAction {
     case tabChanged(AppState.Tab)
     case homeAction(HomeAction)
     case searchAction(SearchAction)
@@ -47,8 +47,7 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
             environment: { _ in
                     .live(
                         environment: .init(
-                            searchManga: makeMangaSearchRequest,
-                            getListOfTags: downloadTagsList
+                            searchManga: makeMangaSearchRequest
                         ),
                         isMainQueueWithAnimation: true
                     )

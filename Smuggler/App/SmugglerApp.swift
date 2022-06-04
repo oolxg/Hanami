@@ -14,6 +14,7 @@ struct SmugglerApp: App {
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
+        UINavigationBar.appearance().tintColor = UIColor(Color.theme.accent)
     }
     
     var body: some Scene {

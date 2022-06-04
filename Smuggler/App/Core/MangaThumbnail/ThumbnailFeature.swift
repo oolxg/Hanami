@@ -33,7 +33,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
     }
 }
 
-enum MangaThumbnailAction: Equatable {
+enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
     case thumbnailLoaded(Result<UIImage, APIError>)

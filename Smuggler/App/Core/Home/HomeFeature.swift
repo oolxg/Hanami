@@ -12,7 +12,7 @@ struct HomeState: Equatable {
     var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
 }
 
-enum HomeAction: Equatable {
+enum HomeAction {
     case onAppear
     case refresh
     case dataLoaded(Result<Response<[Manga]>, APIError>)

@@ -30,7 +30,6 @@ struct RootView: View {
             }
             .accentColor(.theme.accent)
             .navigationViewStyle(StackNavigationViewStyle())
- 
         }
     }
 }
