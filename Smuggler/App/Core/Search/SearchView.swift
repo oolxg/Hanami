@@ -17,7 +17,12 @@ struct SearchView: View {
             WithViewStore(store) { viewStore in
                 VStack {
                     HStack {
-                        SearchBarView(searchText: viewStore.binding(get: \.searchText, send: SearchAction.searchStringChanged))
+                        SearchBarView(
+                            searchText: viewStore.binding(
+                                get: \.searchText,
+                                send: SearchAction.searchStringChanged
+                            )
+                        )
                         
                         filtersButton
                     }
@@ -78,16 +83,21 @@ extension SearchView {
     }
     
     private var filtersButton: some View {
-        CircleButtonView(iconName: "slider.horizontal.3") {
-            showFilters.toggle()
-        }
-        .padding(.trailing)
-        .padding(.vertical)
-        .sheet(isPresented: $showFilters) {
-            FiltersView(store: store.scope(
-                state: \.filtersState,
-                action: SearchAction.filterAction)
-            )
+        WithViewStore(store) { viewStore in
+            CircleButtonView(iconName: "slider.horizontal.3") {
+                showFilters.toggle()
+                UIApplication.shared.endEditing()
+            }
+            .padding(.trailing)
+            .padding(.vertical)
+            .sheetWithDetents(isPresented: $showFilters, detents: [.medium(), .large()], onDismiss: {
+                viewStore.send(.searchForManga)
+            }) {
+                FiltersView(store: store.scope(
+                    state: \.filtersState,
+                    action: SearchAction.filterAction)
+                )
+            }
         }
     }
 }

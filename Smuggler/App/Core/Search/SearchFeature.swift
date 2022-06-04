@@ -20,11 +20,26 @@ struct SearchState: Equatable {
         isSearchResultsDownloaded && !searchText.isEmpty && mangaThumbnailStates.isEmpty
     }
     
-    
     @BindableState var searchSortOption: QuerySortOption = .relevance
     @BindableState var searchSortOptionOrder: QuerySortOption.Order = .desc
     
     var searchText: String = ""
+    
+    // need this struct because of two things
+    // 1) pass in search function one object, not bunch of arrays, string, enums, etc.
+    // 2) to check, when going to make request, if the last request was with the same params,
+    //      if yes - we don't need to make another request
+    struct RequestParams: Equatable {
+        let searchQuery: String
+        let tags: IdentifiedArrayOf<FilterTag>
+        let publicationDemographic: IdentifiedArrayOf<FilterPublicationDemographic>
+        let contentRatings: IdentifiedArrayOf<FilterContentRatings>
+        let mangaStatuses: IdentifiedArrayOf<FilterMangaStatus>
+        let sortOption: QuerySortOption
+        let sortOptionOrder : QuerySortOption.Order
+    }
+
+    var lastRequestParams: RequestParams? = nil
 }
 
 enum SearchAction: BindableAction {
@@ -40,14 +55,7 @@ enum SearchAction: BindableAction {
 }
 
 struct SearchEnvironment {
-    var searchManga: (String, // user's search query
-                      IdentifiedArrayOf<FilterTag>,
-                      IdentifiedArrayOf<FilterPublicationDemographic>,
-                      IdentifiedArrayOf<FilterContentRatings>,
-                      IdentifiedArrayOf<FilterMangaStatus>,
-                      QuerySortOption,
-                      QuerySortOption.Order,
-                      JSONDecoder) -> Effect<Response<[Manga]>, APIError>
+    var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, APIError>
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEnvironment>> = .combine(
@@ -91,16 +99,23 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                     return .none
                 }
                 
-                return env.searchManga(
-                    state.searchText,
-                    state.filtersState.allTags,
-                    state.filtersState.publicationDemographics,
-                    state.filtersState.contentRatings,
-                    state.filtersState.mangaStatuses,
-                    state.searchSortOption,
-                    state.searchSortOptionOrder,
-                    env.decoder()
+                let requestParams = SearchState.RequestParams(
+                    searchQuery: state.searchText,
+                    tags: state.filtersState.allTags.filter { $0.state != .notSelected },
+                    publicationDemographic: state.filtersState.publicationDemographics.filter { $0.state != .notSelected },
+                    contentRatings: state.filtersState.contentRatings.filter { $0.state != .notSelected },
+                    mangaStatuses: state.filtersState.mangaStatuses.filter { $0.state != .notSelected },
+                    sortOption: state.searchSortOption,
+                    sortOptionOrder: state.searchSortOptionOrder
                 )
+                
+                guard requestParams != state.lastRequestParams else {
+                    return .none
+                }
+                
+                state.lastRequestParams = requestParams
+                
+                return env.searchManga(requestParams, env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(SearchAction.searchResultDownloaded)
                 
@@ -116,7 +131,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 }
                 
             case .binding:
-                return .none
+                return Effect(value: SearchAction.searchForManga)
                 
             case .filterAction(_):
                 return .none

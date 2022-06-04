@@ -103,7 +103,6 @@ let filterReducer = Reducer<FiltersState, FiltersAction, SystemEnvironment<Filte
             for tagID in state.contentRatings.map(\.id) {
                 state.contentRatings[id: tagID]!.state = .notSelected
             }
-            
             return .none
             
         case .mangaStatusButtonTapped(let tag):

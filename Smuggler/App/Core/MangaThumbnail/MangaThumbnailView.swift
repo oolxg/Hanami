@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct MangaThumbnailView: View {
     let store: Store<MangaThumbnailState, MangaThumbnailAction>
     
-    
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack {

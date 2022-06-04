@@ -16,14 +16,9 @@ struct FiltersView: View {
         WithViewStore(store) { viewStore in
             NavigationView {
                 ScrollView(showsIndicators: false) {
+                    filtersList
+
                     optionsList
-                    
-                    VStack(alignment: .leading) {
-                        makeTitle("Other filters")
-                        
-                        filtersList
-                            .padding(.top, 10)
-                    }
                 }
                 .navigationTitle("Filters")
                 .toolbar {
@@ -75,8 +70,6 @@ extension FiltersView {
                                     .stroke(Color.white, lineWidth: 1)
                             )
                     }
-                } else {
-                    Color.clear
                 }
             }
         }
@@ -84,28 +77,6 @@ extension FiltersView {
     
     private var optionsList: some View {
         WithViewStore(store) { viewStore in
-            VStack(alignment: .leading) {
-                makeTitle("Demographic")
-                
-                GridChipsView(viewStore.publicationDemographics) { demographic in
-                    chipsViewFor(demographic)
-                        .onTapGesture {
-                            viewStore.send(.publicationDemogrphicButtonTapped(demographic))
-                        }
-                }
-                // it's a little hack
-                // GridChipsView is fucking hard to frame
-                // if tag has state '.selected' or '.banned', its width will be bigger
-                // so we need to adjust more height for this view
-                .frame(height: viewStore.publicationDemographics
-                    .filter { $0.state != .notSelected }.count > 0 ? 100 : 60)
-                .padding(5)
-            }
-            
-            Rectangle()
-                .frame(height: 3)
-                .foregroundColor(.theme.darkGrey)
-            
             VStack(alignment: .leading) {
                 makeTitle("Status")
                 
@@ -141,6 +112,28 @@ extension FiltersView {
                 .foregroundColor(.theme.darkGrey)
             
             VStack(alignment: .leading) {
+                makeTitle("Demographic")
+                
+                GridChipsView(viewStore.publicationDemographics) { demographic in
+                    chipsViewFor(demographic)
+                        .onTapGesture {
+                            viewStore.send(.publicationDemogrphicButtonTapped(demographic))
+                        }
+                }
+                    // it's a little hack
+                    // GridChipsView is fucking hard to frame
+                    // if tag has state '.selected' or '.banned', its width will be bigger
+                    // so we need to adjust more height for this view
+                .frame(height: viewStore.publicationDemographics
+                    .filter { $0.state != .notSelected }.count > 0 ? 100 : 60)
+                .padding(5)
+            }
+            
+            Rectangle()
+                .frame(height: 3)
+                .foregroundColor(.theme.darkGrey)
+            
+            VStack(alignment: .leading) {
                 makeTitle("Content")
                 
                 makeFiltersViewFor(\.contentTypes)
@@ -158,6 +151,7 @@ extension FiltersView {
         WithViewStore(store) { viewStore in
             NavigationLink {
                 makeFiltersViewFor(\.formatTypes, navTitle: "Format")
+                    .padding()
             } label: {
                 makeLabelForTagNavLink(title: "Format", \.formatTypes)
             }
@@ -168,11 +162,12 @@ extension FiltersView {
             NavigationLink {
                 ScrollView(showsIndicators: false) {
                     makeFiltersViewFor(\.themeTypes, navTitle: "Themes")
+                        .padding()
                     // this fucked up hack is to get normal height of the view
                     // just skip it, this works somehow...
                         .frame(
                             height: UIScreen.main.bounds.height * (
-                                0.8 + CGFloat(viewStore.themeTypes.filter { $0.state != .notSelected}.count) * 0.007
+                                0.9 + CGFloat(viewStore.themeTypes.filter { $0.state != .notSelected}.count) * 0.005
                             )
                         )
                 }
@@ -185,6 +180,7 @@ extension FiltersView {
             
             NavigationLink {
                 makeFiltersViewFor(\.genres, navTitle: "Genres")
+                    .padding()
             } label: {
                 makeLabelForTagNavLink(title: "Genres", \.genres)
             }

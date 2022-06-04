@@ -26,7 +26,8 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
         URLQueryItem(name: "contentRating[]", value: "suggestive"),
         URLQueryItem(name: "contentRating[]", value: "erotica"),
         URLQueryItem(name: "updatedAtSince", value: fmt.string(from: today)),
-        URLQueryItem(name: "order[updatedAt]", value: "desc")
+        URLQueryItem(name: "order[latestUploadedChapter]", value: "desc"),
+        URLQueryItem(name: "order[relevance]", value: "desc")
     ]
     
     guard let url = components.url else {
