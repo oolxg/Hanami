@@ -10,22 +10,17 @@ import ComposableArchitecture
 
 struct MangaThumbnailView: View {
     let store: Store<MangaThumbnailState, MangaThumbnailAction>
+    @State private var isNavigationLinkActive: Bool = false
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            VStack {
-                if let thumbnail = viewStore.thumbnail {
-                    VStack(alignment: .center) {
-                        Text(viewStore.manga.attributes.title.availableLang)
-                        
-                        NavigationLink(destination: MangaView(store: store.scope(state: \.mangaState, action: MangaThumbnailAction.mangaAction))) {
-                            Image(uiImage: thumbnail)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 200, height: 200)
-                        }
+            VStack(alignment: .center) {
+                Text(viewStore.manga.title)
+                    .transaction { transaction in
+                        transaction.animation = nil
                     }
-                }
+
+                    navigationLink
             }
             .onAppear {
                 viewStore.send(.onAppear)
@@ -52,3 +47,45 @@ struct MangaThumbnailView_Previews: PreviewProvider {
     }
 }
 
+extension MangaThumbnailView {
+    // all the stuff here is to make NavigationLink 'lazy'
+    private var navigationLink: some View {
+        WithViewStore(store) { viewStore in
+            if let thumbnail = viewStore.thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+                    .transaction { transaction in
+                        transaction.animation = nil
+                    }
+                    .background(
+                        NavigationLink(
+                            isActive: $isNavigationLinkActive,
+                            destination: { navigationLinkDestination },
+                            label: { EmptyView() }
+                        )
+                    )
+                    .onTapGesture {
+                        isNavigationLinkActive.toggle()
+                    }
+            }
+        }
+    }
+    
+    // this scope seems to eat a lot of recources 
+    private var navigationLinkDestination: some View {
+        ZStack {
+            if isNavigationLinkActive {
+                LazyView(
+                    MangaView(
+                        store: store.scope(
+                            state: \.mangaState,
+                            action: MangaThumbnailAction.mangaAction
+                        )
+                    )
+                )
+            }
+        }
+    }
+}
