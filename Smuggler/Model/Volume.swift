@@ -89,20 +89,24 @@ struct Volumes: Codable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-        var temp = [Volume]()
+        var temp: [Volume] = []
         
-        for key in container.allKeys {
-            if key.stringValue == "volumes" {
-                do {
-                    let decodedVolumes = try container.decode([String: Volume].self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
-                    temp = decodedVolumes.map(\.value)
-                } catch DecodingError.typeMismatch {
-                    temp = try container.decode([Volume].self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
-                }
+        for key in container.allKeys where key.stringValue == "volumes" {
+            do {
+                let decodedVolumes = try container.decode(
+                    [String: Volume].self,
+                    forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
+                )
+                temp = decodedVolumes.map(\.value)
+            } catch DecodingError.typeMismatch {
+                temp = try container.decode(
+                    [Volume].self,
+                    forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
+                )
             }
         }
         
-        volumes = temp.sorted(by: { ($0.volumeIndex ?? -1) > ($1.volumeIndex ?? -1) })
+        volumes = temp.sorted { ($0.volumeIndex ?? -1) > ($1.volumeIndex ?? -1) }
     }
     
     private struct DynamicCodingKeys: CodingKey {
@@ -124,22 +128,28 @@ struct Volume: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
         
-        var tempDecodedChapters = [Chapter]()
+        var tempDecodedChapters: [Chapter] = []
         var tempCount = 0
         var tempVolume: String = "none"
         
         for key in container.allKeys {
             if key.stringValue == "chapters" {
-                let decodedChapters = try container.decode([String: Chapter].self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
+                let decodedChapters = try container.decode(
+                    [String: Chapter].self,
+                    // swiftlint:disable:next force_unwrapping
+                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
+                )
                 tempDecodedChapters = decodedChapters.map(\.value)
             } else if key.stringValue == "count" {
+                // swiftlint:disable:next force_unwrapping
                 tempCount = try container.decode(Int.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
-            }  else if key.stringValue == "volume" {
+            } else if key.stringValue == "volume" {
+                // swiftlint:disable:next force_unwrapping
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
         id = UUID()
-        chapters = tempDecodedChapters.sorted(by: { ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1) })
+        chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1) }
         count = tempCount
         volumeIndex = Double(tempVolume)
     }
@@ -150,11 +160,10 @@ struct Volume: Codable {
         var intValue: Int?
         init?(intValue: Int) { return nil }
     }
-    
 }
 
 extension Volume: Equatable {
-    static func ==(lhs: Volume, rhs: Volume) -> Bool {
+    static func == (lhs: Volume, rhs: Volume) -> Bool {
         lhs.chapters == rhs.chapters
     }
 }
@@ -175,13 +184,14 @@ extension Volume {
 }
 
 extension Volumes: Equatable {
-    static func ==(lhs: Volumes, rhs: Volumes) -> Bool {
+    static func == (lhs: Volumes, rhs: Volumes) -> Bool {
         lhs.volumes == rhs.volumes
     }
 }
 
 extension Volume {
     var volumeName: String {
+        // swiftlint:disable:next force_unwrapping
         volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean)"
     }
 }

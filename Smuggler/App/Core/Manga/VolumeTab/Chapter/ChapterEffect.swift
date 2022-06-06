@@ -30,7 +30,6 @@ func downloadPageInfoForChapter(chapterID: UUID) -> Effect<ChapterPagesInfo, API
         .eraseToEffect()
 }
 
-
 // Example for URL https://api.mangadex.org/chapter/a33906f0-1928-4758-b6fc-f7f079e2dee2
 func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Response<ChapterDetails>, APIError> {
     var components = URLComponents()

@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+// swiftlint:disable identifier_name
 struct LocalizedString: Codable {
     var en, fr, ru, jp, jpRo, zh, zhRo, es, esLa: String?
     
@@ -48,7 +48,7 @@ extension LocalizedString {
             return es
         } else if let esLa = esLa {
             return esLa
-        }  else if let jpRo = jpRo {
+        } else if let jpRo = jpRo {
             return jpRo
         } else if let jp = jp {
             return jp
@@ -66,9 +66,9 @@ extension LocalizedString {
     var languageFlag: String {
         if en != nil {
             return "🇬🇧"
-        }  else if fr != nil {
+        } else if fr != nil {
             return "🇫🇷"
-        }  else if es != nil || esLa != nil {
+        } else if es != nil || esLa != nil {
             return "🇪🇸"
         } else if jpRo != nil || jp != nil {
             return "🇯🇵"
@@ -81,3 +81,4 @@ extension LocalizedString {
         return "❓"
     }
 }
+// swiftlint:enable identifier_name

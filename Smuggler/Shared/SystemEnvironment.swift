@@ -39,7 +39,10 @@ public struct SystemEnvironment<Environment> {
     static func live(environment: Environment, isMainQueueWithAnimation: Bool = false, animationType: Animation = .easeInOut) -> Self {
         Self(
             environment: environment,
-            mainQueue: { isMainQueueWithAnimation ? .main.animation(animationType) : .main },
+            mainQueue: { isMainQueueWithAnimation ?
+                .main.animation(animationType).transaction(.init(animation: animationType)) :
+                .main
+            },
             decoder: decoder,
             downloadImage: loadImage
         )
@@ -49,4 +52,3 @@ public struct SystemEnvironment<Environment> {
         Self(environment: environment, mainQueue: { .main }, decoder: decoder, downloadImage: loadImage)
     }
 }
-

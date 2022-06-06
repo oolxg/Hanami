@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 extension RangeReplaceableCollection {
     public mutating func resize(_ size: Int, fillWith value: Iterator.Element) {
         if count < size {

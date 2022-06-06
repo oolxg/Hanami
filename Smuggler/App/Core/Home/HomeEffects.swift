@@ -13,7 +13,7 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
     let fmt = DateFormatter()
     fmt.locale = Locale(identifier: "en_US_POSIX")
     fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-    
+
     var components = URLComponents()
     components.scheme = "https"
     components.host = "api.mangadex.org"
@@ -29,11 +29,11 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
         URLQueryItem(name: "order[latestUploadedChapter]", value: "desc"),
         URLQueryItem(name: "order[relevance]", value: "desc")
     ]
-    
+
     guard let url = components.url else {
         fatalError("Error on creating URL")
     }
-    
+
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)

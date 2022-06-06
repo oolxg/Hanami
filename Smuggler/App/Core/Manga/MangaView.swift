@@ -11,13 +11,16 @@ import ComposableArchitecture
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     
-    @State var isExpanded = false
-    
     var body: some View {
         WithViewStore(store) { viewStore in
             ZStack {
                 ScrollView {
-                    ForEachStore(store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)) { volumeStore in
+                    ForEachStore(
+                        store.scope(
+                            state: \.volumeTabStates,
+                            action: MangaViewAction.volumeTabAction
+                        )
+                    ) { volumeStore in
                         VolumeTabView(store: volumeStore)
                         
                         Divider()
@@ -29,9 +32,6 @@ struct MangaView: View {
             .navigationTitle(viewStore.manga.title)
             .onAppear {
                 viewStore.send(.onAppear)
-            }
-            .onDisappear {
-                viewStore.send(.onDisappear)
             }
         }
     }

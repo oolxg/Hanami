@@ -20,65 +20,51 @@ struct MangaViewState: Equatable {
 
 enum MangaViewAction {
     case onAppear
-    case onDisappear
-    case onDisappearDelayCompleted
     case volumesDownloaded(Result<Volumes, APIError>)
     // UUID - for chapter ID, Int - chapter index in manga
     case volumeTabAction(UUID, VolumeTabAction)
 }
 
 struct MangaViewEnvironment {
-        // Arguments for downloadChapters - (mangaID: UUID, decoder: JSONDecoder)
-    var downloadMangaVolumes: (UUID, JSONDecoder) -> Effect<Volumes, APIError>
+    var downloadMangaVolumes: (_ mangaID: UUID, _ decoder: JSONDecoder) -> Effect<Volumes, APIError>
 }
 
-
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment<MangaViewEnvironment>> = .combine(
+    // swiftlint:disable:next trailing_closure
     volumeTabReducer.forEach(
         state: \.volumeTabStates,
         action: /MangaViewAction.volumeTabAction,
-        environment:  { _ in .live(
-            environment: .init(
+        environment: { _ in .live(
+                environment: .init(
             ),
             isMainQueueWithAnimation: true
         ) }
     ),
     Reducer { state, action, env in
-        // this struct is to delete cached info about manga
-        struct CancelClearCache: Hashable { let mangaID: UUID }
-        
         switch action {
             case .onAppear:
                 if !state.volumeTabStates.isEmpty {
-                    return .cancel(id: CancelClearCache(mangaID: state.manga.id))
+                    return .cancel(id: CancelClearCacheForManga(mangaID: state.manga.id))
                 }
                 
                 return env.downloadMangaVolumes(state.manga.id, env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(MangaViewAction.volumesDownloaded)
-            case .onDisappear:
-                // Runs a delay(60 sec.) when user leave MangaView, after that all downloaded data will be deleted to save RAM
-                // Can be cancelled if user returns wihing 60 sec.
-                return Effect(value: MangaViewAction.onDisappearDelayCompleted)
-                    .delay(for: .seconds(60), scheduler: env.mainQueue())
-                    .eraseToEffect()
-                    .cancellable(id: CancelClearCache(mangaID: state.manga.id))
-            case .onDisappearDelayCompleted:
-                state.volumeTabStates = []
-                return .none
+
             case .volumesDownloaded(let result):
                 switch result {
                     case .success(let response):
-                        for volume in response.volumes {
-                            state.volumeTabStates = .init(uniqueElements: response.volumes.map( { VolumeTabState(volume: $0) }))
-                        }
-                        
+                        state.volumeTabStates = .init(
+                            uniqueElements: response.volumes.map { VolumeTabState(volume: $0) }
+                        )
                         return .none
+                        
                     case .failure(let error):
                         print("error on chaptersDownloaded, \(error)")
                         return .none
                 }
-            case .volumeTabAction(_, _):
+                
+            case .volumeTabAction:
                 return .none
         }
     }

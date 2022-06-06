@@ -8,7 +8,6 @@
 import Foundation
 import ComposableArchitecture
 
-
 func downloadTagsList() -> Effect<Response<[Tag]>, APIError> {
     guard let url = URL(string: "https://api.mangadex.org/manga/tag") else {
         fatalError("Error on creating URL")

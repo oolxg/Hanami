@@ -24,6 +24,7 @@ struct HomeEnvironment {
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironment>>.combine(
+    // swiftlint:disable:next trailing_closure
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
@@ -32,7 +33,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
                 ),
-                isMainQueueWithAnimation: true
+                isMainQueueWithAnimation: false
             ) }
         ),
     Reducer { state, action, env in
@@ -43,20 +44,25 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(HomeAction.dataLoaded)
+                
             case .refresh:
+                state.mangaThumbnailStates = []
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(HomeAction.dataLoaded)
+                
             case .dataLoaded(let result):
                 switch result {
                     case .success(let response):
-                        state.mangaThumbnailStates = .init(uniqueElements: response.data.map { MangaThumbnailState(manga: $0) })
+                        state.mangaThumbnailStates = .init(
+                            uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
+                        )
                     case .failure(let error):
-                        break
+                        print("error on downloading home page: \(error)")
                 }
                 return .none
                 
-            case .mangaThumbnailActon(_, _):
+            case .mangaThumbnailActon:
                 return .none
         }
     }

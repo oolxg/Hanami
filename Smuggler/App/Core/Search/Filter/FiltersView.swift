@@ -8,7 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-
 struct FiltersView: View {
     let store: Store<FiltersState, FiltersAction>
     
@@ -21,11 +20,7 @@ struct FiltersView: View {
                     optionsList
                 }
                 .navigationTitle("Filters")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        resetFiltersButton
-                    }
-                }
+                .toolbar(content: toolbar)
             }
             .onAppear {
                 viewStore.send(.onAppear)
@@ -34,7 +29,6 @@ struct FiltersView: View {
         }
     }
 }
-
 
 struct FiltersView_Previews: PreviewProvider {
     static var previews: some View {
@@ -52,11 +46,10 @@ struct FiltersView_Previews: PreviewProvider {
     }
 }
 
-
 extension FiltersView {
-    private var resetFiltersButton: some View {
-        WithViewStore(store) { viewStore in
-            ZStack {
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            WithViewStore(store) { viewStore in
                 if viewStore.isAnyFilterApplied {
                     Button {
                         viewStore.send(.resetFilters)
@@ -120,12 +113,12 @@ extension FiltersView {
                             viewStore.send(.publicationDemogrphicButtonTapped(demographic))
                         }
                 }
-                    // it's a little hack
-                    // GridChipsView is fucking hard to frame
-                    // if tag has state '.selected' or '.banned', its width will be bigger
-                    // so we need to adjust more height for this view
+                // it's a little hack
+                // GridChipsView is fucking hard to frame
+                // if tag has state '.selected' or '.banned', its width will be bigger
+                // so we need to adjust more height for this view
                 .frame(height: viewStore.publicationDemographics
-                    .filter { $0.state != .notSelected }.count > 0 ? 100 : 60)
+                    .filter { $0.state != .notSelected }.isEmpty ? 100 : 60)
                 .padding(5)
             }
             
@@ -167,7 +160,7 @@ extension FiltersView {
                     // just skip it, this works somehow...
                         .frame(
                             height: UIScreen.main.bounds.height * (
-                                0.9 + CGFloat(viewStore.themeTypes.filter { $0.state != .notSelected}.count) * 0.005
+                                0.9 + CGFloat(viewStore.themeTypes.filter { $0.state != .notSelected }.count) * 0.005
                             )
                         )
                 }
@@ -203,7 +196,6 @@ extension FiltersView {
         title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>
     ) -> some View {
         WithViewStore(store) { viewStore in
-            
             HStack {
                 Text(title)
                     .foregroundColor(.white)
@@ -211,7 +203,7 @@ extension FiltersView {
                 
                 Spacer()
                 
-                if viewStore.state[keyPath: path].filter { $0.state == .notSelected }.count != viewStore.state[keyPath: path].count {
+                if viewStore.isAnyFilterApplied {
                     Circle()
                         .frame(width: 10, height: 10)
                         .foregroundColor(.theme.red)
@@ -234,6 +226,7 @@ extension FiltersView {
         ZStack {
             if navTitle != nil {
                 Color.clear
+                // swiftlint:disable:next force_unwrapping
                     .navigationTitle(navTitle!)
             }
             
@@ -253,7 +246,6 @@ extension FiltersView {
             if filterTag.state == .selected {
                 Image(systemName: "plus")
                     .font(.callout)
-                
             } else if filterTag.state == .banned {
                 Image(systemName: "minus")
                     .font(.callout)

@@ -62,7 +62,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
             ])
             
-            
             for otherChapterID in state.chapter.others {
                 effects.append(contentsOf: [
                     env.downloadPagesInfo(otherChapterID)
@@ -75,6 +74,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 ])
             }
             return .merge(effects)
+
         case .mangaPageInfoDownloaded(let result, let chapterID):
             switch result {
                 case .success(let pagesInfo):
@@ -84,6 +84,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     print("Error on downloading page info \(error)")
                     return .none
             }
+            
         case .chapterDetailsDownloaded(result: let result, chapterID: let chapterID):
             switch result {
                 case .success(let response):
@@ -95,4 +96,3 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             }
     }
 }
-

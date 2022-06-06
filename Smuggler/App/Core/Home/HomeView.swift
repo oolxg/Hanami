@@ -15,11 +15,17 @@ struct HomeView: View {
         NavigationView {
             WithViewStore(store) { viewStore in
                 List {
-                    Text(viewStore.mangaThumbnailStates.count.description)
-                    ForEachStore(store.scope(state: \.mangaThumbnailStates, action: HomeAction.mangaThumbnailActon)) { thumbnailViewStore in
+                    ForEachStore(
+                        store.scope(
+                            state: \.mangaThumbnailStates,
+                            action: HomeAction.mangaThumbnailActon
+                        )
+                    ) { thumbnailViewStore in
                         MangaThumbnailView(store: thumbnailViewStore)
                     }
                 }
+                .listSectionSeparator(.hidden)
+                .listStyle(PlainListStyle())
                 .onAppear {
                     viewStore.send(.onAppear)
                 }

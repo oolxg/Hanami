@@ -1,16 +1,15 @@
-    //
-    //  ThumbnailFeature.swift
-    //  Smuggler
-    //
-    //  Created by mk.pwnz on 15/05/2022.
-    //
+//
+//  ThumbnailFeature.swift
+//  Smuggler
+//
+//  Created by mk.pwnz on 15/05/2022.
+//
 
 import Foundation
 import ComposableArchitecture
 import SwiftUI
 
 struct MangaThumbnailState: Equatable, Identifiable {
-    
     init(manga: Manga) {
         self.manga = manga
         self.mangaState = MangaViewState(manga: manga)
@@ -18,13 +17,11 @@ struct MangaThumbnailState: Equatable, Identifiable {
     
     var mangaState: MangaViewState
     var manga: Manga
-    var coverArtInfo: CoverArtInfo? = nil
-    var thumbnail: UIImage?
-    var id: UUID {
-        manga.id
-    }
+    var coverArtInfo: CoverArtInfo?
+    var coverArt: UIImage?
+    var id: UUID { manga.id }
     
-    var thumbnailURL: URL? {
+    var coverArtURL: URL? {
         guard let fileName = coverArtInfo?.attributes.fileName else {
             return nil
         }
@@ -37,6 +34,9 @@ enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
     case thumbnailLoaded(Result<UIImage, APIError>)
+    case userOpenedMangaView
+    case userLeftMangaView
+    case userLeftMangaViewDelayCompleted
     case mangaAction(MangaViewAction)
 }
 
@@ -44,7 +44,16 @@ struct MangaThumbnailEnvironment {
     var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError>
 }
 
+// This struct is to cancel deletion cache manga info.
+// This was put not in reducer because manga instance can be destroyed outside(e.g. destroyed in SearchView),
+// so we must have an opportunity to cancel all cancellables outside too.
+// This struct is in this file because user can switch to another tab, e.g. search, so .onDisappear() in MangaView will fire.
+// It's better to control in from ThumbnailView, and because of it this struct here.
+struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
+
+// swiftlint:disable:next line_length
 let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, SystemEnvironment<MangaThumbnailEnvironment>>.combine(
+    // swiftlint:disable:next trailing_closure
     mangaViewReducer.pullback(
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,
@@ -57,29 +66,42 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                guard let coverArtID = state.manga.relationships.filter({ $0.type == .coverArt }).first?.id else {
+                // if we already loaded info about cover and cover, we don't need to do it one more time
+                guard state.coverArtInfo == nil && state.coverArt == nil else { return .none }
+                
+                // if we have only cover info loaded, we load the image, otherwise we load all
+                if state.coverArtInfo != nil && state.coverArt == nil {
+                    return env.downloadImage(state.coverArtURL)
+                        .receive(on: env.mainQueue())
+                        .catchToEffect(MangaThumbnailAction.thumbnailLoaded)
+                }
+                
+                guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {
                     return .none
                 }
                 
                 return env.loadThumbnailInfo(coverArtID, env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                
             case .thumbnailInfoLoaded(let result):
                 switch result {
                     case .success(let response):
                         state.coverArtInfo = response.data
                         // if we already loaded this thumbnail, we shouldn't load it one more time
                         if let image = ImageFileManager.shared.getImage(
+                            // swiftlint:disable:next force_unwrapping
                             withName: state.coverArtInfo!.attributes.fileName,
                             from: state.manga.mangaFolderName
                            ) {
-                            state.thumbnail = image
+                            state.coverArt = image
                             return .none
                         }
                         
-                        return env.downloadImage(state.thumbnailURL)
+                        return env.downloadImage(state.coverArtURL)
                             .receive(on: env.mainQueue())
                             .catchToEffect(MangaThumbnailAction.thumbnailLoaded)
+                        
                     case .failure(let error):
                         print("error on downloading thumbnail info: \(error)")
                         return .none
@@ -88,7 +110,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
             case .thumbnailLoaded(let result):
                 switch result {
                     case .success(let image):
-                        state.thumbnail = image
+                        state.coverArt = image
                         if let coverArtInfo = state.coverArtInfo {
                             ImageFileManager.shared.saveImage(
                                 image: image,
@@ -103,7 +125,23 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                         return .none
                 }
                 
-            case .mangaAction(_):
+            case .userOpenedMangaView:
+                // when users enters the view, we must cancel clearing manga info
+                return .cancel(id: CancelClearCacheForManga(mangaID: state.manga.id))
+                
+            case .userLeftMangaView:
+                // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
+                // Can be cancelled if user returns wihing 60 sec.
+                return Effect(value: MangaThumbnailAction.userLeftMangaViewDelayCompleted)
+                    .delay(for: .seconds(60), scheduler: env.mainQueue())
+                    .eraseToEffect()
+                    .cancellable(id: CancelClearCacheForManga(mangaID: state.manga.id))
+                
+            case .userLeftMangaViewDelayCompleted:
+                state.mangaState.volumeTabStates = []
+                return .none
+                
+            case .mangaAction:
                 return .none
         }
     }

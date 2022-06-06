@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 // MARK: - MangaResponse
 struct Response<ResponseData>: Codable, Equatable where ResponseData: Equatable, ResponseData: Codable {
     let result: String

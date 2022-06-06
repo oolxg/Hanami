@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 // https://api.mangadex.org/chapter?manga=9a9bbd35-a923-494e-855f-2ffe60992dc6&limit=11
 // JSON Response example
 /*
@@ -69,6 +68,7 @@ struct ChapterDetails: Codable {
         let version: Int
         let volumeIndex: String?
         
+        // swiftlint:disable:next nesting
         enum CodingKeys: String, CodingKey {
             case chapterIndex = "chapter"
             case createdAt
@@ -81,7 +81,7 @@ struct ChapterDetails: Codable {
 }
 
 extension ChapterDetails: Equatable {
-    static func ==(lhs: ChapterDetails, rhs: ChapterDetails) -> Bool {
+    static func == (lhs: ChapterDetails, rhs: ChapterDetails) -> Bool {
         lhs.id == rhs.id
     }
 }
@@ -93,7 +93,11 @@ extension ChapterDetails.Attributes {
         let container = try decoder.container(keyedBy: ChapterDetails.Attributes.CodingKeys.self)
         
         if try container.decode(String?.self, forKey: .chapterIndex) != nil {
-            chapterIndex = Double(try container.decode(String?.self, forKey: .chapterIndex)!.replacingOccurrences(of: ",", with: "."))
+            chapterIndex = Double(try container.decode(
+                String?.self,
+                forKey: .chapterIndex
+            // swiftlint:disable:next force_unwrapping multiline_function_chains
+            )!.replacingOccurrences(of: ",", with: "."))
         } else {
             chapterIndex = nil
         }
@@ -103,6 +107,8 @@ extension ChapterDetails.Attributes {
         publishAt = try container.decode(Date.self, forKey: .publishAt)
         readableAt = try container.decode(Date.self, forKey: .readableAt)
         let tempTitle = try container.decode(String?.self, forKey: .title)
+        // this also disable because tempTitle is Optional
+        // swiftlint:disable:next empty_string
         title = tempTitle == "" ? nil : tempTitle
         translatedLanguage = try container.decode(String.self, forKey: .translatedLanguage)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
@@ -110,7 +116,6 @@ extension ChapterDetails.Attributes {
         volumeIndex = try container.decode(String?.self, forKey: .volumeIndex)
     }
 }
-
 
 extension ChapterDetails {
     var languageFlag: String {
@@ -138,11 +143,11 @@ extension ChapterDetails {
         return flags[attributes.translatedLanguage] ?? "❓"
     }
     
-    
     var chapterName: String {
         if let title = attributes.title {
             return attributes.chapterIndex?.clean == nil ?
             "\(languageFlag) \(title)" :
+            // swiftlint:disable:next force_unwrapping
             "\(languageFlag) Ch. \(attributes.chapterIndex!.clean) - \(title)"
         } else if let index = attributes.chapterIndex?.clean {
             return "\(languageFlag) Ch. \(index)"
@@ -152,6 +157,4 @@ extension ChapterDetails {
             return "Chapter"
         }
     }
-
 }
-

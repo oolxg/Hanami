@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+// swiftlint:disable nesting identifier_name
 // MARK: - Tag
 struct Tag: Codable {
     let id: UUID
@@ -134,3 +134,5 @@ extension Tag {
         attributes.name.en.rawValue
     }
 }
+
+// swiftlint:enable nesting identifier_name

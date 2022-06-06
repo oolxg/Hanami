@@ -10,17 +10,14 @@ import ComposableArchitecture
 
 struct MangaThumbnailView: View {
     let store: Store<MangaThumbnailState, MangaThumbnailAction>
-    @State private var isNavigationLinkActive: Bool = false
+    @State private var isNavigationLinkActive = false
     
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack(alignment: .center) {
                 Text(viewStore.manga.title)
-                    .transaction { transaction in
-                        transaction.animation = nil
-                    }
-
-                    navigationLink
+                    
+                navigationLink
             }
             .onAppear {
                 viewStore.send(.onAppear)
@@ -51,14 +48,11 @@ extension MangaThumbnailView {
     // all the stuff here is to make NavigationLink 'lazy'
     private var navigationLink: some View {
         WithViewStore(store) { viewStore in
-            if let thumbnail = viewStore.thumbnail {
+            if let thumbnail = viewStore.coverArt {
                 Image(uiImage: thumbnail)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
-                    .transaction { transaction in
-                        transaction.animation = nil
-                    }
                     .background(
                         NavigationLink(
                             isActive: $isNavigationLinkActive,
@@ -69,20 +63,24 @@ extension MangaThumbnailView {
                     .onTapGesture {
                         isNavigationLinkActive.toggle()
                     }
+                    .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                        if isNavLinkActive {
+                            viewStore.send(.userOpenedMangaView)
+                        } else {
+                            viewStore.send(.userLeftMangaView)
+                        }
+                    }
             }
         }
     }
     
-    // this scope seems to eat a lot of recources 
     private var navigationLinkDestination: some View {
         ZStack {
             if isNavigationLinkActive {
-                LazyView(
-                    MangaView(
-                        store: store.scope(
-                            state: \.mangaState,
-                            action: MangaThumbnailAction.mangaAction
-                        )
+                MangaView(
+                    store: store.scope(
+                        state: \.mangaState,
+                        action: MangaThumbnailAction.mangaAction
                     )
                 )
             }

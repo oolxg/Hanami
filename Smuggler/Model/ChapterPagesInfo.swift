@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 // MARK: - Chapter
 struct ChapterPagesInfo: Codable {
     let result: String

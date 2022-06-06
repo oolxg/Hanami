@@ -29,15 +29,14 @@ enum VolumeTabAction {
     case chapterAction(id: UUID, action: ChapterAction)
 }
 
-struct VolumeTabEnvironment {
-    
-}
+struct VolumeTabEnvironment { }
 
 let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment<VolumeTabEnvironment>> = .combine(
+    // swiftlint:disable:next trailing_closure
     chapterReducer.forEach(
         state: \.chapterStates,
         action: /VolumeTabAction.chapterAction,
-        environment:  { _ in .live(
+        environment: { _ in .live(
             environment: .init(
                 downloadPagesInfo: downloadPageInfoForChapter,
                 downloadChapterInfo: downloadChapterInfo
@@ -45,11 +44,11 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment
             isMainQueueWithAnimation: true
         ) }
     ),
-    Reducer { state, action, env in
+    Reducer { _, action, _ in
         switch action {
             case .onTapGesture:
                 return .none
-            case .chapterAction(_, _):
+            case .chapterAction:
                 return .none
         }
     }

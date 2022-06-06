@@ -9,9 +9,9 @@ import SwiftUI
 
 struct CircleButtonView: View {
     let iconName: String
-    let action: () -> ()
+    let action: () -> Void
     
-    init(iconName: String, _ action: @escaping () -> ()) {
+    init(iconName: String, _ action: @escaping () -> Void) {
         self.iconName = iconName
         self.action = action
     }
@@ -25,8 +25,12 @@ struct CircleButtonView: View {
                 Circle()
                     .foregroundColor(.theme.background)
             )
-            .shadow(color: .theme.accent.opacity(0.25),
-                    radius: 10, x: 0, y: 0)
+            .shadow(
+                color: .theme.accent.opacity(0.25),
+                radius: 10,
+                x: 0,
+                y: 0
+            )
             .onTapGesture(perform: action)
     }
 }
@@ -34,7 +38,6 @@ struct CircleButtonView: View {
 struct CircleButtonView_Previews: PreviewProvider {
     static var previews: some View {
         CircleButtonView(iconName: "heart.fill") {
-            
         }
     }
 }

@@ -8,9 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-
 struct FiltersState: Equatable {
-    
     // MARK: - Tags
     var allTags: IdentifiedArrayOf<FilterTag> = []
 
@@ -39,11 +37,11 @@ struct FiltersState: Equatable {
     ])
     
     var isAnyFilterApplied: Bool {
-        allTags.filter { $0.state == .selected || $0.state == .banned }.count > 0 ||
+        allTags.filter { $0.state == .selected || $0.state == .banned }.isEmpty ||
         // 'mangaStatuses', 'publicationDemographics' and 'contentRatings' can't have .state as 'banned', so we don't check this type
-        publicationDemographics.filter { $0.state == .selected }.count > 0 ||
-        contentRatings.filter { $0.state == .selected }.count > 0 ||
-        mangaStatuses.filter { $0.state == .selected }.count > 0
+        publicationDemographics.filter { $0.state == .selected }.isEmpty ||
+        contentRatings.filter { $0.state == .selected }.isEmpty ||
+        mangaStatuses.filter { $0.state == .selected }.isEmpty
     }
 }
 
@@ -89,26 +87,32 @@ let filterReducer = Reducer<FiltersState, FiltersAction, SystemEnvironment<Filte
             
         case .resetFilters:
             for tagID in state.allTags.map(\.id) {
+                // swiftlint:disable:next force_unwrapping
                 state.allTags[id: tagID]!.state = .notSelected
             }
 
             for tagID in state.mangaStatuses.map(\.id) {
+                // swiftlint:disable:next force_unwrapping
                 state.mangaStatuses[id: tagID]!.state = .notSelected
             }
 
             for tagID in state.publicationDemographics.map(\.id) {
+                // swiftlint:disable:next force_unwrapping
                 state.publicationDemographics[id: tagID]!.state = .notSelected
             }
 
             for tagID in state.contentRatings.map(\.id) {
+                // swiftlint:disable:next force_unwrapping
                 state.contentRatings[id: tagID]!.state = .notSelected
             }
             return .none
             
         case .mangaStatusButtonTapped(let tag):
             if tag.state == .selected {
+                // swiftlint:disable:next force_unwrapping
                 state.mangaStatuses[id: tag.id]!.state = .notSelected
             } else {
+                // swiftlint:disable:next force_unwrapping
                 state.mangaStatuses[id: tag.id]!.state = .selected
             }
             
@@ -116,16 +120,20 @@ let filterReducer = Reducer<FiltersState, FiltersAction, SystemEnvironment<Filte
             
         case .contentRatingButtonTapped(let tag):
             if tag.state == .selected {
+                // swiftlint:disable:next force_unwrapping
                 state.contentRatings[id: tag.id]!.state = .notSelected
             } else {
+                // swiftlint:disable:next force_unwrapping
                 state.contentRatings[id: tag.id]!.state = .selected
             }
             return .none
             
         case .publicationDemogrphicButtonTapped(let tag):
             if tag.state == .selected {
+                // swiftlint:disable:next force_unwrapping
                 state.publicationDemographics[id: tag.id]!.state = .notSelected
             } else {
+                // swiftlint:disable:next force_unwrapping
                 state.publicationDemographics[id: tag.id]!.state = .selected
             }
             return .none

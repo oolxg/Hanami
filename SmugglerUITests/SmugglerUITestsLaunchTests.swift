@@ -8,7 +8,7 @@
 import XCTest
 
 class SmugglerUITestsLaunchTests: XCTestCase {
-
+    // swiftlint:disable overridden_super_call
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }
@@ -29,4 +29,5 @@ class SmugglerUITestsLaunchTests: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
     }
+    // swiftlint:enable vertical_whitespace_opening_braces
 }

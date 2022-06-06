@@ -15,7 +15,8 @@ struct ChapterView: View {
         WithViewStore(store) { viewStore in
             ExpandableForEach(
                 title: viewStore.chapter.chapterName,
-                items: viewStore.chapterDetails.map(\.value)) { isListExpanded in
+                items: viewStore.chapterDetails.map(\.value)
+            ) { isListExpanded in
                     if isListExpanded {
                         viewStore.send(.listIsExpanded)
                     }

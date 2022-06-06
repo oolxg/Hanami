@@ -13,7 +13,6 @@ class ImageFileManager {
     private init () { }
     
     func saveImage(image: UIImage, withName imageName: String, inFolder folderName: String, folderType: FileManager.SearchPathDirectory = .cachesDirectory) {
-        
         createFolderIfNeeded(withName: folderName, folderType: folderType)
         
         // get path for image

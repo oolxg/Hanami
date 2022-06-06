@@ -17,45 +17,42 @@ struct GridChipsView<Data: RandomAccessCollection, Content: View>: View where Da
         self.content = content
         self.data = data
     }
-    
+
     var body: some View {
         var width = CGFloat.zero
         var height = CGFloat.zero
         var ids: [Data.Element] = []
         return GeometryReader { geo in
             ZStack(alignment: .topLeading) {
-            
                 ForEach(data) { chipsData in
-                    
                     content(chipsData)
                         .padding(5)
                         .alignmentGuide(.leading) { dimension in
-                                // if true, we move the item to the next line down
-                            if (abs(width - dimension.width) > geo.size.width) {
+                            // if true, we move the item to the next line down
+                            if abs(width - dimension.width) > geo.size.width {
                                 width = 0
                                 height -= dimension.height
                             }
-                            
+
                             let result = width
-                            
-                                // it it's the last element in collection, we
-                            if chipsData.id == data.last!.id {
+
+                            // it it's the last element in collection, we
+                            if chipsData.id == data.last!.id { // swiftlint:disable:this force_unwrapping
                                 width = 0
                             } else {
                                 width -= dimension.width
                             }
-                            
+
                             if result == 0 && !ids.contains(where: { $0.id == chipsData.id }) {
                                 ids.append(chipsData)
                             }
-                            
+
                             return result
                         }
-                        .alignmentGuide(.top) { dimension in
+                        .alignmentGuide(.top) { _ in
                             let result = height
-                            
-                            if chipsData.id == data.last!.id {
-                                
+
+                            if chipsData.id == data.last!.id { // swiftlint:disable:this force_unwrapping
                                 height = 0
                             }
                             return result

@@ -30,8 +30,6 @@ func downloadChaptersForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Vol
         .eraseToEffect()
 }
 
-
-
 func downloadPageInfoForChapter(chapterID: UUID, forcePort443: Bool) -> Effect<ChapterPagesInfo, APIError> {
     var components = URLComponents()
     components.scheme = "https"

@@ -7,6 +7,8 @@
 
 import Foundation
 
+// swiftlint:disable nesting
+
 // MARK: - Manga
 struct Manga: Codable {
     let id: UUID
@@ -61,7 +63,6 @@ struct Manga: Codable {
     }
 }
 
-
 // MARK: - Custom init for fucked up MangaDex API
 extension Manga.Attributes {
     init(from decoder: Decoder) throws {
@@ -114,3 +115,4 @@ extension Manga {
         attributes.title.availableLang
     }
 }
+// swiftlint:enable nesting

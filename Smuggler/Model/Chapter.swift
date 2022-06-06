@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 struct Chapter: Codable {
     // sometimes chapters can have number as double, e.g. 77.6 (for extras or oneshots),
     // if chapters has no index(returns 'none'), 'chapterIndex' will be set to -1
@@ -28,13 +27,11 @@ struct Chapter: Codable {
     enum CodingKeys: String, CodingKey {
         case chapterIndex = "chapter"
         case count, id, others
-    }    
+    }
 }
 
-
-
 extension Chapter: Equatable {
-    static func ==(lhs: Chapter, rhs: Chapter) -> Bool {
+    static func == (lhs: Chapter, rhs: Chapter) -> Bool {
         lhs.id == rhs.id
     }
 }
@@ -52,6 +49,7 @@ extension Chapter {
 
 extension Chapter {
     var chapterName: String {
+        // swiftlint:disable:next force_unwrapping
         chapterIndex == nil ? "Oneshot" : "Chapter \(chapterIndex!.clean)"
     }
 }

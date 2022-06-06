@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-
 struct SearchBarView: View {
     @Binding var searchText: String
-    var onSubmitAction: () -> () = { }
+    var onSubmitAction: () -> Void = { }
     
     var body: some View {
         HStack {
@@ -40,7 +39,10 @@ struct SearchBarView: View {
             .fill(Color.theme.background)
             .shadow(
                 color: .theme.accent.opacity(0.25),
-                radius: 10, x: 0.0, y: 0.0)
+                radius: 10,
+                x: 0.0,
+                y: 0.0
+            )
         )
         .padding()
     }
@@ -55,7 +57,6 @@ struct SearchBarView_Previews: PreviewProvider {
             
             SearchBarView(searchText: .constant(""))
                 .previewLayout(.sizeThatFits)
-            
         }
     }
 }

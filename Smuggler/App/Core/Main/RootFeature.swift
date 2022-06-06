@@ -30,6 +30,7 @@ struct AppEnvironment {
 }
 
 let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>.combine(
+    // swiftlint:disable:next trailing_closure
     homeReducer
         .pullback(
             state: \.homeState,
@@ -40,27 +41,27 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
                 )
             ) }
         ),
+    // swiftlint:disable:next trailing_closure
     searchReducer
         .pullback(
             state: \.searchState,
             action: /AppAction.searchAction,
-            environment: { _ in
-                    .live(
-                        environment: .init(
-                            searchManga: makeMangaSearchRequest
-                        ),
-                        isMainQueueWithAnimation: true
-                    )
+            environment: { _ in .live(
+                    environment: .init(
+                        searchManga: makeMangaSearchRequest
+                    ),
+                    isMainQueueWithAnimation: false
+                )
             }
         ),
-    Reducer { state, action, env in
+    Reducer { state, action, _ in
         switch action {
             case .tabChanged(let newTab):
                 state.selectedTab = newTab
                 return .none
-            case .homeAction(_):
+            case .homeAction:
                 return .none
-            case .searchAction(_):
+            case .searchAction:
                 return .none
         }
     }

@@ -14,7 +14,12 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup {
-                ForEachStore(store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction)) { chapterState in
+                ForEachStore(
+                    store.scope(
+                        state: \.chapterStates,
+                        action: VolumeTabAction.chapterAction
+                    )
+                ) { chapterState in
                     ChapterView(store: chapterState)
                 }
             } label: {
@@ -25,7 +30,6 @@ struct VolumeTabView: View {
             .buttonStyle(PlainButtonStyle())
             .padding()
             .frame(maxWidth: .infinity)
-
         }
     }
 }
