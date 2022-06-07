@@ -74,7 +74,7 @@ extension FiltersView {
                 makeTitle("Status")
                 
                 GridChipsView(viewStore.mangaStatuses) { mangaStatus in
-                    chipsViewFor(mangaStatus)
+                    makeChipsViewFor(mangaStatus)
                         .onTapGesture {
                             viewStore.send(.mangaStatusButtonTapped(mangaStatus))
                         }
@@ -91,7 +91,7 @@ extension FiltersView {
                 makeTitle("Content rating")
                 
                 GridChipsView(viewStore.contentRatings) { contentRating in
-                    chipsViewFor(contentRating)
+                    makeChipsViewFor(contentRating)
                         .onTapGesture {
                             viewStore.send(.contentRatingButtonTapped(contentRating))
                         }
@@ -108,7 +108,7 @@ extension FiltersView {
                 makeTitle("Demographic")
                 
                 GridChipsView(viewStore.publicationDemographics) { demographic in
-                    chipsViewFor(demographic)
+                    makeChipsViewFor(demographic)
                         .onTapGesture {
                             viewStore.send(.publicationDemogrphicButtonTapped(demographic))
                         }
@@ -232,7 +232,7 @@ extension FiltersView {
             
             WithViewStore(store) { viewStore in
                 GridChipsView(viewStore.state[keyPath: path]) { tag in
-                    chipsViewFor(tag)
+                    makeChipsViewFor(tag)
                         .onTapGesture {
                             viewStore.send(.filterTagButtonTapped(tag))
                         }
@@ -241,7 +241,7 @@ extension FiltersView {
         }
     }
     
-    @ViewBuilder private func chipsViewFor<T: FilterTagProtocol>(_ filterTag: T) -> some View {
+    @ViewBuilder private func makeChipsViewFor<T: FilterTagProtocol>(_ filterTag: T) -> some View {
         HStack {
             if filterTag.state == .selected {
                 Image(systemName: "plus")
