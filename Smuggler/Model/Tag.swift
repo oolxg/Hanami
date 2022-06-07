@@ -134,5 +134,3 @@ extension Tag {
         attributes.name.en.rawValue
     }
 }
-
-// swiftlint:enable nesting identifier_name

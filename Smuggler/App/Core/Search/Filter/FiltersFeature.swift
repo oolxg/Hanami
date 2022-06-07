@@ -37,11 +37,11 @@ struct FiltersState: Equatable {
     ])
     
     var isAnyFilterApplied: Bool {
-        allTags.filter { $0.state == .selected || $0.state == .banned }.isEmpty ||
+        !allTags.filter { $0.state == .selected || $0.state == .banned }.isEmpty ||
         // 'mangaStatuses', 'publicationDemographics' and 'contentRatings' can't have .state as 'banned', so we don't check this type
-        publicationDemographics.filter { $0.state == .selected }.isEmpty ||
-        contentRatings.filter { $0.state == .selected }.isEmpty ||
-        mangaStatuses.filter { $0.state == .selected }.isEmpty
+        !publicationDemographics.filter { $0.state == .selected }.isEmpty ||
+        !contentRatings.filter { $0.state == .selected }.isEmpty ||
+        !mangaStatuses.filter { $0.state == .selected }.isEmpty
     }
 }
 

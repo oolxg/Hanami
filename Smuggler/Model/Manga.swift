@@ -115,4 +115,3 @@ extension Manga {
         attributes.title.availableLang
     }
 }
-// swiftlint:enable nesting

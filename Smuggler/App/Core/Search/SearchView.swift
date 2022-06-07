@@ -194,7 +194,7 @@ extension SearchView {
             }
         }
         
-            // swiftlint:disable:next cyclomatic_complexity
+        // swiftlint:disable:next cyclomatic_complexity
         private func getSortTypeName(sortOption: QuerySortOption, order: QuerySortOption.Order) -> String {
             switch sortOption {
                 case .relevance:

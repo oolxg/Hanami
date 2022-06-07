@@ -81,4 +81,3 @@ extension LocalizedString {
         return "❓"
     }
 }
-// swiftlint:enable identifier_name

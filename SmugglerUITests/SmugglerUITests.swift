@@ -38,5 +38,4 @@ class SmugglerUITests: XCTestCase {
             }
         }
     }
-    // swiftlint:enable overridden_super_call
 }

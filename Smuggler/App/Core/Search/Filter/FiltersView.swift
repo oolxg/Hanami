@@ -203,7 +203,7 @@ extension FiltersView {
                 
                 Spacer()
                 
-                if viewStore.isAnyFilterApplied {
+                if !viewStore.state[keyPath: path].filter { $0.state != .notSelected }.isEmpty {
                     Circle()
                         .frame(width: 10, height: 10)
                         .foregroundColor(.theme.red)
