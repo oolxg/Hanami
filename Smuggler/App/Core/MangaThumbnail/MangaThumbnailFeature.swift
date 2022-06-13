@@ -59,7 +59,8 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
         action: /MangaThumbnailAction.mangaAction,
         environment: { _ in .live(
             environment: .init(
-                downloadMangaVolumes: downloadChaptersForManga
+                downloadMangaVolumes: downloadChaptersForManga,
+                fetchMangaStatistics: fetchMangaStatistics
             )
         ) }
     ),
@@ -89,12 +90,13 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                     case .success(let response):
                         state.coverArtInfo = response.data
                         // if we already loaded this thumbnail, we shouldn't load it one more time
-                        if let image = ImageFileManager.shared.getImage(
+                        if let coverArt = ImageFileManager.shared.getImage(
                             // swiftlint:disable:next force_unwrapping
                             withName: state.coverArtInfo!.attributes.fileName,
                             from: state.manga.mangaFolderName
                            ) {
-                            state.coverArt = image
+                            state.mangaState.mangaCover = coverArt
+                            state.coverArt = coverArt
                             return .none
                         }
                         
@@ -109,15 +111,16 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 
             case .thumbnailLoaded(let result):
                 switch result {
-                    case .success(let image):
-                        state.coverArt = image
-                        if let coverArtInfo = state.coverArtInfo {
-                            ImageFileManager.shared.saveImage(
-                                image: image,
-                                withName: coverArtInfo.attributes.fileName,
-                                inFolder: state.manga.id.uuidString.lowercased()
-                            )
-                        }
+                    case .success(let returnedCoverArt):
+                        state.coverArt = returnedCoverArt
+                        state.mangaState.mangaCover = returnedCoverArt
+                        
+                        ImageFileManager.shared.saveImage(
+                            image: returnedCoverArt,
+                            // swiftlint:disable:next force_unwrapping
+                            withName: state.coverArtInfo!.attributes.fileName,
+                            inFolder: state.manga.mangaFolderName
+                        )
                         
                         return .none
                     case .failure(let error):

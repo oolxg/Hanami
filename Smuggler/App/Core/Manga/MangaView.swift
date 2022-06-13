@@ -11,25 +11,49 @@ import ComposableArchitecture
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     
+    // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
+    @State private var headerOffset: (CGFloat, CGFloat) = (0, 0)
+    @Namespace private var animation
+    
     var body: some View {
         WithViewStore(store) { viewStore in
-            ZStack {
-                ScrollView {
-                    ForEachStore(
-                        store.scope(
-                            state: \.volumeTabStates,
-                            action: MangaViewAction.volumeTabAction
-                        )
-                    ) { volumeStore in
-                        VolumeTabView(store: volumeStore)
-                        
-                        Divider()
+            ScrollView {
+                header
+                
+                LazyVStack(pinnedViews: .sectionHeaders) {
+                    Section {
+                        mangaBodyView
+                    } header: {
+                        pinnedNavigation
+                            .background(Color.black)
+                            .offset(y: headerOffset.1 > 0 ? 0 : -headerOffset.1 / 10)
+                            .modifier(
+                                MangaViewOffsetModifier(
+                                    offset: $headerOffset.0,
+                                    returnFromStart: false
+                                )
+                            )
+                            .modifier(
+                                MangaViewOffsetModifier(
+                                    offset: $headerOffset.1
+                                )
+                            )
                     }
-                    Text(viewStore.manga.id.uuidString.lowercased())
-                    Text(viewStore.manga.title)
                 }
             }
-            .navigationTitle(viewStore.manga.title)
+            .overlay(
+                Rectangle()
+                    .fill(.black)
+                    .frame(height: 50)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .opacity(headerOffset.0 < 10 ? 1 : 0)
+            )
+            .navigationBarHidden(true)
+            .coordinateSpace(name: "scroll")
+            .ignoresSafeArea(.container, edges: .vertical)
+            // this padding is needed because TabView overlaps with content here
+            // if padding is 0, it doesnt work and 1 is okay ¯\_(ツ)_/¯
+            .padding(.bottom, 1)
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -47,10 +71,168 @@ struct MangaView_Previews: PreviewProvider {
                 reducer: mangaViewReducer,
                 environment: .live(
                     environment: .init(
-                        downloadMangaVolumes: downloadChaptersForManga
+                        downloadMangaVolumes: downloadChaptersForManga,
+                        fetchMangaStatistics: fetchMangaStatistics
                     )
                 )
             )
         )
+    }
+}
+
+
+extension MangaView {
+    private var header: some View {
+        WithViewStore(store) { viewStore in
+            GeometryReader { geo in
+                let minY = geo.frame(in: .named("scroll")).minY
+                let size = geo.size
+                let height = size.height + minY
+                
+                if let mangaCover = viewStore.mangaCover {
+                    Image(uiImage: mangaCover)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: height > 0 ? height : 0, alignment: .top)
+                        .overlay {
+                            ZStack(alignment: .bottom) {
+                                LinearGradient(
+                                    colors: [ .clear, .black.opacity(0.8) ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("MANGA")
+                                        .font(.callout)
+                                        .foregroundColor(.gray)
+                                    
+                                    Text(viewStore.manga.title)
+                                        .font(.title.bold())
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom, 25)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .cornerRadius(0)
+                        .offset(y: -minY)
+                }
+            }
+            .frame(height: 250)
+        }
+    }
+    
+    private var mangaBodyView: some View {
+        WithViewStore(store) { viewStore in
+            if viewStore.shouldShowEmptyMangaMessage {
+                VStack(spacing: 0) {
+                    Text("Ooops, there's nothing to read")
+                        .font(.title2)
+                        .fontWeight(.black)
+                    
+                    Text("😢")
+                        .font(.title2)
+                        .fontWeight(.black)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
+            } else {
+                ZStack {
+                    if viewStore.selectedTab == .about {
+                        mangaInfoView
+                    }
+                    
+                    if viewStore.selectedTab == .volumes {
+                        LazyVStack {
+                            ForEachStore(
+                                store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
+                            ) { volumeStore in
+                                VolumeTabView(store: volumeStore)
+                                
+                                Divider()
+                            }
+                        }
+                    }
+                }
+                .transition(.opacity)
+            }
+        }
+    }
+    
+    private var mangaInfoView: some View {
+        WithViewStore(store) { viewStore in
+            Text(LocalizedStringKey(viewStore.manga.description))
+                .padding()
+        }
+    }
+    
+    private var pinnedNavigation: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 25) {
+                makeSectionFor(tab: .volumes)
+                makeSectionFor(tab: .about)
+            }
+            .padding(.horizontal)
+            .padding(.top, 20)
+            .padding(.bottom, 5)
+        }
+    }
+    
+    @ViewBuilder private func makeSectionFor(tab: MangaViewState.SelectedTab) -> some View {
+        WithViewStore(store) { viewStore in
+            VStack(spacing: 12) {
+                Text(tab.rawValue)
+                    .fontWeight(.semibold)
+                    .foregroundColor(viewStore.selectedTab == tab ? .white : .gray)
+                
+                ZStack {
+                    if viewStore.selectedTab == tab {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(.white)
+                            .matchedGeometryEffect(id: "tab", in: animation)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 8)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                withAnimation(.easeInOut) {
+                    viewStore.send(.mangaTabChanged(tab))
+                }
+            }
+        }
+    }
+}
+
+struct MangaViewOffsetModifier: ViewModifier {
+    @Binding var offset: CGFloat
+    @State private var startValue: CGFloat = 0
+    var returnFromStart = true
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { geo in
+                    Color.clear
+                        .preference(key: MangaViewOffsetKey.self, value: geo.frame(in: .named("scroll")).minY)
+                        .onPreferenceChange(MangaViewOffsetKey.self) { value in
+                            if startValue == 0 {
+                                startValue = value
+                            }
+                            
+                            offset = value - (returnFromStart ? startValue : 0)
+                        }
+                }
+            )
+    }
+}
+
+struct MangaViewOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }

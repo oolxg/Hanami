@@ -51,3 +51,20 @@ func downloadPageInfoForChapter(chapterID: UUID, forcePort443: Bool) -> Effect<C
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
 }
+
+
+func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, APIError> {
+    guard let url = URL(
+        string: "https://api.mangadex.org/statistics/manga/\(mangaID.uuidString.lowercased())"
+    ) else {
+        fatalError("Error on creating URL")
+    }
+    
+    return URLSession.shared.dataTaskPublisher(for: url)
+        .mapError { _ in APIError.downloadError }
+        .retry(3)
+        .map { data, _ in data }
+        .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
+        .mapError { _ in APIError.decodingError }
+        .eraseToEffect()
+}

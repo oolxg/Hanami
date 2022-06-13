@@ -114,4 +114,8 @@ extension Manga {
     var title: String {
         attributes.title.availableLang
     }
+    
+    var description: String {
+        attributes.description.availableLang
+    }
 }

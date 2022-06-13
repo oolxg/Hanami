@@ -9,24 +9,36 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-    // TODO: - Rewrite logic to make images load not for all available chapters
-    // Should extract Chapter as a separate component and load chapter info onTap/onSomeAction, after the chapter if opened, should load pages
-
 struct MangaViewState: Equatable {
     let manga: Manga
+    var mangaCover: UIImage?
+    var statistics: MangaStatistics?
     
     var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
+    var isVolumesLoaded = false
+    var shouldShowEmptyMangaMessage: Bool {
+        isVolumesLoaded && volumeTabStates.isEmpty
+    }
+    
+    var selectedTab: SelectedTab = .volumes
+    
+    enum SelectedTab: String, Equatable {
+        case about = "About"
+        case volumes = "Volumes"
+    }
 }
 
 enum MangaViewAction {
     case onAppear
     case volumesDownloaded(Result<Volumes, APIError>)
-    // UUID - for chapter ID, Int - chapter index in manga
-    case volumeTabAction(UUID, VolumeTabAction)
+    case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
+    case mangaTabChanged(MangaViewState.SelectedTab)
+    case volumeTabAction(chapterID: UUID, volumeAction: VolumeTabAction)
 }
 
 struct MangaViewEnvironment {
     var downloadMangaVolumes: (_ mangaID: UUID, _ decoder: JSONDecoder) -> Effect<Volumes, APIError>
+    var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, APIError>
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment<MangaViewEnvironment>> = .combine(
@@ -37,7 +49,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
         environment: { _ in .live(
                 environment: .init(
             ),
-            isMainQueueWithAnimation: true
+            isMainQueueAnimated: true
         ) }
     ),
     Reducer { state, action, env in
@@ -47,13 +59,21 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     return .cancel(id: CancelClearCacheForManga(mangaID: state.manga.id))
                 }
                 
-                return env.downloadMangaVolumes(state.manga.id, env.decoder())
-                    .receive(on: env.mainQueue())
-                    .catchToEffect(MangaViewAction.volumesDownloaded)
+                
+                return .merge(
+                    env.fetchMangaStatistics(state.manga.id)
+                        .receive(on: env.mainQueue())
+                        .catchToEffect(MangaViewAction.mangaStatisticsDownloaded),
+                    
+                    env.downloadMangaVolumes(state.manga.id, env.decoder())
+                        .receive(on: env.mainQueue())
+                        .catchToEffect(MangaViewAction.volumesDownloaded)
+                )
 
             case .volumesDownloaded(let result):
                 switch result {
                     case .success(let response):
+                        state.isVolumesLoaded = true
                         state.volumeTabStates = .init(
                             uniqueElements: response.volumes.map { VolumeTabState(volume: $0) }
                         )
@@ -63,6 +83,21 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                         print("error on chaptersDownloaded, \(error)")
                         return .none
                 }
+                
+            case .mangaStatisticsDownloaded(let result):
+                switch result {
+                    case .success(let response):
+                        state.statistics = response.statistics[state.manga.id]
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on mangaFetchStatistics, \(error)")
+                        return .none
+                }
+                
+            case .mangaTabChanged(let newTab):
+                state.selectedTab = newTab
+                return .none
                 
             case .volumeTabAction:
                 return .none

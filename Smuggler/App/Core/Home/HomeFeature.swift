@@ -16,7 +16,7 @@ enum HomeAction {
     case onAppear
     case refresh
     case dataLoaded(Result<Response<[Manga]>, APIError>)
-    case mangaThumbnailActon(id: UUID, action: MangaThumbnailAction)
+    case mangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
 }
 
 struct HomeEnvironment {
@@ -28,12 +28,12 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
-            action: /HomeAction.mangaThumbnailActon,
+            action: /HomeAction.mangaThumbnailAction,
             environment: { _ in .live(
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
                 ),
-                isMainQueueWithAnimation: false
+                isMainQueueAnimated: false
             ) }
         ),
     Reducer { state, action, env in
@@ -62,7 +62,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                 }
                 return .none
                 
-            case .mangaThumbnailActon:
+            case .mangaThumbnailAction:
                 return .none
         }
     }

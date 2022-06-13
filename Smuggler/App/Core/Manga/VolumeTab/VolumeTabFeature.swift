@@ -9,12 +9,14 @@ import Foundation
 import ComposableArchitecture
 
 struct VolumeTabState: Equatable {
-    init(volume: Volume) {
+    init(volume: MangaVolume) {
         self.volume = volume
-        chapterStates = .init(uniqueElements: volume.chapters.map { ChapterState(chapter: $0) })
+        chapterStates = .init(
+            uniqueElements: volume.chapters.map { ChapterState(chapter: $0) }
+        )
     }
     
-    let volume: Volume
+    let volume: MangaVolume
     var chapterStates: IdentifiedArrayOf<ChapterState> = []
 }
 
@@ -25,12 +27,12 @@ extension VolumeTabState: Identifiable {
 }
 
 enum VolumeTabAction {
-    case onTapGesture
     case chapterAction(id: UUID, action: ChapterAction)
 }
 
 struct VolumeTabEnvironment { }
 
+// this reducer is only to store chapters more conviently
 let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment<VolumeTabEnvironment>> = .combine(
     // swiftlint:disable:next trailing_closure
     chapterReducer.forEach(
@@ -41,15 +43,7 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment
                 downloadPagesInfo: downloadPageInfoForChapter,
                 downloadChapterInfo: downloadChapterInfo
             ),
-            isMainQueueWithAnimation: true
+            isMainQueueAnimated: true
         ) }
-    ),
-    Reducer { _, action, _ in
-        switch action {
-            case .onTapGesture:
-                return .none
-            case .chapterAction:
-                return .none
-        }
-    }
+    )
 )

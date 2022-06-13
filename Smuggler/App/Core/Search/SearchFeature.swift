@@ -67,7 +67,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
                 ),
-                isMainQueueWithAnimation: false
+                isMainQueueAnimated: false
             ) }
         ),
     // swiftlint:disable:next trailing_closure
@@ -78,7 +78,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             environment: { _ in
                 .live(
                     environment: .init(getListOfTags: downloadTagsList),
-                    isMainQueueWithAnimation: true
+                    isMainQueueAnimated: true
                 )
             }
         ),

@@ -36,13 +36,10 @@ public struct SystemEnvironment<Environment> {
         return decoder
     }
     
-    static func live(environment: Environment, isMainQueueWithAnimation: Bool = false, animationType: Animation = .easeInOut) -> Self {
+    static func live(environment: Environment, isMainQueueAnimated: Bool = false) -> Self {
         Self(
             environment: environment,
-            mainQueue: { isMainQueueWithAnimation ?
-                .main.animation(animationType).transaction(.init(animation: animationType)) :
-                .main
-            },
+            mainQueue: { isMainQueueAnimated ? .main.animation(.linear) : .main },
             decoder: decoder,
             downloadImage: loadImage
         )

@@ -10,30 +10,34 @@ import ComposableArchitecture
 
 struct HomeView: View {
     let store: Store<HomeState, HomeAction>
-
+    
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
-                List {
-                    ForEachStore(
-                        store.scope(
-                            state: \.mangaThumbnailStates,
-                            action: HomeAction.mangaThumbnailActon
-                        )
-                    ) { thumbnailViewStore in
-                        MangaThumbnailView(store: thumbnailViewStore)
+            VStack(spacing: 0) {
+                Text("asdad")
+                
+                WithViewStore(store) { viewStore in
+                    List {
+                        ForEachStore(
+                            store.scope(
+                                state: \.mangaThumbnailStates,
+                                action: HomeAction.mangaThumbnailAction
+                            )
+                        ) { thumbnailViewStore in
+                            MangaThumbnailView(store: thumbnailViewStore)
+                        }
+                    }
+                    .listSectionSeparator(.hidden)
+                    .listStyle(PlainListStyle())
+                    .onAppear {
+                        viewStore.send(.onAppear)
+                    }
+                    .refreshable {
+                        viewStore.send(.refresh)
                     }
                 }
-                .listSectionSeparator(.hidden)
-                .listStyle(PlainListStyle())
-                .onAppear {
-                    viewStore.send(.onAppear)
-                }
-                .refreshable {
-                    viewStore.send(.refresh)
-                }
+                .navigationTitle("Smuggler")
             }
-            .navigationTitle("Smuggler")
         }
     }
 }

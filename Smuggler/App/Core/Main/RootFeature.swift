@@ -50,7 +50,7 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
                     environment: .init(
                         searchManga: makeMangaSearchRequest
                     ),
-                    isMainQueueWithAnimation: false
+                    isMainQueueAnimated: false
                 )
             }
         ),

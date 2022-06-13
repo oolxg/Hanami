@@ -52,7 +52,7 @@ struct SearchView_Previews: PreviewProvider {
                     environment: .init(
                         searchManga: makeMangaSearchRequest
                     ),
-                    isMainQueueWithAnimation: true
+                    isMainQueueAnimated: true
                 )
             )
         )

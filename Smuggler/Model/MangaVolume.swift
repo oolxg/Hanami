@@ -1,5 +1,5 @@
 //
-//  Volume.swift
+//  MangaVolume.swift
 //  Smuggler
 //
 //  Created by mk.pwnz on 22/05/2022.
@@ -81,7 +81,7 @@ import Foundation
  */
 
 struct Volumes: Codable {
-    let volumes: [Volume]
+    let volumes: [MangaVolume]
     
     init() {
         volumes = []
@@ -89,18 +89,18 @@ struct Volumes: Codable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-        var temp: [Volume] = []
+        var temp: [MangaVolume] = []
         
         for key in container.allKeys where key.stringValue == "volumes" {
             do {
                 let decodedVolumes = try container.decode(
-                    [String: Volume].self,
+                    [String: MangaVolume].self,
                     forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
                 )
                 temp = decodedVolumes.map(\.value)
             } catch DecodingError.typeMismatch {
                 temp = try container.decode(
-                    [Volume].self,
+                    [MangaVolume].self,
                     forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
                 )
             }
@@ -117,7 +117,7 @@ struct Volumes: Codable {
     }
 }
 
-struct Volume: Codable {
+struct MangaVolume: Codable {
     let chapters: [Chapter]
     let count: Int
     // sometimes volumes can have number as double, e.g. 77.6 (for extras or oneshots),
@@ -134,12 +134,20 @@ struct Volume: Codable {
         
         for key in container.allKeys {
             if key.stringValue == "chapters" {
-                let decodedChapters = try container.decode(
-                    [String: Chapter].self,
-                    // swiftlint:disable:next force_unwrapping
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
-                )
-                tempDecodedChapters = decodedChapters.map(\.value)
+                do {
+                    let decodedChapters = try container.decode(
+                        [String: Chapter].self,
+                        // swiftlint:disable:next force_unwrapping
+                        forKey: DynamicCodingKeys(stringValue: key.stringValue)!
+                    )
+                    tempDecodedChapters = decodedChapters.map(\.value)
+                } catch {
+                    tempDecodedChapters = try container.decode(
+                        [Chapter].self,
+                        // swiftlint:disable:next force_unwrapping
+                        forKey: DynamicCodingKeys(stringValue: key.stringValue)!
+                    )
+                }
             } else if key.stringValue == "count" {
                 // swiftlint:disable:next force_unwrapping
                 tempCount = try container.decode(Int.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
@@ -162,15 +170,15 @@ struct Volume: Codable {
     }
 }
 
-extension Volume: Equatable {
-    static func == (lhs: Volume, rhs: Volume) -> Bool {
+extension MangaVolume: Equatable {
+    static func == (lhs: MangaVolume, rhs: MangaVolume) -> Bool {
         lhs.chapters == rhs.chapters
     }
 }
 
-extension Volume: Identifiable { }
+extension MangaVolume: Identifiable { }
 
-extension Volume {
+extension MangaVolume {
     init(dummyInit: Bool) {
         if !dummyInit {
             fatalError("Only for testing")
@@ -189,7 +197,7 @@ extension Volumes: Equatable {
     }
 }
 
-extension Volume {
+extension MangaVolume {
     var volumeName: String {
         // swiftlint:disable:next force_unwrapping
         volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean)"

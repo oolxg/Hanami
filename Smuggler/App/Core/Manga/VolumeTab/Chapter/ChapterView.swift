@@ -26,6 +26,9 @@ struct ChapterView: View {
                     }
                 }
         }
+        .transaction { transaction in
+            transaction.animation = .linear
+        }
     }
 }
 

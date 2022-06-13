@@ -36,7 +36,6 @@ struct GridChipsView<Data: RandomAccessCollection, Content: View>: View where Da
 
                             let result = width
 
-                            // it it's the last element in collection, we
                             if chipsData.id == data.last!.id { // swiftlint:disable:this force_unwrapping
                                 width = 0
                             } else {

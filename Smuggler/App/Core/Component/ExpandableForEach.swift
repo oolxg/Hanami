@@ -15,10 +15,15 @@ struct ExpandableForEach<Data, Content>: View where Data: RandomAccessCollection
     private let action: (Bool) -> Void
     @ViewBuilder private var content: (Data.Element) -> Content
     
-    init(title: String, items: Data, callbackOnListExpansion: @escaping (Bool) -> Void = { _ in }, @ViewBuilder content: @escaping (Data.Element) -> Content) {
+    /// - Parameters:
+    ///  - title: Title, that will be show on top of ExpandableForEach
+    ///  - Items: List of items inside of ExpandableForEach
+    ///  - onListExpansion: Action, that will be called each time, when list expanded or folded
+    ///  - content: Each row inside the ExpandableForEach
+    init(title: String, items: Data, onListExpansion: @escaping (Bool) -> Void = { _ in }, @ViewBuilder content: @escaping (Data.Element) -> Content) {
         self.items = items
         self.content = content
-        self.action = callbackOnListExpansion
+        self.action = onListExpansion
         self.title = title
     }
     
