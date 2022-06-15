@@ -9,10 +9,11 @@ import Foundation
 
 // swiftlint:disable identifier_name
 struct LocalizedString: Codable {
-    var en, fr, ru, jp, jpRo, zh, zhRo, es, esLa: String?
+    var en, fr, ru, jp, jpRo, th: String?
+    var zh, zhRo, es, esLa, ar: String?
     
     enum CodingKeys: String, CodingKey {
-        case en, ru, zh, fr, es
+        case en, ru, zh, fr, es, ar, th
         case jp = "ja"
         case jpRo = "jp-ro"
         case zhRo = "zh-ro"
@@ -32,6 +33,8 @@ extension LocalizedString {
             jpRo = content.jpRo == nil ? jpRo : content.jpRo
             zh = content.zh == nil ? zh : content.zh
             zhRo = content.zhRo == nil ? zhRo : content.zhRo
+            ar = content.ar == nil ? ar : content.ar
+            th = content.th == nil ? th : content.th
         }
     }
 }
@@ -58,6 +61,10 @@ extension LocalizedString {
             return zhRo
         } else if let zh = zh {
             return zh
+        } else if let ar = ar {
+            return ar
+        } else if let th = th {
+            return th
         }
         
         return nil
@@ -68,14 +75,20 @@ extension LocalizedString {
             return "🇬🇧"
         } else if fr != nil {
             return "🇫🇷"
-        } else if es != nil || esLa != nil {
+        } else if es != nil {
             return "🇪🇸"
+        } else if esLa != nil {
+            return "🇲🇽"
         } else if jpRo != nil || jp != nil {
             return "🇯🇵"
         } else if ru != nil {
             return "🇷🇺"
         } else if zhRo != nil || zh != nil {
             return "🇨🇳"
+        } else if ar != nil {
+            return "🇸🇦"
+        } else if th != nil {
+            return "🇹🇭"
         }
         
         return "❓"

@@ -14,11 +14,17 @@ struct ChapterView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup {
-                VStack {
-                    ForEach(viewStore.chapterDetails.map(\.key)) { chapterID in
-                        makeChapterView(chapterID: chapterID)
+                LazyVStack(spacing: 0) {
+                    ForEach(viewStore.chapterDetails) { chapter in
+                        makeChapterView(chapter: chapter)
+                        
+                        Rectangle()
+                            .fill(.white)
+                            .frame(height: 1.5)
                     }
                 }
+                .transition(.opacity)
+                .animation(.easeInOut, value: viewStore.chapterDetails)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onAppear {
                     viewStore.send(.onAppear)
@@ -27,6 +33,7 @@ struct ChapterView: View {
                 Text(viewStore.chapter.chapterName)
                     .font(.title3)
                     .fontWeight(.heavy)
+                    .padding(.vertical, 3)
             }
             .buttonStyle(PlainButtonStyle())
             .padding()
@@ -54,14 +61,34 @@ struct ChapterView_Previews: PreviewProvider {
 }
 
 extension ChapterView {
-    // swiftlint:disable force_unwrapping
-    @ViewBuilder private func makeChapterView(chapterID: UUID) -> some View {
+    @ViewBuilder private func makeChapterView(chapter: ChapterDetails) -> some View {
         WithViewStore(store) { viewStore in
             HStack {
-                Text(viewStore.chapterDetails[chapterID]!.chapterName)
-             
+                VStack(alignment: .leading) {
+                    Text(chapter.chapterName)
+                        .fontWeight(.medium)
+                        .font(.headline)
+                        .lineLimit(nil)
+                        .padding(5)
+                    
+                    if let scanlationGroupName = viewStore.scanlationGroups[chapter.id]?.name {
+                        HStack {
+                            Text("Translated by:")
+                                .font(.caption)
+                                .foregroundColor(.theme.secondaryText)
+
+                            Text(scanlationGroupName)
+                                .font(.caption)
+                                .foregroundColor(.theme.secondaryText)
+                        }
+                        .padding(.horizontal, 5)
+                        .padding(.bottom, 5)
+                    }
+                }
+                
                 Spacer()
             }
         }
+        .padding(0)
     }
 }

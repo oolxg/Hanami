@@ -12,31 +12,29 @@ struct HomeView: View {
     let store: Store<HomeState, HomeAction>
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                Text("asdad")
-                
-                WithViewStore(store) { viewStore in
-                    List {
-                        ForEachStore(
-                            store.scope(
-                                state: \.mangaThumbnailStates,
-                                action: HomeAction.mangaThumbnailAction
-                            )
-                        ) { thumbnailViewStore in
-                            MangaThumbnailView(store: thumbnailViewStore)
+        WithViewStore(store) { viewStore in
+            NavigationView {
+                VStack {
+                    Text("asdad")
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.mangaThumbnailStates,
+                                    action: HomeAction.mangaThumbnailAction
+                                )
+                            ) { thumbnailViewStore in
+                                MangaThumbnailView(store: thumbnailViewStore)
+                            }
                         }
+                        .listSectionSeparator(.hidden)
+                        .listStyle(PlainListStyle())
                     }
-                    .listSectionSeparator(.hidden)
-                    .listStyle(PlainListStyle())
-                    .onAppear {
-                        viewStore.send(.onAppear)
-                    }
-                    .refreshable {
-                        viewStore.send(.refresh)
-                    }
+                    .navigationTitle("Smuggler")
                 }
-                .navigationTitle("Smuggler")
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }

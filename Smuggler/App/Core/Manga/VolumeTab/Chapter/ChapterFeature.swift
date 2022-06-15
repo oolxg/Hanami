@@ -14,7 +14,7 @@ struct ChapterState: Equatable, Identifiable {
     let chapter: Chapter
     // we can have many 'chapterDetals' in one ChapterState because one chapter can be translated by different scanlation groups
     // here are each chapter with details
-    var chapterDetails: [UUID: ChapterDetails] = [:]
+    var chapterDetails: IdentifiedArrayOf<ChapterDetails> = []
     var scanlationGroups: [UUID: ScanlationGroup] = [:]
     // Chapter UUID - Info about chapter pages
     var pagesInfo: [UUID: ChapterPagesInfo] = [:]
@@ -50,32 +50,34 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             guard state.pagesInfo[state.chapter.id] == nil else {
                 return .none
             }
-            
+
             var effects: [Effect<ChapterAction, Never>] = []
-            
-            // need this var because state is 'inout'
-            let chapterID = state.chapter.id
-            effects.append(contentsOf: [
-                env.downloadPagesInfo(state.chapter.id)
-                    .receive(on: env.mainQueue())
-                    .catchToEffect { ChapterAction.mangaPageInfoDownloaded(result: $0, chapterID: chapterID) },
-                
-                env.downloadChapterInfo(chapterID, env.decoder())
-                    .receive(on: env.mainQueue())
-                    .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
-            ])
+
+            // if we fetched info about chapters, it means that pages info is downloaded too
+            // (or externalURL, manga if to read on other webiste)
+            if state.chapterDetails[id: state.chapter.id] == nil {
+                // need this var because state is 'inout'
+                let chapterID = state.chapter.id
+                effects.append(
+                    env.downloadChapterInfo(chapterID, env.decoder())
+                        .receive(on: env.mainQueue())
+                        .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
+                )
+            }
             
             for otherChapterID in state.chapter.others {
-                effects.append(contentsOf: [
-                    env.downloadPagesInfo(otherChapterID)
-                        .receive(on: env.mainQueue())
-                        .catchToEffect { ChapterAction.mangaPageInfoDownloaded(result: $0, chapterID: otherChapterID) },
-                    
-                    env.downloadChapterInfo(otherChapterID, env.decoder())
-                        .receive(on: env.mainQueue())
-                        .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: otherChapterID) }
-                ])
+                if state.chapterDetails[id: otherChapterID] == nil {
+                    effects.append(
+                        env.downloadChapterInfo(otherChapterID, env.decoder())
+                            .receive(on: env.mainQueue())
+                            .catchToEffect { ChapterAction.chapterDetailsDownloaded(
+                                result: $0,
+                                chapterID: otherChapterID
+                            ) }
+                    )
+                }
             }
+
             return .merge(effects)
 
         case .mangaPageInfoDownloaded(let result, let chapterID):
@@ -91,12 +93,23 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
         case .chapterDetailsDownloaded(let result, let chapterID):
             switch result {
                 case .success(let response):
-                    state.chapterDetails[chapterID] = response.data
+                    state.chapterDetails.append(response.data)
                     
                     var effects: [Effect<ChapterAction, Never>] = []
                     
+                    // swiftlint:disable:next force_unwrapping
+                    if state.chapterDetails[id: chapterID]!.attributes.externalURL == nil {
+                        effects.append(
+                            env.downloadPagesInfo(chapterID)
+                                .receive(on: env.mainQueue())
+                                .catchToEffect { ChapterAction.mangaPageInfoDownloaded(
+                                    result: $0,
+                                    chapterID: chapterID
+                                ) }
+                            )
+                    }
+                    
                     let scanlationGroupIDs = state.chapterDetails
-                        .map(\.value)
                         .map { chapterDetails in
                             chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
                         }

@@ -55,11 +55,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if !state.volumeTabStates.isEmpty {
-                    return .cancel(id: CancelClearCacheForManga(mangaID: state.manga.id))
-                }
-                
-                
                 return .merge(
                     env.fetchMangaStatistics(state.manga.id)
                         .receive(on: env.mainQueue())

@@ -56,7 +56,7 @@ struct MangaStatistics: Codable {
 
 // MARK: - Rating
 struct MangaRating: Codable {
-    let average: Double
+    let average: Double?
 }
 
 extension MangaRating: Equatable { }

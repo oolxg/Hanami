@@ -106,7 +106,8 @@ struct Volumes: Codable {
             }
         }
         
-        volumes = temp.sorted { ($0.volumeIndex ?? -1) > ($1.volumeIndex ?? -1) }
+        // all volumes w/o index are going to be first in list
+        volumes = temp.sorted { ($0.volumeIndex ?? 9999) > ($1.volumeIndex ?? 9999) }
     }
     
     private struct DynamicCodingKeys: CodingKey {
@@ -157,7 +158,7 @@ struct MangaVolume: Codable {
             }
         }
         id = UUID()
-        chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1) }
+        chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? 99999) > ($1.chapterIndex ?? 99999) }
         count = tempCount
         volumeIndex = Double(tempVolume)
     }

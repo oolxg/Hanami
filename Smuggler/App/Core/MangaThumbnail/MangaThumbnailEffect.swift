@@ -15,10 +15,10 @@ func downloadThumbnailInfo(coverID: UUID, decoder: JSONDecoder) -> Effect<Respon
     }
     
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
+        .mapError { err in APIError.downloadError(err as URLError) }
         .retry(3)
         .map(\.data)
         .decode(type: Response<CoverArtInfo>.self, decoder: decoder)
-        .mapError { _ in APIError.decodingError }
+        .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }

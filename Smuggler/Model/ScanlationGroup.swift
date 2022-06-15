@@ -56,3 +56,11 @@ extension ScanlationGroup: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension ScanlationGroup: Identifiable { }
+
+extension ScanlationGroup {
+    var name: String {
+        attributes.name
+    }
+}

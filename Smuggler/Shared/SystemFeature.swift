@@ -15,15 +15,15 @@ func loadImage(url: URL?) -> Effect<UIImage, APIError> {
     }
     
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
+        .mapError { err in APIError.downloadError(err as URLError) }
         .retry(3)
         .tryMap { data, _ in
             guard let image = UIImage(data: data) else {
-                throw APIError.decodingError
+                throw APIError.decodingError(.none)
             }
             
             return image
         }
-        .mapError { _ in APIError.decodingError }
+        .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }

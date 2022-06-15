@@ -120,10 +120,11 @@ extension ChapterDetails.Attributes {
 extension ChapterDetails {
     var languageFlag: String {
         let flags = [
+            "ar": "🇸🇦",
             "de": "🇩🇪",
             "en": "🇬🇧",
             "es": "🇪🇸",
-            "es-la": "🇪🇸",
+            "es-la": "🇲🇽",
             "fr": "🇫🇷",
             "id": "🇮🇩",
             "it": "🇮🇹",
@@ -134,6 +135,7 @@ extension ChapterDetails {
             "pt-br": "🇧🇷",
             "ru": "🇷🇺",
             "tr": "🇹🇷",
+            "th": "🇹🇭",
             "vi": "🇻🇳",
             "zh": "🇨🇳",
             "zh-hk": "🇨🇳",

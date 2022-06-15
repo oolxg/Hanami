@@ -22,11 +22,11 @@ func downloadChaptersForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Vol
     }
         
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
+        .mapError { err in APIError.downloadError(err as URLError) }
         .retry(3)
         .map(\.data)
         .decode(type: Volumes.self, decoder: decoder)
-        .mapError { _ in APIError.decodingError }
+        .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }
 
@@ -44,11 +44,11 @@ func downloadPageInfoForChapter(chapterID: UUID, forcePort443: Bool) -> Effect<C
     }
     
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
+        .mapError { err in APIError.downloadError(err as URLError) }
         .retry(3)
         .map(\.data)
         .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
-        .mapError { _ in APIError.decodingError }
+        .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }
 
@@ -61,10 +61,10 @@ func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, API
     }
     
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { _ in APIError.downloadError }
+        .mapError { err in APIError.downloadError(err as URLError) }
         .retry(3)
         .map(\.data)
         .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-        .mapError { _ in APIError.decodingError }
+        .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }
