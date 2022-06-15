@@ -12,8 +12,13 @@ struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
-    @State private var headerOffset: (CGFloat, CGFloat) = (0, 0)
-    @Namespace private var animation
+    @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
+    @Namespace private var tabAnimationNamespace
+    @Environment(\.dismiss) private var dismiss
+    
+    private var isViewScrolledDown: Bool {
+        headerOffset.0 < 10
+    }
     
     var body: some View {
         WithViewStore(store) { viewStore in
@@ -25,19 +30,6 @@ struct MangaView: View {
                         mangaBodyView
                     } header: {
                         pinnedNavigation
-                            .background(Color.black)
-                            .offset(y: headerOffset.1 > 0 ? 0 : -headerOffset.1 / 10)
-                            .modifier(
-                                MangaViewOffsetModifier(
-                                    offset: $headerOffset.0,
-                                    returnFromStart: false
-                                )
-                            )
-                            .modifier(
-                                MangaViewOffsetModifier(
-                                    offset: $headerOffset.1
-                                )
-                            )
                     }
                 }
             }
@@ -46,7 +38,7 @@ struct MangaView: View {
                     .fill(.black)
                     .frame(height: 50)
                     .frame(maxHeight: .infinity, alignment: .top)
-                    .opacity(headerOffset.0 < 10 ? 1 : 0)
+                    .opacity(isViewScrolledDown ? 1 : 0)
             )
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
@@ -93,7 +85,7 @@ extension MangaView {
                     Image(uiImage: mangaCover)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: height > 0 ? height : 0, alignment: .top)
+                        .frame(height: height > 0 ? height : 0, alignment: .center)
                         .overlay {
                             ZStack(alignment: .bottom) {
                                 LinearGradient(
@@ -103,6 +95,10 @@ extension MangaView {
                                 )
                                 
                                 VStack(alignment: .leading, spacing: 12) {
+                                    backButton
+                                    
+                                    Spacer()
+                                    
                                     Text("MANGA")
                                         .font(.callout)
                                         .foregroundColor(.gray)
@@ -111,6 +107,7 @@ extension MangaView {
                                         .font(.title.bold())
                                 }
                                 .padding(.horizontal)
+                                .padding(.top, 50)
                                 .padding(.bottom, 25)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -125,25 +122,25 @@ extension MangaView {
     
     private var mangaBodyView: some View {
         WithViewStore(store) { viewStore in
-            if viewStore.shouldShowEmptyMangaMessage {
-                VStack(spacing: 0) {
-                    Text("Ooops, there's nothing to read")
-                        .font(.title2)
-                        .fontWeight(.black)
-                    
-                    Text("😢")
-                        .font(.title2)
-                        .fontWeight(.black)
+            ZStack {
+                if viewStore.selectedTab == .about {
+                    mangaInfoView
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            } else {
-                ZStack {
-                    if viewStore.selectedTab == .about {
-                        mangaInfoView
-                    }
-                    
-                    if viewStore.selectedTab == .volumes {
+                
+                if viewStore.selectedTab == .chapters {
+                    if viewStore.shouldShowEmptyMangaMessage {
+                        VStack(spacing: 0) {
+                            Text("Ooops, there's nothing to read")
+                                .font(.title2)
+                                .fontWeight(.black)
+                            
+                            Text("😢")
+                                .font(.title2)
+                                .fontWeight(.black)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
+                    } else {
                         LazyVStack {
                             ForEachStore(
                                 store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
@@ -155,8 +152,8 @@ extension MangaView {
                         }
                     }
                 }
-                .transition(.opacity)
             }
+            .transition(.opacity)
         }
     }
     
@@ -167,16 +164,43 @@ extension MangaView {
         }
     }
     
+    private var backButton: some View {
+        Button {
+            self.dismiss()
+        } label: {
+            Image(systemName: "arrow.left")
+                .foregroundColor(.white)
+        }
+        .transition(.opacity)
+    }
+    
     private var pinnedNavigation: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 25) {
-                makeSectionFor(tab: .volumes)
+                if isViewScrolledDown {
+                    backButton
+                }
+                makeSectionFor(tab: .chapters)
                 makeSectionFor(tab: .about)
             }
+            .animation(.easeInOut, value: isViewScrolledDown)
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
+        .background(Color.black)
+        .offset(y: headerOffset.1 > 0 ? 0 : -headerOffset.1 / 10)
+        .modifier(
+            MangaViewOffsetModifier(
+                offset: $headerOffset.0,
+                returnFromStart: false
+            )
+        )
+        .modifier(
+            MangaViewOffsetModifier(
+                offset: $headerOffset.1
+            )
+        )
     }
     
     @ViewBuilder private func makeSectionFor(tab: MangaViewState.SelectedTab) -> some View {
@@ -190,9 +214,10 @@ extension MangaView {
                     if viewStore.selectedTab == tab {
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
                             .fill(.white)
-                            .matchedGeometryEffect(id: "tab", in: animation)
+                            .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)
                     }
                 }
+                .animation(.easeInOut, value: viewStore.selectedTab)
                 .padding(.horizontal, 8)
                 .frame(height: 8)
             }

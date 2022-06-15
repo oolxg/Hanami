@@ -16,7 +16,7 @@ func downloadTagsList() -> Effect<Response<[Tag]>, APIError> {
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)
-        .map { data, _ in data }
+        .map(\.data)
         .decode(type: Response<[Tag]>.self, decoder: JSONDecoder())
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()

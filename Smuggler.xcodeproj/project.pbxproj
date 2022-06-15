@@ -65,6 +65,7 @@
 		22E057DF2843F1F4004CD4C3 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */; };
 		22E057E12843F201004CD4C3 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057E02843F201004CD4C3 /* UIApplication.swift */; };
 		22E057E32843F28C004CD4C3 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057E22843F28C004CD4C3 /* Color.swift */; };
+		22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E385922857D5BE00F034BA /* ScanlationGroup.swift */; };
 		22FDCE63284B865F0059FD6E /* FilterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FDCE62284B865F0059FD6E /* FilterModels.swift */; };
 		22FDCE6D284B9DF40059FD6E /* SheetWithDetents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FDCE6C284B9DF40059FD6E /* SheetWithDetents.swift */; };
 /* End PBXBuildFile section */
@@ -160,6 +161,7 @@
 		22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		22E057E02843F201004CD4C3 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		22E057E22843F28C004CD4C3 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		22E385922857D5BE00F034BA /* ScanlationGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanlationGroup.swift; sourceTree = "<group>"; };
 		22FDCE62284B865F0059FD6E /* FilterModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterModels.swift; sourceTree = "<group>"; };
 		22FDCE6C284B9DF40059FD6E /* SheetWithDetents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetWithDetents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -361,6 +363,7 @@
 				22A7BF29283A74E4008EDD52 /* MangaVolume.swift */,
 				22A7BF2E283AB730008EDD52 /* Chapter.swift */,
 				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
+				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -605,6 +608,7 @@
 				2245D4BE284109AF005B1C83 /* SearchFeature.swift in Sources */,
 				22A7BF31283AB923008EDD52 /* ChapterEffect.swift in Sources */,
 				229F8D95282DBD9400761054 /* HomeFeature.swift in Sources */,
+				22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */,
 				2245D4BB2840EC40005B1C83 /* Publisher.swift in Sources */,
 				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,

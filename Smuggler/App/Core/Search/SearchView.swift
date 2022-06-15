@@ -95,7 +95,7 @@ extension SearchView {
             }
             .padding(.trailing)
             .padding(.vertical)
-            .sheetWithDetents(isPresented: $showFilters, detents: [.medium(), .large()], onDismiss: {
+            .sheet(isPresented: $showFilters, onDismiss: {
                 viewStore.send(.searchForManga)
             }, content: {
                 FiltersView(store: store.scope(

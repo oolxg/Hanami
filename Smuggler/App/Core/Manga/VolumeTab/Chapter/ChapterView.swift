@@ -13,21 +13,24 @@ struct ChapterView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            ExpandableForEach(
-                title: viewStore.chapter.chapterName,
-                items: viewStore.chapterDetails.map(\.value)
-            ) { isListExpanded in
-                    if isListExpanded {
-                        viewStore.send(.listIsExpanded)
-                    }
-                } content: { (info: ChapterDetails) in
-                    HStack {
-                        Text(info.chapterName)
+            DisclosureGroup {
+                VStack {
+                    ForEach(viewStore.chapterDetails.map(\.key)) { chapterID in
+                        makeChapterView(chapterID: chapterID)
                     }
                 }
-        }
-        .transaction { transaction in
-            transaction.animation = .linear
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .onAppear {
+                    viewStore.send(.onAppear)
+                }
+            } label: {
+                Text(viewStore.chapter.chapterName)
+                    .font(.title3)
+                    .fontWeight(.heavy)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding()
+            .frame(maxWidth: .infinity)
         }
     }
 }
@@ -41,10 +44,24 @@ struct ChapterView_Previews: PreviewProvider {
                 environment: .live(
                     environment: .init(
                         downloadPagesInfo: downloadPageInfoForChapter,
-                        downloadChapterInfo: downloadChapterInfo
+                        downloadChapterInfo: downloadChapterInfo,
+                        fetchScanlationGroupInfo: fetchScanlationGroupInfo
                     )
                 )
             )
         )
+    }
+}
+
+extension ChapterView {
+    // swiftlint:disable force_unwrapping
+    @ViewBuilder private func makeChapterView(chapterID: UUID) -> some View {
+        WithViewStore(store) { viewStore in
+            HStack {
+                Text(viewStore.chapterDetails[chapterID]!.chapterName)
+             
+                Spacer()
+            }
+        }
     }
 }

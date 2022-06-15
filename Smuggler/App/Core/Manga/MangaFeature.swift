@@ -20,11 +20,11 @@ struct MangaViewState: Equatable {
         isVolumesLoaded && volumeTabStates.isEmpty
     }
     
-    var selectedTab: SelectedTab = .volumes
+    var selectedTab: SelectedTab = .chapters
     
     enum SelectedTab: String, Equatable {
         case about = "About"
-        case volumes = "Volumes"
+        case chapters = "Chapters"
     }
 }
 

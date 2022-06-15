@@ -37,7 +37,7 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)
-        .map { data, _ in data }
+        .map(\.data)
         .decode(type: Response<[Manga]>.self, decoder: decoder)
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()

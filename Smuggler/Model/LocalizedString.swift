@@ -39,7 +39,7 @@ extension LocalizedString {
 extension LocalizedString: Equatable { }
 
 extension LocalizedString {
-    var availableLang: String {
+    var availableLang: String? {
         if let en = en {
             return en
         } else if let fr = fr {
@@ -60,7 +60,7 @@ extension LocalizedString {
             return zh
         }
         
-        return "No available name"
+        return nil
     }
     
     var languageFlag: String {

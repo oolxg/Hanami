@@ -24,7 +24,7 @@ func downloadPageInfoForChapter(chapterID: UUID) -> Effect<ChapterPagesInfo, API
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)
-        .map { data, _ in data }
+        .map(\.data)
         .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
@@ -45,8 +45,28 @@ func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Respon
     return URLSession.shared.dataTaskPublisher(for: url)
         .mapError { _ in APIError.downloadError }
         .retry(3)
-        .map { data, _ in data }
+        .map(\.data)
         .decode(type: Response<ChapterDetails>.self, decoder: decoder)
+        .mapError { _ in APIError.decodingError }
+        .eraseToEffect()
+}
+
+func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> Effect<Response<ScanlationGroup>, APIError> {
+    var components = URLComponents()
+    
+    components.scheme = "https"
+    components.host = "api.mangadex.org"
+    components.path = "/group/\(scanlationGroupID.uuidString.lowercased())"
+    
+    guard let url = components.url else {
+        fatalError("Error on creating URL")
+    }
+    
+    return URLSession.shared.dataTaskPublisher(for: url)
+        .mapError { _ in APIError.downloadError }
+        .retry(3)
+        .map(\.data)
+        .decode(type: Response<ScanlationGroup>.self, decoder: decoder)
         .mapError { _ in APIError.decodingError }
         .eraseToEffect()
 }

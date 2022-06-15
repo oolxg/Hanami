@@ -10,14 +10,12 @@ import ComposableArchitecture
 import SwiftUI
 
 struct ChapterState: Equatable, Identifiable {
-    init(chapter: Chapter) {
-        self.chapter = chapter
-    }
     // Chapter basic info
     let chapter: Chapter
     // we can have many 'chapterDetals' in one ChapterState because one chapter can be translated by different scanlation groups
     // here are each chapter with details
     var chapterDetails: [UUID: ChapterDetails] = [:]
+    var scanlationGroups: [UUID: ScanlationGroup] = [:]
     // Chapter UUID - Info about chapter pages
     var pagesInfo: [UUID: ChapterPagesInfo] = [:]
     // Chapter UUID - Chapter pages
@@ -29,21 +27,26 @@ struct ChapterState: Equatable, Identifiable {
 }
 
 enum ChapterAction {
-    case listIsExpanded
-    // UUID - chapter ID
+    case onAppear
     case mangaPageInfoDownloaded(result: Result<ChapterPagesInfo, APIError>, chapterID: UUID)
-    // UUID - chapter ID
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, APIError>, chapterID: UUID)
+    case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, APIError>, chapterID: UUID)
 }
 
 struct ChapterEnvironment {
     var downloadPagesInfo: (UUID) -> Effect<ChapterPagesInfo, APIError>
     var downloadChapterInfo: (UUID, JSONDecoder) -> Effect<Response<ChapterDetails>, APIError>
+    var fetchScanlationGroupInfo: (UUID, JSONDecoder) -> Effect<Response<ScanlationGroup>, APIError>
 }
+
+// About loading chapter pages
+
+// we should load all pages when user opens chapter and only save it in caches directory
+// when user open page, we immidiately get it from cache(or load it again if something happend
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<ChapterEnvironment>> { state, action, env in
     switch action {
-        case .listIsExpanded:
+        case .onAppear:
             guard state.pagesInfo[state.chapter.id] == nil else {
                 return .none
             }
@@ -85,13 +88,43 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     return .none
             }
             
-        case .chapterDetailsDownloaded(result: let result, chapterID: let chapterID):
+        case .chapterDetailsDownloaded(let result, let chapterID):
             switch result {
                 case .success(let response):
                     state.chapterDetails[chapterID] = response.data
-                    return .none
+                    
+                    var effects: [Effect<ChapterAction, Never>] = []
+                    
+                    let scanlationGroupIDs = state.chapterDetails
+                        .map(\.value)
+                        .map { chapterDetails in
+                            chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
+                        }
+                        .compactMap { $0 }
+                    
+                    effects.append(contentsOf: scanlationGroupIDs.map { id in
+                        env.fetchScanlationGroupInfo(id, env.decoder())
+                            .receive(on: env.mainQueue())
+                            .catchToEffect { ChapterAction.scanlationGroupInfoFetched(
+                                result: $0,
+                                chapterID: chapterID)
+                            }
+                        }
+                    )
+                    
+                    return .merge(effects)
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
+                    return .none
+            }
+            
+        case .scanlationGroupInfoFetched(let result, let chapterID):
+            switch result {
+                case .success(let response):
+                    state.scanlationGroups[chapterID] = response.data
+                    return .none
+                case .failure(let error):
+                    print("Error on fetching scanlation group \(error)")
                     return .none
             }
     }
