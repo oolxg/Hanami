@@ -20,20 +20,44 @@ struct MangaViewState: Equatable {
         isVolumesLoaded && volumeTabStates.isEmpty
     }
     
+    var currentReadingChapter: ChapterDetails?
+    
+    @BindableState var isUserOnReadingView = false
+    var mangaRedingViewState: MangaReadingViewState? {
+        willSet {
+            if newValue == nil {
+                isUserOnReadingView = false
+            }
+        }
+    }
+    
     var selectedTab: SelectedTab = .chapters
     
     enum SelectedTab: String, Equatable {
         case about = "About"
         case chapters = "Chapters"
     }
+
+    // should on be used for clearing cache
+    mutating func reset() {
+        mangaCover = nil
+        statistics = nil
+        volumeTabStates = []
+        isVolumesLoaded = false
+        currentReadingChapter = nil
+        isUserOnReadingView = false
+    }
 }
 
-enum MangaViewAction {
+enum MangaViewAction: BindableAction {
     case onAppear
     case volumesDownloaded(Result<Volumes, APIError>)
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
     case mangaTabChanged(MangaViewState.SelectedTab)
-    case volumeTabAction(chapterID: UUID, volumeAction: VolumeTabAction)
+    case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
+    
+    case mangaReadingViewAction(MangaReadingViewAction)
+    case binding(BindingAction<MangaViewState>)
 }
 
 struct MangaViewEnvironment {
@@ -52,18 +76,39 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
             isMainQueueAnimated: true
         ) }
     ),
+    // swiftlint:disable:next trailing_closure
+    mangaReadingViewReducer.optional()
+        .pullback(
+            state: \.mangaRedingViewState,
+            action: /MangaViewAction.mangaReadingViewAction,
+            environment: { _ in .live(
+                environment: .init(
+                    fetchChapterPagesInfo: fetchPageInfoForChapter),
+                isMainQueueAnimated: true
+            ) }
+        ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                return .merge(
-                    env.fetchMangaStatistics(state.manga.id)
-                        .receive(on: env.mainQueue())
-                        .catchToEffect(MangaViewAction.mangaStatisticsDownloaded),
-                    
-                    env.downloadMangaVolumes(state.manga.id, env.decoder())
-                        .receive(on: env.mainQueue())
-                        .catchToEffect(MangaViewAction.volumesDownloaded)
-                )
+                var effects: [Effect<MangaViewAction, Never>] = []
+                
+                if state.statistics == nil {
+                    effects.append(
+                        env.fetchMangaStatistics(state.manga.id)
+                            .receive(on: env.mainQueue())
+                            .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
+                    )
+                }
+                
+                if state.volumeTabStates.isEmpty {
+                    effects.append(
+                        env.downloadMangaVolumes(state.manga.id, env.decoder())
+                            .receive(on: env.mainQueue())
+                            .catchToEffect(MangaViewAction.volumesDownloaded)
+                    )
+                }
+                        
+                return .merge(effects)
 
             case .volumesDownloaded(let result):
                 switch result {
@@ -94,7 +139,25 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 state.selectedTab = newTab
                 return .none
                 
-            case .volumeTabAction:
+            case .volumeTabAction(_, let volumeTabAction):
+                // we're looking for action on chapters
+                // when user taps on some chapter, we send him to reading view
+                switch volumeTabAction {
+                    case .chapterAction(_, let chapterAction):
+                        switch chapterAction {
+                            case .onTapGesture(let chapterID):
+                                state.mangaRedingViewState = MangaReadingViewState(chapterID: chapterID)
+                                state.isUserOnReadingView = true
+                            default:
+                                break
+                        }
+                }
+                return .none
+                
+            case .mangaReadingViewAction:
+                return .none
+                
+            case .binding:
                 return .none
         }
     }

@@ -10,10 +10,11 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
-    
+    @State var areVolumesShown = false
+
     var body: some View {
         WithViewStore(store) { viewStore in
-            DisclosureGroup {
+            DisclosureGroup(isExpanded: $areVolumesShown) {
                 ForEachStore(
                     store.scope(
                         state: \.chapterStates,
@@ -23,9 +24,18 @@ struct VolumeTabView: View {
                     ChapterView(store: chapterState)
                 }
             } label: {
-                Text(viewStore.volume.volumeName)
-                    .font(.title2)
-                    .fontWeight(.heavy)
+                HStack {
+                    Text(viewStore.volume.volumeName)
+                        .font(.title2)
+                        .fontWeight(.heavy)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.linear(duration: 0.7)) {
+                        areVolumesShown.toggle()
+                    }
+                }
             }
             .buttonStyle(PlainButtonStyle())
             .padding()

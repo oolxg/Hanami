@@ -49,6 +49,14 @@ struct MangaView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
+            .background(
+                // swiftlint:disable:next trailing_closure
+                NavigationLink(
+                    destination: mangaReadingView,
+                    isActive: viewStore.binding(\.$isUserOnReadingView),
+                    label: { EmptyView() }
+                )
+            )
         }
     }
 }
@@ -74,6 +82,16 @@ struct MangaView_Previews: PreviewProvider {
 
 
 extension MangaView {
+    private var mangaReadingView: some View {
+        IfLetStore(
+            store.scope(
+                state: \.mangaRedingViewState,
+                action: MangaViewAction.mangaReadingViewAction
+        ),
+            then: MangaReadingView.init
+        )
+    }
+    
     private var header: some View {
         WithViewStore(store) { viewStore in
             GeometryReader { geo in

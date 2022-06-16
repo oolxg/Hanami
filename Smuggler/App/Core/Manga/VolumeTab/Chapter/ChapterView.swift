@@ -10,30 +10,41 @@ import ComposableArchitecture
 
 struct ChapterView: View {
     let store: Store<ChapterState, ChapterAction>
+    @State private var areChaptersShown = false
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            DisclosureGroup {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewStore.chapterDetails) { chapter in
-                        makeChapterView(chapter: chapter)
-                        
-                        Rectangle()
-                            .fill(.white)
-                            .frame(height: 1.5)
+            DisclosureGroup(isExpanded: $areChaptersShown) {
+                if areChaptersShown {
+                    VStack(spacing: 0) {
+                        ForEach(viewStore.chapterDetails) { chapter in
+                            makeChapterView(chapter: chapter)
+                                .transition(.opacity)
+                            
+                            Rectangle()
+                                .fill(.white)
+                                .frame(height: 1.5)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onAppear {
+                        viewStore.send(.onAppear)
                     }
                 }
-                .transition(.opacity)
-                .animation(.easeInOut, value: viewStore.chapterDetails)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .onAppear {
-                    viewStore.send(.onAppear)
-                }
             } label: {
-                Text(viewStore.chapter.chapterName)
-                    .font(.title3)
-                    .fontWeight(.heavy)
-                    .padding(.vertical, 3)
+                HStack {
+                    Text(viewStore.chapter.chapterName)
+                        .font(.title3)
+                        .fontWeight(.heavy)
+                        .padding(.vertical, 3)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.linear(duration: areChaptersShown ? 0.3 : 0.7)) {
+                        areChaptersShown.toggle()
+                    }
+                }
             }
             .buttonStyle(PlainButtonStyle())
             .padding()
@@ -50,7 +61,6 @@ struct ChapterView_Previews: PreviewProvider {
                 reducer: chapterReducer,
                 environment: .live(
                     environment: .init(
-                        downloadPagesInfo: downloadPageInfoForChapter,
                         downloadChapterInfo: downloadChapterInfo,
                         fetchScanlationGroupInfo: fetchScanlationGroupInfo
                     )
@@ -88,7 +98,23 @@ extension ChapterView {
                 
                 Spacer()
             }
+            .onTapGesture {
+                viewStore.send(.onTapGesture(chapter.id))
+            }
         }
         .padding(0)
     }
+    
+//    private var navigationLinkDestination: some View {
+//        ZStack {
+//            if isNavigationLinkActive {
+//                MangaView(
+//                    store: store.scope(
+//                        state: \.mangaState,
+//                        action: MangaThumbnailAction.mangaAction
+//                    )
+//                )
+//            }
+//        }
+//    }
 }

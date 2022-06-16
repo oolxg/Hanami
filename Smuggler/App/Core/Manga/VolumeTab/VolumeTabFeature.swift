@@ -40,7 +40,6 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment
         action: /VolumeTabAction.chapterAction,
         environment: { _ in .live(
             environment: .init(
-                downloadPagesInfo: downloadPageInfoForChapter,
                 downloadChapterInfo: downloadChapterInfo,
                 fetchScanlationGroupInfo: fetchScanlationGroupInfo
             ),

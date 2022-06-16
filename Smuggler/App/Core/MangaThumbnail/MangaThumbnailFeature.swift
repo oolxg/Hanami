@@ -141,8 +141,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                     .cancellable(id: CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaViewDelayCompleted:
-                state.mangaState.isVolumesLoaded = false
-                state.mangaState.volumeTabStates = []
+                state.mangaState.reset()
                 return .none
                 
             case .mangaAction:

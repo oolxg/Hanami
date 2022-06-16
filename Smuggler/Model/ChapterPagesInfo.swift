@@ -33,3 +33,19 @@ extension ChapterPagesInfo: Identifiable {
         chapter.hash
     }
 }
+
+extension ChapterPagesInfo {
+    var dataSaverURLs: [URL] {
+        chapter.dataSaver.map { fileName in
+            URL(string: "\(baseURL)/data-saver/\(chapter.hash)/\(fileName)")
+        }
+        .compactMap { $0 }
+    }
+    
+    var dataURLs: [URL] {
+        chapter.data.map { fileName in
+            URL(string: "\(baseURL)/data/\(chapter.hash)/\(fileName)")
+        }
+        .compactMap { $0 }
+    }
+}

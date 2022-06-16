@@ -28,13 +28,13 @@ struct ChapterState: Equatable, Identifiable {
 
 enum ChapterAction {
     case onAppear
-    case mangaPageInfoDownloaded(result: Result<ChapterPagesInfo, APIError>, chapterID: UUID)
+    case onTapGesture(UUID)
+//    case selectChapter(ChapterDetails, ChapterPagesInfo)
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, APIError>, chapterID: UUID)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, APIError>, chapterID: UUID)
 }
 
 struct ChapterEnvironment {
-    var downloadPagesInfo: (UUID) -> Effect<ChapterPagesInfo, APIError>
     var downloadChapterInfo: (UUID, JSONDecoder) -> Effect<Response<ChapterDetails>, APIError>
     var fetchScanlationGroupInfo: (UUID, JSONDecoder) -> Effect<Response<ScanlationGroup>, APIError>
 }
@@ -65,10 +65,11 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 )
             }
             
-            for otherChapterID in state.chapter.others {
+            for (i, otherChapterID) in state.chapter.others.enumerated() {
                 if state.chapterDetails[id: otherChapterID] == nil {
                     effects.append(
                         env.downloadChapterInfo(otherChapterID, env.decoder())
+                            .delay(for: .seconds(0.1 * Double(i + 1)), scheduler: env.mainQueue())
                             .receive(on: env.mainQueue())
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
@@ -79,35 +80,17 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             }
 
             return .merge(effects)
-
-        case .mangaPageInfoDownloaded(let result, let chapterID):
-            switch result {
-                case .success(let pagesInfo):
-                    state.pagesInfo[chapterID] = pagesInfo
-                    return .none
-                case .failure(let error):
-                    print("Error on downloading page info \(error)")
-                    return .none
-            }
             
+        case .onTapGesture:
+            // this case if only for getting it in MangaFeature 
+            return .none
+
         case .chapterDetailsDownloaded(let result, let chapterID):
             switch result {
                 case .success(let response):
                     state.chapterDetails.append(response.data)
                     
                     var effects: [Effect<ChapterAction, Never>] = []
-                    
-                    // swiftlint:disable:next force_unwrapping
-                    if state.chapterDetails[id: chapterID]!.attributes.externalURL == nil {
-                        effects.append(
-                            env.downloadPagesInfo(chapterID)
-                                .receive(on: env.mainQueue())
-                                .catchToEffect { ChapterAction.mangaPageInfoDownloaded(
-                                    result: $0,
-                                    chapterID: chapterID
-                                ) }
-                            )
-                    }
                     
                     let scanlationGroupIDs = state.chapterDetails
                         .map { chapterDetails in
