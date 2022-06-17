@@ -59,7 +59,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
         action: /MangaThumbnailAction.mangaAction,
         environment: { _ in .live(
             environment: .init(
-                downloadMangaVolumes: downloadChaptersForManga,
+                fetchMangaVolumes: fetchChaptersForManga,
                 fetchMangaStatistics: fetchMangaStatistics
             )
         ) }
@@ -82,7 +82,6 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 }
                 
                 return env.loadThumbnailInfo(coverArtID, env.decoder())
-                    .receive(on: env.mainQueue())
                     .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 
             case .thumbnailInfoLoaded(let result):
@@ -91,7 +90,6 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                         state.coverArtInfo = response.data
                         // if we already loaded this thumbnail, we shouldn't load it one more time
                         if let coverArt = ImageFileManager.shared.getImage(
-                            // swiftlint:disable:next force_unwrapping
                             withName: state.coverArtInfo!.attributes.fileName,
                             from: state.manga.mangaFolderName
                            ) {
@@ -117,7 +115,6 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                         
                         ImageFileManager.shared.saveImage(
                             image: returnedCoverArt,
-                            // swiftlint:disable:next force_unwrapping
                             withName: state.coverArtInfo!.attributes.fileName,
                             inFolder: state.manga.mangaFolderName
                         )

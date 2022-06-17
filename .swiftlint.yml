@@ -25,7 +25,6 @@ opt_in_rules:
   - enum_case_associated_values_count
   - fatal_error_message
   - first_where
-  - force_unwrapping
   - implicitly_unwrapped_optional
   - last_where
   - legacy_random

@@ -10,11 +10,11 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
-    @State var areVolumesShown = false
+    @State var areChaptersShown = false
 
     var body: some View {
         WithViewStore(store) { viewStore in
-            DisclosureGroup(isExpanded: $areVolumesShown) {
+            DisclosureGroup(isExpanded: $areChaptersShown) {
                 ForEachStore(
                     store.scope(
                         state: \.chapterStates,
@@ -33,7 +33,7 @@ struct VolumeTabView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     withAnimation(.linear(duration: 0.7)) {
-                        areVolumesShown.toggle()
+                        areChaptersShown.toggle()
                     }
                 }
             }

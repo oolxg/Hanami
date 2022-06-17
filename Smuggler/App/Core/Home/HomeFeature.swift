@@ -14,7 +14,6 @@ struct HomeState: Equatable {
 
 enum HomeAction {
     case onAppear
-    case refresh
     case dataLoaded(Result<Response<[Manga]>, APIError>)
     case mangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
 }
@@ -41,12 +40,6 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             case .onAppear:
                 if !state.mangaThumbnailStates.isEmpty { return .none }
                 
-                return env.loadHomePage(env.decoder())
-                    .receive(on: env.mainQueue())
-                    .catchToEffect(HomeAction.dataLoaded)
-                
-            case .refresh:
-                state.mangaThumbnailStates = []
                 return env.loadHomePage(env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect(HomeAction.dataLoaded)

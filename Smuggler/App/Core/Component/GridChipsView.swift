@@ -36,7 +36,7 @@ struct GridChipsView<Data: RandomAccessCollection, Content: View>: View where Da
 
                             let result = width
 
-                            if chipsData.id == data.last!.id { // swiftlint:disable:this force_unwrapping
+                            if chipsData.id == data.last!.id {
                                 width = 0
                             } else {
                                 width -= dimension.width
@@ -51,7 +51,7 @@ struct GridChipsView<Data: RandomAccessCollection, Content: View>: View where Da
                         .alignmentGuide(.top) { _ in
                             let result = height
 
-                            if chipsData.id == data.last!.id { // swiftlint:disable:this force_unwrapping
+                            if chipsData.id == data.last!.id {
                                 height = 0
                             }
                             return result

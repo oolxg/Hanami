@@ -32,7 +32,7 @@ enum VolumeTabAction {
 
 struct VolumeTabEnvironment { }
 
-// this reducer is only to store chapters more conviently
+// this reducer is only to store chapters more coniviniently
 let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment<VolumeTabEnvironment>> = .combine(
     // swiftlint:disable:next trailing_closure
     chapterReducer.forEach(

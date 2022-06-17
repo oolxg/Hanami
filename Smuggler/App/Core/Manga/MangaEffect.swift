@@ -9,14 +9,27 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-// Example for URL https://api.mangadex.org/manga/9d3d3403-1a87-4737-9803-bc3d99db1424/aggregate
-func downloadChaptersForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Volumes, APIError> {
+// Example for URL https://api.mangadex.org/manga/aa6c76f7-5f5f-46b6-a800-911145f81b9b/aggregate?translatedLanguage[]=en&groups[]=063cf1b0-9e25-495b-b234-296579a34496
+func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID?, translatedLanguage: String?, decoder: JSONDecoder) -> Effect<Volumes, APIError> {
     var components = URLComponents()
-
     components.scheme = "https"
     components.host = "api.mangadex.org"
     components.path = "/manga/\(mangaID.uuidString.lowercased())/aggregate"
-
+    
+    components.queryItems = []
+    
+    if let scanlationGroupID = scanlationGroupID {
+        components.queryItems!.append(
+            URLQueryItem(name: "groups[]", value: scanlationGroupID.uuidString.lowercased())
+        )
+    }
+    
+    if let translatedLanguage = translatedLanguage {
+        components.queryItems!.append(
+            URLQueryItem(name: "translatedLanguage[]", value: translatedLanguage)
+        )
+    }
+    
     guard let url = components.url else {
         fatalError("Error on creating URL")
     }
@@ -26,28 +39,6 @@ func downloadChaptersForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Vol
         .retry(3)
         .map(\.data)
         .decode(type: Volumes.self, decoder: decoder)
-        .mapError { err in APIError.decodingError(err as? DecodingError) }
-        .eraseToEffect()
-}
-
-func downloadPageInfoForChapter(chapterID: UUID, forcePort443: Bool) -> Effect<ChapterPagesInfo, APIError> {
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "api.mangadex.org"
-    components.path = "/at-home/server/\(chapterID.uuidString.lowercased())"
-    components.queryItems = [
-        URLQueryItem(name: "forcePort443", value: "\(forcePort443)")
-    ]
-    
-    guard let url = components.url else {
-        fatalError("Error on creating URL")
-    }
-    
-    return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { err in APIError.downloadError(err as URLError) }
-        .retry(3)
-        .map(\.data)
-        .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
         .mapError { err in APIError.decodingError(err as? DecodingError) }
         .eraseToEffect()
 }

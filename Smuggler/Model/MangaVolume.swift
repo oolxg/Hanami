@@ -95,13 +95,13 @@ struct Volumes: Codable {
             do {
                 let decodedVolumes = try container.decode(
                     [String: MangaVolume].self,
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
+                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
                 )
                 temp = decodedVolumes.map(\.value)
             } catch DecodingError.typeMismatch {
                 temp = try container.decode(
                     [MangaVolume].self,
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)! // swiftlint:disable:this force_unwrapping
+                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
                 )
             }
         }
@@ -138,22 +138,18 @@ struct MangaVolume: Codable {
                 do {
                     let decodedChapters = try container.decode(
                         [String: Chapter].self,
-                        // swiftlint:disable:next force_unwrapping
                         forKey: DynamicCodingKeys(stringValue: key.stringValue)!
                     )
                     tempDecodedChapters = decodedChapters.map(\.value)
                 } catch {
                     tempDecodedChapters = try container.decode(
                         [Chapter].self,
-                        // swiftlint:disable:next force_unwrapping
                         forKey: DynamicCodingKeys(stringValue: key.stringValue)!
                     )
                 }
             } else if key.stringValue == "count" {
-                // swiftlint:disable:next force_unwrapping
                 tempCount = try container.decode(Int.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             } else if key.stringValue == "volume" {
-                // swiftlint:disable:next force_unwrapping
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
@@ -200,7 +196,6 @@ extension Volumes: Equatable {
 
 extension MangaVolume {
     var volumeName: String {
-        // swiftlint:disable:next force_unwrapping
         volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean)"
     }
 }

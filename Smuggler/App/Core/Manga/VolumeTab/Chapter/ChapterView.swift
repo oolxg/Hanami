@@ -73,7 +73,7 @@ struct ChapterView_Previews: PreviewProvider {
 extension ChapterView {
     @ViewBuilder private func makeChapterView(chapter: ChapterDetails) -> some View {
         WithViewStore(store) { viewStore in
-            HStack {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading) {
                     Text(chapter.chapterName)
                         .fontWeight(.medium)
@@ -83,38 +83,42 @@ extension ChapterView {
                     
                     if let scanlationGroupName = viewStore.scanlationGroups[chapter.id]?.name {
                         HStack {
-                            Text("Translated by:")
+                            VStack(alignment: .leading) {
+                                Text("Translated by:")
+                                    .font(.caption)
+                                    .fontWeight(.light)
+                                    .foregroundColor(.theme.secondaryText)
+
+                                Text(scanlationGroupName)
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.theme.secondaryText)
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 5)
+                            .padding(.bottom, 5)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "clock")
                                 .font(.caption)
                                 .foregroundColor(.theme.secondaryText)
-
-                            Text(scanlationGroupName)
+                            
+                            Text(chapter.attributes.createdAt.timeAgo)
                                 .font(.caption)
                                 .foregroundColor(.theme.secondaryText)
                         }
-                        .padding(.horizontal, 5)
-                        .padding(.bottom, 5)
                     }
                 }
                 
                 Spacer()
             }
             .onTapGesture {
-                viewStore.send(.onTapGesture(chapter.id))
+                viewStore.send(
+                    .onTapGesture(chapter: chapter)
+                )
             }
         }
         .padding(0)
     }
-    
-//    private var navigationLinkDestination: some View {
-//        ZStack {
-//            if isNavigationLinkActive {
-//                MangaView(
-//                    store: store.scope(
-//                        state: \.mangaState,
-//                        action: MangaThumbnailAction.mangaAction
-//                    )
-//                )
-//            }
-//        }
-//    }
 }

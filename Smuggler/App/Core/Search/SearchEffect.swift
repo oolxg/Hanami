@@ -11,7 +11,7 @@ import ComposableArchitecture
 enum QuerySortOption: String {
     case relevance
     // can be desc and asc
-    case latestUploadedChapter, title
+    case latestUploadedChapter, title, rating
     case createdAt, followedCount, year
     
     enum Order: String {

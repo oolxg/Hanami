@@ -33,7 +33,6 @@ extension Publisher {
                 }
 
                 if isError {
-                    // swiftlint:disable:next force_unwrapping
                     Swift.print(String(data: data, encoding: .utf8)!)
                 }
 

@@ -96,7 +96,7 @@ extension ChapterDetails.Attributes {
             chapterIndex = Double(try container.decode(
                 String?.self,
                 forKey: .chapterIndex
-            // swiftlint:disable:next force_unwrapping multiline_function_chains
+            // swiftlint:disable:next multiline_function_chains
             )!.replacingOccurrences(of: ",", with: "."))
         } else {
             chapterIndex = nil
@@ -149,7 +149,6 @@ extension ChapterDetails {
         if let title = attributes.title {
             return attributes.chapterIndex?.clean == nil ?
             "\(languageFlag) \(title)" :
-            // swiftlint:disable:next force_unwrapping
             "\(languageFlag) Ch. \(attributes.chapterIndex!.clean) - \(title)"
         } else if let index = attributes.chapterIndex?.clean {
             return "\(languageFlag) Ch. \(index)"
@@ -158,5 +157,9 @@ extension ChapterDetails {
         } else {
             return "Chapter"
         }
+    }
+    
+    var scanltaionGroupID: UUID? {
+        relationships.first { $0.type == .scanlationGroup }?.id
     }
 }

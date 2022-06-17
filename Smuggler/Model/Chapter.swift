@@ -38,6 +38,12 @@ extension Chapter: Equatable {
 
 extension Chapter: Identifiable { }
 
+extension Chapter: Comparable {
+    static func < (lhs: Chapter, rhs: Chapter) -> Bool {
+        (lhs.chapterIndex ?? 99999) < (rhs.chapterIndex ?? 99999)
+    }
+}
+
 extension Chapter {
     init(chapterIndex: Double, count: Int, id: UUID, others: [UUID]) {
         self.chapterIndex = chapterIndex
@@ -49,7 +55,6 @@ extension Chapter {
 
 extension Chapter {
     var chapterName: String {
-        // swiftlint:disable:next force_unwrapping
         chapterIndex == nil ? "Oneshot" : "Chapter \(chapterIndex!.clean)"
     }
 }

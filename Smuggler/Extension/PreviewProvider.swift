@@ -29,7 +29,6 @@ class DeveloperPreview {
     )
     
     let coverArtInfo = CoverArtInfo(
-        // swiftlint:disable:next force_unwrapping
         id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
         type: .coverArt,
         attributes: .init(
@@ -43,12 +42,10 @@ class DeveloperPreview {
         ),
         relationships: [
             .init(
-                // swiftlint:disable:next force_unwrapping
                 id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
                 type: .manga
             ),
             .init(
-                // swiftlint:disable:next force_unwrapping
                 id: UUID(uuidString: "a8b6d978-9707-4f34-ad78-04c7378b383b")!,
                 type: .user
             )
@@ -56,7 +53,6 @@ class DeveloperPreview {
     )
 
     let manga = Manga(
-        // swiftlint:disable:next force_unwrapping
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
         type: .manga,
         attributes: .init(
@@ -133,21 +129,18 @@ class DeveloperPreview {
         ),
         relationships: [
             Relationship(
-                // swiftlint:disable:next force_unwrapping
                 id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
                 type: .coverArt,
                 related: nil,
                 attributes: nil
             ),
             Relationship(
-                // swiftlint:disable:next force_unwrapping
                 id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
                 type: .author,
                 related: nil,
                 attributes: nil
             ),
             Relationship(
-                // swiftlint:disable:next force_unwrapping
                 id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
                 type: .artist,
                 related: nil,

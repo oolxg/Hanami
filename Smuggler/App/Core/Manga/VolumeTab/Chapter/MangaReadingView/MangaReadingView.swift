@@ -13,10 +13,32 @@ struct MangaReadingView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            Text(viewStore.chapterID.uuidString)
-                .onAppear {
-                    viewStore.send(.onAppear)
+            VStack {
+                ScrollView {
+                    ForEach(viewStore.images.compactMap { $0 }, id: \.self) { image in
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: UIScreen.main.bounds.width / 1.2)
+                    }
                 }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("next") {
+                        viewStore.send(.userTappedOnNextChapterButton)
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("prev") {
+                        viewStore.send(.userTappedOnPreviousChapterButton)
+                    }
+                }
+            }
         }
     }
 }

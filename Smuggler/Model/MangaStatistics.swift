@@ -7,8 +7,6 @@
 
 import Foundation
 
-// swiftlint:disable force_unwrapping
-
 struct MangaStatisticsContainer: Codable {
     let result: String
     let statistics: [UUID: MangaStatistics]

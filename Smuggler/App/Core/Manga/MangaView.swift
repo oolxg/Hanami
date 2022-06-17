@@ -71,7 +71,7 @@ struct MangaView_Previews: PreviewProvider {
                 reducer: mangaViewReducer,
                 environment: .live(
                     environment: .init(
-                        downloadMangaVolumes: downloadChaptersForManga,
+                        fetchMangaVolumes: fetchChaptersForManga,
                         fetchMangaStatistics: fetchMangaStatistics
                     )
                 )
@@ -83,13 +83,18 @@ struct MangaView_Previews: PreviewProvider {
 
 extension MangaView {
     private var mangaReadingView: some View {
-        IfLetStore(
-            store.scope(
-                state: \.mangaRedingViewState,
-                action: MangaViewAction.mangaReadingViewAction
-        ),
-            then: MangaReadingView.init
-        )
+        WithViewStore(store) { viewStore in
+            IfLetStore(
+                store.scope(
+                    state: \.mangaReadingViewState,
+                    action: MangaViewAction.mangaReadingViewAction
+                )) { mangaReadingViewStore in
+                    MangaReadingView(store: mangaReadingViewStore)
+                        .onDisappear {
+                            viewStore.send(.userLeftMangaReadingView)
+                        }
+                }
+        }
     }
     
     private var header: some View {
@@ -125,7 +130,7 @@ extension MangaView {
                                         .font(.title.bold())
                                 }
                                 .padding(.horizontal)
-                                .padding(.top, 50)
+                                .padding(.top, 40)
                                 .padding(.bottom, 25)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -188,6 +193,7 @@ extension MangaView {
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)
+                .padding(.vertical)
         }
         .transition(.opacity)
     }
@@ -198,6 +204,7 @@ extension MangaView {
                 if isViewScrolledDown {
                     backButton
                 }
+                
                 makeSectionFor(tab: .chapters)
                 makeSectionFor(tab: .about)
             }

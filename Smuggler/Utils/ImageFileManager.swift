@@ -32,7 +32,7 @@ class ImageFileManager {
     func getImage(withName imageName: String, from folderName: String, folderType: FileManager.SearchPathDirectory = .cachesDirectory) -> UIImage? {
         guard let url = getURLForImage(imageName: imageName, folderName: folderName, folderType: folderType),
               FileManager.default.fileExists(atPath: url.path) else {
-//            print("Can't find image. Image name: \(imageName) Folder name: \(folderName)")
+            // print("Can't find image. Image name: \(imageName) Folder name: \(folderName)")
             return nil
         }
         

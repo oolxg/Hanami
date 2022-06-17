@@ -28,8 +28,7 @@ struct ChapterState: Equatable, Identifiable {
 
 enum ChapterAction {
     case onAppear
-    case onTapGesture(UUID)
-//    case selectChapter(ChapterDetails, ChapterPagesInfo)
+    case onTapGesture(chapter: ChapterDetails)
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, APIError>, chapterID: UUID)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, APIError>, chapterID: UUID)
 }

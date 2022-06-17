@@ -226,7 +226,6 @@ extension FiltersView {
         ZStack {
             if navTitle != nil {
                 Color.clear
-                // swiftlint:disable:next force_unwrapping
                     .navigationTitle(navTitle!)
             }
             

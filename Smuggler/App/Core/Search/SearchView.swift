@@ -115,8 +115,18 @@ extension SearchView {
                 makeButtonViewFor(sortOption: .relevance, order: .desc)
                 
                 Menu {
-                    makeButtonViewFor(sortOption: .latestUploadedChapter, order: .asc)
+                    makeButtonViewFor(sortOption: .rating, order: .desc)
+                    makeButtonViewFor(sortOption: .rating, order: .asc)
+                } label: {
+                    if sortOption == .rating {
+                        Image(systemName: "checkmark")
+                    }
+                    Text("Rating")
+                }
+                
+                Menu {
                     makeButtonViewFor(sortOption: .latestUploadedChapter, order: .desc)
+                    makeButtonViewFor(sortOption: .latestUploadedChapter, order: .asc)
                 } label: {
                     if sortOption == .latestUploadedChapter {
                         Image(systemName: "checkmark")
@@ -228,6 +238,12 @@ extension SearchView {
                         return "Year descending"
                     } else {
                         return "Year ascending"
+                    }
+                case .rating:
+                    if order == .desc {
+                        return "Highest rating"
+                    } else {
+                        return "Lowest rating"
                     }
             }
         }
