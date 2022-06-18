@@ -182,7 +182,7 @@ extension MangaView {
     
     private var mangaInfoView: some View {
         WithViewStore(store) { viewStore in
-            Text(LocalizedStringKey(viewStore.manga.description))
+            Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
                 .padding()
         }
     }

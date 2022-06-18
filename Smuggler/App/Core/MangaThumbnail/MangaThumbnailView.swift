@@ -14,13 +14,52 @@ struct MangaThumbnailView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            VStack(alignment: .center) {
-                Text(viewStore.manga.title)
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.theme.darkGray)
+                
+                HStack(alignment: .top) {
+                    coverArt
                     
-                navigationLink
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(viewStore.manga.title)
+                            .lineLimit(2)
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        if let statistics = viewStore.mangaStatistics {
+                            HStack(alignment: .top, spacing: 10) {
+                                HStack(alignment: .top, spacing: 0) {
+                                    Image(systemName: "star.fill")
+                                    
+                                    Text(statistics.rating.average?.clean ?? statistics.rating.bayesian.clean)
+                                }
+                                
+                                HStack(alignment: .top, spacing: 0) {
+                                    Image(systemName: "bookmark.fill")
+                                    
+                                    Text(statistics.follows.abbreviation)
+                                }
+                            }
+                            .font(.footnote)
+                        }
+                        
+                        if let mangaDescription = viewStore.manga.description {
+                            Text(LocalizedStringKey(mangaDescription))
+                                .lineLimit(5)
+                                .foregroundColor(.white)
+                                .font(.footnote)
+                        }
+                    }
+                }
+                .padding(10)
             }
+            .frame(height: 150)
             .onAppear {
                 viewStore.send(.onAppear)
+            }
+            .onTapGesture {
+                isNavigationLinkActive.toggle()
             }
         }
     }
@@ -46,13 +85,15 @@ struct MangaThumbnailView_Previews: PreviewProvider {
 
 extension MangaThumbnailView {
     // all the stuff here is to make NavigationLink 'lazy'
-    private var navigationLink: some View {
+    private var coverArt: some View {
         WithViewStore(store) { viewStore in
-            if let thumbnail = viewStore.coverArt {
-                Image(uiImage: thumbnail)
+            if let coverArt = viewStore.coverArt {
+                Image(uiImage: coverArt)
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
+                    .scaledToFill()
+                    .frame(width: 100, height: 150)
+                    .clipped()
+                    .cornerRadius(10)
                     .background(
                         NavigationLink(
                             isActive: $isNavigationLinkActive,
@@ -60,15 +101,8 @@ extension MangaThumbnailView {
                             label: { EmptyView() }
                         )
                     )
-                    .onTapGesture {
-                        isNavigationLinkActive.toggle()
-                    }
                     .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                        if isNavLinkActive {
-                            viewStore.send(.userOpenedMangaView)
-                        } else {
-                            viewStore.send(.userLeftMangaView)
-                        }
+                        viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
                     }
             }
         }

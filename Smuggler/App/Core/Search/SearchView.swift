@@ -50,7 +50,8 @@ struct SearchView_Previews: PreviewProvider {
                 reducer: searchReducer,
                 environment: .live(
                     environment: .init(
-                        searchManga: makeMangaSearchRequest
+                        searchManga: makeMangaSearchRequest,
+                        fetchStatistics: fetchMangaStatistics
                     ),
                     isMainQueueAnimated: true
                 )
@@ -74,15 +75,19 @@ extension SearchView {
                 
                 Spacer()
             } else {
-                List {
-                    ForEachStore(
-                        store.scope(
-                            state: \.mangaThumbnailStates,
-                            action: SearchAction.mangaThumbnailAction),
-                        content: MangaThumbnailView.init
-                    )
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEachStore(
+                            store.scope(
+                                state: \.mangaThumbnailStates,
+                                action: SearchAction.mangaThumbnailAction)
+                        ) { thumbnailStore in
+                            MangaThumbnailView(store: thumbnailStore)
+                                .padding(.vertical)
+                        }
+                    }
                 }
-                .listStyle(PlainListStyle())
+                .transition(.opacity)
             }
         }
     }

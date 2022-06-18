@@ -45,6 +45,7 @@ struct SearchState: Equatable {
 enum SearchAction: BindableAction {
     case searchForManga
     case searchResultDownloaded(result: Result<Response<[Manga]>, APIError>, requestParams: SearchState.RequestParams)
+    case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, APIError>)
     case searchStringChanged(String)
 
     case mangaThumbnailAction(UUID, MangaThumbnailAction)
@@ -55,6 +56,7 @@ enum SearchAction: BindableAction {
 
 struct SearchEnvironment {
     var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, APIError>
+    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, APIError>
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEnvironment>> = .combine(
@@ -78,7 +80,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             environment: { _ in
                 .live(
                     environment: .init(getListOfTags: downloadTagsList),
-                    isMainQueueAnimated: true
+                    isMainQueueAnimated: false
                 )
             }
         ),
@@ -143,9 +145,27 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
-                        return .none
+                        
+                        return env.fetchStatistics(response.data.map(\.id))
+                            .receive(on: env.mainQueue())
+                            .catchToEffect(SearchAction.mangaStatisticsFetched)
+                        
                     case .failure(let error):
                         print("error on downloading search results \(error)")
+                        return .none
+                }
+                
+            case .mangaStatisticsFetched(let result):
+                switch result {
+                    case .success(let response):
+                        for stat in response.statistics {
+                            state.mangaThumbnailStates[id: stat.key]?.mangaState.statistics = stat.value
+                        }
+                        
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on downloading home page: \(error)")
                         return .none
                 }
                 

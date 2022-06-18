@@ -85,7 +85,7 @@ extension FiltersView {
             
             Rectangle()
                 .frame(height: 3)
-                .foregroundColor(.theme.darkGrey)
+                .foregroundColor(.theme.darkGray)
             
             VStack(alignment: .leading) {
                 makeTitle("Content rating")
@@ -102,7 +102,7 @@ extension FiltersView {
             
             Rectangle()
                 .frame(height: 3)
-                .foregroundColor(.theme.darkGrey)
+                .foregroundColor(.theme.darkGray)
             
             VStack(alignment: .leading) {
                 makeTitle("Demographic")
@@ -118,13 +118,13 @@ extension FiltersView {
                 // if tag has state '.selected' or '.banned', its width will be bigger
                 // so we need to adjust more height for this view
                 .frame(height: viewStore.publicationDemographics
-                    .filter { $0.state != .notSelected }.isEmpty ? 100 : 60)
+                    .filter { $0.state != .notSelected }.isEmpty ? 60 : 100)
                 .padding(5)
             }
             
             Rectangle()
                 .frame(height: 3)
-                .foregroundColor(.theme.darkGrey)
+                .foregroundColor(.theme.darkGray)
             
             VStack(alignment: .leading) {
                 makeTitle("Content")
@@ -136,7 +136,7 @@ extension FiltersView {
             
             Rectangle()
                 .frame(height: 3)
-                .foregroundColor(.theme.darkGrey)
+                .foregroundColor(.theme.darkGray)
         }
     }
     
@@ -263,7 +263,7 @@ extension FiltersView {
     
     private func getColorForTag<T: FilterTagProtocol>(_ tag: T) -> Color {
         if tag.state == .notSelected {
-            return .theme.darkGrey
+            return .theme.darkGray
         } else if tag.state == .selected {
             return .theme.accent
         } else {

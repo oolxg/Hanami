@@ -16,9 +16,14 @@ struct MangaThumbnailState: Equatable, Identifiable {
     }
     
     var mangaState: MangaViewState
-    var manga: Manga
+    let manga: Manga
     var coverArtInfo: CoverArtInfo?
     var coverArt: UIImage?
+    
+    var mangaStatistics: MangaStatistics? {
+        mangaState.statistics
+    }
+    
     var id: UUID { manga.id }
     
     var coverArtURL: URL? {

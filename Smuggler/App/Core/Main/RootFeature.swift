@@ -37,7 +37,8 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
             action: /AppAction.homeAction,
             environment: { _ in .live(
                 environment: .init(
-                    loadHomePage: downloadMangaList
+                    loadHomePage: downloadMangaList,
+                    fetchStatistics: fetchMangaStatistics
                 )
             ) }
         ),
@@ -48,7 +49,8 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
             action: /AppAction.searchAction,
             environment: { _ in .live(
                     environment: .init(
-                        searchManga: makeMangaSearchRequest
+                        searchManga: makeMangaSearchRequest,
+                        fetchStatistics: fetchMangaStatistics
                     ),
                     isMainQueueAnimated: false
                 )

@@ -55,6 +55,7 @@ struct MangaStatistics: Codable {
 // MARK: - Rating
 struct MangaRating: Codable {
     let average: Double?
+    let bayesian: Double
 }
 
 extension MangaRating: Equatable { }

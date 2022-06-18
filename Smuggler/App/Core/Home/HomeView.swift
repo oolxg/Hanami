@@ -25,10 +25,9 @@ struct HomeView: View {
                                 )
                             ) { thumbnailViewStore in
                                 MangaThumbnailView(store: thumbnailViewStore)
+                                    .padding()
                             }
                         }
-                        .listSectionSeparator(.hidden)
-                        .listStyle(PlainListStyle())
                     }
                     .navigationTitle("Smuggler")
                 }
@@ -48,7 +47,8 @@ struct HomeView_Previews: PreviewProvider {
                 reducer: homeReducer,
                 environment: .live(
                     environment: .init(
-                        loadHomePage: downloadMangaList
+                        loadHomePage: downloadMangaList,
+                        fetchStatistics: fetchMangaStatistics
                     )
                 )
             )

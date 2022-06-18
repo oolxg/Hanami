@@ -24,7 +24,7 @@ struct MangaReadingView: View {
                 }
             }
             .onAppear {
-                viewStore.send(.onAppear)
+                viewStore.send(.userStartedReadingChapter)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

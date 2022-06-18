@@ -22,7 +22,7 @@ struct MangaReadingViewState: Equatable {
 }
 
 enum MangaReadingViewAction {
-    case onAppear
+    case userStartedReadingChapter
     case chapterPagesInfoFetched(Result<ChapterPagesInfo, APIError>)
     case imageDownloaded(result: Result<UIImage, APIError>, order: Int)
     
@@ -39,7 +39,7 @@ struct MangaReadingViewEnvironment {
 // swiftlint:disable:next line_length
 let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAction, SystemEnvironment<MangaReadingViewEnvironment>> { state, action, env in
     switch action {
-        case .onAppear:
+        case .userStartedReadingChapter:
             guard state.chapterPagesInfo == nil else { return .none }
             
             return env.fetchChapterPagesInfo(state.chapterID)
@@ -49,8 +49,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             switch result {
                 case .success(let chapterPagesInfo):
                     state.images.resize(chapterPagesInfo.dataSaverURLs.count, fillWith: nil)
-                    state.chapterPagesInfo = chapterPagesInfo
-                    
+
                     return .merge(
                         chapterPagesInfo.dataSaverURLs.enumerated().map { i, url in
                             env.downloadImage(url)
@@ -79,6 +78,5 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         case .userTappedOnPreviousChapterButton:
             return .none
-            
     }
 }

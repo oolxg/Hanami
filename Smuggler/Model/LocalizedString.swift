@@ -15,7 +15,7 @@ struct LocalizedString: Codable {
     enum CodingKeys: String, CodingKey {
         case en, ru, zh, fr, es, ar, th
         case jp = "ja"
-        case jpRo = "jp-ro"
+        case jpRo = "ja-ro"
         case zhRo = "zh-ro"
         case esLa = "es-la"
     }

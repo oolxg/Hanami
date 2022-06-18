@@ -11,9 +11,9 @@ import SwiftUI
 
 struct MangaViewState: Equatable {
     let manga: Manga
-    var mangaCover: UIImage?
     var statistics: MangaStatistics?
-    
+
+    var mangaCover: UIImage?
     var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
     var areVolumesLoaded = false
     var shouldShowEmptyMangaMessage: Bool {
@@ -52,7 +52,6 @@ struct MangaViewState: Equatable {
     // should on be used for clearing cache
     mutating func reset() {
         mangaCover = nil
-        statistics = nil
         volumeTabStates = []
         areVolumesLoaded = false
         isUserOnReadingView = false
@@ -255,7 +254,12 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             chapterIndex: nextChapter.chapterIndex
                         )
                         
-                        return Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes)
+                        // we're firing this effect - >Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
+                        return .merge(
+                            Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
+                            Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        )
                         
                     case .userTappedOnPreviousChapterButton:
                         guard let previousChapterIndex = state.previousReadingChapterIndex,
@@ -268,7 +272,12 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             chapterIndex: previousChapter.chapterIndex
                         )
                         
-                        return Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes)
+                        // we're firing this effect - >Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
+                        return .merge(
+                            Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
+                            Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        )
                         
                     default:
                         return .none

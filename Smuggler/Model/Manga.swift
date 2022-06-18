@@ -112,10 +112,14 @@ extension Manga: Identifiable { }
 
 extension Manga {
     var title: String {
-        attributes.title.availableLang ?? "No titile available"
+        if attributes.title.availableLang != nil {
+            return attributes.title.availableLang!
+        } else {
+            return attributes.altTitles.availableLang ?? "No titile available"
+        }
     }
     
-    var description: String {
-        attributes.description.availableLang ?? "No description"
+    var description: String? {
+        attributes.description.availableLang
     }
 }
