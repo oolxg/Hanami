@@ -71,7 +71,13 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                         return .none
                         
                     case .failure(let error):
-                        print("error on downloading home page: \(error)")
+                        switch error {
+                            case .downloadError(let err):
+                                print(err)
+                            default:
+                                break
+                        }
+//                        print("error on downloading home page: \(error)")
                         return .none
                     }
                 

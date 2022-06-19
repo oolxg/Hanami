@@ -11,9 +11,11 @@ import Foundation
 struct LocalizedString: Codable {
     var en, fr, ru, jp, jpRo, th: String?
     var zh, zhRo, es, esLa, ar: String?
+    var uk: String?
     
     enum CodingKeys: String, CodingKey {
-        case en, ru, zh, fr, es, ar, th
+        case en, ru, zh, fr
+        case es, ar, th, uk
         case jp = "ja"
         case jpRo = "ja-ro"
         case zhRo = "zh-ro"
@@ -25,6 +27,7 @@ extension LocalizedString {
     init(localizedStrings langContent: [LocalizedString]) {
         langContent.forEach { content in
             en = content.en == nil ? en : content.en
+            uk = content.uk == nil ? uk : content.uk
             fr = content.fr == nil ? fr : content.fr
             es = content.es == nil ? es : content.es
             esLa = content.esLa == nil ? esLa : content.esLa
@@ -65,12 +68,14 @@ extension LocalizedString {
             return ar
         } else if let th = th {
             return th
+        } else if let uk = uk {
+            return uk
         }
         
         return nil
     }
     
-    var languageFlag: String {
+    var langukgeFlag: String {
         if en != nil {
             return "🇬🇧"
         } else if fr != nil {
@@ -89,6 +94,8 @@ extension LocalizedString {
             return "🇸🇦"
         } else if th != nil {
             return "🇹🇭"
+        } else if uk != nil {
+            return "🇺🇦"
         }
         
         return "❓"

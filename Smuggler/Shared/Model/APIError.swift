@@ -9,7 +9,8 @@ import Foundation
 
 enum APIError: Error {
     case downloadError(URLError)
-    case decodingError(DecodingError?)
+    case decodingError(DecodingError)
+    case unknownError(String)
 }
 
 // swiftlint:disable empty_enum_arguments
@@ -20,6 +21,9 @@ extension APIError: Equatable {
                 return true
                 
             case (.decodingError(_), .decodingError(_)):
+                return true
+                
+            case (.unknownError(_), .unknownError(_)):
                 return true
                 
             default:

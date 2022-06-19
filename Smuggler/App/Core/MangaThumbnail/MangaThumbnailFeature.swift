@@ -18,7 +18,9 @@ struct MangaThumbnailState: Equatable, Identifiable {
     var mangaState: MangaViewState
     let manga: Manga
     var coverArtInfo: CoverArtInfo?
-    var coverArt: UIImage?
+    var coverArt: UIImage? {
+        mangaState.coverArt
+    }
     
     var mangaStatistics: MangaStatistics? {
         mangaState.statistics
@@ -98,8 +100,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                             withName: state.coverArtInfo!.attributes.fileName,
                             from: state.manga.mangaFolderName
                            ) {
-                            state.mangaState.mangaCover = coverArt
-                            state.coverArt = coverArt
+                            state.mangaState.coverArt = coverArt
                             return .none
                         }
                         
@@ -115,8 +116,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
             case .thumbnailLoaded(let result):
                 switch result {
                     case .success(let returnedCoverArt):
-                        state.coverArt = returnedCoverArt
-                        state.mangaState.mangaCover = returnedCoverArt
+                        state.mangaState.coverArt = returnedCoverArt
                         
                         ImageFileManager.shared.saveImage(
                             image: returnedCoverArt,

@@ -13,7 +13,7 @@ struct MangaViewState: Equatable {
     let manga: Manga
     var statistics: MangaStatistics?
 
-    var mangaCover: UIImage?
+    var coverArt: UIImage?
     var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
     var areVolumesLoaded = false
     var shouldShowEmptyMangaMessage: Bool {
@@ -51,7 +51,6 @@ struct MangaViewState: Equatable {
     
     // should on be used for clearing cache
     mutating func reset() {
-        mangaCover = nil
         volumeTabStates = []
         areVolumesLoaded = false
         isUserOnReadingView = false

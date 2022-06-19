@@ -44,7 +44,6 @@ struct SearchBarView: View {
                 y: 0.0
             )
         )
-        .padding()
     }
 }
 

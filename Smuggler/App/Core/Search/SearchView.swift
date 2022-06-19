@@ -23,10 +23,11 @@ struct SearchView: View {
                                 send: SearchAction.searchStringChanged
                             )
                         )
+                        .padding(.horizontal)
                         
                         filtersButton
                     }
-                    
+                    // TODO: прятать HStack при скролле 
                     SortPickerView(
                         sortOption: viewStore.binding(\.$searchSortOption),
                         sortOptionOrder: viewStore.binding(\.$searchSortOptionOrder)
@@ -87,7 +88,6 @@ extension SearchView {
                         }
                     }
                 }
-                .transition(.opacity)
             }
         }
     }

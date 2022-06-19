@@ -19,7 +19,7 @@ struct MangaReadingView: View {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: UIScreen.main.bounds.width / 1.2)
+                            .frame(width: UIScreen.main.bounds.width)
                     }
                 }
             }

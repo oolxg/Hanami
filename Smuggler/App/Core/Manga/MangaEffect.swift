@@ -35,11 +35,19 @@ func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID?, translatedLa
     }
         
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { err in APIError.downloadError(err as URLError) }
+        .validateResponseCode()
         .retry(3)
         .map(\.data)
         .decode(type: Volumes.self, decoder: decoder)
-        .mapError { err in APIError.decodingError(err as? DecodingError) }
+        .mapError { err -> APIError in
+            if err is URLError {
+                return APIError.downloadError(err as! URLError)
+            } else if err is DecodingError {
+                return APIError.decodingError(err as! DecodingError)
+            }
+            
+            return APIError.unknownError(err.localizedDescription)
+        }
         .eraseToEffect()
 }
 
@@ -52,10 +60,18 @@ func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, API
     }
     
     return URLSession.shared.dataTaskPublisher(for: url)
-        .mapError { err in APIError.downloadError(err as URLError) }
+        .validateResponseCode()
         .retry(3)
         .map(\.data)
         .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-        .mapError { err in APIError.decodingError(err as? DecodingError) }
+        .mapError { err -> APIError in
+            if err is URLError {
+                return APIError.downloadError(err as! URLError)
+            } else if err is DecodingError {
+                return APIError.decodingError(err as! DecodingError)
+            }
+            
+            return APIError.unknownError(err.localizedDescription)
+        }
         .eraseToEffect()
 }

@@ -104,8 +104,8 @@ extension MangaView {
                 let size = geo.size
                 let height = size.height + minY
                 
-                if let mangaCover = viewStore.mangaCover {
-                    Image(uiImage: mangaCover)
+                if let coverArt = viewStore.coverArt {
+                    Image(uiImage: coverArt)
                         .resizable()
                         .scaledToFill()
                         .frame(height: height > 0 ? height : 0, alignment: .center)
