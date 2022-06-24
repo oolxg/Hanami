@@ -182,6 +182,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapter.attributes.translatedLanguage,
                     env.decoder()
                 )
+                .receive(on: env.mainQueue())
                 .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
             // here we're fetching all chapters from the same scanlation group, that translated current reading chapter
@@ -254,7 +255,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             chapterID: nextChapter.id,
                             chapterIndex: nextChapter.chapterIndex
                         )
-                        
                         // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
                         // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
                         return .merge(

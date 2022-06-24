@@ -89,6 +89,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 }
                 
                 return env.loadThumbnailInfo(coverArtID, env.decoder())
+                    .receive(on: env.mainQueue())
                     .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 
             case .thumbnailInfoLoaded(let result):

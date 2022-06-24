@@ -303,6 +303,7 @@
 		2220E1632832A8910046F08A /* Manga */ = {
 			isa = PBXGroup;
 			children = (
+				22104828285B663900CE8CED /* MangaReadingView */,
 				2245D4AF284009EA005B1C83 /* VolumeTab */,
 				2220E1662832A9280046F08A /* MangaView.swift */,
 				2220E1642832A8D60046F08A /* MangaFeature.swift */,
@@ -464,7 +465,6 @@
 		22A7BF2B283AB6CD008EDD52 /* Chapter */ = {
 			isa = PBXGroup;
 			children = (
-				22104828285B663900CE8CED /* MangaReadingView */,
 				22A7BF32283ADB91008EDD52 /* ChapterView.swift */,
 				22A7BF2C283AB6D7008EDD52 /* ChapterFeature.swift */,
 				22A7BF30283AB923008EDD52 /* ChapterEffect.swift */,

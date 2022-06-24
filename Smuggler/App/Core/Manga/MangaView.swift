@@ -22,41 +22,44 @@ struct MangaView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            ScrollView(showsIndicators: false) {
-                header
-                
-                LazyVStack(pinnedViews: .sectionHeaders) {
-                    Section {
-                        mangaBodyView
-                    } header: {
-                        pinnedNavigation
+            VStack {
+                ScrollView(showsIndicators: false) {
+                    header
+                    
+                    LazyVStack(pinnedViews: .sectionHeaders) {
+                        Section {
+                            mangaBodyView
+                        } header: {
+                            pinnedNavigation
+                        }
                     }
                 }
-            }
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
-            .overlay(
-                Rectangle()
-                    .fill(.black)
-                    .frame(height: 50)
-                    .frame(maxHeight: .infinity, alignment: .top)
-                    .opacity(isViewScrolledDown ? 1 : 0)
-            )
-            .navigationBarHidden(true)
-            .coordinateSpace(name: "scroll")
-            .ignoresSafeArea(.container, edges: .vertical)
-            // this padding is needed because TabView overlaps with content here
-            // if padding is 0, it doesnt work and 1 is okay ¯\_(ツ)_/¯
-            .padding(.bottom, 1)
-            .background(
-                // swiftlint:disable:next trailing_closure
-                NavigationLink(
-                    destination: mangaReadingView,
-                    isActive: viewStore.binding(\.$isUserOnReadingView),
-                    label: { EmptyView() }
+                .onAppear {
+                    viewStore.send(.onAppear)
+                }
+                .overlay(
+                    Rectangle()
+                        .fill(.black)
+                        .frame(height: 50)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        .opacity(isViewScrolledDown ? 1 : 0)
                 )
-            )
+                .navigationBarHidden(true)
+                .coordinateSpace(name: "scroll")
+                .ignoresSafeArea(.container, edges: .vertical)
+                .padding(.bottom, 1)
+                .background(
+                    // swiftlint:disable:next trailing_closure
+                    NavigationLink(
+                        destination: mangaReadingView,
+                        isActive: viewStore.binding(\.$isUserOnReadingView),
+                        label: { EmptyView() }
+                    )
+                )
+                
+                Text("")
+                    .frame(height: 2)
+            }
         }
     }
 }
@@ -159,7 +162,7 @@ extension MangaView {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
                     } else {
-                        LazyVStack {
+                        VStack {
                             ForEachStore(
                                 store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
                             ) { volumeStore in

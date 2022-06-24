@@ -43,9 +43,8 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
     struct CancelPagesDownloading: Hashable { }
     switch action {
         case .userStartedReadingChapter:
-            guard state.pagesInfo == nil else { return .none }
-            
             return env.fetchChapterPagesInfo(state.chapterID)
+                .receive(on: env.mainQueue())
                 .catchToEffect(MangaReadingViewAction.chapterPagesInfoFetched)
             
         case .chapterPagesInfoFetched(let result):
@@ -76,16 +75,17 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     return .none
             }
             
-        case .imageDownloaded(let result, let imageName, let order):
+        case .imageDownloaded(let result, let imageName, let index):
             switch result {
                 case .success(let image):
-                    guard order < state.images.count else {
+                    guard index < state.images.count else {
                         fatalError(
-                            "Somehow order of page is more then reserved capacity: \(order), \(state.images.count)"
+                            "Somehow order of page is more then reserved capacity: \(index), \(state.images.count)"
                         )
                     }
                     
-                    state.images[order] = image
+                    print("image \(index) loaded +")
+                    state.images[index] = image
 
                     return .none
                     
@@ -97,34 +97,29 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
         case .imageAppear(let index):
             // TODO: - Make image save in cache and delete from state.images after it disappears
             guard let pagesInfo = state.pagesInfo else {
-                fatalError("Somehow we lost pages info...")
+                print("Somehow we lost pages info...")
+                return .none
             }
             
             let nextImageIndex = index + 1
             // if we have image with index two, we have to load image with index 3 and so on
-            guard index > 1, nextImageIndex < pagesInfo.dataSaverURLs.count else {
+            guard index >= 2, nextImageIndex < pagesInfo.dataSaverURLs.count, state.images[nextImageIndex] == nil else {
                 // first 3 images [0, 1, 2] we're loading by default in 'chapterPagesInfoFetched'
+                print("image \(index) is already loaded")
                 return .none
             }
             
-            if state.images[nextImageIndex] != nil {
-                // means we already loaded this page
-                return .none
-            }
+            print("start loading image \(index)")
             
-            if nextImageIndex < pagesInfo.dataSaverURLs.count {
-                return env.downloadImage(pagesInfo.dataSaverURLs[nextImageIndex])
-                    .receive(on: env.mainQueue())
-                    .catchToEffect {
-                        MangaReadingViewAction.imageDownloaded(
-                            result: $0,
-                            imageName: pagesInfo.chapter.dataSaver[nextImageIndex],
-                            order: nextImageIndex
-                        )
-                    }
-            } else {
-                return .none
-            }
+            return env.downloadImage(pagesInfo.dataSaverURLs[nextImageIndex])
+                .receive(on: env.mainQueue())
+                .catchToEffect {
+                    MangaReadingViewAction.imageDownloaded(
+                        result: $0,
+                        imageName: pagesInfo.chapter.dataSaver[nextImageIndex],
+                        order: nextImageIndex
+                    )
+                }
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userTappedOnNextChapterButton:

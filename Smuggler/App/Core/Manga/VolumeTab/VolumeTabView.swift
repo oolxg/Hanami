@@ -14,8 +14,8 @@ struct VolumeTabView: View {
 
     var body: some View {
         WithViewStore(store) { viewStore in
-            LazyVStack {
-                DisclosureGroup(isExpanded: $areChaptersShown) {
+            DisclosureGroup(isExpanded: $areChaptersShown) {
+                LazyVStack {
                     ForEachStore(
                         store.scope(
                             state: \.chapterStates,
@@ -25,34 +25,35 @@ struct VolumeTabView: View {
                         LazyView(
                             ChapterView(store: chapterState)
                         )
-                    }
-                } label: {
-                    HStack {
-                        Text(viewStore.volume.volumeName)
-                            .font(.title2)
-                            .fontWeight(.heavy)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        // if there a low of chapters in one volume, we should slowly show them,
-                        // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
-                        withAnimation(
-                            .linear(
-                                duration: areChaptersShown ? 0.6 : max(Double(viewStore.chapterStates.count / 15), 0.6)
-                            )
-                        ) {
-                            areChaptersShown.toggle()
-                        }
+                        .transition(.opacity)
                     }
                 }
-                .buttonStyle(PlainButtonStyle())
-                .transition(.opacity)
-                .padding(.vertical)
-                .padding(.horizontal, 10)
-                .animation(.linear, value: areChaptersShown)
-                .frame(maxWidth: .infinity)
+            } label: {
+                HStack {
+                    Text(viewStore.volume.volumeName)
+                        .font(.title2)
+                        .fontWeight(.heavy)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // if there a low of chapters in one volume, we should slowly show them,
+                    // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
+                    withAnimation(
+                        .linear(
+                            duration: areChaptersShown ? 0.6 : max(Double(viewStore.chapterStates.count / 15), 0.6)
+                        )
+                    ) {
+                        areChaptersShown.toggle()
+                    }
+                }
             }
+            .buttonStyle(PlainButtonStyle())
+            .transition(.opacity)
+            .padding(.vertical)
+            .padding(.horizontal, 10)
+            .animation(.linear, value: areChaptersShown)
+            .frame(maxWidth: .infinity)
         }
     }
 }
