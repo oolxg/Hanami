@@ -2,7 +2,8 @@
 //  ZoomableScrollView.swift
 //  Smuggler
 //
-//  Created by mk.pwnz on 24/06/2022.
+//  Created by jtbandes
+//  https://stackoverflow.com/a/64110231/11090054
 //
 
 import Foundation
