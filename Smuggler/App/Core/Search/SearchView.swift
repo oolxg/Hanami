@@ -13,27 +13,29 @@ struct SearchView: View {
     @State private var showFilters = false
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            VStack {
-                HStack {
-                    SearchBarView(
-                        searchText: viewStore.binding(
-                            get: \.searchText,
-                            send: SearchAction.searchStringChanged
+        NavigationView {
+            WithViewStore(store) { viewStore in
+                VStack {
+                    HStack {
+                        SearchBarView(
+                            searchText: viewStore.binding(
+                                get: \.searchText,
+                                send: SearchAction.searchStringChanged
+                            )
                         )
-                    )
-                    .padding(.horizontal)
+                        .padding(.horizontal)
+                        
+                        filtersButton
+                    }
+                    // TODO: прятать HStack при скролле
+                   searchOptions
+                        .padding(.horizontal, 15)
                     
-                    filtersButton
+                    searchResults
                 }
-                // TODO: прятать HStack при скролле 
-               searchOptions
-                    .padding(.horizontal, 15)
-                
-                searchResults
             }
+            .navigationTitle("Search")
         }
-        .navigationTitle("Search")
     }
 }
 

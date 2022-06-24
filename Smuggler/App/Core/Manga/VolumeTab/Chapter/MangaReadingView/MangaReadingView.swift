@@ -12,6 +12,7 @@ import ComposableArchitecture
 struct MangaReadingView: View {
     @Environment(\.dismiss) private var dismiss
     let store: Store<MangaReadingViewState, MangaReadingViewAction>
+    @State private var shouldHideNavigationBar = false
     
     var body: some View {
         WithViewStore(store) { viewStore in
@@ -37,9 +38,14 @@ struct MangaReadingView: View {
                     .navigationTitle("\(imageIndex + 1)/\(viewStore.images.count)")
                 }
             }
-            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            .frame(
+                width: UIScreen.main.bounds.width,
+                height: UIScreen.main.bounds.height
+            )
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .navigationBarBackButtonHidden(true)
+            .navigationBarHidden(shouldHideNavigationBar)
+            .animation(.linear, value: shouldHideNavigationBar)
             .onAppear {
                 viewStore.send(.userStartedReadingChapter)
             }
@@ -62,6 +68,11 @@ struct MangaReadingView: View {
                         viewStore.send(.userTappedOnNextChapterButton)
                     }
                 }
+            }
+        }
+        .onTapGesture {
+            withAnimation(.linear) {
+                shouldHideNavigationBar.toggle()
             }
         }
     }

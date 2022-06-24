@@ -174,7 +174,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
-                UITabBar.hideTabBar(animated: false)
+                UITabBar.hideTabBar(animated: true)
                 
                 return env.fetchMangaVolumes(
                     state.manga.id,
@@ -182,7 +182,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapter.attributes.translatedLanguage,
                     env.decoder()
                 )
-                .receive(on: env.mainQueue())
                 .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
             // here we're fetching all chapters from the same scanlation group, that translated current reading chapter

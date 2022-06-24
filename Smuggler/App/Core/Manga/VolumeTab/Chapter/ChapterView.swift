@@ -98,6 +98,7 @@ extension ChapterView {
                 
                 Spacer()
             }
+            .contentShape(Rectangle())
             .onTapGesture {
                 // if manga has externalURL, means we can only read it on some other website, not in app
                 if let url = chapter.attributes.externalURL {

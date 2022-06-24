@@ -12,35 +12,37 @@ struct HomeView: View {
     let store: Store<HomeState, HomeAction>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            ScrollView {
-                Text("oolxg")
-                LazyVStack(spacing: 0) {
-                    if viewStore.mangaThumbnailStates.isEmpty {
-                        ForEach(0..<20) { _ in
-                            MangaThumbnailSkeletonView()
-                                .padding()
+        NavigationView {
+            WithViewStore(store) { viewStore in
+                ScrollView {
+                    Text("oolxg")
+                    LazyVStack(spacing: 0) {
+                        if viewStore.mangaThumbnailStates.isEmpty {
+                            ForEach(0..<20) { _ in
+                                MangaThumbnailSkeletonView()
+                                    .padding()
+                            }
+                        }
+                        
+                        if !viewStore.mangaThumbnailStates.isEmpty {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.mangaThumbnailStates,
+                                    action: HomeAction.mangaThumbnailAction
+                                )
+                            ) { thumbnailViewStore in
+                                MangaThumbnailView(store: thumbnailViewStore)
+                                    .padding()
+                            }
                         }
                     }
-                    
-                    if !viewStore.mangaThumbnailStates.isEmpty {
-                        ForEachStore(
-                            store.scope(
-                                state: \.mangaThumbnailStates,
-                                action: HomeAction.mangaThumbnailAction
-                            )
-                        ) { thumbnailViewStore in
-                            MangaThumbnailView(store: thumbnailViewStore)
-                                .padding()
-                        }
-                    }
+                    .transition(.opacity)
+                    .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates)
+                    .navigationTitle("Smuggler")
                 }
-                .transition(.opacity)
-                .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates)
-                .navigationTitle("Smuggler")
-            }
-            .onAppear {
-                viewStore.send(.onAppear)
+                .onAppear {
+                    viewStore.send(.onAppear)
+                }
             }
         }
     }

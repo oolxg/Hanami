@@ -128,10 +128,10 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userTappedOnNextChapterButton:
-            return .none
+            return .cancel(id: CancelPagesDownloading())
             
         case .userTappedOnPreviousChapterButton:
-            return .none
+            return .cancel(id: CancelPagesDownloading())
             
         case .userLeftMangaReadingView:
             return .cancel(id: CancelPagesDownloading())
