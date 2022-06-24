@@ -28,7 +28,7 @@ func makeMangaSearchRequest(requestParams: SearchState.RequestParams, decoder: J
     
     components.queryItems = [
         URLQueryItem(name: "title", value: requestParams.searchQuery),
-        URLQueryItem(name: "limit", value: "10"),
+        URLQueryItem(name: "limit", value: "\(requestParams.resultsCount)"),
         URLQueryItem(name: "offset", value: "0"),
         URLQueryItem(name: "contentRating[]", value: "safe"),
         URLQueryItem(name: "contentRating[]", value: "suggestive"),

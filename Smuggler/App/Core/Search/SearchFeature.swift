@@ -12,17 +12,16 @@ struct SearchState: Equatable {
     var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var filtersState = FiltersState()
     
-    var isFilterPopoverPresented = false
-    
-    var isSearchResultsDownloaded = false
+    var areSearchResultsDownloaded = false
     
     var shouldShowEmptyResultsMessage: Bool {
-        isSearchResultsDownloaded && !searchText.isEmpty && mangaThumbnailStates.isEmpty
+        areSearchResultsDownloaded && !searchText.isEmpty && mangaThumbnailStates.isEmpty
     }
     
     @BindableState var searchSortOption: QuerySortOption = .relevance
     @BindableState var searchSortOptionOrder: QuerySortOption.Order = .desc
-    
+    @BindableState var resultsCount = 10
+
     var searchText: String = ""
     
     // need this struct because of two things
@@ -31,6 +30,7 @@ struct SearchState: Equatable {
     //      if yes - we don't need to make another request
     struct RequestParams: Equatable {
         let searchQuery: String
+        let resultsCount: Int
         let tags: IdentifiedArrayOf<FilterTag>
         let publicationDemographic: IdentifiedArrayOf<FilterPublicationDemographic>
         let contentRatings: IdentifiedArrayOf<FilterContentRatings>
@@ -89,7 +89,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             case .searchStringChanged(let query):
                 struct DebounceForSearch: Hashable { }
 
-                state.isSearchResultsDownloaded = false
+                state.areSearchResultsDownloaded = false
                 state.searchText = query
                 return Effect(value: SearchAction.searchForManga)
                     .debounce(id: DebounceForSearch(), for: 0.8, scheduler: env.mainQueue())
@@ -100,7 +100,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
                 // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
                 guard !state.searchText.isEmpty else {
-                    state.isSearchResultsDownloaded = true
+                    state.areSearchResultsDownloaded = true
                     let mangaIDs = state.mangaThumbnailStates.map(\.manga.id)
                     state.mangaThumbnailStates.removeAll()
                     state.lastSuccessfulRequestParams = nil
@@ -112,6 +112,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 
                 let requestParams = SearchState.RequestParams(
                     searchQuery: state.searchText,
+                    resultsCount: state.resultsCount,
                     tags: state.filtersState.allTags.filter { $0.state != .notSelected },
                     // swiftlint:disable:next line_length
                     publicationDemographic: state.filtersState.publicationDemographics.filter { $0.state != .notSelected },
@@ -130,8 +131,8 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 // and '.onAppear()' won't be called
                 // so we remove everything here, then load items and if we got the same thumbnail as before, '.onAppear()' will fire
                 state.mangaThumbnailStates = []
-                state.isSearchResultsDownloaded = false
-                
+                state.areSearchResultsDownloaded = false
+
                 return env.searchManga(requestParams, env.decoder())
                     .receive(on: env.mainQueue())
                     .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: requestParams) }
@@ -140,7 +141,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 switch result {
                     case .success(let response):
                         state.lastSuccessfulRequestParams = requestParams
-                        state.isSearchResultsDownloaded = true
+                        state.areSearchResultsDownloaded = true
                         state.mangaThumbnailStates = []
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }

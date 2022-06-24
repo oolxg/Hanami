@@ -79,12 +79,12 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
         case .imageDownloaded(let result, let imageName, let order):
             switch result {
                 case .success(let image):
-                    print("loaded: \(order)")
                     guard order < state.images.count else {
                         fatalError(
                             "Somehow order of page is more then reserved capacity: \(order), \(state.images.count)"
                         )
                     }
+                    
                     state.images[order] = image
 
                     return .none

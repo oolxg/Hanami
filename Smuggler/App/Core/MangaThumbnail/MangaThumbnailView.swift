@@ -27,23 +27,8 @@ struct MangaThumbnailView: View {
                             .foregroundColor(.white)
                             .font(.headline)
                         
-                        if let statistics = viewStore.mangaStatistics {
-                            HStack(alignment: .top, spacing: 10) {
-                                HStack(alignment: .top, spacing: 0) {
-                                    Image(systemName: "star.fill")
-                                    
-                                    Text(statistics.rating.average?.clean ?? statistics.rating.bayesian.clean)
-                                }
-                                
-                                HStack(alignment: .top, spacing: 0) {
-                                    Image(systemName: "bookmark.fill")
-                                    
-                                    Text(statistics.follows.abbreviation)
-                                }
-                            }
-                            .font(.footnote)
-                        }
-                        
+                        statistics
+                            
                         if let mangaDescription = viewStore.manga.description {
                             Text(LocalizedStringKey(mangaDescription))
                                 .lineLimit(5)
@@ -87,25 +72,31 @@ extension MangaThumbnailView {
     // all the stuff here is to make NavigationLink 'lazy'
     private var coverArt: some View {
         WithViewStore(store) { viewStore in
-            if let coverArt = viewStore.coverArt {
-                Image(uiImage: coverArt)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 150)
-                    .clipped()
-                    .cornerRadius(10)
-                    .background(
-                        NavigationLink(
-                            isActive: $isNavigationLinkActive,
-                            destination: { navigationLinkDestination },
-                            label: { EmptyView() }
+            ZStack {
+                if let coverArt = viewStore.coverArt {
+                    Image(uiImage: coverArt)
+                        .resizable()
+                        .scaledToFill()
+                        .background(
+                            NavigationLink(
+                                isActive: $isNavigationLinkActive,
+                                destination: { navigationLinkDestination },
+                                label: { EmptyView() }
+                            )
                         )
-                    )
-                    .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                        viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-                    }
+                        .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                            viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+                        }
+                } else {
+                    Color.black
+                        .opacity(0.45)
+                        .redacted(reason: .placeholder)
+                }
             }
         }
+        .frame(width: 100, height: 150)
+        .clipped()
+        .cornerRadius(10)
     }
     
     private var navigationLinkDestination: some View {
@@ -118,6 +109,39 @@ extension MangaThumbnailView {
                     )
                 )
             }
+        }
+    }
+    
+    private var statistics: some View {
+        WithViewStore(store) { viewStore in
+            HStack(alignment: .top, spacing: 10) {
+                HStack(alignment: .top, spacing: 0) {
+                    Image(systemName: "star.fill")
+
+                    ZStack {
+                        if let rating = viewStore.mangaStatistics?.rating {
+                            Text(rating.average?.clean(accuracy: 2) ?? rating.bayesian.clean(accuracy: 2))
+                        } else {
+                            Text(String.placeholder(length: 3))
+                                .redacted(reason: .placeholder)
+                        }
+                    }
+                }
+                
+                HStack(alignment: .top, spacing: 0) {
+                    Image(systemName: "bookmark.fill")
+
+                    ZStack {
+                        if let followsCount = viewStore.mangaStatistics?.follows.abbreviation {
+                            Text(followsCount)
+                        } else {
+                            Text(String.placeholder(length: 7))
+                                .redacted(reason: .placeholder)
+                        }
+                    }
+                }
+            }
+            .font(.footnote)
         }
     }
 }

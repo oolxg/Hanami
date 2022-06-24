@@ -89,25 +89,26 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 case .success(let response):
                     state.chapterDetails.append(response.data)
                     
-                    var effects: [Effect<ChapterAction, Never>] = []
-                    
-                    let scanlationGroupIDs = state.chapterDetails
+                    let scanlationGroupID = state.chapterDetails
                         .map { chapterDetails in
                             chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
                         }
                         .compactMap { $0 }
+                        .first
                     
-                    effects.append(contentsOf: scanlationGroupIDs.map { id in
-                        env.fetchScanlationGroupInfo(id, env.decoder())
+                    if let scanlationGroupID = scanlationGroupID {
+                        return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
                             .receive(on: env.mainQueue())
-                            .catchToEffect { ChapterAction.scanlationGroupInfoFetched(
-                                result: $0,
-                                chapterID: chapterID)
+                            .catchToEffect {
+                                ChapterAction.scanlationGroupInfoFetched(
+                                    result: $0,
+                                    chapterID: chapterID
+                                )
                             }
-                        }
-                    )
+                    }
                     
-                    return .merge(effects)
+                    return .none
+                    
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
                     return .none

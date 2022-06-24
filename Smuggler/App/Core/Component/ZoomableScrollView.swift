@@ -42,12 +42,12 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIScrollView, context: Context) {
-            // update the hosting controller's SwiftUI content
+        // update the hosting controller's SwiftUI content
         context.coordinator.hostingController.rootView = self.content
         assert(context.coordinator.hostingController.view.superview == uiView)
     }
     
-        // MARK: - Coordinator
+    // MARK: - Coordinator
     
     class Coordinator: NSObject, UIScrollViewDelegate {
         var hostingController: UIHostingController<Content>
@@ -57,7 +57,7 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         }
         
         func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return hostingController.view
+            hostingController.view
         }
     }
 }

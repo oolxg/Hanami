@@ -93,34 +93,7 @@ extension ChapterView {
                         }
                     }
                     
-                    if let scanlationGroupName = viewStore.scanlationGroups[chapter.id]?.name {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Translated by:")
-                                    .font(.caption)
-                                    .fontWeight(.light)
-                                    .foregroundColor(.theme.secondaryText)
-
-                                Text(scanlationGroupName)
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.theme.secondaryText)
-                                    .lineLimit(1)
-                            }
-                            .padding(.horizontal, 5)
-                            .padding(.bottom, 5)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "clock")
-                                .font(.caption)
-                                .foregroundColor(.theme.secondaryText)
-                            
-                            Text(chapter.attributes.createdAt.timeAgo)
-                                .font(.caption)
-                                .foregroundColor(.theme.secondaryText)
-                        }
-                    }
+                    makeScanlationGroupSection(for: chapter)
                 }
                 
                 Spacer()
@@ -137,5 +110,37 @@ extension ChapterView {
             }
         }
         .padding(0)
+    }
+
+    @ViewBuilder private func makeScanlationGroupSection(for chapter: ChapterDetails) -> some View {
+        WithViewStore(store) { viewStore in
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Translated by:")
+                        .fontWeight(.light)
+                    
+                    Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                }
+                .font(.caption)
+                .foregroundColor(.theme.secondaryText)
+                .padding(.horizontal, 5)
+                .padding(.bottom, 5)
+                
+                Spacer()
+                
+                Image(systemName: "clock")
+                    .font(.caption)
+                    .foregroundColor(.theme.secondaryText)
+                
+                Text(chapter.attributes.createdAt.timeAgo)
+                    .font(.caption)
+                    .foregroundColor(.theme.secondaryText)
+            }
+            .transition(.opacity)
+            .animation(.linear, value: areChaptersShown)
+        }
     }
 }

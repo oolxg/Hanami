@@ -13,24 +13,31 @@ struct HomeView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            NavigationView {
-                VStack {
-                    Text("asdad")
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.mangaThumbnailStates,
-                                    action: HomeAction.mangaThumbnailAction
-                                )
-                            ) { thumbnailViewStore in
-                                MangaThumbnailView(store: thumbnailViewStore)
-                                    .padding()
-                            }
+            ScrollView {
+                Text("oolxg")
+                LazyVStack(spacing: 0) {
+                    if viewStore.mangaThumbnailStates.isEmpty {
+                        ForEach(0..<20) { _ in
+                            MangaThumbnailSkeletonView()
+                                .padding()
                         }
                     }
-                    .navigationTitle("Smuggler")
+                    
+                    if !viewStore.mangaThumbnailStates.isEmpty {
+                        ForEachStore(
+                            store.scope(
+                                state: \.mangaThumbnailStates,
+                                action: HomeAction.mangaThumbnailAction
+                            )
+                        ) { thumbnailViewStore in
+                            MangaThumbnailView(store: thumbnailViewStore)
+                                .padding()
+                        }
+                    }
                 }
+                .transition(.opacity)
+                .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates)
+                .navigationTitle("Smuggler")
             }
             .onAppear {
                 viewStore.send(.onAppear)

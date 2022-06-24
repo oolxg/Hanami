@@ -77,7 +77,6 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                             default:
                                 break
                         }
-//                        print("error on downloading home page: \(error)")
                         return .none
                     }
                 

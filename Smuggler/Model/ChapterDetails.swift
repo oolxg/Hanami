@@ -61,7 +61,7 @@ struct ChapterDetails: Codable {
         let externalURL: URL?
         let pagesCount: Int
         let publishAt: Date
-        let readableAt: Date
+        let readableAt: Date?
         let title: String?
         let translatedLanguage: String
         let updatedAt: Date
@@ -105,7 +105,7 @@ extension ChapterDetails.Attributes {
         externalURL = try container.decode(URL?.self, forKey: .externalURL)
         pagesCount = try container.decode(Int.self, forKey: .pagesCount)
         publishAt = try container.decode(Date.self, forKey: .publishAt)
-        readableAt = try container.decode(Date.self, forKey: .readableAt)
+        readableAt = try container.decode(Date?.self, forKey: .readableAt)
         let tempTitle = try container.decode(String?.self, forKey: .title)
         // this also disable because tempTitle is Optional
         // swiftlint:disable:next empty_string
@@ -148,10 +148,10 @@ extension ChapterDetails {
     
     var chapterName: String {
         if let title = attributes.title {
-            return attributes.chapterIndex?.clean == nil ?
+            return attributes.chapterIndex?.clean() == nil ?
             "\(languageFlag) \(title)" :
-            "\(languageFlag) Ch. \(attributes.chapterIndex!.clean) - \(title)"
-        } else if let index = attributes.chapterIndex?.clean {
+            "\(languageFlag) Ch. \(attributes.chapterIndex!.clean()) - \(title)"
+        } else if let index = attributes.chapterIndex?.clean() {
             return "\(languageFlag) Ch. \(index)"
         } else if attributes.pagesCount == 1 {
             return "Oneshot"

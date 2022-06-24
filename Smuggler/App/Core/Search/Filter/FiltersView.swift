@@ -25,7 +25,6 @@ struct FiltersView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
-            .tint(.theme.accent)
         }
     }
 }

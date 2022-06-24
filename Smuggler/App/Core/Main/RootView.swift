@@ -12,35 +12,37 @@ struct RootView: View {
     let store: Store<AppState, AppAction>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            TabView(selection: viewStore.binding(get: \.selectedTab, send: AppAction.tabChanged)) {
-                HomeView(
-                    store: store.scope(
-                        state: \.homeState,
-                        action: AppAction.homeAction
+        NavigationView {
+            WithViewStore(store) { viewStore in
+                TabView(selection: viewStore.binding(get: \.selectedTab, send: AppAction.tabChanged)) {
+                    HomeView(
+                        store: store.scope(
+                            state: \.homeState,
+                            action: AppAction.homeAction
+                        )
                     )
-                )
                     .tabItem {
                         Image(systemName: "house")
                         Text("Home")
                     }
                     .tag(AppState.Tab.home)
-                
-                SearchView(
-                    store: store.scope(
-                        state: \.searchState,
-                        action: AppAction.searchAction
+                    
+                    SearchView(
+                        store: store.scope(
+                            state: \.searchState,
+                            action: AppAction.searchAction
+                        )
                     )
-                )
                     .tabItem {
                         Image(systemName: "magnifyingglass")
                         Text("Search")
                     }
                     .tag(AppState.Tab.search)
+                }
             }
-            .accentColor(.theme.accent)
-            .navigationViewStyle(StackNavigationViewStyle())
         }
+        .accentColor(.theme.accent)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

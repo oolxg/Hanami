@@ -22,7 +22,9 @@ struct VolumeTabView: View {
                             action: VolumeTabAction.chapterAction
                         )
                     ) { chapterState in
-                        ChapterView(store: chapterState)
+                        LazyView(
+                            ChapterView(store: chapterState)
+                        )
                     }
                 } label: {
                     HStack {

@@ -61,8 +61,10 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
             case .tabChanged(let newTab):
                 state.selectedTab = newTab
                 return .none
+                
             case .homeAction:
                 return .none
+                
             case .searchAction:
                 return .none
         }

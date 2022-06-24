@@ -40,7 +40,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
 enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
-    case thumbnailLoaded(Result<UIImage, APIError>)
+    case coverArt(Result<UIImage, APIError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
@@ -81,7 +81,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 if state.coverArtInfo != nil && state.coverArt == nil {
                     return env.downloadImage(state.coverArtURL)
                         .receive(on: env.mainQueue())
-                        .catchToEffect(MangaThumbnailAction.thumbnailLoaded)
+                        .catchToEffect(MangaThumbnailAction.coverArt)
                 }
                 
                 guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {
@@ -106,14 +106,14 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                         
                         return env.downloadImage(state.coverArtURL)
                             .receive(on: env.mainQueue())
-                            .catchToEffect(MangaThumbnailAction.thumbnailLoaded)
+                            .catchToEffect(MangaThumbnailAction.coverArt)
                         
                     case .failure(let error):
                         print("error on downloading thumbnail info: \(error)")
                         return .none
                 }
                 
-            case .thumbnailLoaded(let result):
+            case .coverArt(let result):
                 switch result {
                     case .success(let returnedCoverArt):
                         state.mangaState.coverArt = returnedCoverArt

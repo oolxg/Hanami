@@ -24,6 +24,7 @@ func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .validateResponseCode()
         .retry(3)
         .map(\.data)
+        .debugDecode(type: Response<ChapterDetails>.self, decoder: decoder)
         .decode(type: Response<ChapterDetails>.self, decoder: decoder)
         .mapError { err -> APIError in
             if let err = err as? URLError {

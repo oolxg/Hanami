@@ -8,10 +8,13 @@
 import Foundation
 
 extension Double {
-    var clean: String {
-        return self.truncatingRemainder(dividingBy: 1) == 0 ?
-                    String(format: "%.0f", self) :
-                    String(format: "%.1f", self)
+    func clean(accuracy: Int = 1) -> String {
+        let formatter = NumberFormatter()
+        let number = NSNumber(value: self)
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = accuracy // maximum digits in Double after dot (maximum precision)
+        formatter.decimalSeparator = "."
+        return formatter.string(from: number)!
     }
     
     func reduceScale(to places: Int) -> Double {

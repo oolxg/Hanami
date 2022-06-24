@@ -174,7 +174,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
-                UITabBar.hideTabBar(animated: true)
+                UITabBar.hideTabBar(animated: false)
                 
                 return env.fetchMangaVolumes(
                     state.manga.id,

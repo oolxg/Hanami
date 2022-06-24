@@ -163,7 +163,9 @@ extension MangaView {
                             ForEachStore(
                                 store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
                             ) { volumeStore in
-                                VolumeTabView(store: volumeStore)
+                                LazyView(
+                                    VolumeTabView(store: volumeStore)
+                                )
                                 
                                 Rectangle()
                                     .frame(height: 2)
@@ -185,7 +187,7 @@ extension MangaView {
                         HStack(alignment: .top, spacing: 0) {
                             Image(systemName: "star.fill")
                             
-                            Text(statistics.rating.average?.clean ?? statistics.rating.bayesian.clean)
+                            Text(statistics.rating.average?.clean() ?? statistics.rating.bayesian.clean())
                         }
                         
                         HStack(alignment: .top, spacing: 0) {

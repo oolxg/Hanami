@@ -13,33 +13,27 @@ struct SearchView: View {
     @State private var showFilters = false
     
     var body: some View {
-        NavigationView {
-            WithViewStore(store) { viewStore in
-                VStack {
-                    HStack {
-                        SearchBarView(
-                            searchText: viewStore.binding(
-                                get: \.searchText,
-                                send: SearchAction.searchStringChanged
-                            )
+        WithViewStore(store) { viewStore in
+            VStack {
+                HStack {
+                    SearchBarView(
+                        searchText: viewStore.binding(
+                            get: \.searchText,
+                            send: SearchAction.searchStringChanged
                         )
-                        .padding(.horizontal)
-                        
-                        filtersButton
-                    }
-                    // TODO: прятать HStack при скролле 
-                    SortPickerView(
-                        sortOption: viewStore.binding(\.$searchSortOption),
-                        sortOptionOrder: viewStore.binding(\.$searchSortOptionOrder)
                     )
                     .padding(.horizontal)
-                    .frame(width: UIScreen.main.bounds.width, alignment: .leading)
                     
-                    searchResults
+                    filtersButton
                 }
+                // TODO: прятать HStack при скролле 
+               searchOptions
+                    .padding(.horizontal, 15)
+                
+                searchResults
             }
-            .navigationTitle("Search")
         }
+        .navigationTitle("Search")
     }
 }
 
@@ -58,38 +52,80 @@ struct SearchView_Previews: PreviewProvider {
                 )
             )
         )
+        .preferredColorScheme(.dark)
     }
 }
 
 extension SearchView {
     private var searchResults: some View {
         WithViewStore(store) { viewStore in
-            if viewStore.shouldShowEmptyResultsMessage {
-                VStack {
-                    Text("Ehm, i found no manga")
-                        .fontWeight(.medium)
-                        .font(.title2)
-                        .foregroundColor(.theme.accent)
-                    Text("👉👈")
+            VStack {
+                if viewStore.shouldShowEmptyResultsMessage {
+                    noFoundMangaView
+                } else {
+                    mangaList
                 }
-                .padding()
+            }
+            .animation(.linear, value: viewStore.mangaThumbnailStates)
+            .transition(.opacity)
+        }
+    }
+    
+    private var searchOptions: some View {
+        WithViewStore(store) { viewStore in
+            HStack {
+                SortPickerView(
+                    sortOption: viewStore.binding(\.$searchSortOption),
+                    sortOptionOrder: viewStore.binding(\.$searchSortOptionOrder)
+                )
                 
                 Spacer()
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
+                
+                ResultsCountPicker(count: viewStore.binding(\.$resultsCount))
+            }
+        }
+        .foregroundColor(.theme.accent)
+    }
+    
+    private var mangaList: some View {
+        WithViewStore(store) { viewStore in
+            ScrollView {
+                VStack(spacing: 0) {
+                    if !viewStore.mangaThumbnailStates.isEmpty {
                         ForEachStore(
                             store.scope(
                                 state: \.mangaThumbnailStates,
                                 action: SearchAction.mangaThumbnailAction)
                         ) { thumbnailStore in
                             MangaThumbnailView(store: thumbnailStore)
-                                .padding(.vertical)
+                                .padding()
+                        }
+                        
+                        if !viewStore.mangaThumbnailStates.isEmpty &&
+                            viewStore.resultsCount != viewStore.mangaThumbnailStates.count {
+                            Text("Only \(viewStore.mangaThumbnailStates.count) titles available")
+                                .font(.headline)
+                                .fontWeight(.black)
+                                .padding()
                         }
                     }
                 }
+                .animation(.linear, value: viewStore.mangaThumbnailStates)
+                .transition(.opacity)
             }
         }
+    }
+    
+    @ViewBuilder private var noFoundMangaView: some View {
+        VStack {
+            Text("Ehm, i found no manga")
+                .fontWeight(.medium)
+                .font(.title2)
+            Text("👉👈")
+        }
+        .padding()
+        
+        Spacer()
     }
     
     private var filtersButton: some View {
@@ -108,6 +144,33 @@ extension SearchView {
                     action: SearchAction.filterAction)
                 )
             })
+        }
+    }
+    
+    private struct ResultsCountPicker: View {
+        @Binding var count: Int
+        
+        var body: some View {
+            Menu {
+                Button("10") {
+                    count = 10
+                }
+                
+                Button("20") {
+                    count = 20
+                }
+                
+                Button("50") {
+                    count = 50
+                }
+            } label: {
+                HStack(spacing: 0) {
+                    Text("Results: ")
+                    Text("\(count)")
+                        .fontWeight(.heavy)
+                }
+                .font(.callout)
+            }
         }
     }
     
@@ -187,10 +250,10 @@ extension SearchView {
                         Text(getSortTypeName(sortOption: sortOption, order: sortOptionOrder))
                             .fontWeight(.heavy)
                     }
-                    .foregroundColor(.theme.accent)
                     .font(.callout)
-                    .frame(width: 260, alignment: .leading)
+                    .frame(width: 200, height: 20, alignment: .leading)
                 }
+                .padding(.trailing)
             }
         }
         
