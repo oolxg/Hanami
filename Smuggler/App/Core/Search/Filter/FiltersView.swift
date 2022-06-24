@@ -70,116 +70,91 @@ extension FiltersView {
     
     private var optionsList: some View {
         WithViewStore(store) { viewStore in
+            let sectionWidth = UIScreen.main.bounds.width / 1.1
+
             VStack(alignment: .leading) {
-                makeTitle("Status")
-                
-                GridChipsView(viewStore.mangaStatuses) { mangaStatus in
-                    makeChipsViewFor(mangaStatus)
-                        .onTapGesture {
-                            viewStore.send(.mangaStatusButtonTapped(mangaStatus))
-                        }
-                }
-                .frame(height: 100)
-                .padding(5)
-            }
-            
-            Rectangle()
-                .frame(height: 3)
-                .foregroundColor(.theme.darkGray)
-            
-            VStack(alignment: .leading) {
-                makeTitle("Content rating")
-                
-                GridChipsView(viewStore.contentRatings) { contentRating in
-                    makeChipsViewFor(contentRating)
-                        .onTapGesture {
-                            viewStore.send(.contentRatingButtonTapped(contentRating))
-                        }
-                }
-                .frame(height: 100)
-                .padding(5)
-            }
-            
-            Rectangle()
-                .frame(height: 3)
-                .foregroundColor(.theme.darkGray)
-            
-            VStack(alignment: .leading) {
-                makeTitle("Demographic")
-                
-                GridChipsView(viewStore.publicationDemographics) { demographic in
-                    makeChipsViewFor(demographic)
-                        .onTapGesture {
-                            viewStore.send(.publicationDemogrphicButtonTapped(demographic))
-                        }
-                }
-                // it's a little hack
-                // GridChipsView is fucking hard to frame
-                // if tag has state '.selected' or '.banned', its width will be bigger
-                // so we need to adjust more height for this view
-                .frame(height: viewStore.publicationDemographics
-                    .filter { $0.state != .notSelected }.isEmpty ? 60 : 100)
-                .padding(5)
-            }
-            
-            Rectangle()
-                .frame(height: 3)
-                .foregroundColor(.theme.darkGray)
-            
-            VStack(alignment: .leading) {
-                makeTitle("Content")
-                
-                makeFiltersViewFor(\.contentTypes)
-                    .frame(height: 60)
+                VStack(alignment: .leading) {
+                    makeTitle("Status")
+                    
+                    GridChipsView(viewStore.mangaStatuses, width: sectionWidth) { mangaStatus in
+                        makeChipsViewFor(mangaStatus)
+                            .onTapGesture {
+                                viewStore.send(.mangaStatusButtonTapped(mangaStatus))
+                            }
+                    }
                     .padding(5)
+                }
+                
+                
+                Rectangle()
+                    .frame(height: 3)
+                    .foregroundColor(.theme.darkGray)
+                
+                VStack(alignment: .leading) {
+                    makeTitle("Content rating")
+                    
+                    GridChipsView(viewStore.contentRatings, width: sectionWidth) { contentRating in
+                        makeChipsViewFor(contentRating)
+                            .onTapGesture {
+                                viewStore.send(.contentRatingButtonTapped(contentRating))
+                            }
+                    }
+                    .padding(5)
+                }
+                
+                Rectangle()
+                    .frame(height: 3)
+                    .foregroundColor(.theme.darkGray)
+                
+                VStack(alignment: .leading) {
+                    makeTitle("Demographic")
+                    
+                    GridChipsView(viewStore.publicationDemographics, width: sectionWidth) { demographic in
+                        makeChipsViewFor(demographic)
+                            .onTapGesture {
+                                viewStore.send(.publicationDemogrphicButtonTapped(demographic))
+                            }
+                    }
+                    .padding(5)
+                }
+                
+                Rectangle()
+                    .frame(height: 3)
+                    .foregroundColor(.theme.darkGray)
+                
+                VStack(alignment: .leading) {
+                    makeTitle("Content")
+                    
+                    makeFiltersViewFor(\.contentTypes)
+                        .frame(height: 60)
+                        .padding(5)
+                }
+                
+                Rectangle()
+                    .frame(height: 3)
+                    .foregroundColor(.theme.darkGray)
             }
-            
-            Rectangle()
-                .frame(height: 3)
-                .foregroundColor(.theme.darkGray)
         }
     }
     
     private var filtersList: some View {
-        WithViewStore(store) { viewStore in
-            NavigationLink {
+        Group {
+            makeTagNavigationLink(title: "Format", \.formatTypes) {
                 makeFiltersViewFor(\.formatTypes, navTitle: "Format")
                     .padding()
-            } label: {
-                makeLabelForTagNavLink(title: "Format", \.formatTypes)
             }
-            .frame(height: 20, alignment: .leading)
-            .padding()
-            .foregroundColor(.theme.background)
             
-            NavigationLink {
+            makeTagNavigationLink(title: "Themes", \.themeTypes) {
                 ScrollView(showsIndicators: false) {
                     makeFiltersViewFor(\.themeTypes, navTitle: "Themes")
                         .padding()
-                    // this fucked up hack is to get normal height of the view
-                    // just skip it, this works somehow...
-                        .frame(
-                            height: UIScreen.main.bounds.height * (
-                                0.9 + CGFloat(viewStore.themeTypes.filter { $0.state != .notSelected }.count) * 0.005
-                            )
-                        )
                 }
-            } label: {
-                makeLabelForTagNavLink(title: "Themes", \.themeTypes)
             }
-            .frame(height: 20, alignment: .leading)
-            .padding()
-            .foregroundColor(.theme.background)
             
-            NavigationLink {
+            makeTagNavigationLink(title: "Genres", \.genres) {
                 makeFiltersViewFor(\.genres, navTitle: "Genres")
                     .padding()
-            } label: {
-                makeLabelForTagNavLink(title: "Genres", \.genres)
             }
-            .frame(height: 20, alignment: .leading)
-            .padding()
-            .foregroundColor(.theme.background)
         }
     }
     
@@ -192,45 +167,52 @@ extension FiltersView {
             .padding(.vertical, 8)
     }
     
-    @ViewBuilder private func makeLabelForTagNavLink<T: FilterTagProtocol>(
-        title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>
-    ) -> some View {
+    @ViewBuilder private func makeTagNavigationLink<T, Content>(
+        title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>, _ content: @escaping () -> Content
+    ) -> some View where Content: View, T: FilterTagProtocol {
         WithViewStore(store) { viewStore in
-            HStack {
-                Text(title)
-                    .foregroundColor(.white)
-                    .font(.callout)
-                
-                Spacer()
-                
-                if !viewStore.state[keyPath: path].filter { $0.state != .notSelected }.isEmpty {
-                    Circle()
-                        .frame(width: 10, height: 10)
-                        .foregroundColor(.theme.red)
-                        .padding(.horizontal)
+            NavigationLink {
+                content()
+            } label: {
+                HStack {
+                    Text(title)
+                        .foregroundColor(.white)
+                        .font(.callout)
+                    
+                    Spacer()
+                    
+                    if !viewStore.state[keyPath: path].filter { $0.state != .notSelected }.isEmpty {
+                        Circle()
+                            .frame(width: 10, height: 10)
+                            .foregroundColor(.theme.red)
+                            .padding(.horizontal)
+                    }
                 }
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(
+                            Color.theme.accent, lineWidth: 2.5
+                        )
+                )
             }
+            .frame(height: 20, alignment: .leading)
             .padding()
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(
-                        Color.theme.accent, lineWidth: 2.5
-                    )
-            )
+            .foregroundColor(.theme.background)
         }
     }
     
     @ViewBuilder private func makeFiltersViewFor(
         _ path: KeyPath<FiltersState, IdentifiedArrayOf<FilterTag>>, navTitle: String? = nil
     ) -> some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             if navTitle != nil {
                 Color.clear
                     .navigationTitle(navTitle!)
             }
             
             WithViewStore(store) { viewStore in
-                GridChipsView(viewStore.state[keyPath: path]) { tag in
+                GridChipsView(viewStore.state[keyPath: path], width: UIScreen.main.bounds.width / 1.1) { tag in
                     makeChipsViewFor(tag)
                         .onTapGesture {
                             viewStore.send(.filterTagButtonTapped(tag))

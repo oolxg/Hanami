@@ -28,8 +28,8 @@ struct MangaViewState: Equatable {
     
     // MARK: - Props for reading view
     @BindableState var isUserOnReadingView = false
-    // if user reads some chapter with scanlation group A, e.g. ch. 21
-    // it means we have to get ch. 22 from the same scanlation group
+    // if user reads some chapter with scanlation group 'A', e.g. ch. 21
+    // it means we have to get ch. 22(as next chapter) and 20(as previous) from the scanlation group 'A'
     // this indexes are array indexes in 'sameScanlationGroupChapters'
     var nextReadingChapterIndex: Int?
     var previousReadingChapterIndex: Int?
@@ -174,6 +174,8 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
+                UITabBar.hideTabBar(animated: true)
+                
                 return env.fetchMangaVolumes(
                     state.manga.id,
                     chapter.scanltaionGroupID,
@@ -207,13 +209,13 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 }
                 
                 if chapterIndex > 0 {
-                    state.previousReadingChapterIndex = chapterIndex.advanced(by: -1)
+                    state.previousReadingChapterIndex = chapterIndex - 1
                 } else {
                     state.previousReadingChapterIndex = nil
                 }
                 
                 if chapterIndex < state.sameScanlationGroupChapters!.count - 1 {
-                    state.nextReadingChapterIndex = chapterIndex.advanced(by: 1)
+                    state.nextReadingChapterIndex = chapterIndex + 1
                 } else {
                     state.nextReadingChapterIndex = nil
                 }
@@ -221,6 +223,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 return .none
                 
             case .userLeftMangaReadingView:
+                UITabBar.showTabBar(animated: true)
                 state.mangaReadingViewState = nil
                 return .none
                 
@@ -253,7 +256,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             chapterIndex: nextChapter.chapterIndex
                         )
                         
-                        // we're firing this effect - >Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
                         // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
                         return .merge(
                             Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
@@ -271,12 +274,15 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             chapterIndex: previousChapter.chapterIndex
                         )
                         
-                        // we're firing this effect - >Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                        // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
                         // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
                         return .merge(
                             Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
                             Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
                         )
+                        
+                    case .userLeftMangaReadingView:
+                        return Effect(value: MangaViewAction.userLeftMangaReadingView)
                         
                     default:
                         return .none

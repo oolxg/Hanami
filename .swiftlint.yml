@@ -9,7 +9,6 @@ disabled_rules:
   - orphaned_doc_comment
   - todo
   - unused_capture_list
-  - force_cast
   - switch_case_alignment
 
 opt_in_rules:
@@ -67,6 +66,7 @@ attributes:
     - "@objc"
 
 force_try: warning
+force_cast: warning
 function_body_length:
     warning: 60
 

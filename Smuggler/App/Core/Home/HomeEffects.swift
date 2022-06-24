@@ -41,13 +41,13 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
         .map(\.data)
         .decode(type: Response<[Manga]>.self, decoder: decoder)
         .mapError { err -> APIError in
-            if err is URLError {
-                return APIError.downloadError(err as! URLError)
-            } else if err is DecodingError {
-                return APIError.decodingError((err as! DecodingError))
+            if let err = err as? URLError {
+                return APIError.downloadError(err)
+            } else if let err = err as? DecodingError {
+                return APIError.decodingError(err)
             }
             
-            return APIError.unknownError(err.localizedDescription)
+            return APIError.unknownError(err)
         }
         .eraseToEffect()
 }

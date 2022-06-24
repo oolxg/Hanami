@@ -19,19 +19,20 @@ func loadImage(url: URL?) -> Effect<UIImage, APIError> {
         .retry(3)
         .tryMap { data, _ in
             guard let image = UIImage(data: data) else {
-                throw APIError.unknownError("Can't decode image: \(url)")
+                // swiftlint:disable:next force_cast
+                throw APIError.unknownError(URLError.badServerResponse as! Error)
             }
             
             return image
         }
         .mapError { err -> APIError in
-            if err is URLError {
-                return APIError.downloadError(err as! URLError)
-            } else if err is DecodingError {
-                return APIError.decodingError(err as! DecodingError)
+            if let err = err as? URLError {
+                return APIError.downloadError(err)
+            } else if let err = err as? DecodingError {
+                return APIError.decodingError(err)
             }
             
-            return APIError.unknownError(err.localizedDescription)
+            return APIError.unknownError(err)
         }
         .eraseToEffect()
 }

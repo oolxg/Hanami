@@ -10,7 +10,7 @@ import Foundation
 enum APIError: Error {
     case downloadError(URLError)
     case decodingError(DecodingError)
-    case unknownError(String)
+    case unknownError(Error)
 }
 
 // swiftlint:disable empty_enum_arguments

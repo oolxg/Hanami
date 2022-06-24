@@ -14,14 +14,24 @@ struct RootView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             TabView(selection: viewStore.binding(get: \.selectedTab, send: AppAction.tabChanged)) {
-                HomeView(store: store.scope(state: \.homeState, action: AppAction.homeAction))
+                HomeView(
+                    store: store.scope(
+                        state: \.homeState,
+                        action: AppAction.homeAction
+                    )
+                )
                     .tabItem {
                         Image(systemName: "house")
                         Text("Home")
                     }
                     .tag(AppState.Tab.home)
                 
-                SearchView(store: store.scope(state: \.searchState, action: AppAction.searchAction))
+                SearchView(
+                    store: store.scope(
+                        state: \.searchState,
+                        action: AppAction.searchAction
+                    )
+                )
                     .tabItem {
                         Image(systemName: "magnifyingglass")
                         Text("Search")

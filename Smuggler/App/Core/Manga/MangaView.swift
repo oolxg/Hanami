@@ -22,7 +22,7 @@ struct MangaView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 header
                 
                 LazyVStack(pinnedViews: .sectionHeaders) {
@@ -32,6 +32,9 @@ struct MangaView: View {
                         pinnedNavigation
                     }
                 }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
             .overlay(
                 Rectangle()
@@ -46,9 +49,6 @@ struct MangaView: View {
             // this padding is needed because TabView overlaps with content here
             // if padding is 0, it doesnt work and 1 is okay ¯\_(ツ)_/¯
             .padding(.bottom, 1)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
             .background(
                 // swiftlint:disable:next trailing_closure
                 NavigationLink(
@@ -83,18 +83,13 @@ struct MangaView_Previews: PreviewProvider {
 
 extension MangaView {
     private var mangaReadingView: some View {
-        WithViewStore(store) { viewStore in
-            IfLetStore(
-                store.scope(
-                    state: \.mangaReadingViewState,
-                    action: MangaViewAction.mangaReadingViewAction
-                )) { mangaReadingViewStore in
-                    MangaReadingView(store: mangaReadingViewStore)
-                        .onDisappear {
-                            viewStore.send(.userLeftMangaReadingView)
-                        }
-                }
-        }
+        IfLetStore(
+            store.scope(
+                state: \.mangaReadingViewState,
+                action: MangaViewAction.mangaReadingViewAction
+                ),
+            then: MangaReadingView.init
+        )
     }
     
     private var header: some View {
@@ -170,7 +165,9 @@ extension MangaView {
                             ) { volumeStore in
                                 VolumeTabView(store: volumeStore)
                                 
-                                Divider()
+                                Rectangle()
+                                    .frame(height: 2)
+                                    .foregroundColor(.theme.darkGray)
                             }
                         }
                     }
@@ -182,8 +179,34 @@ extension MangaView {
     
     private var mangaInfoView: some View {
         WithViewStore(store) { viewStore in
-            Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                .padding()
+            VStack {
+                if let statistics = viewStore.statistics {
+                    HStack(alignment: .top, spacing: 10) {
+                        HStack(alignment: .top, spacing: 0) {
+                            Image(systemName: "star.fill")
+                            
+                            Text(statistics.rating.average?.clean ?? statistics.rating.bayesian.clean)
+                        }
+                        
+                        HStack(alignment: .top, spacing: 0) {
+                            Image(systemName: "bookmark.fill")
+                            
+                            Text(statistics.follows.abbreviation)
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding()
+                    .font(.subheadline)
+                }
+                
+                Rectangle()
+                    .fill(Color.theme.darkGray)
+                    .frame(height: 1)
+                
+                Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
+                    .padding()
+            }
         }
     }
     

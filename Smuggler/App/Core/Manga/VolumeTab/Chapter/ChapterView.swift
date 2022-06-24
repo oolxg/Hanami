@@ -11,7 +11,8 @@ import ComposableArchitecture
 struct ChapterView: View {
     let store: Store<ChapterState, ChapterAction>
     @State private var areChaptersShown = false
-    
+    @Environment(\.openURL) var openURL
+
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
@@ -75,11 +76,22 @@ extension ChapterView {
         WithViewStore(store) { viewStore in
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {
-                    Text(chapter.chapterName)
-                        .fontWeight(.medium)
-                        .font(.headline)
-                        .lineLimit(nil)
-                        .padding(5)
+                    HStack(alignment: .top) {
+                        Text(chapter.chapterName)
+                            .fontWeight(.medium)
+                            .font(.headline)
+                            .lineLimit(nil)
+                            .padding(5)
+                        
+                        if chapter.attributes.externalURL != nil {
+                            Spacer()
+                            
+                            Image(systemName: "arrow.up.forward.square")
+                                .foregroundColor(.theme.secondaryText)
+                                .font(.callout)
+                                .padding(5)
+                        }
+                    }
                     
                     if let scanlationGroupName = viewStore.scanlationGroups[chapter.id]?.name {
                         HStack {
@@ -114,9 +126,14 @@ extension ChapterView {
                 Spacer()
             }
             .onTapGesture {
-                viewStore.send(
-                    .onTapGesture(chapter: chapter)
-                )
+                // if manga has externalURL, means we can only read it on some other website, not in app
+                if let url = chapter.attributes.externalURL {
+                    openURL(url)
+                } else {
+                    viewStore.send(
+                        .onTapGesture(chapter: chapter)
+                    )
+                }
             }
         }
         .padding(0)

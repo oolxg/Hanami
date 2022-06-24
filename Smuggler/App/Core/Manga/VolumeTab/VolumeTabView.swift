@@ -14,32 +14,43 @@ struct VolumeTabView: View {
 
     var body: some View {
         WithViewStore(store) { viewStore in
-            DisclosureGroup(isExpanded: $areChaptersShown) {
-                ForEachStore(
-                    store.scope(
-                        state: \.chapterStates,
-                        action: VolumeTabAction.chapterAction
-                    )
-                ) { chapterState in
-                    ChapterView(store: chapterState)
-                }
-            } label: {
-                HStack {
-                    Text(viewStore.volume.volumeName)
-                        .font(.title2)
-                        .fontWeight(.heavy)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation(.linear(duration: 0.7)) {
-                        areChaptersShown.toggle()
+            LazyVStack {
+                DisclosureGroup(isExpanded: $areChaptersShown) {
+                    ForEachStore(
+                        store.scope(
+                            state: \.chapterStates,
+                            action: VolumeTabAction.chapterAction
+                        )
+                    ) { chapterState in
+                        ChapterView(store: chapterState)
+                    }
+                } label: {
+                    HStack {
+                        Text(viewStore.volume.volumeName)
+                            .font(.title2)
+                            .fontWeight(.heavy)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        // if there a low of chapters in one volume, we should slowly show them,
+                        // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
+                        withAnimation(
+                            .linear(
+                                duration: areChaptersShown ? 0.6 : max(Double(viewStore.chapterStates.count / 15), 0.6)
+                            )
+                        ) {
+                            areChaptersShown.toggle()
+                        }
                     }
                 }
+                .buttonStyle(PlainButtonStyle())
+                .transition(.opacity)
+                .padding(.vertical)
+                .padding(.horizontal, 10)
+                .animation(.linear, value: areChaptersShown)
+                .frame(maxWidth: .infinity)
             }
-            .buttonStyle(PlainButtonStyle())
-            .padding()
-            .frame(maxWidth: .infinity)
         }
     }
 }
