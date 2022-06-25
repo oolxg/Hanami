@@ -24,7 +24,7 @@ struct MangaReadingViewState: Equatable {
 enum MangaReadingViewAction {
     case userStartedReadingChapter
     case chapterPagesInfoFetched(Result<ChapterPagesInfo, APIError>)
-    case imageDownloaded(result: Result<UIImage, APIError>, imageName: String, order: Int)
+    case imageDownloaded(result: Result<UIImage, APIError>, order: Int)
     case imageAppear(index: Int)
     
     // MARK: - Actions to be hijacked in MangaFeature
@@ -62,20 +62,19 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                                 .catchToEffect {
                                     MangaReadingViewAction.imageDownloaded(
                                         result: $0,
-                                        imageName: chapterPagesInfo.chapter.dataSaver[i],
                                         order: i
                                     )
                                 }
                         }
                     )
-                    .cancellable(id: CancelPagesDownloading())
+                    .cancellable(id: CancelPagesDownloading(), cancelInFlight: true)
 
                 case .failure(let error):
                     print("error on fetching chapterPagesInfo: \(error)")
                     return .none
             }
             
-        case .imageDownloaded(let result, let imageName, let index):
+        case .imageDownloaded(let result, let index):
             switch result {
                 case .success(let image):
                     guard index < state.images.count else {
@@ -84,7 +83,6 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                         )
                     }
                     
-                    print("image \(index) loaded +")
                     state.images[index] = image
 
                     return .none
@@ -109,17 +107,15 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 return .none
             }
             
-            print("start loading image \(index)")
-            
             return env.downloadImage(pagesInfo.dataSaverURLs[nextImageIndex])
                 .receive(on: env.mainQueue())
                 .catchToEffect {
                     MangaReadingViewAction.imageDownloaded(
                         result: $0,
-                        imageName: pagesInfo.chapter.dataSaver[nextImageIndex],
                         order: nextImageIndex
                     )
                 }
+                .cancellable(id: CancelPagesDownloading(), cancelInFlight: true)
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userTappedOnNextChapterButton:

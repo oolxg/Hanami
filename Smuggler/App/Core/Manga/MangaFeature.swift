@@ -64,7 +64,6 @@ enum MangaViewAction: BindableAction {
     // MARK: - Actions to be called from view
     case onAppear
     case mangaTabChanged(MangaViewState.SelectedTab)
-    case userLeftMangaReadingView
 
     // MARK: - Actions to be called from reducer
     case computeNextAndPreviousChapterIndexes
@@ -72,6 +71,8 @@ enum MangaViewAction: BindableAction {
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
     case volumesDownloaded(Result<Volumes, APIError>)
     case sameScanlationGroupChaptersFetched(Result<Volumes, APIError>)
+    case userLeftMangaReadingView
+    case userLeftMangaReadingViewDelayCompleted
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -224,6 +225,12 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
             case .userLeftMangaReadingView:
                 UITabBar.showTabBar(animated: true)
+                // this delay is to avoid runtime warnings about recieving actions on optional reducer when it's already nil
+                return Effect(value: MangaViewAction.userLeftMangaReadingViewDelayCompleted)
+                    .delay(for: .seconds(0.6), scheduler: env.mainQueue())
+                    .eraseToEffect()
+                
+            case .userLeftMangaReadingViewDelayCompleted:
                 state.mangaReadingViewState = nil
                 return .none
                 
@@ -242,7 +249,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                                 return .none
                         }
                 }
-                
+                // TODO: - Fix bug when changing chapters too fast and getting 'objc[10930]: Cannot form weak reference to instance (0x103b32d00) of class'
             case .mangaReadingViewAction(let mangaReadingViewAction):
                 switch mangaReadingViewAction {
                     case .userTappedOnNextChapterButton:
