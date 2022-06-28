@@ -18,14 +18,17 @@ struct MangaReadingViewState: Equatable {
     let chapterID: UUID
     let chapterIndex: Double?
     var pagesInfo: ChapterPagesInfo?
-    var images: [UIImage?] = []
+    var pages: [UIImage?] = []
+    // to track what images are downloading at the moment
+    var loadingImageURLs: Set<URL> = []
 }
 
 enum MangaReadingViewAction {
     case userStartedReadingChapter
     case chapterPagesInfoFetched(Result<ChapterPagesInfo, APIError>)
-    case imageDownloaded(result: Result<UIImage, APIError>, order: Int)
+    case mangePagesDownloaded(result: Result<UIImage, APIError>, pageIndex: Int)
     case imageAppear(index: Int)
+    case progressViewAppear(index: Int)
     
     // MARK: - Actions to be hijacked in MangaFeature
     case userTappedOnNextChapterButton
@@ -43,6 +46,10 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
     struct CancelPagesDownloading: Hashable { }
     switch action {
         case .userStartedReadingChapter:
+            if state.pagesInfo != nil {
+                return .none
+            }
+            
             return env.fetchChapterPagesInfo(state.chapterID)
                 .receive(on: env.mainQueue())
                 .catchToEffect(MangaReadingViewAction.chapterPagesInfoFetched)
@@ -50,7 +57,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
         case .chapterPagesInfoFetched(let result):
             switch result {
                 case .success(let chapterPagesInfo):
-                    state.images = Array(repeating: nil, count: chapterPagesInfo.dataSaverURLs.count)
+                    state.pages = Array(repeating: nil, count: chapterPagesInfo.dataSaverURLs.count)
                     state.pagesInfo = chapterPagesInfo
                     
                     // we load only first 3 pages, otherwise it's very RAM- and CPU-expensive
@@ -60,9 +67,9 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                                 .delay(for: .seconds(Double(i) * 0.5), scheduler: env.mainQueue())
                                 .receive(on: env.mainQueue())
                                 .catchToEffect {
-                                    MangaReadingViewAction.imageDownloaded(
+                                    MangaReadingViewAction.mangePagesDownloaded(
                                         result: $0,
-                                        order: i
+                                        pageIndex: i
                                     )
                                 }
                         }
@@ -74,16 +81,20 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     return .none
             }
             
-        case .imageDownloaded(let result, let index):
+        case .mangePagesDownloaded(let result, let index):
             switch result {
                 case .success(let image):
-                    guard index < state.images.count else {
+                    guard index < state.pages.count else {
                         fatalError(
-                            "Somehow order of page is more then reserved capacity: \(index), \(state.images.count)"
+                            "Somehow order of page is more then reserved capacity: \(index), \(state.pages.count)"
                         )
                     }
                     
-                    state.images[index] = image
+                    state.loadingImageURLs.remove(
+                        state.pagesInfo!.dataSaverURLs[index]
+                    )
+                    
+                    state.pages[index] = image
 
                     return .none
                     
@@ -91,6 +102,22 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     print("error on loading image: \(error)")
                     return .none
             }
+            
+        case .progressViewAppear(let index):
+            if state.loadingImageURLs.contains(state.pagesInfo!.dataSaverURLs[index]) {
+                // it means we're already loading this image
+                return .none
+            }
+            
+            return env.downloadImage(state.pagesInfo!.dataSaverURLs[index])
+                .receive(on: env.mainQueue())
+                .catchToEffect {
+                    MangaReadingViewAction.mangePagesDownloaded(
+                        result: $0,
+                        pageIndex: index
+                    )
+                }
+                .cancellable(id: CancelPagesDownloading(), cancelInFlight: true)
             
         case .imageAppear(let index):
             // TODO: - Make image save in cache and delete from state.images after it disappears
@@ -101,18 +128,20 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
             let nextImageIndex = index + 1
             // if we have image with index two, we have to load image with index 3 and so on
-            guard index >= 2, nextImageIndex < pagesInfo.dataSaverURLs.count, state.images[nextImageIndex] == nil else {
+            guard index >= 2, nextImageIndex < pagesInfo.dataSaverURLs.count, state.pages[nextImageIndex] == nil else {
                 // first 3 images [0, 1, 2] we're loading by default in 'chapterPagesInfoFetched'
                 print("image \(index) is already loaded")
                 return .none
             }
             
+            state.loadingImageURLs.insert(pagesInfo.dataSaverURLs[nextImageIndex])
+            
             return env.downloadImage(pagesInfo.dataSaverURLs[nextImageIndex])
                 .receive(on: env.mainQueue())
                 .catchToEffect {
-                    MangaReadingViewAction.imageDownloaded(
+                    MangaReadingViewAction.mangePagesDownloaded(
                         result: $0,
-                        order: nextImageIndex
+                        pageIndex: nextImageIndex
                     )
                 }
                 .cancellable(id: CancelPagesDownloading(), cancelInFlight: true)

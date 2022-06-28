@@ -81,7 +81,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             return .merge(effects)
             
         case .onTapGesture:
-            // this case if only for getting it in MangaFeature 
+            // this case is only for getting it in MangaFeature
             return .none
 
         case .chapterDetailsDownloaded(let result, let chapterID):
@@ -89,25 +89,31 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 case .success(let response):
                     state.chapterDetails.append(response.data)
                     
-                    let scanlationGroupID = state.chapterDetails
+                    let allScanlationGroupIDs = state.chapterDetails
                         .map { chapterDetails in
                             chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
                         }
                         .compactMap { $0 }
-                        .first
                     
-                    if let scanlationGroupID = scanlationGroupID {
-                        return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
-                            .receive(on: env.mainQueue())
-                            .catchToEffect {
-                                ChapterAction.scanlationGroupInfoFetched(
-                                    result: $0,
-                                    chapterID: chapterID
-                                )
-                            }
+                    var effects: [Effect<ChapterAction, Never>] = []
+                    
+                    for scanlationGroupID in allScanlationGroupIDs {
+                        // if we already loaded info about scanlaton group -> skip
+                        guard state.scanlationGroups[scanlationGroupID] == nil else { continue }
+                        
+                        effects.append(
+                            env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
+                                .receive(on: env.mainQueue())
+                                .catchToEffect {
+                                    ChapterAction.scanlationGroupInfoFetched(
+                                        result: $0,
+                                        chapterID: chapterID
+                                    )
+                                }
+                        )
                     }
                     
-                    return .none
+                    return .merge(effects)
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")

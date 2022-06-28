@@ -56,9 +56,6 @@ struct MangaView: View {
                         label: { EmptyView() }
                     )
                 )
-                
-                Text("")
-                    .frame(height: 2)
             }
         }
     }

@@ -1,53 +1,34 @@
 //
-//  RingProgressViewStyle.swift
+//  ActivityIndicator.swift
 //  Smuggler
 //
-//  https://swiftuirecipes.com/blog/custom-progress-view-in-swiftui
+//  https://blckbirds.com/post/progress-bars-in-swiftui/
 //
 
 import Foundation
 import SwiftUI
 
-public struct RingProgressViewStyle: ProgressViewStyle {
-    private let defaultSize: CGFloat = 36
-    private let lineWidth: CGFloat = 6
-    private let defaultProgress = 0.2 // CHANGE
+
+struct ActivityIndicator: View {
+    @State private var degress = 0.0
     
-    // tracks the rotation angle for the indefinite progress bar
-    @State private var fillRotationAngle = Angle.degrees(180) // ADD
-    
-    public func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
-        VStack {
-            configuration.label
-            progressCircleView(
-                fractionCompleted: configuration.fractionCompleted ?? defaultProgress,
-                isIndefinite: configuration.fractionCompleted == nil
-            ) // UPDATE
-            configuration.currentValueLabel
-        }
-    }
-    
-    private func progressCircleView(fractionCompleted: Double, isIndefinite: Bool) -> some View { // UPDATE
-            // this is the circular "track", which is a full circle at all times
+    var body: some View {
         Circle()
-            .strokeBorder(Color.gray.opacity(0.5), lineWidth: lineWidth, antialiased: true)
-            .overlay(fillView(fractionCompleted: fractionCompleted, isIndefinite: isIndefinite)) // UPDATE
-            .frame(width: defaultSize, height: defaultSize)
+            .trim(from: 0.0, to: 0.4)
+            .stroke(Color.theme.accent, lineWidth: 5.0)
+            .frame(width: 120, height: 120)
+            .rotationEffect(Angle(degrees: degress))
+            .onAppear(perform: start)
     }
     
-    private func fillView(fractionCompleted: Double, isIndefinite: Bool) -> some View { // UPDATE
-        Circle() // the fill view is also a circle
-            .trim(from: 0, to: CGFloat(fractionCompleted))
-            .stroke(Color.theme.accent, lineWidth: lineWidth)
-            .frame(width: defaultSize - lineWidth, height: defaultSize - lineWidth)
-            .rotationEffect(fillRotationAngle) // UPDATE
-            // triggers the infinite rotation animation for indefinite progress views
-            .onAppear {
-                if isIndefinite {
-                    withAnimation(.easeInOut(duration: 1).repeatForever()) {
-                        fillRotationAngle = .degrees(-90)
-                    }
-                }
+    func start() {
+        _ = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
+            withAnimation {
+                self.degress += 10.0
             }
+            if self.degress == 360.0 {
+                self.degress = 0.0
+            }
+        }
     }
 }

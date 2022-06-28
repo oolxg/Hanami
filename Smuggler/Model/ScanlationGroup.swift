@@ -26,7 +26,7 @@ struct ScanlationGroup: Codable {
         let description: String?
         let twitter: URL?
         let focusedLanguages: [String]?
-        let official, verified, inactive: Bool
+        let isOfficial, isVerified, isInactive: Bool
         let createdAt, updatedAt: Date
         let version: Int
         
@@ -36,7 +36,9 @@ struct ScanlationGroup: Codable {
             case website
             case discord, contactEmail, description
             case twitter, focusedLanguages
-            case official, verified, inactive
+            case isOfficial = "official"
+            case isVerified = "verified"
+            case isInactive = "inactive"
             case createdAt, updatedAt, version
         }
     }
@@ -48,6 +50,48 @@ struct ScanlationGroup: Codable {
         enum ScanlationGroupRelationshipType: String, Codable {
             case member, leader
         }
+    }
+}
+
+extension ScanlationGroup.Attributes {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        isLocked = try container.decode(Bool.self, forKey: .isLocked)
+        
+        do {
+            website = try container.decode(URL?.self, forKey: .website)
+        } catch {
+            website = nil
+        }
+        
+        do {
+            discord = try container.decode(URL?.self, forKey: .discord)
+        } catch {
+            discord = nil
+        }
+        
+        do {
+            contactEmail = try container.decode(URL?.self, forKey: .contactEmail)
+        } catch {
+            contactEmail = nil
+        }
+        
+        description = try container.decode(String?.self, forKey: .description)
+        
+        do {
+            twitter = try container.decode(URL?.self, forKey: .twitter)
+        } catch {
+            twitter = nil
+        }
+        
+        focusedLanguages = try container.decode([String]?.self, forKey: .focusedLanguages)
+        isOfficial = try container.decode(Bool.self, forKey: .isOfficial)
+        isVerified = try container.decode(Bool.self, forKey: .isVerified)
+        isInactive = try container.decode(Bool.self, forKey: .isInactive)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        version = try container.decode(Int.self, forKey: .version)
     }
 }
 

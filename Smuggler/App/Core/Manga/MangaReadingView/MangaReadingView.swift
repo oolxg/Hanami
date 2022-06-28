@@ -16,28 +16,15 @@ struct MangaReadingView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            TabView {
-                ForEach(0..<viewStore.images.count, id: \.self) { imageIndex in
-                    ZStack {
-                        if let image = viewStore.images[imageIndex] {
-                            ZoomableScrollView {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .animation(.linear, value: viewStore.images)
-                                    .onAppear {
-                                        viewStore.send(.imageAppear(index: imageIndex))
-                                    }
-                            }
-                        } else {
-                            ProgressView("Loading...")
-                                .progressViewStyle(RingProgressViewStyle())
-                        }
-                    }
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle("\(imageIndex + 1)/\(viewStore.images.count)")
+            ZStack {
+                if viewStore.pagesInfo == nil {
+                    ActivityIndicator()
+                } else {
+                    pagesSlider
                 }
             }
+            .transition(.opacity)
+            .animation(.linear, value: viewStore.pagesInfo == nil)
             .frame(
                 width: UIScreen.main.bounds.width,
                 height: UIScreen.main.bounds.height
@@ -45,7 +32,6 @@ struct MangaReadingView: View {
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .navigationBarBackButtonHidden(true)
             .navigationBarHidden(shouldHideNavigationBar)
-            .animation(.linear, value: shouldHideNavigationBar)
             .onAppear {
                 viewStore.send(.userStartedReadingChapter)
             }
@@ -88,6 +74,37 @@ extension MangaReadingView {
                 Image(systemName: "arrow.left")
                     .foregroundColor(.white)
                     .padding(.vertical)
+            }
+        }
+    }
+}
+
+extension MangaReadingView {
+    private var pagesSlider: some View {
+        WithViewStore(store) { viewStore in
+            TabView {
+                ForEach(0..<viewStore.pages.count, id: \.self) { pageIndex in
+                    ZStack {
+                        if let page = viewStore.pages[pageIndex] {
+                            ZoomableScrollView {
+                                Image(uiImage: page)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .animation(.linear, value: viewStore.pages)
+                                    .onAppear {
+                                        viewStore.send(.imageAppear(index: pageIndex))
+                                    }
+                            }
+                        } else {
+                            ActivityIndicator()
+                                .onAppear {
+                                    viewStore.send(.progressViewAppear(index: pageIndex))
+                                }
+                        }
+                    }
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle("\(pageIndex + 1)/\(viewStore.pages.count)")
+                }
             }
         }
     }

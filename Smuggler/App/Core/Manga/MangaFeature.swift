@@ -35,6 +35,7 @@ struct MangaViewState: Equatable {
     var previousReadingChapterIndex: Int?
     
     var mangaReadingViewState: MangaReadingViewState? {
+        // it's better not to set value of 'mangaReadingViewState' to nil
         willSet {
             if newValue != nil {
                 isUserOnReadingView = true
@@ -54,6 +55,7 @@ struct MangaViewState: Equatable {
         volumeTabStates = []
         areVolumesLoaded = false
         isUserOnReadingView = false
+        mangaReadingViewState = nil
         nextReadingChapterIndex = nil
         previousReadingChapterIndex = nil
         sameScanlationGroupChapters = nil
@@ -72,7 +74,6 @@ enum MangaViewAction: BindableAction {
     case volumesDownloaded(Result<Volumes, APIError>)
     case sameScanlationGroupChaptersFetched(Result<Volumes, APIError>)
     case userLeftMangaReadingView
-    case userLeftMangaReadingViewDelayCompleted
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -225,13 +226,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
             case .userLeftMangaReadingView:
                 UITabBar.showTabBar(animated: true)
-                // this delay is to avoid runtime warnings about recieving actions on optional reducer when it's already nil
-                return Effect(value: MangaViewAction.userLeftMangaReadingViewDelayCompleted)
-                    .delay(for: .seconds(0.6), scheduler: env.mainQueue())
-                    .eraseToEffect()
-                
-            case .userLeftMangaReadingViewDelayCompleted:
-                state.mangaReadingViewState = nil
+                state.isUserOnReadingView = false
                 return .none
                 
             case .volumeTabAction(_, let volumeTabAction):
