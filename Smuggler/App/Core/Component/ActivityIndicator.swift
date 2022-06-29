@@ -13,12 +13,13 @@ struct ActivityIndicator: View {
     @State private var degress = 0.0
     
     var body: some View {
-        Circle()
-            .trim(from: 0.0, to: 0.4)
-            .stroke(Color.theme.accent, lineWidth: 5.0)
-            .frame(width: 120, height: 120)
-            .rotationEffect(Angle(degrees: degress))
-            .onAppear(perform: start)
+        GeometryReader { geo in
+            Circle()
+                .trim(from: 0.0, to: 0.4)
+                .stroke(Color.theme.accent, lineWidth: log(geo.size.height))
+                .rotationEffect(Angle(degrees: degress))
+                .onAppear(perform: start)
+        }
     }
     
     func start() {

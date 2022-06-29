@@ -41,7 +41,7 @@ struct VolumeTabView: View {
                     // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
                     withAnimation(
                         .linear(
-                            duration: areChaptersShown ? 0.6 : max(Double(viewStore.chapterStates.count / 15), 0.6)
+                            duration: max(Double(viewStore.chapterStates.count / 15), 0.6)
                         )
                     ) {
                         areChaptersShown.toggle()

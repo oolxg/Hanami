@@ -73,7 +73,6 @@ enum MangaViewAction: BindableAction {
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
     case volumesDownloaded(Result<Volumes, APIError>)
     case sameScanlationGroupChaptersFetched(Result<Volumes, APIError>)
-    case userLeftMangaReadingView
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -224,11 +223,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
                 return .none
                 
-            case .userLeftMangaReadingView:
-                UITabBar.showTabBar(animated: true)
-                state.isUserOnReadingView = false
-                return .none
-                
             case .volumeTabAction(_, let volumeTabAction):
                 // we're looking for action on chapters
                 // when user taps on some chapter, we send him to reading view
@@ -283,7 +277,9 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                         )
                         
                     case .userLeftMangaReadingView:
-                        return Effect(value: MangaViewAction.userLeftMangaReadingView)
+                        UITabBar.showTabBar(animated: true)
+                        state.isUserOnReadingView = false
+                        return .none
                         
                     default:
                         return .none

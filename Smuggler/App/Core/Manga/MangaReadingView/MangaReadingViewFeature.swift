@@ -20,7 +20,7 @@ struct MangaReadingViewState: Equatable {
     var pagesInfo: ChapterPagesInfo?
     var pages: [UIImage?] = []
     // to track what images are downloading at the moment
-    var loadingImageURLs: Set<URL> = []
+    var loadingImagesNames: Set<String> = []
 }
 
 enum MangaReadingViewAction {
@@ -90,8 +90,9 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                         )
                     }
                     
-                    state.loadingImageURLs.remove(
-                        state.pagesInfo!.dataSaverURLs[index]
+                    print("loaded \(index)")
+                    state.loadingImagesNames.remove(
+                        state.pagesInfo!.chapter.dataSaver[index]
                     )
                     
                     state.pages[index] = image
@@ -104,11 +105,17 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             }
             
         case .progressViewAppear(let index):
-            if state.loadingImageURLs.contains(state.pagesInfo!.dataSaverURLs[index]) {
+            // first 3 pages are loading by default
+            if index <= 2 {
+                return .none
+            }
+            
+            if state.loadingImagesNames.contains(state.pagesInfo!.chapter.dataSaver[index]) {
                 // it means we're already loading this image
                 return .none
             }
             
+            print("start P \(index)")
             return env.downloadImage(state.pagesInfo!.dataSaverURLs[index])
                 .receive(on: env.mainQueue())
                 .catchToEffect {
@@ -134,7 +141,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 return .none
             }
             
-            state.loadingImageURLs.insert(pagesInfo.dataSaverURLs[nextImageIndex])
+            state.loadingImagesNames.insert(state.pagesInfo!.chapter.dataSaver[nextImageIndex])
             
             return env.downloadImage(pagesInfo.dataSaverURLs[nextImageIndex])
                 .receive(on: env.mainQueue())

@@ -38,6 +38,14 @@ struct ChapterView: View {
                         .font(.title3)
                         .fontWeight(.heavy)
                         .padding(.vertical, 3)
+                    
+                    if viewStore.chapterDetails.isEmpty && areChaptersShown {
+                        Spacer()
+                        
+                        ActivityIndicator()
+                            .frame(width: 25)
+                            .padding()
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())

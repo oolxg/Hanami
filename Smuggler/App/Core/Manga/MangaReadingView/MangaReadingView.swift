@@ -12,53 +12,67 @@ import ComposableArchitecture
 struct MangaReadingView: View {
     @Environment(\.dismiss) private var dismiss
     let store: Store<MangaReadingViewState, MangaReadingViewAction>
-    @State private var shouldHideNavigationBar = false
+    @State private var shouldHideNavigationBar = true
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            ZStack {
-                if viewStore.pagesInfo == nil {
-                    ActivityIndicator()
-                } else {
-                    pagesSlider
+            GeometryReader { geo in
+                ZStack(alignment: .top) {
+                    if !shouldHideNavigationBar {
+                        ZStack {
+                            Color.black
+                                .ignoresSafeArea()
+                            
+                            HStack(spacing: 15) {
+                                backButton
+                                    .padding(.horizontal)
+                                
+                                Spacer()
+                                
+                                Button("prev") {
+                                    viewStore.send(.userTappedOnPreviousChapterButton)
+                                }
+                                
+                                Button("next") {
+                                    viewStore.send(.userTappedOnNextChapterButton)
+                                }
+                                .padding(.trailing)
+                            }
+                        }
+                        .frame(height: geo.size.height * 0.05)
+                        .zIndex(1)
+                    }
+                    
+                    ZStack {
+                        if viewStore.pagesInfo == nil {
+                            ActivityIndicator()
+                                .frame(width: 120)
+                        } else {
+                            pagesSlider
+                                .frame(height: geo.size.height)
+                        }
+                    }
+                    .transition(.opacity)
+                    .animation(.linear, value: viewStore.pagesInfo == nil)
+                    .frame(
+                        width: geo.size.width,
+                        height: geo.size.height
+                    )
                 }
+                .zIndex(0)
             }
-            .transition(.opacity)
-            .animation(.linear, value: viewStore.pagesInfo == nil)
-            .frame(
-                width: UIScreen.main.bounds.width,
-                height: UIScreen.main.bounds.height
-            )
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .navigationBarBackButtonHidden(true)
-            .navigationBarHidden(shouldHideNavigationBar)
+            .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.userStartedReadingChapter)
             }
             .onDisappear {
                 viewStore.send(.userLeftMangaReadingView)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    backButton
+            .onTapGesture {
+                withAnimation(.linear) {
+                    shouldHideNavigationBar.toggle()
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("prev") {
-                        viewStore.send(.userTappedOnPreviousChapterButton)
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("next") {
-                        viewStore.send(.userTappedOnNextChapterButton)
-                    }
-                }
-            }
-        }
-        .onTapGesture {
-            withAnimation(.linear) {
-                shouldHideNavigationBar.toggle()
             }
         }
     }
@@ -97,6 +111,7 @@ extension MangaReadingView {
                             }
                         } else {
                             ActivityIndicator()
+                                .frame(width: 120)
                                 .onAppear {
                                     viewStore.send(.progressViewAppear(index: pageIndex))
                                 }

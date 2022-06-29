@@ -48,7 +48,7 @@
 		224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* SmugglerTests.swift */; };
 		224C65972827204300AAEF2E /* SmugglerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65962827204300AAEF2E /* SmugglerUITests.swift */; };
 		224C65992827204300AAEF2E /* SmugglerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */; };
-		224DFF5128650EA900FFE363 /* RingProgressViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224DFF5028650EA900FFE363 /* RingProgressViewStyle.swift */; };
+		224DFF5128650EA900FFE363 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224DFF5028650EA900FFE363 /* ActivityIndicator.swift */; };
 		224E6712282E91FF001D214C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6711282E91FF001D214C /* Response.swift */; };
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E6716282E9D6F001D214C /* HomeEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6715282E9D6F001D214C /* HomeEffects.swift */; };
@@ -156,7 +156,7 @@
 		224C65922827204300AAEF2E /* SmugglerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmugglerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		224C65962827204300AAEF2E /* SmugglerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITests.swift; sourceTree = "<group>"; };
 		224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		224DFF5028650EA900FFE363 /* RingProgressViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingProgressViewStyle.swift; sourceTree = "<group>"; };
+		224DFF5028650EA900FFE363 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		224E6711282E91FF001D214C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
 		224E6715282E9D6F001D214C /* HomeEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEffects.swift; sourceTree = "<group>"; };
@@ -263,7 +263,7 @@
 				221F59EB284530AC00B11D5D /* GridChipsView.swift */,
 				22FDCE6C284B9DF40059FD6E /* SheetWithDetents.swift */,
 				225AA5A7284D16D300B406DA /* LazyView.swift */,
-				224DFF5028650EA900FFE363 /* RingProgressViewStyle.swift */,
+				224DFF5028650EA900FFE363 /* ActivityIndicator.swift */,
 				226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */,
 				226DF7982865D58B007CF96A /* MangaThumbnailSkeletonView.swift */,
 			);
@@ -702,7 +702,7 @@
 				2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */,
 				226DF7952865BFDC007CF96A /* View.swift in Sources */,
 				224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */,
-				224DFF5128650EA900FFE363 /* RingProgressViewStyle.swift in Sources */,
+				224DFF5128650EA900FFE363 /* ActivityIndicator.swift in Sources */,
 				226DF79028652A3A007CF96A /* ZoomableScrollView.swift in Sources */,
 				2220E1652832A8D60046F08A /* MangaFeature.swift in Sources */,
 				2273E2BA285BFB9000A40C0B /* Date.swift in Sources */,
