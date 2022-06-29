@@ -14,36 +14,38 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             WithViewStore(store) { viewStore in
-                VStack {
-                    ScrollView {
-                        Text("oolxg")
-                        LazyVStack(spacing: 0) {
-                            if viewStore.mangaThumbnailStates.isEmpty {
-                                ForEach(0..<20) { _ in
-                                    MangaThumbnailSkeletonView()
-                                        .padding()
-                                }
-                            }
-                            
-                            if !viewStore.mangaThumbnailStates.isEmpty {
-                                ForEachStore(
-                                    store.scope(
-                                        state: \.mangaThumbnailStates,
-                                        action: HomeAction.mangaThumbnailAction
-                                    )
-                                ) { thumbnailViewStore in
-                                    MangaThumbnailView(store: thumbnailViewStore)
-                                        .padding()
-                                }
+                ScrollView {
+                    VStack {
+                        VStack {
+                            Text("by oolxg")
+                            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+                            Text("early beta: \(appVersion ?? "undefined")")
+                        }
+                        if viewStore.mangaThumbnailStates.isEmpty {
+                            ForEach(0..<20) { _ in
+                                MangaThumbnailSkeletonView()
+                                    .padding()
                             }
                         }
-                        .transition(.opacity)
-                        .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates)
-                        .navigationTitle("Smuggler")
+                        
+                        if !viewStore.mangaThumbnailStates.isEmpty {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.mangaThumbnailStates,
+                                    action: HomeAction.mangaThumbnailAction
+                                )
+                            ) { thumbnailViewStore in
+                                MangaThumbnailView(store: thumbnailViewStore)
+                                    .padding()
+                            }
+                        }
                     }
-                    .onAppear {
-                        viewStore.send(.onAppear)
+                    .transition(.opacity)
+                    .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates.isEmpty)
                 }
+                .navigationTitle("Smuggler")
+                .onAppear {
+                    viewStore.send(.onAppear)
                 }
             }
         }

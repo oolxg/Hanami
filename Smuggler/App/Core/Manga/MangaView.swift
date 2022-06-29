@@ -14,8 +14,8 @@ struct MangaView: View {
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
     @Namespace private var tabAnimationNamespace
-    @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.presentationMode) var presentationMode
+
     private var isViewScrolledDown: Bool {
         headerOffset.0 < 10
     }
@@ -105,7 +105,7 @@ extension MangaView {
                         .resizable()
                         .scaledToFill()
                         .frame(height: height > 0 ? height : 0, alignment: .center)
-                        .overlay {
+                        .overlay(
                             ZStack(alignment: .bottom) {
                                 LinearGradient(
                                     colors: [ .clear, .black.opacity(0.8) ],
@@ -130,7 +130,7 @@ extension MangaView {
                                 .padding(.bottom, 25)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                        }
+                        )
                         .cornerRadius(0)
                         .offset(y: -minY)
                 }
@@ -177,31 +177,31 @@ extension MangaView {
                 }
                 
                 if viewStore.selectedTab == .coverArt {
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: 10),
-                            GridItem(.flexible(), spacing: 10)
-                        ]
-                    ) {
-                        ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
-                            Image(uiImage: viewStore.allCoverArts[index])
-                                .resizable()
-                                .scaledToFit()
-                                .padding(.horizontal, 5)
-                                .overlay(
-                                    ZStack(alignment: .bottom) {
-                                        if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
-                                            LinearGradient(
-                                                colors: [.clear, .clear, .black],
-                                                startPoint: .top,
-                                                endPoint: .bottom
-                                            )
-                                        
-                                            Text("Volume \(volumeName)")
-                                                .font(.callout)
+                    GeometryReader { geo in
+                        let columnsCount = Int(geo.size.width / 150)
+                        LazyVGrid(
+                            columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columnsCount)
+                        ) {
+                            ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
+                                Image(uiImage: viewStore.allCoverArts[index])
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding(.horizontal, 5)
+                                    .overlay(
+                                        ZStack(alignment: .bottom) {
+                                            if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
+                                                LinearGradient(
+                                                    colors: [.clear, .clear, .black],
+                                                    startPoint: .top,
+                                                    endPoint: .bottom
+                                                )
+                                            
+                                                Text("Volume \(volumeName)")
+                                                    .font(.callout)
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                            }
                         }
                     }
                     .padding()
@@ -211,6 +211,7 @@ extension MangaView {
                 }
             }
             .transition(.opacity)
+            .frame(minHeight: 400, alignment: .top)
         }
     }
     
@@ -289,7 +290,7 @@ extension MangaView {
     
     private var backButton: some View {
         Button {
-            self.dismiss()
+            self.presentationMode.wrappedValue.dismiss()
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)

@@ -28,7 +28,7 @@ struct SearchView: View {
                         filtersButton
                     }
                     // TODO: прятать HStack при скролле
-                   searchOptions
+                    searchOptions
                         .padding(.horizontal, 15)
                     
                     searchResults

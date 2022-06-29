@@ -202,12 +202,11 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
             case .coverArtFetched(let result, let index):
                 switch result {
                     case .success(let response):
-                        print("image \(index) +")
                         state._allCoverArts[index] = response
                         return .none
                         
                     case .failure(let error):
-                        print("error on fetchin cover art, \(error)")
+                        print("error on fetching cover art, \(error)")
                         return .none
                 }
 
@@ -306,7 +305,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                                 return .none
                         }
                 }
-                // TODO: - Fix bug when changing chapters too fast and getting 'objc[10930]: Cannot form weak reference to instance (0x103b32d00) of class'
+
             case .mangaReadingViewAction(let mangaReadingViewAction):
                 switch mangaReadingViewAction {
                     case .userTappedOnNextChapterButton:

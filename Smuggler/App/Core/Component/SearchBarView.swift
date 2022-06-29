@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchBarView: View {
     @Binding var searchText: String
-    var onSubmitAction: () -> Void = { }
     
     var body: some View {
         HStack {
@@ -19,7 +18,6 @@ struct SearchBarView: View {
             TextField("Type something...", text: $searchText)
                 .foregroundColor(.theme.accent)
                 .disableAutocorrection(true)
-                .onSubmit(onSubmitAction)
                 .overlay(
                     Image(systemName: "xmark.circle.fill")
                         .padding()

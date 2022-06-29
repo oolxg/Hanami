@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 
 struct MangaReadingView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     let store: Store<MangaReadingViewState, MangaReadingViewAction>
     @State private var shouldShowNavBar = true
     
@@ -50,7 +50,7 @@ extension MangaReadingView {
         WithViewStore(store) { viewStore in
             Button {
                 viewStore.send(.userLeftMangaReadingView)
-                self.dismiss()
+                self.presentationMode.wrappedValue.dismiss()
             } label: {
                 Image(systemName: "arrow.left")
                     .foregroundColor(.white)
