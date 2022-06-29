@@ -12,56 +12,23 @@ import ComposableArchitecture
 struct MangaReadingView: View {
     @Environment(\.dismiss) private var dismiss
     let store: Store<MangaReadingViewState, MangaReadingViewAction>
-    @State private var shouldHideNavigationBar = true
+    @State private var shouldShowNavBar = true
     
     var body: some View {
         WithViewStore(store) { viewStore in
             GeometryReader { geo in
                 ZStack(alignment: .top) {
-                    if !shouldHideNavigationBar {
-                        ZStack {
-                            Color.black
-                                .ignoresSafeArea()
-                            
-                            HStack(spacing: 15) {
-                                backButton
-                                    .padding(.horizontal)
-                                
-                                Spacer()
-                                
-                                Button("prev") {
-                                    viewStore.send(.userTappedOnPreviousChapterButton)
-                                }
-                                
-                                Button("next") {
-                                    viewStore.send(.userTappedOnNextChapterButton)
-                                }
-                                .padding(.trailing)
-                            }
-                        }
-                        .frame(height: geo.size.height * 0.05)
-                        .zIndex(1)
+                    if shouldShowNavBar {
+                        navigationBar
+                            .frame(height: geo.size.height * 0.05)
+                            .zIndex(1)
                     }
                     
-                    ZStack {
-                        if viewStore.pagesInfo == nil {
-                            ActivityIndicator()
-                                .frame(width: 120)
-                        } else {
-                            pagesSlider
-                                .frame(height: geo.size.height)
-                        }
-                    }
-                    .transition(.opacity)
-                    .animation(.linear, value: viewStore.pagesInfo == nil)
-                    .frame(
-                        width: geo.size.width,
-                        height: geo.size.height
-                    )
+                    readingContent
+                        .zIndex(0)
                 }
-                .zIndex(0)
+                .frame(height: UIScreen.main.bounds.height)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.userStartedReadingChapter)
@@ -71,7 +38,7 @@ struct MangaReadingView: View {
             }
             .onTapGesture {
                 withAnimation(.linear) {
-                    shouldHideNavigationBar.toggle()
+                    shouldShowNavBar.toggle()
                 }
             }
         }
@@ -94,6 +61,43 @@ extension MangaReadingView {
 }
 
 extension MangaReadingView {
+    private var readingContent: some View {
+        WithViewStore(store) { viewStore in
+            if viewStore.pagesInfo == nil {
+                ActivityIndicator()
+                    .frame(width: 120)
+            } else {
+                pagesSlider
+            }
+        }
+        .transition(.opacity)
+    }
+    
+    private var navigationBar: some View {
+        ZStack {
+            WithViewStore(store) { viewStore in
+                Color.black
+                    .ignoresSafeArea()
+                
+                HStack(spacing: 15) {
+                    backButton
+                        .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    Button("prev") {
+                        viewStore.send(.userTappedOnPreviousChapterButton)
+                    }
+                    
+                    Button("next") {
+                        viewStore.send(.userTappedOnNextChapterButton)
+                    }
+                    .padding(.trailing)
+                }
+            }
+        }
+    }
+    
     private var pagesSlider: some View {
         WithViewStore(store) { viewStore in
             TabView {
@@ -117,10 +121,9 @@ extension MangaReadingView {
                                 }
                         }
                     }
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle("\(pageIndex + 1)/\(viewStore.pages.count)")
                 }
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
     }
 }

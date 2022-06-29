@@ -90,10 +90,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     state.chapterDetails.append(response.data)
                     
                     let allScanlationGroupIDs = state.chapterDetails
-                        .map { chapterDetails in
+                        .compactMap { chapterDetails in
                             chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
                         }
-                        .compactMap { $0 }
                     
                     var effects: [Effect<ChapterAction, Never>] = []
                     

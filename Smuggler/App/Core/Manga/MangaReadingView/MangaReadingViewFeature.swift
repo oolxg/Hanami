@@ -90,7 +90,6 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                         )
                     }
                     
-                    print("loaded \(index)")
                     state.loadingImagesNames.remove(
                         state.pagesInfo!.chapter.dataSaver[index]
                     )
@@ -104,18 +103,21 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     return .none
             }
             
-        case .progressViewAppear(let index):
+        case .progressViewAppear(var index):
             // first 3 pages are loading by default
             if index <= 2 {
                 return .none
             }
+            
+            index -= 1
             
             if state.loadingImagesNames.contains(state.pagesInfo!.chapter.dataSaver[index]) {
                 // it means we're already loading this image
                 return .none
             }
             
-            print("start P \(index)")
+            state.loadingImagesNames.insert(state.pagesInfo!.chapter.dataSaver[index])
+            
             return env.downloadImage(state.pagesInfo!.dataSaverURLs[index])
                 .receive(on: env.mainQueue())
                 .catchToEffect {
@@ -137,7 +139,6 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             // if we have image with index two, we have to load image with index 3 and so on
             guard index >= 2, nextImageIndex < pagesInfo.dataSaverURLs.count, state.pages[nextImageIndex] == nil else {
                 // first 3 images [0, 1, 2] we're loading by default in 'chapterPagesInfoFetched'
-                print("image \(index) is already loaded")
                 return .none
             }
             

@@ -36,16 +36,14 @@ extension ChapterPagesInfo: Identifiable {
 
 extension ChapterPagesInfo {
     var dataSaverURLs: [URL] {
-        chapter.dataSaver.map { fileName in
+        chapter.dataSaver.compactMap { fileName in
             URL(string: "\(baseURL)/data-saver/\(chapter.hash)/\(fileName)")
         }
-        .compactMap { $0 }
     }
     
     var dataURLs: [URL] {
-        chapter.data.map { fileName in
+        chapter.data.compactMap { fileName in
             URL(string: "\(baseURL)/data/\(chapter.hash)/\(fileName)")
         }
-        .compactMap { $0 }
     }
 }

@@ -200,6 +200,6 @@ extension MangaVolume {
     }
     
     var availableChapters: [Double] {
-        chapters.map(\.chapterIndex).compactMap { $0 }
+        chapters.compactMap(\.chapterIndex)
     }
 }
