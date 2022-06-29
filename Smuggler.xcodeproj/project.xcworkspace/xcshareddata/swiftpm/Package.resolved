@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
-        "revision" : "4cf088c29a20f52be0f2ca54992b492c54e0076b",
-        "version" : "0.5.3"
+        "revision" : "0ba3a562716efabb585ccb169450c5389107286b",
+        "version" : "0.6.0"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "ce9c0d897db8a840c39de64caaa9b60119cf4be8",
-        "version" : "0.8.1"
+        "revision" : "b4a872984463070c71e2e97e5c02c73a07d0fe36",
+        "version" : "0.9.0"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "2828dc44f6e3f81d84bcaba72c1ab1c0121d66f6",
-        "version" : "0.34.0"
+        "revision" : "b55977808fcc2ff75081b90f197f6e72a21214b4",
+        "version" : "0.38.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump",
       "state" : {
-        "revision" : "c4f78db9b90ca57b7b6abc2223e235242739ea3c",
-        "version" : "0.4.0"
+        "revision" : "21ec1d717c07cea5a026979cb0471dd95c7087e7",
+        "version" : "0.5.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-identified-collections",
       "state" : {
-        "revision" : "680bf440178a78a627b1c2c64c0855f6523ad5b9",
-        "version" : "0.3.2"
+        "revision" : "2d6b7ffcc67afd9077fac5e5a29bcd6d39b71076",
+        "version" : "0.4.0"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "50a70a9d3583fe228ce672e8923010c8df2deddd",
-        "version" : "0.2.1"
+        "revision" : "f821dcbac7cb6913f8e0d1a80496d0ba0199fa81",
+        "version" : "0.3.0"
       }
     }
   ],

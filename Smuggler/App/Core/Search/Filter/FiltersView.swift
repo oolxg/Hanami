@@ -183,13 +183,17 @@ extension FiltersView {
                     if !viewStore.state[keyPath: path].filter { $0.state != .notSelected }.isEmpty {
                         Circle()
                             .frame(width: 10, height: 10)
-                            .foregroundColor(.theme.red)
+                            .foregroundColor(.theme.green)
                             .padding(.horizontal)
                     }
+                    
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.white)
+                        .font(.headline)
                 }
                 .padding()
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 10)
                         .stroke(
                             Color.theme.accent, lineWidth: 2.5
                         )
@@ -239,7 +243,7 @@ extension FiltersView {
         .padding(10)
         .foregroundColor(.white)
         .background(getColorForTag(filterTag))
-        .cornerRadius(40)
+        .cornerRadius(10)
     }
     
     private func getColorForTag<T: FilterTagProtocol>(_ tag: T) -> Color {

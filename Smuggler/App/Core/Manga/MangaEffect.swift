@@ -75,3 +75,27 @@ func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, API
         }
         .eraseToEffect()
 }
+
+func fetchAllCoverArtsInfoForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Response<[CoverArtInfo]>, APIError> {
+    guard let url = URL(
+        string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=32"
+    ) else {
+        fatalError("Error on creating URL")
+    }
+    
+    return URLSession.shared.dataTaskPublisher(for: url)
+        .validateResponseCode()
+        .retry(3)
+        .map(\.data)
+        .decode(type: Response<[CoverArtInfo]>.self, decoder: decoder)
+        .mapError { err -> APIError in
+            if let err = err as? URLError {
+                return APIError.downloadError(err)
+            } else if let err = err as? DecodingError {
+                return APIError.decodingError(err)
+            }
+            
+            return APIError.unknownError(err)
+        }
+        .eraseToEffect()
+}

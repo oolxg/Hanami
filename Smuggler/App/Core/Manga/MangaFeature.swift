@@ -20,10 +20,22 @@ struct MangaViewState: Equatable {
         areVolumesLoaded && volumeTabStates.isEmpty
     }
     
+    var allCoverArtsInfo: [CoverArtInfo] = []
+    // swiftlint:disable:next identifier_name
+    var _allCoverArts: [UIImage?] = []
+    var allCoverArts: [UIImage] {
+        _allCoverArts.compactMap { $0 }
+    }
+    
     var selectedTab: SelectedTab = .chapters
-    enum SelectedTab: String, Equatable {
-        case about = "About"
+    enum SelectedTab: String, CaseIterable, Identifiable {
         case chapters = "Chapters"
+        case about = "About"
+        case coverArt = "Art"
+        
+        var id: String {
+            rawValue
+        }
     }
     
     // MARK: - Props for reading view
@@ -52,19 +64,20 @@ struct MangaViewState: Equatable {
     
     // should on be used for clearing cache
     mutating func reset() {
-        volumeTabStates = []
-        areVolumesLoaded = false
-        isUserOnReadingView = false
-        mangaReadingViewState = nil
-        nextReadingChapterIndex = nil
-        previousReadingChapterIndex = nil
-        sameScanlationGroupChapters = nil
+        let coverArt = coverArt
+        let manga = manga
+        let stat = statistics
+        
+        self = MangaViewState(manga: manga)
+        self.coverArt = coverArt
+        self.statistics = stat
     }
 }
 
 enum MangaViewAction: BindableAction {
     // MARK: - Actions to be called from view
     case onAppear
+    case userOpenedCoverArtSection
     case mangaTabChanged(MangaViewState.SelectedTab)
 
     // MARK: - Actions to be called from reducer
@@ -73,6 +86,8 @@ enum MangaViewAction: BindableAction {
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
     case volumesDownloaded(Result<Volumes, APIError>)
     case sameScanlationGroupChaptersFetched(Result<Volumes, APIError>)
+    case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, APIError>)
+    case coverArtFetched(result: Result<UIImage, APIError>, index: Int)
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -89,6 +104,8 @@ struct MangaViewEnvironment {
         _ translatedLanguage: String?,
         _ decoder: JSONDecoder
     ) -> Effect<Volumes, APIError>
+    
+    var fetchAllCoverArtsInfo: (UUID, JSONDecoder) -> Effect<Response<[CoverArtInfo]>, APIError>
     
     var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, APIError>
 }
@@ -138,6 +155,61 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 }
                         
                 return .merge(effects)
+                
+            case .userOpenedCoverArtSection:
+                if !state.allCoverArtsInfo.isEmpty {
+                    return .none
+                }
+                
+                return env.fetchAllCoverArtsInfo(state.manga.id, env.decoder())
+                    .receive(on: env.mainQueue())
+                    .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
+                
+            case .mangaTabChanged(let newTab):
+                state.selectedTab = newTab
+                return .none
+                
+            case .allCoverArtsInfoFetched(let result):
+                switch result {
+                    case .success(let response):
+                        state.allCoverArtsInfo = response.data
+                        
+                        var effects: [Effect<MangaViewAction, Never>] = []
+                        
+                        state._allCoverArts = Array(repeating: nil, count: state.allCoverArtsInfo.count)
+
+                        for (i, coverArt) in state.allCoverArtsInfo.enumerated() {
+                            let url = URL(
+                                string: "https://uploads.mangadex.org/covers/\(state.manga.id.uuidString.lowercased())/\(coverArt.attributes.fileName).256.jpg"
+                            )
+                            
+                            effects.append(
+                                env.downloadImage(url)
+                                    .receive(on: env.mainQueue())
+                                    .delay(for: .seconds(Double(i) * 0.3), scheduler: env.mainQueue())
+                                    .catchToEffect {
+                                        MangaViewAction.coverArtFetched(result: $0, index: i)
+                                    }
+                            )
+                        }
+                        return .merge(effects)
+                        
+                    case .failure(let error):
+                        print("error on fetching allCoverArtsInfo, \(error)")
+                        return .none
+                }
+
+            case .coverArtFetched(let result, let index):
+                switch result {
+                    case .success(let response):
+                        print("image \(index) +")
+                        state._allCoverArts[index] = response
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on fetchin cover art, \(error)")
+                        return .none
+                }
 
             case .volumesDownloaded(let result):
                 switch result {
@@ -164,10 +236,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                         return .none
                 }
                 
-            case .mangaTabChanged(let newTab):
-                state.selectedTab = newTab
-                return .none
-               
             // user tapped on chapter, therefore we're sending him to reading view
             case .userWantsToReadChapter(let chapter):
                 state.mangaReadingViewState = MangaReadingViewState(
@@ -289,4 +357,5 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 return .none
         }
     }
+    .binding()
 )

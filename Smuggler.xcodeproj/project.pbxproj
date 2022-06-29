@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		220237B528440D04009C1A7D /* CircleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220237B428440D04009C1A7D /* CircleButtonView.swift */; };
+		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
 		2205CBA02856A91900421888 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9F2856A91900421888 /* UINavigationController.swift */; };
 		2210482A285B665700CE8CED /* MangaReadingViewFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22104829285B665700CE8CED /* MangaReadingViewFeature.swift */; };
@@ -53,7 +54,6 @@
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E6716282E9D6F001D214C /* HomeEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6715282E9D6F001D214C /* HomeEffects.swift */; };
 		224E671B282EAA50001D214C /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671A282EAA50001D214C /* APIError.swift */; };
-		224E6720282EB9C5001D214C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 224E671F282EB9C5001D214C /* ComposableArchitecture */; };
 		225AA5A8284D16D300B406DA /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225AA5A7284D16D300B406DA /* LazyView.swift */; };
 		226DF79028652A3A007CF96A /* ZoomableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */; };
 		226DF7952865BFDC007CF96A /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226DF7942865BFDC007CF96A /* View.swift */; };
@@ -195,7 +195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224E6720282EB9C5001D214C /* ComposableArchitecture in Frameworks */,
+				22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +216,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		22048EB0286CCF8900FE6A54 /* WebModel */ = {
+			isa = PBXGroup;
+			children = (
+				224E6713282E9781001D214C /* Manga.swift */,
+				2224D3D6282ED6C200BBAC5D /* Relationship.swift */,
+				2224D3D8282ED6FA00BBAC5D /* Tag.swift */,
+				2220E14E283074F10046F08A /* LocalizedString.swift */,
+				2220E15A2831355A0046F08A /* CoverArtInfo.swift */,
+				2220E1612831B0300046F08A /* ResponseDataType.swift */,
+				2220E16A2832B3910046F08A /* ChapterDetails.swift */,
+				2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */,
+				22A7BF29283A74E4008EDD52 /* MangaVolume.swift */,
+				22A7BF2E283AB730008EDD52 /* Chapter.swift */,
+				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
+				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
+			);
+			path = WebModel;
+			sourceTree = "<group>";
+		};
+		22048EB1286CCF9C00FE6A54 /* DatabaseModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = DatabaseModel;
+			sourceTree = "<group>";
+		};
 		22104828285B663900CE8CED /* MangaReadingView */ = {
 			isa = PBXGroup;
 			children = (
@@ -395,18 +421,8 @@
 		224E6710282E8E18001D214C /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				224E6713282E9781001D214C /* Manga.swift */,
-				2224D3D6282ED6C200BBAC5D /* Relationship.swift */,
-				2224D3D8282ED6FA00BBAC5D /* Tag.swift */,
-				2220E14E283074F10046F08A /* LocalizedString.swift */,
-				2220E15A2831355A0046F08A /* CoverArtInfo.swift */,
-				2220E1612831B0300046F08A /* ResponseDataType.swift */,
-				2220E16A2832B3910046F08A /* ChapterDetails.swift */,
-				2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */,
-				22A7BF29283A74E4008EDD52 /* MangaVolume.swift */,
-				22A7BF2E283AB730008EDD52 /* Chapter.swift */,
-				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
-				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
+				22048EB1286CCF9C00FE6A54 /* DatabaseModel */,
+				22048EB0286CCF8900FE6A54 /* WebModel */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -508,7 +524,7 @@
 			);
 			name = Smuggler;
 			packageProductDependencies = (
-				224E671F282EB9C5001D214C /* ComposableArchitecture */,
+				22048EAE286CC5B400FE6A54 /* ComposableArchitecture */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Smuggler.app */;
@@ -583,7 +599,7 @@
 			);
 			mainGroup = 224C656F2827204000AAEF2E;
 			packageReferences = (
-				224E671E282EB9C5001D214C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = 224C65792827204100AAEF2E /* Products */;
 			projectDirPath = "";
@@ -1040,7 +1056,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		224E671E282EB9C5001D214C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+		22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
@@ -1051,9 +1067,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		224E671F282EB9C5001D214C /* ComposableArchitecture */ = {
+		22048EAE286CC5B400FE6A54 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 224E671E282EB9C5001D214C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			package = 22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */

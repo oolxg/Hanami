@@ -72,6 +72,7 @@ struct MangaView_Previews: PreviewProvider {
                 environment: .live(
                     environment: .init(
                         fetchMangaVolumes: fetchChaptersForManga,
+                        fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
                         fetchMangaStatistics: fetchMangaStatistics
                     )
                 )
@@ -174,6 +175,40 @@ extension MangaView {
                         }
                     }
                 }
+                
+                if viewStore.selectedTab == .coverArt {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible(), spacing: 10),
+                            GridItem(.flexible(), spacing: 10)
+                        ]
+                    ) {
+                        ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
+                            Image(uiImage: viewStore.allCoverArts[index])
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.horizontal, 5)
+                                .overlay(
+                                    ZStack(alignment: .bottom) {
+                                        if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
+                                            LinearGradient(
+                                                colors: [.clear, .clear, .black],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        
+                                            Text("Volume \(volumeName)")
+                                                .font(.callout)
+                                        }
+                                    }
+                                )
+                        }
+                    }
+                    .padding()
+                    .onAppear {
+                        viewStore.send(.userOpenedCoverArtSection)
+                    }
+                }
             }
             .transition(.opacity)
         }
@@ -181,7 +216,7 @@ extension MangaView {
     
     private var mangaInfoView: some View {
         WithViewStore(store) { viewStore in
-            VStack {
+            VStack(alignment: .leading) {
                 if let statistics = viewStore.statistics {
                     HStack(alignment: .top, spacing: 10) {
                         HStack(alignment: .top, spacing: 0) {
@@ -202,12 +237,52 @@ extension MangaView {
                     .font(.subheadline)
                 }
                 
-                Rectangle()
-                    .fill(Color.theme.darkGray)
-                    .frame(height: 1)
+                descriptionSection
+                
+                tagsSection
+            }
+        }
+    }
+    
+    private var descriptionSection: some View {
+        WithViewStore(store) { viewStore in
+            VStack(alignment: .leading) {
+                Text("Description")
+                    .font(.headline)
+                    .fontWeight(.black)
+                    .padding()
+                
+                Divider()
                 
                 Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
                     .padding()
+            }
+        }
+    }
+    
+    private var tagsSection: some View {
+        WithViewStore(store) { viewStore in
+            VStack(alignment: .leading) {
+                Text("Tags")
+                    .font(.headline)
+                    .fontWeight(.black)
+                    .padding()
+                
+                Divider()
+                
+                GridChipsView(
+                    viewStore.manga.attributes.tags,
+                    width: UIScreen.main.bounds.width
+                ) { tag in
+                    Text(tag.name.capitalized)
+                        .font(.callout)
+                        .lineLimit(1)
+                        .padding(10)
+                        .foregroundColor(.white)
+                        .background(Color.theme.darkGray)
+                        .cornerRadius(10)
+                }
+                .padding()
             }
         }
     }
@@ -230,8 +305,9 @@ extension MangaView {
                     backButton
                 }
                 
-                makeSectionFor(tab: .chapters)
-                makeSectionFor(tab: .about)
+                ForEach(MangaViewState.SelectedTab.allCases) { tab in
+                    makeSectionFor(tab: tab)
+                }
             }
             .animation(.easeInOut, value: isViewScrolledDown)
             .padding(.horizontal)
