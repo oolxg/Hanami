@@ -44,6 +44,7 @@ struct HomeView: View {
                     .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates.isEmpty)
                 }
                 .navigationTitle("Smuggler")
+                .navigationBarTitleDisplayMode(.large)
                 .onAppear {
                     viewStore.send(.onAppear)
                 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-
+import Kingfisher
 
 struct MangaReadingView: View {
     @Environment(\.presentationMode) private var presentationMode
@@ -101,24 +101,19 @@ extension MangaReadingView {
     private var pagesSlider: some View {
         WithViewStore(store) { viewStore in
             TabView {
-                ForEach(0..<viewStore.pages.count, id: \.self) { pageIndex in
-                    ZStack {
-                        if let page = viewStore.pages[pageIndex] {
-                            ZoomableScrollView {
-                                Image(uiImage: page)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .animation(.linear, value: viewStore.pages)
-                                    .onAppear {
-                                        viewStore.send(.imageAppear(index: pageIndex))
-                                    }
-                            }
-                        } else {
-                            ActivityIndicator()
-                                .frame(width: 120)
-                                .onAppear {
-                                    viewStore.send(.progressViewAppear(index: pageIndex))
+                if let pagesInfo = viewStore.pagesInfo {
+                    ForEach(0..<pagesInfo.dataSaverURLs.count, id: \.self) { pageIndex in
+                        ZoomableScrollView {
+                            KFImage.url(
+                                pagesInfo.dataSaverURLs[pageIndex],
+                                cacheKey: pagesInfo.dataSaverURLs[pageIndex].absoluteString
+                            )
+                                .placeholder {
+                                    ActivityIndicator()
+                                        .frame(width: 120)
                                 }
+                                .resizable()
+                                .scaledToFit()
                         }
                     }
                 }

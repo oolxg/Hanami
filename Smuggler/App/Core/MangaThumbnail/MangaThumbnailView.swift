@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Kingfisher
 
 struct MangaThumbnailView: View {
     let store: Store<MangaThumbnailState, MangaThumbnailAction>
@@ -72,26 +73,26 @@ extension MangaThumbnailView {
     // all the stuff here is to make NavigationLink 'lazy'
     private var coverArt: some View {
         WithViewStore(store) { viewStore in
-            ZStack {
-                if let coverArt = viewStore.coverArt {
-                    Image(uiImage: coverArt)
-                        .resizable()
-                        .scaledToFill()
-                        .background(
-                            NavigationLink(
-                                isActive: $isNavigationLinkActive,
-                                destination: { navigationLinkDestination },
-                                label: { EmptyView() }
-                            )
-                        )
-                        .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                            viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-                        }
-                } else {
-                    Color.black
-                        .opacity(0.45)
-                        .redacted(reason: .placeholder)
-                }
+            KFImage.url(
+                viewStore.coverArtURL,
+                cacheKey: viewStore.coverArtURL?.absoluteString
+            )
+            .placeholder {
+                Color.black
+                    .opacity(0.45)
+                    .redacted(reason: .placeholder)
+            }
+            .resizable()
+            .scaledToFill()
+            .background(
+                NavigationLink(
+                    isActive: $isNavigationLinkActive,
+                    destination: { navigationLinkDestination },
+                    label: { EmptyView() }
+                )
+            )
+            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
             }
         }
         .frame(width: 100, height: 150)

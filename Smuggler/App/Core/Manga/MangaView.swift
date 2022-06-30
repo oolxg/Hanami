@@ -8,6 +8,7 @@
 // swiftlint:disable file_length
 import SwiftUI
 import ComposableArchitecture
+import Kingfisher
 
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
@@ -102,53 +103,54 @@ extension MangaView {
                 let size = geo.size
                 let height = size.height + minY
                 
-                if let coverArt = viewStore.coverArt {
-                    Image(uiImage: coverArt)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: height > 0 ? height : 0, alignment: .center)
-                        .overlay(
-                            ZStack(alignment: .bottom) {
-                                LinearGradient(
-                                    colors: [ .clear, .black.opacity(0.8) ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                                
-                                VStack(alignment: .leading, spacing: 12) {
-                                    backButton
-                                    
-                                    Spacer()
-                                    
-                                    HStack {
-                                        Text("MANGA")
-                                            .font(.callout)
-                                            .foregroundColor(.gray)
-                                        
-                                        HStack(spacing: 5) {
-                                            Circle()
-                                                .fill(getColorForMangaStatus(viewStore.manga.attributes.status))
-                                                .frame(width: 10, height: 10)
-                                            
-                                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                                .foregroundColor(.white)
-                                                .fontWeight(.semibold)
-                                        }
-                                        .font(.subheadline)
-                                    }
-                                    
-                                    Text(viewStore.manga.title)
-                                        .font(.title.bold())
-                                }
-                                .padding(.horizontal)
-                                .padding(.top, 40)
-                                .padding(.bottom, 25)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            }
+                KFImage.url(
+                    viewStore.mainCoverArtURL,
+                    cacheKey: viewStore.mainCoverArtURL?.absoluteString
+                )
+                .resizable()
+                .scaledToFill()
+                .frame(height: height > 0 ? height : 0, alignment: .center)
+                .overlay(
+                    ZStack(alignment: .bottom) {
+                        LinearGradient(
+                            colors: [ .clear, .black.opacity(0.8) ],
+                            startPoint: .top,
+                            endPoint: .bottom
                         )
-                        .cornerRadius(0)
-                        .offset(y: -minY)
-                }
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            backButton
+                            
+                            Spacer()
+                            
+                            HStack {
+                                Text("MANGA")
+                                    .font(.callout)
+                                    .foregroundColor(.gray)
+                                
+                                HStack(spacing: 5) {
+                                    Circle()
+                                        .fill(getColorForMangaStatus(viewStore.manga.attributes.status))
+                                        .frame(width: 10, height: 10)
+                                    
+                                    Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                                        .foregroundColor(.white)
+                                        .fontWeight(.semibold)
+                                }
+                                .font(.subheadline)
+                            }
+                            
+                            Text(viewStore.manga.title)
+                                .font(.title.bold())
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 40)
+                        .padding(.bottom, 25)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                )
+                .cornerRadius(0)
+                .offset(y: -minY)
             }
             .frame(height: 250)
         }
@@ -215,37 +217,41 @@ extension MangaView {
                         count: Int(geo.size.width / 100)
                     )
                 ) {
-                    ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
-                        Image(uiImage: viewStore.allCoverArts[index])
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 150)
-                            .padding(.horizontal, 5)
-                            .overlay(
-                                ZStack(alignment: .bottom) {
-                                    if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
-                                        LinearGradient(
-                                            colors: [.clear, .clear, .black],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                        
-                                        Text("Volume \(volumeName)")
-                                            .font(.callout)
-                                    }
+                    ForEach(0..<viewStore.coverArtURLs.count, id: \.self) { index in
+                        KFImage.url(
+                            viewStore.coverArtURLs[index],
+                            cacheKey: viewStore.coverArtURLs[index].absoluteString
+                        )
+                        .fade(duration: 0.3)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 150)
+                        .padding(.horizontal, 5)
+                        .overlay(
+                            ZStack(alignment: .bottom) {
+                                if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
+                                    LinearGradient(
+                                        colors: [.clear, .clear, .black],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    
+                                    Text("Volume \(volumeName)")
+                                        .font(.callout)
                                 }
-                            )
+                            }
+                        )
                     }
                 }
                 .onAppear {
                     let columnsCount = Int(geo.size.width / 100)
-                    artSectionHeight = ceil(CGFloat(viewStore.allCoverArts.count / columnsCount)) * 160
+                    artSectionHeight = ceil(CGFloat(viewStore.coverArtURLs.count) / CGFloat(columnsCount)) * 160
                 }
-                .onChange(of: viewStore.allCoverArts) { _ in
+                .onChange(of: viewStore.coverArtURLs) { _ in
                     let columnsCount = Int(geo.size.width / 100)
                     
                     withAnimation {
-                        artSectionHeight = ceil(CGFloat(viewStore.allCoverArts.count / columnsCount)) * 160
+                        artSectionHeight = ceil(CGFloat(viewStore.coverArtURLs.count) / CGFloat(columnsCount)) * 160
                         artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 160
                     }
                 }

@@ -18,9 +18,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
     var mangaState: MangaViewState
     let manga: Manga
     var coverArtInfo: CoverArtInfo?
-    var coverArt: UIImage? {
-        mangaState.coverArt
-    }
     
     var mangaStatistics: MangaStatistics? {
         mangaState.statistics
@@ -40,7 +37,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
 enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
-    case coverArt(Result<UIImage, APIError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
@@ -76,15 +72,8 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
         switch action {
             case .onAppear:
                 // if we already loaded info about cover and cover, we don't need to do it one more time
-                guard state.coverArtInfo == nil && state.coverArt == nil else { return .none }
-                
-                // if we have only cover info loaded, we load the image, otherwise we load all
-                if state.coverArtInfo != nil && state.coverArt == nil {
-                    return env.downloadImage(state.coverArtURL)
-                        .receive(on: env.mainQueue())
-                        .catchToEffect(MangaThumbnailAction.coverArt)
-                }
-                
+                guard state.coverArtInfo == nil else { return .none }
+
                 guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {
                     return .none
                 }
@@ -97,38 +86,11 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 switch result {
                     case .success(let response):
                         state.coverArtInfo = response.data
-                        // if we already loaded this thumbnail, we shouldn't load it one more time
-                        if let coverArt = ImageFileManager.shared.getImage(
-                            withName: state.coverArtInfo!.attributes.fileName,
-                            from: state.manga.mangaFolderName
-                           ) {
-                            state.mangaState.coverArt = coverArt
-                            return .none
-                        }
-                        
-                        return env.downloadImage(state.coverArtURL)
-                            .receive(on: env.mainQueue())
-                            .catchToEffect(MangaThumbnailAction.coverArt)
+                        state.mangaState.mainCoverArtURL = state.coverArtURL
+                        return .none
                         
                     case .failure(let error):
                         print("error on downloading thumbnail info: \(error)")
-                        return .none
-                }
-                
-            case .coverArt(let result):
-                switch result {
-                    case .success(let returnedCoverArt):
-                        state.mangaState.coverArt = returnedCoverArt
-                        
-                        ImageFileManager.shared.saveImage(
-                            image: returnedCoverArt,
-                            withName: state.coverArtInfo!.attributes.fileName,
-                            inFolder: state.manga.mangaFolderName
-                        )
-                        
-                        return .none
-                    case .failure(let error):
-                        print("error on downloading thumbnail: \(error)")
                         return .none
                 }
                 
