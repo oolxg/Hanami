@@ -186,7 +186,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                             effects.append(
                                 env.downloadImage(url)
                                     .receive(on: env.mainQueue())
-                                    .delay(for: .seconds(Double(i) * 0.3), scheduler: env.mainQueue())
+                                    .delay(for: .seconds(Double(i) * 0.1), scheduler: env.mainQueue())
                                     .catchToEffect {
                                         MangaViewAction.coverArtFetched(result: $0, index: i)
                                     }

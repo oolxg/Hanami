@@ -68,8 +68,6 @@ extension SearchView {
                     mangaList
                 }
             }
-            .animation(.linear, value: viewStore.mangaThumbnailStates)
-            .transition(.opacity)
         }
     }
     
@@ -112,7 +110,7 @@ extension SearchView {
                         }
                     }
                 }
-                .animation(.linear, value: viewStore.mangaThumbnailStates)
+                .animation(.linear, value: viewStore.mangaThumbnailStates.isEmpty)
                 .transition(.opacity)
             }
         }

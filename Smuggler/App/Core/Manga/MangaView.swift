@@ -5,6 +5,7 @@
 //  Created by mk.pwnz on 16/05/2022.
 //
 
+// swiftlint:disable file_length
 import SwiftUI
 import ComposableArchitecture
 
@@ -15,6 +16,7 @@ struct MangaView: View {
     @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) var presentationMode
+    @State private var artSectionHeight: CGFloat = 0
 
     private var isViewScrolledDown: Bool {
         headerOffset.0 < 10
@@ -118,9 +120,22 @@ extension MangaView {
                                     
                                     Spacer()
                                     
-                                    Text("MANGA")
-                                        .font(.callout)
-                                        .foregroundColor(.gray)
+                                    HStack {
+                                        Text("MANGA")
+                                            .font(.callout)
+                                            .foregroundColor(.gray)
+                                        
+                                        HStack(spacing: 5) {
+                                            Circle()
+                                                .fill(getColorForMangaStatus(viewStore.manga.attributes.status))
+                                                .frame(width: 10, height: 10)
+                                            
+                                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                                                .foregroundColor(.white)
+                                                .fontWeight(.semibold)
+                                        }
+                                        .font(.subheadline)
+                                    }
                                     
                                     Text(viewStore.manga.title)
                                         .font(.title.bold())
@@ -147,71 +162,99 @@ extension MangaView {
                 }
                 
                 if viewStore.selectedTab == .chapters {
-                    if viewStore.shouldShowEmptyMangaMessage {
-                        VStack(spacing: 0) {
-                            Text("Ooops, there's nothing to read")
-                                .font(.title2)
-                                .fontWeight(.black)
-                            
-                            Text("😢")
-                                .font(.title2)
-                                .fontWeight(.black)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding()
-                    } else {
-                        VStack {
-                            ForEachStore(
-                                store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
-                            ) { volumeStore in
-                                LazyView(
-                                    VolumeTabView(store: volumeStore)
-                                )
-                                
-                                Rectangle()
-                                    .frame(height: 2)
-                                    .foregroundColor(.theme.darkGray)
-                            }
-                        }
-                    }
+                    chaptersSection
                 }
                 
                 if viewStore.selectedTab == .coverArt {
-                    GeometryReader { geo in
-                        let columnsCount = Int(geo.size.width / 150)
-                        LazyVGrid(
-                            columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columnsCount)
-                        ) {
-                            ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
-                                Image(uiImage: viewStore.allCoverArts[index])
-                                    .resizable()
-                                    .scaledToFit()
-                                    .padding(.horizontal, 5)
-                                    .overlay(
-                                        ZStack(alignment: .bottom) {
-                                            if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
-                                                LinearGradient(
-                                                    colors: [.clear, .clear, .black],
-                                                    startPoint: .top,
-                                                    endPoint: .bottom
-                                                )
-                                            
-                                                Text("Volume \(volumeName)")
-                                                    .font(.callout)
-                                            }
-                                        }
-                                    )
-                            }
-                        }
-                    }
-                    .padding()
-                    .onAppear {
-                        viewStore.send(.userOpenedCoverArtSection)
-                    }
+                    coverArtSection
                 }
             }
             .transition(.opacity)
             .frame(minHeight: 400, alignment: .top)
+        }
+    }
+    
+    private var chaptersSection: some View {
+        WithViewStore(store) { viewStore in
+            if viewStore.shouldShowEmptyMangaMessage {
+                VStack(spacing: 0) {
+                    Text("Ooops, there's nothing to read")
+                        .font(.title2)
+                        .fontWeight(.black)
+                    
+                    Text("😢")
+                        .font(.title2)
+                        .fontWeight(.black)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
+            } else {
+                VStack {
+                    ForEachStore(
+                        store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
+                    ) { volumeStore in
+                        LazyView(
+                            VolumeTabView(store: volumeStore)
+                        )
+                        
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundColor(.theme.darkGray)
+                    }
+                }
+            }
+        }
+    }
+    
+    private var coverArtSection: some View {
+        WithViewStore(store) { viewStore in
+            GeometryReader { geo in
+                LazyVGrid(
+                    columns: Array(
+                        repeating: GridItem(.flexible(), spacing: 10),
+                        count: Int(geo.size.width / 100)
+                    )
+                ) {
+                    ForEach(0..<viewStore.allCoverArts.count, id: \.self) { index in
+                        Image(uiImage: viewStore.allCoverArts[index])
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 150)
+                            .padding(.horizontal, 5)
+                            .overlay(
+                                ZStack(alignment: .bottom) {
+                                    if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
+                                        LinearGradient(
+                                            colors: [.clear, .clear, .black],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                        
+                                        Text("Volume \(volumeName)")
+                                            .font(.callout)
+                                    }
+                                }
+                            )
+                    }
+                }
+                .onAppear {
+                    let columnsCount = Int(geo.size.width / 100)
+                    artSectionHeight = ceil(CGFloat(viewStore.allCoverArts.count / columnsCount)) * 160
+                }
+                .onChange(of: viewStore.allCoverArts) { _ in
+                    let columnsCount = Int(geo.size.width / 100)
+                    
+                    withAnimation {
+                        artSectionHeight = ceil(CGFloat(viewStore.allCoverArts.count / columnsCount)) * 160
+                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 160
+                    }
+                }
+            }
+            .frame(height: artSectionHeight)
+            .padding()
+            .onAppear {
+                viewStore.send(.userOpenedCoverArtSection)
+            }
         }
     }
     
@@ -230,8 +273,6 @@ extension MangaView {
                             Image(systemName: "bookmark.fill")
                             
                             Text(statistics.follows.abbreviation)
-                            
-                            Spacer()
                         }
                     }
                     .padding()
@@ -242,6 +283,19 @@ extension MangaView {
                 
                 tagsSection
             }
+        }
+    }
+    
+    private func getColorForMangaStatus(_ status: Manga.Attributes.Status) -> Color {
+        switch status {
+            case .completed:
+                return .blue
+            case .ongoing:
+                return .green
+            case .cancelled:
+                return .red
+            case .hiatus:
+                return .red
         }
     }
     

@@ -134,6 +134,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 state.areSearchResultsDownloaded = false
 
                 return env.searchManga(requestParams, env.decoder())
+                    .delay(for: .seconds(0.4), scheduler: env.mainQueue())
                     .receive(on: env.mainQueue())
                     .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: requestParams) }
                 

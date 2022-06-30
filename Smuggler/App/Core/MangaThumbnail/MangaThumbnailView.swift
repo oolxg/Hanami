@@ -140,6 +140,37 @@ extension MangaThumbnailView {
                         }
                     }
                 }
+                
+                HStack(spacing: 5) {
+                    let status = viewStore.manga.attributes.status
+                    
+                    switch status {
+                        case .completed:
+                            Circle()
+                                .fill(.blue)
+                                .frame(width: 10, height: 10)
+                                .padding(0)
+                        case .ongoing:
+                            Circle()
+                                .fill(.green)
+                                .frame(width: 10, height: 10)
+                                .padding(0)
+                        case .cancelled:
+                            Circle()
+                                .fill(.red)
+                                .frame(width: 10, height: 10)
+                                .padding(0)
+                        case .hiatus:
+                            Circle()
+                                .fill(.orange)
+                                .frame(width: 10, height: 10)
+                                .padding(0)
+                    }
+                    
+                    Text(status.rawValue.capitalized)
+                        .foregroundColor(.white)
+                        .fontWeight(.semibold)
+                }
             }
             .font(.footnote)
         }
