@@ -157,7 +157,7 @@ extension FiltersView {
         }
     }
     
-    @ViewBuilder private func makeTitle(_ title: String) -> some View {
+    private func makeTitle(_ title: String) -> some View {
         Text(title)
             .foregroundColor(.white)
             .font(.title3)

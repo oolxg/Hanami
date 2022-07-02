@@ -63,13 +63,29 @@ extension MangaReadingView {
 extension MangaReadingView {
     private var readingContent: some View {
         WithViewStore(store) { viewStore in
-            if viewStore.pagesInfo == nil {
+            if let urls = viewStore.pagesInfo?.dataSaverURLs {
+                TabView {
+                    ForEach(0..<urls.count, id: \.self) { pageIndex in
+                        ZoomableScrollView {
+                            KFImage.url(
+                                urls[pageIndex],
+                                cacheKey: urls[pageIndex].absoluteString
+                            )
+                            .placeholder {
+                                ActivityIndicator()
+                                    .frame(width: 120)
+                            }
+                            .resizable()
+                            .scaledToFit()
+                        }
+                    }
+                }
+            } else {
                 ActivityIndicator()
                     .frame(width: 120)
-            } else {
-                pagesSlider
             }
         }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         .transition(.opacity)
     }
     
@@ -95,30 +111,6 @@ extension MangaReadingView {
                     .padding(.trailing)
                 }
             }
-        }
-    }
-    
-    private var pagesSlider: some View {
-        WithViewStore(store) { viewStore in
-            TabView {
-                if let pagesInfo = viewStore.pagesInfo {
-                    ForEach(0..<pagesInfo.dataSaverURLs.count, id: \.self) { pageIndex in
-                        ZoomableScrollView {
-                            KFImage.url(
-                                pagesInfo.dataSaverURLs[pageIndex],
-                                cacheKey: pagesInfo.dataSaverURLs[pageIndex].absoluteString
-                            )
-                                .placeholder {
-                                    ActivityIndicator()
-                                        .frame(width: 120)
-                                }
-                                .resizable()
-                                .scaledToFit()
-                        }
-                    }
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
     }
 }

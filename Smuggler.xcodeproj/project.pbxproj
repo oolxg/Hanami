@@ -38,6 +38,7 @@
 		2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D8282ED6FA00BBAC5D /* Tag.swift */; };
 		22284BE9283909CF00C69647 /* RangeReplaceableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22284BE8283909CF00C69647 /* RangeReplaceableCollection.swift */; };
 		22284BEB28395DF300C69647 /* ExpandableForEach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22284BEA28395DF300C69647 /* ExpandableForEach.swift */; };
+		222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 222A033E2870F6E200D5B588 /* Model.xcdatamodeld */; };
 		2245D4B128400A8E005B1C83 /* VolumeTabFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4B028400A8E005B1C83 /* VolumeTabFeature.swift */; };
 		2245D4B328400A9D005B1C83 /* VolumeTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4B228400A9D005B1C83 /* VolumeTabView.swift */; };
 		2245D4B928403E9A005B1C83 /* UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4B828403E9A005B1C83 /* UUID.swift */; };
@@ -141,6 +142,7 @@
 		2224D3D8282ED6FA00BBAC5D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		22284BE8283909CF00C69647 /* RangeReplaceableCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RangeReplaceableCollection.swift; sourceTree = "<group>"; };
 		22284BEA28395DF300C69647 /* ExpandableForEach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableForEach.swift; sourceTree = "<group>"; };
+		222A033F2870F6E200D5B588 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		2245D4B028400A8E005B1C83 /* VolumeTabFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeTabFeature.swift; sourceTree = "<group>"; };
 		2245D4B228400A9D005B1C83 /* VolumeTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeTabView.swift; sourceTree = "<group>"; };
 		2245D4B828403E9A005B1C83 /* UUID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUID.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 		22048EB1286CCF9C00FE6A54 /* DatabaseModel */ = {
 			isa = PBXGroup;
 			children = (
+				222A033E2870F6E200D5B588 /* Model.xcdatamodeld */,
 			);
 			path = DatabaseModel;
 			sourceTree = "<group>";
@@ -710,6 +713,7 @@
 				2220E15728312D400046F08A /* MangaThumbnailFeature.swift in Sources */,
 				2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */,
 				22A7BF2D283AB6D7008EDD52 /* ChapterFeature.swift in Sources */,
+				222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */,
 				220237B528440D04009C1A7D /* CircleButtonView.swift in Sources */,
 				2220E1592831345C0046F08A /* MangaThumbnailEffect.swift in Sources */,
 				221E52C328342832001E82A7 /* SystemEffect.swift in Sources */,
@@ -1087,6 +1091,19 @@
 			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		222A033E2870F6E200D5B588 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				222A033F2870F6E200D5B588 /* Model.xcdatamodel */,
+			);
+			currentVersion = 222A033F2870F6E200D5B588 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 224C65702827204000AAEF2E /* Project object */;
 }

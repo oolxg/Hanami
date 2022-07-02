@@ -69,9 +69,11 @@ struct MangaViewState: Equatable {
     mutating func reset() {
         let manga = manga
         let stat = statistics
+        let coverArtURL = mainCoverArtURL
         
         self = MangaViewState(manga: manga)
         self.statistics = stat
+        self.mainCoverArtURL = coverArtURL
     }
 }
 
@@ -157,7 +159,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 return .merge(effects)
                 
             case .userOpenedCoverArtSection:
-                if !state.allCoverArtsInfo.isEmpty {
+                guard state.allCoverArtsInfo.isEmpty else {
                     return .none
                 }
                 

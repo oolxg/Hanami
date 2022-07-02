@@ -17,10 +17,10 @@ struct MangaView: View {
     @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) var presentationMode
-    @State private var artSectionHeight: CGFloat = 0
+    @State private var artSectionHeight = 0.0
 
     private var isViewScrolledDown: Bool {
-        headerOffset.0 < 10
+        headerOffset.0 < 9
     }
     
     var body: some View {
@@ -172,7 +172,6 @@ extension MangaView {
                 }
             }
             .transition(.opacity)
-            .frame(minHeight: 400, alignment: .top)
         }
     }
     
@@ -214,7 +213,7 @@ extension MangaView {
                 LazyVGrid(
                     columns: Array(
                         repeating: GridItem(.flexible(), spacing: 10),
-                        count: Int(geo.size.width / 100)
+                        count: Int(geo.size.width / 160)
                     )
                 ) {
                     ForEach(0..<viewStore.coverArtURLs.count, id: \.self) { index in
@@ -225,7 +224,7 @@ extension MangaView {
                         .fade(duration: 0.3)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 150)
+                        .frame(height: 240)
                         .padding(.horizontal, 5)
                         .overlay(
                             ZStack(alignment: .bottom) {
@@ -244,15 +243,16 @@ extension MangaView {
                     }
                 }
                 .onAppear {
-                    let columnsCount = Int(geo.size.width / 100)
-                    artSectionHeight = ceil(CGFloat(viewStore.coverArtURLs.count) / CGFloat(columnsCount)) * 160
+                    let columnsCount = Int(geo.size.width / 160)
+                    artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
+                    artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
                 }
                 .onChange(of: viewStore.coverArtURLs) { _ in
-                    let columnsCount = Int(geo.size.width / 100)
+                    let columnsCount = Int(geo.size.width / 160)
                     
                     withAnimation {
-                        artSectionHeight = ceil(CGFloat(viewStore.coverArtURLs.count) / CGFloat(columnsCount)) * 160
-                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 160
+                        artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
+                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
                     }
                 }
             }

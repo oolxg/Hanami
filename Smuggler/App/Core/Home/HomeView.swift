@@ -14,13 +14,10 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             WithViewStore(store) { viewStore in
-                ScrollView {
-                    VStack {
-                        VStack {
-                            Text("by oolxg")
-                            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-                            Text("early beta: \(appVersion ?? "undefined")")
-                        }
+                VStack {
+                    Text("by oolxg")
+                    
+                    ScrollView {
                         if viewStore.mangaThumbnailStates.isEmpty {
                             ForEach(0..<20) { _ in
                                 MangaThumbnailSkeletonView()

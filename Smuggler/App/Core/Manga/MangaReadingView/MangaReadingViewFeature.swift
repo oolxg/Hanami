@@ -7,7 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-import SwiftUI
 
 struct MangaReadingViewState: Equatable {
     init(chapterID: UUID, chapterIndex: Double?) {
@@ -37,10 +36,9 @@ struct MangaReadingViewEnvironment {
 
 // swiftlint:disable:next line_length
 let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAction, SystemEnvironment<MangaReadingViewEnvironment>> { state, action, env in
-    struct CancelPagesDownloading: Hashable { }
     switch action {
         case .userStartedReadingChapter:
-            if state.pagesInfo != nil {
+            guard state.pagesInfo == nil else {
                 return .none
             }
             
@@ -61,12 +59,12 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userTappedOnNextChapterButton:
-            return .cancel(id: CancelPagesDownloading())
+            return .none
             
         case .userTappedOnPreviousChapterButton:
-            return .cancel(id: CancelPagesDownloading())
+            return .none
             
         case .userLeftMangaReadingView:
-            return .cancel(id: CancelPagesDownloading())
+            return .none
     }
 }
