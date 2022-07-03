@@ -27,22 +27,21 @@ struct Manga: Codable {
         let description: LocalizedString
         let isLocked: Bool
         let originalLanguage: String
-        let lastVolume: String?
-        let lastChapter: String?
-        let publicationDemographic: PublicationDemographic?
+        @NullCodable var lastVolume: String?
+        @NullCodable var lastChapter: String?
+        @NullCodable var publicationDemographic: PublicationDemographic?
         let status: Status
-        let year: Int?
+        @NullCodable var year: Int?
         let contentRating: ContentRatings
-        let chapterNumbersResetOnNewVolume: Bool
         let tags: [Tag]
         let state: State
-        let version: Int
-        let createdAt, updatedAt: Date?
+        @NullCodable var createdAt: Date?
+        @NullCodable var updatedAt: Date?
         
         enum CodingKeys: String, CodingKey {
             case title, altTitles
             case description, isLocked, originalLanguage, lastVolume, lastChapter, publicationDemographic, status
-            case year, contentRating, chapterNumbersResetOnNewVolume, tags, state, version, createdAt, updatedAt
+            case year, contentRating, tags, state, createdAt, updatedAt
         }
         
         enum Status: String, Codable {
@@ -86,13 +85,11 @@ extension Manga.Attributes {
         lastVolume = try container.decode(String?.self, forKey: .lastVolume)
         lastChapter = try container.decode(String?.self, forKey: .lastChapter)
         publicationDemographic = try container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
-        status = try container.decode(Status.self, forKey: .status  )
+        status = try container.decode(Status.self, forKey: .status)
         year = try container.decode(Int?.self, forKey: .year)
         contentRating = try container.decode(ContentRatings.self, forKey: .contentRating)
-        chapterNumbersResetOnNewVolume = try container.decode(Bool.self, forKey: .chapterNumbersResetOnNewVolume)
         tags = try container.decode([Tag].self, forKey: .tags)
         state = try container.decode(State.self, forKey: .state)
-        version = try container.decode(Int.self, forKey: .version)
         
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")

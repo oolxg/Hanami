@@ -21,31 +21,16 @@ public struct SystemEnvironment<Environment> {
     
     var mainQueue: () -> AnySchedulerOf<DispatchQueue>
     var decoder: () -> JSONDecoder
-    var downloadImage: (URL?) -> Effect<UIImage, APIError>
     
     private static func decoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "en_US_POSIX")
-        fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
-
-        decoder.dateDecodingStrategy = .formatted(fmt)
-        
-        return decoder
+        AppUtil.decoder
     }
     
     static func live(environment: Environment, isMainQueueAnimated: Bool = false) -> Self {
         Self(
             environment: environment,
             mainQueue: { isMainQueueAnimated ? .main.animation(.linear) : .main },
-            decoder: decoder,
-            downloadImage: loadImage
+            decoder: decoder
         )
-    }
-    
-    static func dev(environment: Environment) -> Self {
-        Self(environment: environment, mainQueue: { .main }, decoder: decoder, downloadImage: loadImage)
     }
 }

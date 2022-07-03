@@ -1,5 +1,5 @@
 //
-//  APIError.swift
+//  AppError.swift
 //  Smuggler
 //
 //  Created by mk.pwnz on 13/05/2022.
@@ -7,23 +7,26 @@
 
 import Foundation
 
-enum APIError: Error {
+enum AppError: Error {
     case downloadError(URLError)
     case decodingError(DecodingError)
     case unknownError(Error)
+    case databaseError(String)
 }
 
-// swiftlint:disable empty_enum_arguments
-extension APIError: Equatable {
-    static func == (lhs: APIError, rhs: APIError) -> Bool {
+extension AppError: Equatable {
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
-            case (.downloadError(_), .downloadError(_)):
+            case (.downloadError, .downloadError):
                 return true
                 
-            case (.decodingError(_), .decodingError(_)):
+            case (.decodingError, .decodingError):
                 return true
                 
-            case (.unknownError(_), .unknownError(_)):
+            case (.unknownError, .unknownError):
+                return true
+                
+            case (.databaseError, .databaseError):
                 return true
                 
             default:

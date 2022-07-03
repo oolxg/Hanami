@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-func fetchMangaStatistics(mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, APIError> {
+func fetchMangaStatistics(mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError> {
     guard !mangaIDs.isEmpty else { return .none }
     
     var components = URLComponents()
@@ -30,14 +30,14 @@ func fetchMangaStatistics(mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, 
         .retry(3)
         .map(\.data)
         .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }

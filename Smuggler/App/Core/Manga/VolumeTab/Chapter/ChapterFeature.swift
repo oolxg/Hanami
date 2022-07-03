@@ -29,13 +29,13 @@ struct ChapterState: Equatable, Identifiable {
 enum ChapterAction {
     case onAppear
     case onTapGesture(chapter: ChapterDetails)
-    case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, APIError>, chapterID: UUID)
-    case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, APIError>, chapterID: UUID)
+    case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>, chapterID: UUID)
+    case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
 }
 
 struct ChapterEnvironment {
-    var downloadChapterInfo: (UUID, JSONDecoder) -> Effect<Response<ChapterDetails>, APIError>
-    var fetchScanlationGroupInfo: (UUID, JSONDecoder) -> Effect<Response<ScanlationGroup>, APIError>
+    var downloadChapterInfo: (UUID, JSONDecoder) -> Effect<Response<ChapterDetails>, AppError>
+    var fetchScanlationGroupInfo: (UUID, JSONDecoder) -> Effect<Response<ScanlationGroup>, AppError>
 }
 
 // About loading chapter pages

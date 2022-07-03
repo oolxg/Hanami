@@ -9,34 +9,34 @@ import SwiftUI
 import ComposableArchitecture
 
 struct RootView: View {
-    let store: Store<AppState, AppAction>
+    let store: Store<RootState, RootAction>
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            TabView(selection: viewStore.binding(get: \.selectedTab, send: AppAction.tabChanged)) {
+            TabView(selection: viewStore.binding(get: \.selectedTab, send: RootAction.tabChanged)) {
                 HomeView(
                     store: store.scope(
                         state: \.homeState,
-                        action: AppAction.homeAction
+                        action: RootAction.homeAction
                     )
                 )
                 .tabItem {
                     Image(systemName: "house")
                     Text("Home")
                 }
-                .tag(AppState.Tab.home)
+                .tag(RootState.Tab.home)
                 
                 SearchView(
                     store: store.scope(
                         state: \.searchState,
-                        action: AppAction.searchAction
+                        action: RootAction.searchAction
                     )
                 )
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
-                .tag(AppState.Tab.search)
+                .tag(RootState.Tab.search)
             }
         }
         .accentColor(.theme.accent)
@@ -49,7 +49,7 @@ struct RootView_Previews: PreviewProvider {
         RootView(
             store: .init(
                 initialState: .init(selectedTab: .home),
-                reducer: appReducer,
+                reducer: rootReducer,
                 environment: .live(
                     environment: .init()
                 )

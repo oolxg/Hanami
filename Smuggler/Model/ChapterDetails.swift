@@ -88,6 +88,12 @@ extension ChapterDetails: Equatable {
 
 extension ChapterDetails: Identifiable { }
 
+extension ChapterDetails: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 extension ChapterDetails.Attributes {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ChapterDetails.Attributes.CodingKeys.self)

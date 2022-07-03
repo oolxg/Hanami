@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Combine
 
-func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIError> {
+func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, AppError> {
     let today = Calendar.current.startOfDay(for: Date(timeIntervalSinceNow: -86400))
     let fmt = DateFormatter()
     fmt.locale = Locale(identifier: "en_US_POSIX")
@@ -40,14 +40,14 @@ func downloadMangaList(decoder: JSONDecoder) -> Effect<Response<[Manga]>, APIErr
         .retry(3)
         .map(\.data)
         .decode(type: Response<[Manga]>.self, decoder: decoder)
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }

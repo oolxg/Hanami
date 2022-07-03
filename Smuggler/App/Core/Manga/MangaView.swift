@@ -52,7 +52,6 @@ struct MangaView: View {
                 .ignoresSafeArea(.container, edges: .vertical)
                 .padding(.bottom, 1)
                 .background(
-                    // swiftlint:disable:next trailing_closure
                     NavigationLink(
                         destination: mangaReadingView,
                         isActive: viewStore.binding(\.$isUserOnReadingView),

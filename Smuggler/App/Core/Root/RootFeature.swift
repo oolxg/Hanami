@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct AppState: Equatable {
+struct RootState: Equatable {
     var homeState = HomeState()
     var searchState = SearchState()
     
@@ -19,22 +19,21 @@ struct AppState: Equatable {
     var selectedTab: Tab
 }
 
-enum AppAction {
-    case tabChanged(AppState.Tab)
+enum RootAction {
+    case tabChanged(RootState.Tab)
     case homeAction(HomeAction)
     case searchAction(SearchAction)
 }
 
-struct AppEnvironment {
+struct RootEnvironment {
     init() { }
 }
 
-let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>.combine(
-    // swiftlint:disable:next trailing_closure
+let rootReducer = Reducer<RootState, RootAction, SystemEnvironment<RootEnvironment>>.combine(
     homeReducer
         .pullback(
             state: \.homeState,
-            action: /AppAction.homeAction,
+            action: /RootAction.homeAction,
             environment: { _ in .live(
                 environment: .init(
                     loadHomePage: downloadMangaList,
@@ -42,11 +41,10 @@ let appReducer = Reducer<AppState, AppAction, SystemEnvironment<AppEnvironment>>
                 )
             ) }
         ),
-    // swiftlint:disable:next trailing_closure
     searchReducer
         .pullback(
             state: \.searchState,
-            action: /AppAction.searchAction,
+            action: /RootAction.searchAction,
             environment: { _ in .live(
                     environment: .init(
                         searchManga: makeMangaSearchRequest,

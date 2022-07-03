@@ -14,18 +14,17 @@ struct HomeState: Equatable {
 
 enum HomeAction {
     case onAppear
-    case dataLoaded(Result<Response<[Manga]>, APIError>)
+    case dataLoaded(Result<Response<[Manga]>, AppError>)
     case mangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
-    case mangaStatisticsFetched(Result<MangaStatisticsContainer, APIError>)
+    case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
 }
 
 struct HomeEnvironment {
-    var loadHomePage: (JSONDecoder) -> Effect<Response<[Manga]>, APIError>
-    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, APIError>
+    var loadHomePage: (JSONDecoder) -> Effect<Response<[Manga]>, AppError>
+    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironment>>.combine(
-    // swiftlint:disable:next trailing_closure
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,

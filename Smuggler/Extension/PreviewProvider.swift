@@ -95,7 +95,6 @@ class DeveloperPreview {
             status: .completed,
             year: 2022,
             contentRating: .safe,
-            chapterNumbersResetOnNewVolume: false,
             tags: [
                 Tag(
                     id: UUID(),
@@ -123,7 +122,6 @@ class DeveloperPreview {
                 )
             ],
             state: .published,
-            version: 3,
             createdAt: Date(timeIntervalSince1970: 1652567400),
             updatedAt: Date(timeIntervalSince1970: 1652567700)
         ),

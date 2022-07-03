@@ -75,7 +75,7 @@ extension LocalizedString {
         return nil
     }
     
-    var langukgeFlag: String {
+    var languageFlag: String {
         if en != nil {
             return "🇬🇧"
         } else if fr != nil {

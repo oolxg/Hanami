@@ -47,7 +47,7 @@ struct FiltersState: Equatable {
 
 enum FiltersAction {
     case onAppear
-    case filterListDownloaded(Result<Response<[Tag]>, APIError>)
+    case filterListDownloaded(Result<Response<[Tag]>, AppError>)
     case filterTagButtonTapped(FilterTag)
     case resetFilters
     
@@ -57,7 +57,7 @@ enum FiltersAction {
 }
 
 struct FiltersEnvironment {
-    var getListOfTags: () -> Effect<Response<[Tag]>, APIError>
+    var getListOfTags: () -> Effect<Response<[Tag]>, AppError>
 }
 
 let filterReducer = Reducer<FiltersState, FiltersAction, SystemEnvironment<FiltersEnvironment>> { state, action, env in

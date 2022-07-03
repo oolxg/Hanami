@@ -21,7 +21,7 @@ struct MangaReadingViewState: Equatable {
 
 enum MangaReadingViewAction {
     case userStartedReadingChapter
-    case chapterPagesInfoFetched(Result<ChapterPagesInfo, APIError>)
+    case chapterPagesInfoFetched(Result<ChapterPagesInfo, AppError>)
     
     // MARK: - Actions to be hijacked in MangaFeature
     case userTappedOnNextChapterButton
@@ -31,7 +31,7 @@ enum MangaReadingViewAction {
 
 struct MangaReadingViewEnvironment {
     // UUID - chapter id
-    var fetchChapterPagesInfo: (UUID) -> Effect<ChapterPagesInfo, APIError>
+    var fetchChapterPagesInfo: (UUID) -> Effect<ChapterPagesInfo, AppError>
 }
 
 // swiftlint:disable:next line_length

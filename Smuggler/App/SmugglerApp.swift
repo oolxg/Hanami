@@ -10,7 +10,21 @@ import ComposableArchitecture
 
 @main
 struct SmugglerApp: App {
+    let store: Store<AppState, AppAction> = .init(
+        initialState: AppState(rootState: .init(selectedTab: .home)),
+        reducer: appReducer,
+        environment: .live(
+            environment: .init(
+                databaseClient: DatabaseClient.live
+            )
+        )
+    )
+    @ObservedObject private var viewStore: ViewStore<AppState, AppAction>
+    
     init() {
+        viewStore = ViewStore(store)
+        viewStore.send(.initApp)
+        
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
         UINavigationBar.appearance().tintColor = UIColor(Color.theme.accent)
@@ -22,12 +36,9 @@ struct SmugglerApp: App {
     var body: some Scene {
         WindowGroup {
             RootView(
-                store: .init(
-                    initialState: .init(selectedTab: .home),
-                    reducer: appReducer,
-                    environment: .live(
-                        environment: .init()
-                    )
+                store: store.scope(
+                    state: \.rootState,
+                    action: AppAction.rootAction
                 )
             )
         }

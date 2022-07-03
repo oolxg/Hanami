@@ -41,7 +41,6 @@ opt_in_rules:
   - redundant_type_annotation
   - strict_fileprivate
   - toggle_bool
-  - trailing_closure
   - unneeded_parentheses_in_closure_argument
   - unused_import
   - vertical_whitespace_closing_braces
@@ -64,6 +63,7 @@ attributes:
     - "@IBAction"
     - "@NSManaged"
     - "@objc"
+    - "@nonobjc"
 
 force_try: warning
 force_cast: warning

@@ -80,7 +80,7 @@ import Foundation
  
  */
 
-struct Volumes: Codable {
+struct VolumesContainer: Codable {
     let volumes: [MangaVolume]
     
     init() {
@@ -188,8 +188,8 @@ extension MangaVolume {
     }
 }
 
-extension Volumes: Equatable {
-    static func == (lhs: Volumes, rhs: Volumes) -> Bool {
+extension VolumesContainer: Equatable {
+    static func == (lhs: VolumesContainer, rhs: VolumesContainer) -> Bool {
         lhs.volumes == rhs.volumes
     }
 }

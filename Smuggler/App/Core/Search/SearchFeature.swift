@@ -44,8 +44,8 @@ struct SearchState: Equatable {
 
 enum SearchAction: BindableAction {
     case searchForManga
-    case searchResultDownloaded(result: Result<Response<[Manga]>, APIError>, requestParams: SearchState.RequestParams)
-    case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, APIError>)
+    case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchState.RequestParams)
+    case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
     case searchStringChanged(String)
 
     case mangaThumbnailAction(UUID, MangaThumbnailAction)
@@ -55,12 +55,11 @@ enum SearchAction: BindableAction {
 }
 
 struct SearchEnvironment {
-    var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, APIError>
-    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, APIError>
+    var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, AppError>
+    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEnvironment>> = .combine(
-    // swiftlint:disable:next trailing_closure
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
@@ -72,7 +71,6 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 isMainQueueAnimated: false
             ) }
         ),
-    // swiftlint:disable:next trailing_closure
     filterReducer
         .pullback(
             state: \.filtersState,

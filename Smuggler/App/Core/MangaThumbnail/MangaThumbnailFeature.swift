@@ -36,7 +36,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
 
 enum MangaThumbnailAction {
     case onAppear
-    case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, APIError>)
+    case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
@@ -44,7 +44,7 @@ enum MangaThumbnailAction {
 }
 
 struct MangaThumbnailEnvironment {
-    var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, APIError>
+    var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, AppError>
 }
 
 // This struct is to cancel deletion cache manga info.
@@ -56,7 +56,6 @@ struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
 
 // swiftlint:disable:next line_length
 let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, SystemEnvironment<MangaThumbnailEnvironment>>.combine(
-    // swiftlint:disable:next trailing_closure
     mangaViewReducer.pullback(
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,

@@ -10,7 +10,7 @@ import ComposableArchitecture
 import SwiftUI
 
 // Example for URL https://api.mangadex.org/manga/aa6c76f7-5f5f-46b6-a800-911145f81b9b/aggregate?translatedLanguage[]=en&groups[]=063cf1b0-9e25-495b-b234-296579a34496
-func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID?, translatedLanguage: String?, decoder: JSONDecoder) -> Effect<Volumes, APIError> {
+func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID?, translatedLanguage: String?, decoder: JSONDecoder) -> Effect<VolumesContainer, AppError> {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "api.mangadex.org"
@@ -38,21 +38,21 @@ func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID?, translatedLa
         .validateResponseCode()
         .retry(3)
         .map(\.data)
-        .decode(type: Volumes.self, decoder: decoder)
-        .mapError { err -> APIError in
+        .decode(type: VolumesContainer.self, decoder: decoder)
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }
 
 
-func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, APIError> {
+func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError> {
     guard let url = URL(
         string: "https://api.mangadex.org/statistics/manga/\(mangaID.uuidString.lowercased())"
     ) else {
@@ -64,19 +64,19 @@ func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, API
         .retry(3)
         .map(\.data)
         .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }
 
-func fetchAllCoverArtsInfoForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Response<[CoverArtInfo]>, APIError> {
+func fetchAllCoverArtsInfoForManga(mangaID: UUID, decoder: JSONDecoder) -> Effect<Response<[CoverArtInfo]>, AppError> {
     guard let url = URL(
         string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=32"
     ) else {
@@ -88,14 +88,14 @@ func fetchAllCoverArtsInfoForManga(mangaID: UUID, decoder: JSONDecoder) -> Effec
         .retry(3)
         .map(\.data)
         .decode(type: Response<[CoverArtInfo]>.self, decoder: decoder)
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }

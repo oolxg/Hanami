@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 // Example for URL https://api.mangadex.org/chapter/a33906f0-1928-4758-b6fc-f7f079e2dee2
-func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Response<ChapterDetails>, APIError> {
+func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Response<ChapterDetails>, AppError> {
     var components = URLComponents()
     
     components.scheme = "https"
@@ -26,19 +26,19 @@ func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .map(\.data)
         .debugDecode(type: Response<ChapterDetails>.self, decoder: decoder)
         .decode(type: Response<ChapterDetails>.self, decoder: decoder)
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }
 
-func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> Effect<Response<ScanlationGroup>, APIError> {
+func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> Effect<Response<ScanlationGroup>, AppError> {
     var components = URLComponents()
     
     components.scheme = "https"
@@ -54,14 +54,14 @@ func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> 
         .retry(3)
         .map(\.data)
         .decode(type: Response<ScanlationGroup>.self, decoder: decoder)
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }

@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-func fetchPageInfoForChapter(chapterID: UUID) -> Effect<ChapterPagesInfo, APIError> {
+func fetchPageInfoForChapter(chapterID: UUID) -> Effect<ChapterPagesInfo, AppError> {
     var components = URLComponents()
     components.scheme = "https"
     components.host = "api.mangadex.org"
@@ -26,14 +26,14 @@ func fetchPageInfoForChapter(chapterID: UUID) -> Effect<ChapterPagesInfo, APIErr
         .retry(3)
         .map(\.data)
         .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
-        .mapError { err -> APIError in
+        .mapError { err -> AppError in
             if let err = err as? URLError {
-                return APIError.downloadError(err)
+                return AppError.downloadError(err)
             } else if let err = err as? DecodingError {
-                return APIError.decodingError(err)
+                return AppError.decodingError(err)
             }
             
-            return APIError.unknownError(err)
+            return AppError.unknownError(err)
         }
         .eraseToEffect()
 }

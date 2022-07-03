@@ -86,10 +86,10 @@ enum MangaViewAction: BindableAction {
     // MARK: - Actions to be called from reducer
     case computeNextAndPreviousChapterIndexes
     case userWantsToReadChapter(chapter: ChapterDetails)
-    case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, APIError>)
-    case volumesDownloaded(Result<Volumes, APIError>)
-    case sameScanlationGroupChaptersFetched(Result<Volumes, APIError>)
-    case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, APIError>)
+    case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
+    case volumesDownloaded(Result<VolumesContainer, AppError>)
+    case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
+    case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -105,15 +105,14 @@ struct MangaViewEnvironment {
         _ scanlationGroup: UUID?,
         _ translatedLanguage: String?,
         _ decoder: JSONDecoder
-    ) -> Effect<Volumes, APIError>
+    ) -> Effect<VolumesContainer, AppError>
     
-    var fetchAllCoverArtsInfo: (UUID, JSONDecoder) -> Effect<Response<[CoverArtInfo]>, APIError>
+    var fetchAllCoverArtsInfo: (UUID, JSONDecoder) -> Effect<Response<[CoverArtInfo]>, AppError>
     
-    var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, APIError>
+    var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment<MangaViewEnvironment>> = .combine(
-    // swiftlint:disable:next trailing_closure
     volumeTabReducer.forEach(
         state: \.volumeTabStates,
         action: /MangaViewAction.volumeTabAction,
@@ -123,7 +122,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
             isMainQueueAnimated: true
         ) }
     ),
-    // swiftlint:disable:next trailing_closure
     mangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
         action: /MangaViewAction.mangaReadingViewAction,
