@@ -89,11 +89,7 @@ class DeveloperPreview {
             ),
             isLocked: false,
             originalLanguage: "ja",
-            lastVolume: "",
-            lastChapter: "",
-            publicationDemographic: .seinen,
             status: .completed,
-            year: 2022,
             contentRating: .safe,
             tags: [
                 Tag(
@@ -123,7 +119,11 @@ class DeveloperPreview {
             ],
             state: .published,
             createdAt: Date(timeIntervalSince1970: 1652567400),
-            updatedAt: Date(timeIntervalSince1970: 1652567700)
+            updatedAt: Date(timeIntervalSince1970: 1652567700),
+            lastVolume: "",
+            lastChapter: "",
+            publicationDemographic: .seinen,
+            year: 2022
         ),
         relationships: [
             Relationship(

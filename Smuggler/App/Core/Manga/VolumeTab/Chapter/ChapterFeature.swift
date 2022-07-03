@@ -16,8 +16,6 @@ struct ChapterState: Equatable, Identifiable {
     // here are each chapter with details
     var chapterDetails: IdentifiedArrayOf<ChapterDetails> = []
     var scanlationGroups: [UUID: ScanlationGroup] = [:]
-    // Chapter UUID - Info about chapter pages
-    var pagesInfo: [UUID: ChapterPagesInfo] = [:]
     // Chapter UUID - Chapter pages
     var pages: [UUID: [UIImage]] = [:]
     
@@ -27,7 +25,7 @@ struct ChapterState: Equatable, Identifiable {
 }
 
 enum ChapterAction {
-    case onAppear
+    case loadChapterDetails
     case onTapGesture(chapter: ChapterDetails)
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>, chapterID: UUID)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
@@ -45,11 +43,7 @@ struct ChapterEnvironment {
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<ChapterEnvironment>> { state, action, env in
     switch action {
-        case .onAppear:
-            guard state.pagesInfo[state.chapter.id] == nil else {
-                return .none
-            }
-
+        case .loadChapterDetails:
             var effects: [Effect<ChapterAction, Never>] = []
 
             // if we fetched info about chapters, it means that pages info is downloaded too

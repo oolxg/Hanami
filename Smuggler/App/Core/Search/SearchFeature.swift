@@ -179,5 +179,5 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 return .none
         }
     }
+    .binding()
 )
-.binding()

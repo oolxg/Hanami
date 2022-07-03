@@ -27,16 +27,18 @@ struct Manga: Codable {
         let description: LocalizedString
         let isLocked: Bool
         let originalLanguage: String
-        @NullCodable var lastVolume: String?
-        @NullCodable var lastChapter: String?
-        @NullCodable var publicationDemographic: PublicationDemographic?
         let status: Status
-        @NullCodable var year: Int?
         let contentRating: ContentRatings
         let tags: [Tag]
         let state: State
+        
+        // MARK: all this @NullCodable's are for json encoding and storing them with CoreData.
         @NullCodable var createdAt: Date?
         @NullCodable var updatedAt: Date?
+        @NullCodable var lastVolume: String?
+        @NullCodable var lastChapter: String?
+        @NullCodable var publicationDemographic: PublicationDemographic?
+        @NullCodable var year: Int?
         
         enum CodingKeys: String, CodingKey {
             case title, altTitles

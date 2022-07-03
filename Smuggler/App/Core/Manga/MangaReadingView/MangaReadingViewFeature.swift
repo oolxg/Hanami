@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import Kingfisher
 
 struct MangaReadingViewState: Equatable {
     init(chapterID: UUID, chapterIndex: Double?) {
@@ -17,16 +18,23 @@ struct MangaReadingViewState: Equatable {
     let chapterID: UUID
     let chapterIndex: Double?
     var pagesInfo: ChapterPagesInfo?
+    
+    @BindableState var currentPage: Int = 0
+    
+    // this will be used, when user get to this chapter from the next following one
+    var shoudSendUserToTheLastPage = false
 }
 
-enum MangaReadingViewAction {
+enum MangaReadingViewAction: BindableAction {
     case userStartedReadingChapter
     case chapterPagesInfoFetched(Result<ChapterPagesInfo, AppError>)
     
     // MARK: - Actions to be hijacked in MangaFeature
-    case userTappedOnNextChapterButton
-    case userTappedOnPreviousChapterButton
+    case userHitLastPage
+    case userHitTheMostFirstPage
     case userLeftMangaReadingView
+    
+    case binding(BindingAction<MangaReadingViewState>)
 }
 
 struct MangaReadingViewEnvironment {
@@ -50,6 +58,15 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             switch result {
                 case .success(let chapterPagesInfo):
                     state.pagesInfo = chapterPagesInfo
+                    
+                    if state.shoudSendUserToTheLastPage {
+                        state.currentPage = chapterPagesInfo.dataSaverURLs.count - 1
+                    }
+                    ImagePrefetcher(
+                        urls: chapterPagesInfo.dataSaverURLs,
+                        options: [.memoryCacheExpiration(.days(1))]
+                    ).start()
+                    
                     return .none
 
                 case .failure(let error):
@@ -57,14 +74,27 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     return .none
             }
             
-        // MARK: - Actions to be hijacked in MangaFeature
-        case .userTappedOnNextChapterButton:
+        case .binding(\.$currentPage):
+            if state.currentPage == -1 {
+                return Effect(value: MangaReadingViewAction.userHitTheMostFirstPage)
+            } else if state.currentPage == state.pagesInfo?.dataSaverURLs.count {
+                return Effect(value: MangaReadingViewAction.userHitLastPage)
+            }
+            
             return .none
             
-        case .userTappedOnPreviousChapterButton:
+        case .binding:
+            return .none
+            
+        // MARK: - Actions to be hijacked in MangaFeature
+        case .userHitLastPage:
+            return .none
+            
+        case .userHitTheMostFirstPage:
             return .none
             
         case .userLeftMangaReadingView:
             return .none
     }
 }
+.binding()

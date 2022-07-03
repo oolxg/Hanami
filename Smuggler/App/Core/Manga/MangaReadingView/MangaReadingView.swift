@@ -64,7 +64,10 @@ extension MangaReadingView {
     private var readingContent: some View {
         WithViewStore(store) { viewStore in
             if let urls = viewStore.pagesInfo?.dataSaverURLs {
-                TabView {
+                TabView(selection: viewStore.binding(\.$currentPage)) {
+                    Color.clear
+                        .tag(-1)
+                    
                     ForEach(0..<urls.count, id: \.self) { pageIndex in
                         ZoomableScrollView {
                             KFImage.url(
@@ -78,7 +81,11 @@ extension MangaReadingView {
                             .resizable()
                             .scaledToFit()
                         }
+                        .tag(pageIndex)
                     }
+                    
+                    Color.clear
+                        .tag(urls.count)
                 }
             } else {
                 ActivityIndicator()
@@ -101,14 +108,25 @@ extension MangaReadingView {
                     
                     Spacer()
                     
-                    Button("prev") {
-                        viewStore.send(.userTappedOnPreviousChapterButton)
+                    VStack {
+                        if let chapterIndex = viewStore.chapterIndex {
+                            Text("Chapter \(chapterIndex.clean())")
+                        }
+                        
+                        if let pagesCount = viewStore.pagesInfo?.dataSaverURLs.count {
+                            Text("\(viewStore.currentPage + 1)/\(pagesCount)")
+                        }
                     }
+                    .font(.callout)
+                    .padding(.horizontal)
                     
-                    Button("next") {
-                        viewStore.send(.userTappedOnNextChapterButton)
-                    }
-                    .padding(.trailing)
+                    Spacer()
+                    
+                    // to align VStack in center
+                    backButton
+                        .padding(.horizontal)
+                        .opacity(0)
+                        .disabled(true)
                 }
             }
         }

@@ -85,7 +85,6 @@ enum MangaViewAction: BindableAction {
 
     // MARK: - Actions to be called from reducer
     case computeNextAndPreviousChapterIndexes
-    case userWantsToReadChapter(chapter: ChapterDetails)
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
     case volumesDownloaded(Result<VolumesContainer, AppError>)
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
@@ -205,24 +204,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                         return .none
                 }
                 
-            // user tapped on chapter, therefore we're sending him to reading view
-            case .userWantsToReadChapter(let chapter):
-                state.mangaReadingViewState = MangaReadingViewState(
-                    chapterID: chapter.id,
-                    chapterIndex: chapter.attributes.chapterIndex
-                )
-                
-                UITabBar.hideTabBar(animated: true)
-                
-                return env.fetchMangaVolumes(
-                    state.manga.id,
-                    chapter.scanltaionGroupID,
-                    chapter.attributes.translatedLanguage,
-                    env.decoder()
-                )
-                .receive(on: env.mainQueue())
-                .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
-                
             // here we're fetching all chapters from the same scanlation group, that translated current reading chapter
             case .sameScanlationGroupChaptersFetched(let result):
                 switch result {
@@ -260,67 +241,72 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
                 return .none
                 
-            case .volumeTabAction(_, let volumeTabAction):
-                // we're looking for action on chapters
-                // when user taps on some chapter, we send him to reading view
-                switch volumeTabAction {
-                    case .chapterAction(_, let chapterAction):
-                        switch chapterAction {
-                            case .onTapGesture(let chapter):
-                                return Effect(
-                                    value: MangaViewAction.userWantsToReadChapter(chapter: chapter)
-                                )
-                                
-                            default:
-                                return .none
-                        }
+            // here we're handling users tap on chapter(means user wants to read chapter)
+            case .volumeTabAction(_, .chapterAction(_, .onTapGesture(let chapter))):
+                    // we're looking for action on chapters
+                    // when user taps on some chapter, we send him to reading view
+                state.mangaReadingViewState = MangaReadingViewState(
+                    chapterID: chapter.id,
+                    chapterIndex: chapter.attributes.chapterIndex
+                )
+                
+                UITabBar.hideTabBar(animated: true)
+                
+                return env.fetchMangaVolumes(
+                    state.manga.id,
+                    chapter.scanltaionGroupID,
+                    chapter.attributes.translatedLanguage,
+                    env.decoder()
+                )
+                .receive(on: env.mainQueue())
+                .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
+                
+            case .volumeTabAction:
+                return .none
+                
+            case .mangaReadingViewAction(.userHitLastPage):
+                guard let nextChapterIndex = state.nextReadingChapterIndex,
+                      let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
+                    return .none
                 }
+                
+                state.mangaReadingViewState = MangaReadingViewState(
+                    chapterID: nextChapter.id,
+                    chapterIndex: nextChapter.chapterIndex
+                )
+                // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
+                return .merge(
+                    Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
+                    Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                )
 
-            case .mangaReadingViewAction(let mangaReadingViewAction):
-                switch mangaReadingViewAction {
-                    case .userTappedOnNextChapterButton:
-                        guard let nextChapterIndex = state.nextReadingChapterIndex,
-                              let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
-                            return .none
-                        }
-                        
-                        state.mangaReadingViewState = MangaReadingViewState(
-                            chapterID: nextChapter.id,
-                            chapterIndex: nextChapter.chapterIndex
-                        )
-                        // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                        // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
-                        return .merge(
-                            Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
-                            Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                        )
-                        
-                    case .userTappedOnPreviousChapterButton:
-                        guard let previousChapterIndex = state.previousReadingChapterIndex,
-                              let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
-                            return .none
-                        }
-                        
-                        state.mangaReadingViewState = MangaReadingViewState(
-                            chapterID: previousChapter.id,
-                            chapterIndex: previousChapter.chapterIndex
-                        )
-                        
-                        // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                        // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
-                        return .merge(
-                            Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
-                            Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                        )
-                        
-                    case .userLeftMangaReadingView:
-                        UITabBar.showTabBar(animated: true)
-                        state.isUserOnReadingView = false
-                        return .none
-                        
-                    default:
-                        return .none
+            case .mangaReadingViewAction(.userHitTheMostFirstPage):
+                guard let previousChapterIndex = state.previousReadingChapterIndex,
+                      let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
+                    return .none
                 }
+                
+                state.mangaReadingViewState = MangaReadingViewState(
+                    chapterID: previousChapter.id,
+                    chapterIndex: previousChapter.chapterIndex
+                )
+                
+                state.mangaReadingViewState?.shoudSendUserToTheLastPage = true
+                // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
+                return .merge(
+                    Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
+                    Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
+                )
+                
+            case .mangaReadingViewAction(.userLeftMangaReadingView):
+                UITabBar.showTabBar(animated: true)
+                state.isUserOnReadingView = false
+                return .none
+
+            case .mangaReadingViewAction:
+                return .none
                 
             case .binding:
                 return .none

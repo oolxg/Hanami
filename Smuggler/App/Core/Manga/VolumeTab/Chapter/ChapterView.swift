@@ -16,22 +16,18 @@ struct ChapterView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                if areChaptersShown {
-                    VStack(spacing: 0) {
-                        ForEach(viewStore.chapterDetails) { chapter in
-                            makeChapterView(chapter: chapter)
-                                .transition(.opacity)
-                            
-                            Rectangle()
-                                .fill(.white)
-                                .frame(height: 1.5)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .onAppear {
-                        viewStore.send(.onAppear)
+                VStack(spacing: 0) {
+                    ForEach(viewStore.chapterDetails) { chapter in
+                        makeChapterView(chapter: chapter)
+                            .transition(.opacity)
+                        
+                        Rectangle()
+                            .fill(.white)
+                            .frame(height: 1.5)
                     }
                 }
+                .animation(.linear, value: viewStore.chapterDetails)
+                .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
                 HStack {
                     Text(viewStore.chapter.chapterName)
@@ -50,6 +46,7 @@ struct ChapterView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
+                    viewStore.send(.loadChapterDetails)
                     withAnimation(.linear(duration: areChaptersShown ? 0.3 : 0.7)) {
                         areChaptersShown.toggle()
                     }
@@ -57,7 +54,6 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding()
-            .frame(maxWidth: .infinity)
         }
     }
 }
