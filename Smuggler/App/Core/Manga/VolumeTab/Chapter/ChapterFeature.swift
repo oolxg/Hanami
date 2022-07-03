@@ -20,6 +20,11 @@ struct ChapterState: Equatable, Identifiable {
     var id: UUID {
         chapter.id
     }
+    
+    var loadingChapterDetailsCount = 0
+    var areAllChapterDetailsDownloaded: Bool {
+        loadingChapterDetailsCount == 0
+    }
 }
 
 enum ChapterAction {
@@ -47,6 +52,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             // if we fetched info about chapters, it means that pages info is downloaded too
             // (or externalURL, manga if to read on other webiste)
             if state.chapterDetails[id: state.chapter.id] == nil {
+                state.loadingChapterDetailsCount += 1
                 // need this var because state is 'inout'
                 let chapterID = state.chapter.id
                 effects.append(
@@ -58,9 +64,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             
             for (i, otherChapterID) in state.chapter.others.enumerated() {
                 if state.chapterDetails[id: otherChapterID] == nil {
+                    state.loadingChapterDetailsCount += 1
                     effects.append(
                         env.downloadChapterInfo(otherChapterID, env.decoder())
-                            .delay(for: .seconds(0.15 * Double(i + 1)), scheduler: env.mainQueue())
                             .receive(on: env.mainQueue())
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
@@ -77,6 +83,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             return .none
 
         case .chapterDetailsDownloaded(let result, let chapterID):
+            state.loadingChapterDetailsCount -= 1
             switch result {
                 case .success(let response):
                     state.chapterDetails.append(response.data)

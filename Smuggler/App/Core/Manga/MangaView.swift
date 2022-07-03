@@ -50,7 +50,7 @@ struct MangaView: View {
                 .navigationBarHidden(true)
                 .coordinateSpace(name: "scroll")
                 .ignoresSafeArea(.container, edges: .vertical)
-                .padding(.bottom, 1)
+                .padding(.bottom, 10)
                 .background(
                     NavigationLink(
                         destination: mangaReadingView,

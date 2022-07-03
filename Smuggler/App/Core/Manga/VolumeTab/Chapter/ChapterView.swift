@@ -17,12 +17,14 @@ struct ChapterView: View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
                 VStack(spacing: 0) {
-                    ForEach(viewStore.chapterDetails) { chapter in
-                        makeChapterView(chapter: chapter)
-                        
-                        Rectangle()
-                            .fill(.white)
-                            .frame(height: 1.5)
+                    if viewStore.areAllChapterDetailsDownloaded {
+                        ForEach(viewStore.chapterDetails) { chapter in
+                            makeChapterView(chapter: chapter)
+                            
+                            Rectangle()
+                                .fill(.white)
+                                .frame(height: 1.5)
+                        }
                     }
                 }
                 .animation(.linear, value: viewStore.chapterDetails)
@@ -34,7 +36,7 @@ struct ChapterView: View {
                         .fontWeight(.heavy)
                         .padding(.vertical, 3)
                     
-                    if viewStore.chapterDetails.isEmpty && areChaptersShown {
+                    if areChaptersShown && !viewStore.areAllChapterDetailsDownloaded {
                         Spacer()
                         
                         ActivityIndicator()
@@ -46,7 +48,9 @@ struct ChapterView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     viewStore.send(.loadChapterDetails)
-                    areChaptersShown.toggle()
+                    withAnimation(.linear(duration: areChaptersShown ? 0.3 : 0.7)) {
+                        areChaptersShown.toggle()
+                    }
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -121,10 +125,15 @@ extension ChapterView {
                     Text("Translated by:")
                         .fontWeight(.light)
                     
-                    Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                    if viewStore.chapterDetails[id: chapter.id]?.scanltaionGroupID != nil {
+                        Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
+                            .fontWeight(.bold)
+                            .lineLimit(1)
+                            .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                    } else {
+                        Text("No group")
+                            .fontWeight(.bold)
+                    }
                 }
                 .font(.caption)
                 .foregroundColor(.theme.secondaryText)

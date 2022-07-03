@@ -34,6 +34,7 @@ extension View {
                 HUD(text: message, iconName: iconName, backgroundColor: backgroundColor)
                     .zIndex(1)
                     .transition(transition)
+                    .padding(.horizontal)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + hideInterval) {
                             withAnimation {
