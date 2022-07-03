@@ -16,8 +16,6 @@ struct ChapterState: Equatable, Identifiable {
     // here are each chapter with details
     var chapterDetails: IdentifiedArrayOf<ChapterDetails> = []
     var scanlationGroups: [UUID: ScanlationGroup] = [:]
-    // Chapter UUID - Chapter pages
-    var pages: [UUID: [UIImage]] = [:]
     
     var id: UUID {
         chapter.id
@@ -62,7 +60,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 if state.chapterDetails[id: otherChapterID] == nil {
                     effects.append(
                         env.downloadChapterInfo(otherChapterID, env.decoder())
-                            .delay(for: .seconds(0.1 * Double(i + 1)), scheduler: env.mainQueue())
+                            .delay(for: .seconds(0.15 * Double(i + 1)), scheduler: env.mainQueue())
                             .receive(on: env.mainQueue())
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
@@ -83,30 +81,20 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 case .success(let response):
                     state.chapterDetails.append(response.data)
                     
-                    let allScanlationGroupIDs = state.chapterDetails
-                        .compactMap { chapterDetails in
-                            chapterDetails.relationships.first(where: { $0.type == .scanlationGroup }).map(\.id)
-                        }
+                    let scanlationGroupID = response.data.scanltaionGroupID
                     
-                    var effects: [Effect<ChapterAction, Never>] = []
-                    
-                    for scanlationGroupID in allScanlationGroupIDs {
-                        // if we already loaded info about scanlaton group -> skip
-                        guard state.scanlationGroups[scanlationGroupID] == nil else { continue }
-                        
-                        effects.append(
-                            env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
-                                .receive(on: env.mainQueue())
-                                .catchToEffect {
-                                    ChapterAction.scanlationGroupInfoFetched(
-                                        result: $0,
-                                        chapterID: chapterID
-                                    )
-                                }
-                        )
+                    guard let scanlationGroupID = scanlationGroupID else {
+                        return .none
                     }
                     
-                    return .merge(effects)
+                    return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
+                        .receive(on: env.mainQueue())
+                        .catchToEffect {
+                            ChapterAction.scanlationGroupInfoFetched(
+                                result: $0,
+                                chapterID: response.data.id
+                            )
+                        }
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")

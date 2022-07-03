@@ -10,9 +10,10 @@ import ComposableArchitecture
 import Kingfisher
 
 struct MangaReadingViewState: Equatable {
-    init(chapterID: UUID, chapterIndex: Double?) {
+    init(chapterID: UUID, chapterIndex: Double?, shoudSendUserToTheLastPage: Bool = false) {
         self.chapterID = chapterID
         self.chapterIndex = chapterIndex
+        self.shoudSendUserToTheLastPage = shoudSendUserToTheLastPage
     }
     
     let chapterID: UUID
@@ -22,7 +23,7 @@ struct MangaReadingViewState: Equatable {
     @BindableState var currentPage: Int = 0
     
     // this will be used, when user get to this chapter from the next following one
-    var shoudSendUserToTheLastPage = false
+    let shoudSendUserToTheLastPage: Bool
 }
 
 enum MangaReadingViewAction: BindableAction {

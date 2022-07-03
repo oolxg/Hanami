@@ -15,7 +15,7 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                LazyVStack {
+                VStack {
                     ForEachStore(
                         store.scope(
                             state: \.chapterStates,

@@ -32,6 +32,15 @@ struct MangaViewState: Equatable {
         }
     }
     
+    @BindableState var hudInfo = HUDInfo()
+    
+    struct HUDInfo: Equatable {
+        var show = false
+        var message = ""
+        var iconName: String?
+        var backgroundColor = Color.theme.red
+    }
+    
     // MARK: - Props for reading view
     @BindableState var isUserOnReadingView = false
     // if user reads some chapter with scanlation group 'A', e.g. ch. 21
@@ -250,7 +259,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
-                UITabBar.hideTabBar(animated: true)
+                UITabBar.hideTabBar(animated: false)
                 
                 return env.fetchMangaVolumes(
                     state.manga.id,
@@ -267,6 +276,9 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
             case .mangaReadingViewAction(.userHitLastPage):
                 guard let nextChapterIndex = state.nextReadingChapterIndex,
                       let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
+                    state.isUserOnReadingView = false
+                    state.hudInfo.show = true
+                    state.hudInfo.message = "🙁 This is the last chapter from this scanlation group"
                     return .none
                 }
                 
@@ -284,15 +296,18 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
             case .mangaReadingViewAction(.userHitTheMostFirstPage):
                 guard let previousChapterIndex = state.previousReadingChapterIndex,
                       let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
+                    state.isUserOnReadingView = false
+                    state.hudInfo.show = true
+                    state.hudInfo.message = "🤔 You've read the first chapter from this scanlation group"
                     return .none
                 }
                 
                 state.mangaReadingViewState = MangaReadingViewState(
                     chapterID: previousChapter.id,
-                    chapterIndex: previousChapter.chapterIndex
+                    chapterIndex: previousChapter.chapterIndex,
+                    shoudSendUserToTheLastPage: true
                 )
                 
-                state.mangaReadingViewState?.shoudSendUserToTheLastPage = true
                 // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
                 // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
                 return .merge(

@@ -59,6 +59,13 @@ struct MangaView: View {
                     )
                 )
             }
+            .hud(
+                isPresented: viewStore.binding(\.$hudInfo.show),
+                message: viewStore.hudInfo.message,
+                iconName: viewStore.hudInfo.iconName,
+                hideAfter: 2.5,
+                backgroundColor: viewStore.hudInfo.backgroundColor
+            )
         }
     }
 }

@@ -19,7 +19,6 @@ struct ChapterView: View {
                 VStack(spacing: 0) {
                     ForEach(viewStore.chapterDetails) { chapter in
                         makeChapterView(chapter: chapter)
-                            .transition(.opacity)
                         
                         Rectangle()
                             .fill(.white)
@@ -47,9 +46,7 @@ struct ChapterView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     viewStore.send(.loadChapterDetails)
-                    withAnimation(.linear(duration: areChaptersShown ? 0.3 : 0.7)) {
-                        areChaptersShown.toggle()
-                    }
+                    areChaptersShown.toggle()
                 }
             }
             .buttonStyle(PlainButtonStyle())
