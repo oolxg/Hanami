@@ -13,12 +13,6 @@ extension View {
         redacted(reason: condition() ? .placeholder : [])
     }
     
-    @ViewBuilder func hidden(_ hidden: Bool) -> some View {
-        if !hidden {
-            self
-        }
-    }
-    
     func hud(
         isPresented: Binding<Bool>,
         message: String,

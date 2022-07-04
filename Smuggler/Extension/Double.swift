@@ -24,29 +24,4 @@ extension Double {
         let originalDecimal = truncated / multiplier
         return originalDecimal
     }
-    
-    var abbreviation: String {
-        let num = abs(Double(self))
-        let sign = (self < 0) ? "-" : ""
-        
-        switch num {
-            case 1_000_000_000...:
-                var formatted = num / 1_000_000_000
-                formatted = formatted.reduceScale(to: 1)
-                return "\(sign)\(formatted)B"
-                
-            case 1_000_000...:
-                var formatted = num / 1_000_000
-                formatted = formatted.reduceScale(to: 1)
-                return "\(sign)\(formatted)M"
-                
-            case 1_000...:
-                var formatted = num / 1_000
-                formatted = formatted.reduceScale(to: 1)
-                return "\(sign)\(formatted)K"
-                
-            default:
-                return "\(sign)\(self)"
-        }
-    }
 }

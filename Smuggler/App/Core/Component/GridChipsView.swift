@@ -11,8 +11,6 @@ struct GridChipsView<Data: RandomAccessCollection, Content: View>: View where Da
     private let data: Data
     private let width: CGFloat
     @ViewBuilder private var content: (Data.Element) -> Content
-    @State private var frameHeight: CGFloat = 20
-    @Environment(\.presentationMode) var presentationMode
 
     init(_ data: Data, width: CGFloat, @ViewBuilder content: @escaping (Data.Element) -> Content) {
         self.content = content

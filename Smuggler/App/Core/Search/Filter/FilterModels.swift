@@ -12,8 +12,6 @@ enum TagState {
 }
 
 protocol FilterTagProtocol: Identifiable, Equatable {
-    associatedtype Tag
-    var tag: Tag { get }
     var state: TagState { get set }
     var name: String { get }
 }

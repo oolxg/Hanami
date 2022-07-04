@@ -27,6 +27,7 @@ struct HUD: View {
             }
             
             Text(text)
+                .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 12)
         .padding(16)

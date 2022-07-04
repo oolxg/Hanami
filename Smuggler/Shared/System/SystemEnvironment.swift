@@ -9,7 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 
 @dynamicMemberLookup
-public struct SystemEnvironment<Environment> {
+struct SystemEnvironment<Environment> {
     var environment: Environment
     
     subscript<Dependency>(

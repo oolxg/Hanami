@@ -26,7 +26,6 @@
 		2220E1592831345C0046F08A /* MangaThumbnailEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E1582831345C0046F08A /* MangaThumbnailEffect.swift */; };
 		2220E15B2831355A0046F08A /* CoverArtInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15A2831355A0046F08A /* CoverArtInfo.swift */; };
 		2220E15E283145290046F08A /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15D283145290046F08A /* PreviewProvider.swift */; };
-		2220E160283185990046F08A /* ImageFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15F283185990046F08A /* ImageFileManager.swift */; };
 		2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E1612831B0300046F08A /* ResponseDataType.swift */; };
 		2220E1652832A8D60046F08A /* MangaFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E1642832A8D60046F08A /* MangaFeature.swift */; };
 		2220E1672832A9280046F08A /* MangaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E1662832A9280046F08A /* MangaView.swift */; };
@@ -35,8 +34,6 @@
 		2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */; };
 		2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D6282ED6C200BBAC5D /* Relationship.swift */; };
 		2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D8282ED6FA00BBAC5D /* Tag.swift */; };
-		22284BE9283909CF00C69647 /* RangeReplaceableCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22284BE8283909CF00C69647 /* RangeReplaceableCollection.swift */; };
-		22284BEB28395DF300C69647 /* ExpandableForEach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22284BEA28395DF300C69647 /* ExpandableForEach.swift */; };
 		222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 222A033E2870F6E200D5B588 /* Model.xcdatamodeld */; };
 		222A034F2871114500D5B588 /* MangaMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A034B2871114500D5B588 /* MangaMO+CoreDataClass.swift */; };
 		222A0352287111D100D5B588 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A0351287111D100D5B588 /* Data.swift */; };
@@ -142,7 +139,6 @@
 		2220E1582831345C0046F08A /* MangaThumbnailEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailEffect.swift; sourceTree = "<group>"; };
 		2220E15A2831355A0046F08A /* CoverArtInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverArtInfo.swift; sourceTree = "<group>"; };
 		2220E15D283145290046F08A /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
-		2220E15F283185990046F08A /* ImageFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFileManager.swift; sourceTree = "<group>"; };
 		2220E1612831B0300046F08A /* ResponseDataType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseDataType.swift; sourceTree = "<group>"; };
 		2220E1642832A8D60046F08A /* MangaFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaFeature.swift; sourceTree = "<group>"; };
 		2220E1662832A9280046F08A /* MangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaView.swift; sourceTree = "<group>"; };
@@ -151,8 +147,6 @@
 		2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterPagesInfo.swift; sourceTree = "<group>"; };
 		2224D3D6282ED6C200BBAC5D /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		2224D3D8282ED6FA00BBAC5D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
-		22284BE8283909CF00C69647 /* RangeReplaceableCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RangeReplaceableCollection.swift; sourceTree = "<group>"; };
-		22284BEA28395DF300C69647 /* ExpandableForEach.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableForEach.swift; sourceTree = "<group>"; };
 		222A033F2870F6E200D5B588 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		222A034B2871114500D5B588 /* MangaMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		222A0351287111D100D5B588 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
@@ -194,6 +188,7 @@
 		226DF7962865C08D007CF96A /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		226DF7982865D58B007CF96A /* MangaThumbnailSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailSkeletonView.swift; sourceTree = "<group>"; };
 		2273E2B9285BFB9000A40C0B /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		229DA9EE28725F5E00C6EF91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		229F8D8A282DB34C00761054 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		229F8D8F282DB5E400761054 /* RootFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootFeature.swift; sourceTree = "<group>"; };
 		229F8D92282DB9D200761054 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -275,7 +270,6 @@
 		2220E151283123FD0046F08A /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				2220E15F283185990046F08A /* ImageFileManager.swift */,
 				222A03692871BD7500D5B588 /* AppUtil.swift */,
 				222A036F2871FA6800D5B588 /* NullCodable.swift */,
 			);
@@ -285,7 +279,6 @@
 		2220E15228312D060046F08A /* Component */ = {
 			isa = PBXGroup;
 			children = (
-				22284BEA28395DF300C69647 /* ExpandableForEach.swift */,
 				22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */,
 				220237B428440D04009C1A7D /* CircleButtonView.swift */,
 				221F59EB284530AC00B11D5D /* GridChipsView.swift */,
@@ -312,7 +305,6 @@
 			isa = PBXGroup;
 			children = (
 				2220E15D283145290046F08A /* PreviewProvider.swift */,
-				22284BE8283909CF00C69647 /* RangeReplaceableCollection.swift */,
 				22DA241E2839752800150C23 /* Double.swift */,
 				2245D4B828403E9A005B1C83 /* UUID.swift */,
 				2245D4BA2840EC40005B1C83 /* Publisher.swift */,
@@ -395,6 +387,7 @@
 				224C65792827204100AAEF2E /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		224C65792827204100AAEF2E /* Products */ = {
 			isa = PBXGroup;
@@ -409,6 +402,7 @@
 		224C657A2827204100AAEF2E /* Smuggler */ = {
 			isa = PBXGroup;
 			children = (
+				229DA9EE28725F5E00C6EF91 /* Info.plist */,
 				222A03612871AF9900D5B588 /* Database */,
 				2220E151283123FD0046F08A /* Utils */,
 				2220E15C283145130046F08A /* Extension */,
@@ -713,7 +707,6 @@
 				222A0352287111D100D5B588 /* Data.swift in Sources */,
 				224E6716282E9D6F001D214C /* HomeEffects.swift in Sources */,
 				221E52C228342832001E82A7 /* SystemEnvironment.swift in Sources */,
-				22284BEB28395DF300C69647 /* ExpandableForEach.swift in Sources */,
 				22A7BF2A283A74E4008EDD52 /* MangaVolume.swift in Sources */,
 				2245D4B328400A9D005B1C83 /* VolumeTabView.swift in Sources */,
 				226DF7972865C08D007CF96A /* String.swift in Sources */,
@@ -722,7 +715,6 @@
 				229F8D8B282DB34C00761054 /* RootView.swift in Sources */,
 				22E057E32843F28C004CD4C3 /* Color.swift in Sources */,
 				222A036A2871BD7500D5B588 /* AppUtil.swift in Sources */,
-				2220E160283185990046F08A /* ImageFileManager.swift in Sources */,
 				2245D4B128400A8E005B1C83 /* VolumeTabFeature.swift in Sources */,
 				2220E1672832A9280046F08A /* MangaView.swift in Sources */,
 				222A03742872330400D5B588 /* HUD.swift in Sources */,
@@ -736,7 +728,6 @@
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,
 				2245D4C028413642005B1C83 /* SearchView.swift in Sources */,
 				22B9CA57285D43FD007EBE20 /* Int.swift in Sources */,
-				22284BE9283909CF00C69647 /* RangeReplaceableCollection.swift in Sources */,
 				221F59EF284551B200B11D5D /* FiltersFeature.swift in Sources */,
 				222A03702871FA6800D5B588 /* NullCodable.swift in Sources */,
 				22A7BF2F283AB730008EDD52 /* Chapter.swift in Sources */,
@@ -938,17 +929,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Smuggler/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Smuggler/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -956,6 +951,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Smuggler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -967,17 +963,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Smuggler/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Smuggler/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -985,6 +985,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Smuggler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

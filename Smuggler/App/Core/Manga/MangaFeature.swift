@@ -278,7 +278,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                       let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
-                    state.hudInfo.message = "🙁 This is the last chapter from this scanlation group"
+                    state.hudInfo.message = "🙁 This was the last chapter from this scanlation group."
                     return .none
                 }
                 
@@ -298,7 +298,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                       let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
-                    state.hudInfo.message = "🤔 You've read the first chapter from this scanlation group"
+                    state.hudInfo.message = "🤔 You've read the first chapter from this scanlation group."
                     return .none
                 }
                 
