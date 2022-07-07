@@ -20,10 +20,22 @@ struct MangaReadingViewState: Equatable {
     let chapterIndex: Double?
     var pagesInfo: ChapterPagesInfo?
     
+    var imagePrefetcher: ImagePrefetcher?
+    
     @BindableState var currentPage: Int = 0
     
     // this will be used, when user get to this chapter from the next following one
     let shoudSendUserToTheLastPage: Bool
+}
+
+extension MangaReadingViewState {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.currentPage == rhs.currentPage &&
+        lhs.chapterID == rhs.chapterID &&
+        lhs.pagesInfo == rhs.pagesInfo &&
+        lhs.currentPage == rhs.currentPage  &&
+        lhs.shoudSendUserToTheLastPage == rhs.shoudSendUserToTheLastPage
+    }
 }
 
 enum MangaReadingViewAction: BindableAction {
@@ -63,10 +75,13 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     if state.shoudSendUserToTheLastPage {
                         state.currentPage = chapterPagesInfo.dataSaverURLs.count - 1
                     }
-                    ImagePrefetcher(
+                    
+                    state.imagePrefetcher = ImagePrefetcher(
                         urls: chapterPagesInfo.dataSaverURLs,
                         options: [.memoryCacheExpiration(.days(1))]
-                    ).start()
+                    )
+                    
+                    state.imagePrefetcher?.start()
                     
                     return .none
 
@@ -89,12 +104,15 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userHitLastPage:
+            state.imagePrefetcher?.stop()
             return .none
             
         case .userHitTheMostFirstPage:
+            state.imagePrefetcher?.stop()
             return .none
             
         case .userLeftMangaReadingView:
+            state.imagePrefetcher?.stop()
             return .none
     }
 }

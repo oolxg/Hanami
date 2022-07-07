@@ -88,11 +88,13 @@ extension MangaReadingView {
                         .tag(urls.count)
                 }
             } else {
-                ActivityIndicator()
-                    .frame(width: 120)
+                TabView {
+                    ActivityIndicator()
+                        .frame(width: 120)
+                }
             }
         }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        .tabViewStyle(.page(indexDisplayMode: .never))
         .transition(.opacity)
     }
     
@@ -113,7 +115,8 @@ extension MangaReadingView {
                             Text("Chapter \(chapterIndex.clean())")
                         }
                         
-                        if let pagesCount = viewStore.pagesInfo?.dataSaverURLs.count {
+                        if let pagesCount = viewStore.pagesInfo?.dataSaverURLs.count,
+                           viewStore.currentPage < pagesCount && viewStore.currentPage + 1 > 0 {
                             Text("\(viewStore.currentPage + 1)/\(pagesCount)")
                         }
                     }

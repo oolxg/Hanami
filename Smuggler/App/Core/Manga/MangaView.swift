@@ -80,7 +80,7 @@ struct MangaView_Previews: PreviewProvider {
                 reducer: mangaViewReducer,
                 environment: .live(
                     environment: .init(
-                        fetchMangaVolumes: fetchChaptersForManga,
+                        fetchMangaChaptersFromExactScanlationGroup: fetchChaptersForManga,
                         fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
                         fetchMangaStatistics: fetchMangaStatistics
                     )
@@ -119,7 +119,7 @@ extension MangaView {
                 .overlay(
                     ZStack(alignment: .bottom) {
                         LinearGradient(
-                            colors: [ .clear, .black.opacity(0.8) ],
+                            colors: [ .black.opacity(0.3), .black.opacity(0.8) ],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -179,6 +179,7 @@ extension MangaView {
             }
             .transition(.opacity)
         }
+        .padding(.horizontal, 5)
     }
     
     private var chaptersSection: some View {
@@ -200,9 +201,7 @@ extension MangaView {
                     ForEachStore(
                         store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
                     ) { volumeStore in
-                        LazyView(
-                            VolumeTabView(store: volumeStore)
-                        )
+                        VolumeTabView(store: volumeStore)
                         
                         Rectangle()
                             .frame(height: 2)
@@ -216,16 +215,18 @@ extension MangaView {
     private var coverArtSection: some View {
         WithViewStore(store) { viewStore in
             GeometryReader { geo in
+                let columnsCount = Int(geo.size.width / 160)
+                
                 LazyVGrid(
                     columns: Array(
                         repeating: GridItem(.flexible(), spacing: 10),
-                        count: Int(geo.size.width / 160)
+                        count: columnsCount
                     )
                 ) {
-                    ForEach(0..<viewStore.coverArtURLs.count, id: \.self) { index in
+                    ForEach(0..<viewStore.coverArtURLs.count, id: \.self) { coverArtIndex in
                         KFImage.url(
-                            viewStore.coverArtURLs[index],
-                            cacheKey: viewStore.coverArtURLs[index].absoluteString
+                            viewStore.coverArtURLs[coverArtIndex],
+                            cacheKey: viewStore.coverArtURLs[coverArtIndex].absoluteString
                         )
                         .fade(duration: 0.3)
                         .resizable()
@@ -234,7 +235,7 @@ extension MangaView {
                         .padding(.horizontal, 5)
                         .overlay(
                             ZStack(alignment: .bottom) {
-                                if let volumeName = viewStore.allCoverArtsInfo[index].attributes.volume {
+                                if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
                                     LinearGradient(
                                         colors: [.clear, .clear, .black],
                                         startPoint: .top,
@@ -249,13 +250,10 @@ extension MangaView {
                     }
                 }
                 .onAppear {
-                    let columnsCount = Int(geo.size.width / 160)
                     artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
                     artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
                 }
                 .onChange(of: viewStore.coverArtURLs) { _ in
-                    let columnsCount = Int(geo.size.width / 160)
-                    
                     withAnimation {
                         artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
                         artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
@@ -317,12 +315,12 @@ extension MangaView {
                 Text("Description")
                     .font(.headline)
                     .fontWeight(.black)
-                    .padding()
+                    .padding(10)
                 
                 Divider()
                 
                 Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                    .padding()
+                    .padding(15)
             }
         }
     }
@@ -333,7 +331,7 @@ extension MangaView {
                 Text("Tags")
                     .font(.headline)
                     .fontWeight(.black)
-                    .padding()
+                    .padding(10)
                 
                 Divider()
                 
@@ -349,7 +347,25 @@ extension MangaView {
                         .background(Color.theme.darkGray)
                         .cornerRadius(10)
                 }
-                .padding()
+                .padding(15)
+                
+                if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
+                    Text("Demographic")
+                        .font(.headline)
+                        .fontWeight(.black)
+                        .padding(10)
+                    
+                    Divider()
+                    
+                    Text(demographic.capitalized)
+                        .font(.callout)
+                        .lineLimit(1)
+                        .padding(10)
+                        .foregroundColor(.white)
+                        .background(Color.theme.darkGray)
+                        .cornerRadius(10)
+                        .padding(15)
+                }
             }
         }
     }

@@ -10,24 +10,20 @@ import ComposableArchitecture
 
 struct ChapterView: View {
     let store: Store<ChapterState, ChapterAction>
-    @State private var areChaptersShown = false
     @Environment(\.openURL) var openURL
 
     var body: some View {
         WithViewStore(store) { viewStore in
-            DisclosureGroup(isExpanded: $areChaptersShown) {
+            DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
                 VStack(spacing: 0) {
-                    if viewStore.areAllChapterDetailsDownloaded {
-                        ForEach(viewStore.chapterDetails) { chapter in
-                            makeChapterView(chapter: chapter)
-                            
-                            Rectangle()
-                                .fill(.white)
-                                .frame(height: 1.5)
-                        }
+                    ForEach(viewStore.chapterDetails) { chapter in
+                        makeChapterView(chapter: chapter)
+                        
+                        Rectangle()
+                            .fill(.white)
+                            .frame(height: 1.5)
                     }
                 }
-                .animation(.linear, value: viewStore.chapterDetails)
                 .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
                 HStack {
@@ -36,21 +32,17 @@ struct ChapterView: View {
                         .fontWeight(.heavy)
                         .padding(.vertical, 3)
                     
-                    if areChaptersShown && !viewStore.areAllChapterDetailsDownloaded {
+                    if !viewStore.areAllChapterDetailsDownloaded {
                         Spacer()
                         
-                        ActivityIndicator()
-                            .frame(width: 25)
-                            .padding()
+                        ActivityIndicator(lineWidth: 2)
+                            .frame(width: 15)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    viewStore.send(.loadChapterDetails)
-                    withAnimation(.linear(duration: areChaptersShown ? 0.3 : 0.7)) {
-                        areChaptersShown.toggle()
-                    }
+                    viewStore.send(.userTappedOnChapter, animation: .linear(duration: 0.7))
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -110,7 +102,7 @@ extension ChapterView {
                     openURL(url)
                 } else {
                     viewStore.send(
-                        .onTapGesture(chapter: chapter)
+                        .userTappedOnChapterDetails(chapter: chapter)
                     )
                 }
             }
@@ -151,7 +143,6 @@ extension ChapterView {
                     .foregroundColor(.theme.secondaryText)
             }
             .transition(.opacity)
-            .animation(.linear, value: areChaptersShown)
         }
     }
 }

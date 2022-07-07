@@ -108,7 +108,7 @@ enum MangaViewAction: BindableAction {
 }
 
 struct MangaViewEnvironment {
-    var fetchMangaVolumes: (
+    var fetchMangaChaptersFromExactScanlationGroup: (
         _ mangaID: UUID,
         _ scanlationGroup: UUID?,
         _ translatedLanguage: String?,
@@ -156,13 +156,13 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 if state.volumeTabStates.isEmpty {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
-                        env.fetchMangaVolumes(state.manga.id, nil, nil, env.decoder())
+                        env.fetchMangaChaptersFromExactScanlationGroup(state.manga.id, nil, nil, env.decoder())
                             .receive(on: env.mainQueue())
                             .catchToEffect(MangaViewAction.volumesDownloaded)
                     )
                 }
                         
-                return .merge(effects)
+                return effects.isEmpty ? .none : .merge(effects)
                 
             case .userOpenedCoverArtSection:
                 guard state.allCoverArtsInfo.isEmpty else {
@@ -251,7 +251,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 return .none
                 
             // here we're handling users tap on chapter(means user wants to read chapter)
-            case .volumeTabAction(_, .chapterAction(_, .onTapGesture(let chapter))):
+            case .volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter))):
                     // we're looking for action on chapters
                     // when user taps on some chapter, we send him to reading view
                 state.mangaReadingViewState = MangaReadingViewState(
@@ -261,7 +261,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
                 UITabBar.hideTabBar(animated: false)
                 
-                return env.fetchMangaVolumes(
+                return env.fetchMangaChaptersFromExactScanlationGroup(
                     state.manga.id,
                     chapter.scanltaionGroupID,
                     chapter.attributes.translatedLanguage,

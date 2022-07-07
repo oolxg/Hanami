@@ -61,7 +61,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
         action: /MangaThumbnailAction.mangaAction,
         environment: { _ in .live(
             environment: .init(
-                fetchMangaVolumes: fetchChaptersForManga,
+                fetchMangaChaptersFromExactScanlationGroup: fetchChaptersForManga,
                 fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
                 fetchMangaStatistics: fetchMangaStatistics
             )

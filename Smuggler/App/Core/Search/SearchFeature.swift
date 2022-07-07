@@ -104,7 +104,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                     state.lastSuccessfulRequestParams = nil
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
-                        ids: mangaIDs.map { CancelClearCacheForManga(mangaID: $0.id) }
+                        ids: mangaIDs.map { CancelClearCacheForManga(mangaID: $0) }
                     )
                 }
                 

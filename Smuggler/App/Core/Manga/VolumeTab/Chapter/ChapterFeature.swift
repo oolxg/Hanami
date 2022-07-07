@@ -21,17 +21,22 @@ struct ChapterState: Equatable, Identifiable {
         chapter.id
     }
     
+    @BindableState var areChaptersShown = false
+    
     var loadingChapterDetailsCount = 0
     var areAllChapterDetailsDownloaded: Bool {
         loadingChapterDetailsCount == 0
     }
 }
 
-enum ChapterAction {
-    case loadChapterDetails
-    case onTapGesture(chapter: ChapterDetails)
+enum ChapterAction: BindableAction {
+    case userTappedOnChapter
+    case userTappedOnChapterDetails(chapter: ChapterDetails)
+    case showChapterDetailsAfterDelayIfNeeded
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>, chapterID: UUID)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
+    
+    case binding(BindingAction<ChapterState>)
 }
 
 struct ChapterEnvironment {
@@ -46,7 +51,7 @@ struct ChapterEnvironment {
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<ChapterEnvironment>> { state, action, env in
     switch action {
-        case .loadChapterDetails:
+        case .userTappedOnChapter:
             var effects: [Effect<ChapterAction, Never>] = []
 
             // if we fetched info about chapters, it means that pages info is downloaded too
@@ -75,10 +80,17 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     )
                 }
             }
-
-            return .merge(effects)
             
-        case .onTapGesture:
+            if effects.isEmpty {
+                state.areChaptersShown.toggle()
+            }
+
+            return effects.isEmpty ? .none : .merge(effects)
+
+        case .binding:
+            return .none
+            
+        case .userTappedOnChapterDetails:
             // this case is only for getting it in MangaFeature
             return .none
 
@@ -88,25 +100,40 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 case .success(let response):
                     state.chapterDetails.append(response.data)
                     
-                    let scanlationGroupID = response.data.scanltaionGroupID
-                    
-                    guard let scanlationGroupID = scanlationGroupID else {
+                    guard let scanlationGroupID = response.data.scanltaionGroupID else {
+                        state.areChaptersShown.toggle()
                         return .none
                     }
                     
-                    return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
-                        .receive(on: env.mainQueue())
-                        .catchToEffect {
-                            ChapterAction.scanlationGroupInfoFetched(
-                                result: $0,
-                                chapterID: response.data.id
-                            )
-                        }
+                    return .merge(
+                        Effect(value: ChapterAction.showChapterDetailsAfterDelayIfNeeded)
+                            .delay(for: .seconds(0.2), scheduler: env.mainQueue())
+                            .eraseToEffect(),
+                        
+                        env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
+                            .receive(on: env.mainQueue())
+                            .catchToEffect {
+                                ChapterAction.scanlationGroupInfoFetched(
+                                    result: $0,
+                                    chapterID: response.data.id
+                                )
+                            }
+                    )
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
-                    return .none
+                    return Effect(value: ChapterAction.showChapterDetailsAfterDelayIfNeeded)
+                        .delay(for: .seconds(0.2), scheduler: env.mainQueue())
+                        .eraseToEffect()
             }
+            
+        // this made for better animation of DisclosureGroup
+        case .showChapterDetailsAfterDelayIfNeeded:
+            if state.areAllChapterDetailsDownloaded {
+                state.areChaptersShown = true
+            }
+            
+            return .none
             
         case .scanlationGroupInfoFetched(let result, let chapterID):
             switch result {
@@ -119,3 +146,4 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             }
     }
 }
+.binding()

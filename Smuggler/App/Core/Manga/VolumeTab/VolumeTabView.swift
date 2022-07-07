@@ -15,17 +15,14 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                VStack {
+                LazyVStack {
                     ForEachStore(
                         store.scope(
                             state: \.chapterStates,
                             action: VolumeTabAction.chapterAction
                         )
                     ) { chapterState in
-                        LazyView(
-                            ChapterView(store: chapterState)
-                        )
-                        .transition(.opacity)
+                        ChapterView(store: chapterState)
                     }
                 }
             } label: {
@@ -41,7 +38,7 @@ struct VolumeTabView: View {
                     // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
                     withAnimation(
                         .linear(
-                            duration: max(Double(viewStore.chapterStates.count / 40), 0.6)
+                            duration: max(Double(viewStore.chapterStates.count / 25), 0.6)
                         )
                     ) {
                         areChaptersShown.toggle()

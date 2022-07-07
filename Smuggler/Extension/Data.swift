@@ -35,6 +35,3 @@ extension Data {
         return try? decoder.decode(O.self, from: self)
     }
 }
-
-protocol _OptionalProtocol: ExpressibleByNilLiteral {}
-extension Optional: _OptionalProtocol {}
