@@ -89,7 +89,6 @@ struct MangaViewState: Equatable {
 enum MangaViewAction: BindableAction {
     // MARK: - Actions to be called from view
     case onAppear
-    case userOpenedCoverArtSection
     case mangaTabChanged(MangaViewState.SelectedTab)
 
     // MARK: - Actions to be called from reducer
@@ -98,6 +97,7 @@ enum MangaViewAction: BindableAction {
     case volumesDownloaded(Result<VolumesContainer, AppError>)
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
+    case userOpenedCoverArtSection
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -108,7 +108,7 @@ enum MangaViewAction: BindableAction {
 }
 
 struct MangaViewEnvironment {
-    var fetchMangaChaptersFromExactScanlationGroup: (
+    var fetchChaptersFromExactScanlationGroup: (
         _ mangaID: UUID,
         _ scanlationGroup: UUID?,
         _ translatedLanguage: String?,
@@ -156,7 +156,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 if state.volumeTabStates.isEmpty {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
-                        env.fetchMangaChaptersFromExactScanlationGroup(state.manga.id, nil, nil, env.decoder())
+                        env.fetchChaptersFromExactScanlationGroup(state.manga.id, nil, nil, env.decoder())
                             .receive(on: env.mainQueue())
                             .catchToEffect(MangaViewAction.volumesDownloaded)
                     )
@@ -175,6 +175,11 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
             case .mangaTabChanged(let newTab):
                 state.selectedTab = newTab
+                
+                if newTab == .coverArt {
+                    return Effect(value: MangaViewAction.userOpenedCoverArtSection)
+                }
+                
                 return .none
                 
             case .allCoverArtsInfoFetched(let result):
@@ -261,7 +266,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
                 UITabBar.hideTabBar(animated: false)
                 
-                return env.fetchMangaChaptersFromExactScanlationGroup(
+                return env.fetchChaptersFromExactScanlationGroup(
                     state.manga.id,
                     chapter.scanltaionGroupID,
                     chapter.attributes.translatedLanguage,

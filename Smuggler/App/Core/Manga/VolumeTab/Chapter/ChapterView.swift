@@ -70,7 +70,7 @@ struct ChapterView_Previews: PreviewProvider {
 
 extension ChapterView {
     @ViewBuilder private func makeChapterView(chapter: ChapterDetails) -> some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.stateless) { viewStore in
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {
                     HStack(alignment: .top) {
@@ -111,7 +111,7 @@ extension ChapterView {
     }
 
     @ViewBuilder private func makeScanlationGroupSection(for chapter: ChapterDetails) -> some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             HStack {
                 VStack(alignment: .leading) {
                     Text("Translated by:")

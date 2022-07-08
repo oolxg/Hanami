@@ -13,28 +13,26 @@ struct MangaReadingViewState: Equatable {
     init(chapterID: UUID, chapterIndex: Double?, shoudSendUserToTheLastPage: Bool = false) {
         self.chapterID = chapterID
         self.chapterIndex = chapterIndex
-        self.shoudSendUserToTheLastPage = shoudSendUserToTheLastPage
+        self.shouldSendUserToTheLastPage = shoudSendUserToTheLastPage
     }
     
     let chapterID: UUID
     let chapterIndex: Double?
-    var pagesInfo: ChapterPagesInfo?
-    
-    var imagePrefetcher: ImagePrefetcher?
-    
-    @BindableState var currentPage: Int = 0
-    
     // this will be used, when user get to this chapter from the next following one
-    let shoudSendUserToTheLastPage: Bool
+    let shouldSendUserToTheLastPage: Bool
+    
+    var pagesInfo: ChapterPagesInfo?
+    var imagePrefetcher: ImagePrefetcher?
+    @BindableState var currentPage: Int = 0
 }
 
 extension MangaReadingViewState {
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.currentPage == rhs.currentPage &&
-        lhs.chapterID == rhs.chapterID &&
         lhs.pagesInfo == rhs.pagesInfo &&
-        lhs.currentPage == rhs.currentPage  &&
-        lhs.shoudSendUserToTheLastPage == rhs.shoudSendUserToTheLastPage
+        lhs.chapterIndex == rhs.chapterIndex &&
+        lhs.chapterID == rhs.chapterID &&
+        lhs.shouldSendUserToTheLastPage == rhs.shouldSendUserToTheLastPage
     }
 }
 
@@ -72,7 +70,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 case .success(let chapterPagesInfo):
                     state.pagesInfo = chapterPagesInfo
                     
-                    if state.shoudSendUserToTheLastPage {
+                    if state.shouldSendUserToTheLastPage {
                         state.currentPage = chapterPagesInfo.dataSaverURLs.count - 1
                     }
                     

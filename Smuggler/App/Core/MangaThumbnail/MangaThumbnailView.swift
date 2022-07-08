@@ -114,7 +114,7 @@ extension MangaThumbnailView {
     }
     
     private var statistics: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             HStack(alignment: .top, spacing: 10) {
                 HStack(alignment: .top, spacing: 0) {
                     Image(systemName: "star.fill")

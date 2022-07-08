@@ -24,7 +24,7 @@ public extension UITabBar {
     }
     
     // if tab View is used toogle Tab Bar Visibility
-    static func toogleTabBarVisibility(animated: Bool = true) {
+    static func toggleTabBarVisibility(animated: Bool = true) {
         UITabBar.isHidden { isHidden in
             if isHidden {
                 UITabBar.showTabBar(animated: animated)

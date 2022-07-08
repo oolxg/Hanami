@@ -12,7 +12,7 @@ struct FiltersView: View {
     let store: Store<FiltersState, FiltersAction>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.stateless) { viewStore in
             NavigationView {
                 ScrollView(showsIndicators: false) {
                     filtersList
@@ -169,7 +169,7 @@ extension FiltersView {
     @ViewBuilder private func makeTagNavigationLink<T, Content>(
         title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>, _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FilterTagProtocol {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             NavigationLink {
                 content()
             } label: {

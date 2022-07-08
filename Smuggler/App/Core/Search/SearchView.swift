@@ -88,7 +88,7 @@ extension SearchView {
     }
     
     private var mangaList: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             ScrollView {
                 VStack(spacing: 0) {
                     if !viewStore.mangaThumbnailStates.isEmpty {
@@ -129,7 +129,7 @@ extension SearchView {
     }
     
     private var filtersButton: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.stateless) { viewStore in
             CircleButtonView(iconName: "slider.horizontal.3") {
                 showFilters.toggle()
                 UIApplication.shared.endEditing()

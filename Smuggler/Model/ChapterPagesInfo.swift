@@ -26,7 +26,11 @@ struct ChapterPagesInfo: Codable {
     }
 }
 
-extension ChapterPagesInfo: Equatable { }
+extension ChapterPagesInfo: Equatable {
+    static func == (lhs: ChapterPagesInfo, rhs: ChapterPagesInfo) -> Bool {
+        lhs.chapter.hash == rhs.chapter.hash
+    }
+}
 
 extension ChapterPagesInfo: Identifiable {
     var id: String {

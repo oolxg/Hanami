@@ -80,7 +80,7 @@ struct MangaView_Previews: PreviewProvider {
                 reducer: mangaViewReducer,
                 environment: .live(
                     environment: .init(
-                        fetchMangaChaptersFromExactScanlationGroup: fetchChaptersForManga,
+                        fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
                         fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
                         fetchMangaStatistics: fetchMangaStatistics
                     )
@@ -103,7 +103,7 @@ extension MangaView {
     }
     
     private var header: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let size = geo.size
@@ -165,16 +165,13 @@ extension MangaView {
     private var mangaBodyView: some View {
         WithViewStore(store) { viewStore in
             ZStack {
-                if viewStore.selectedTab == .about {
-                    mangaInfoView
-                }
-                
-                if viewStore.selectedTab == .chapters {
-                    chaptersSection
-                }
-                
-                if viewStore.selectedTab == .coverArt {
-                    coverArtSection
+                switch viewStore.selectedTab {
+                    case .about:
+                        mangaInfoView
+                    case .chapters:
+                        chaptersSection
+                    case .coverArt:
+                        coverArtSection
                 }
             }
             .transition(.opacity)
@@ -202,10 +199,6 @@ extension MangaView {
                         store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
                     ) { volumeStore in
                         VolumeTabView(store: volumeStore)
-                        
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.theme.darkGray)
                     }
                 }
             }
@@ -213,7 +206,7 @@ extension MangaView {
     }
     
     private var coverArtSection: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             GeometryReader { geo in
                 let columnsCount = Int(geo.size.width / 160)
                 
@@ -262,14 +255,11 @@ extension MangaView {
             }
             .frame(height: artSectionHeight)
             .padding()
-            .onAppear {
-                viewStore.send(.userOpenedCoverArtSection)
-            }
         }
     }
     
     private var mangaInfoView: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading) {
                 if let statistics = viewStore.statistics {
                     HStack(alignment: .top, spacing: 10) {
@@ -310,7 +300,7 @@ extension MangaView {
     }
     
     private var descriptionSection: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading) {
                 Text("Description")
                     .font(.headline)
@@ -326,7 +316,7 @@ extension MangaView {
     }
     
     private var tagsSection: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading) {
                 Text("Tags")
                     .font(.headline)

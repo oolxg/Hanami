@@ -15,7 +15,7 @@ struct MangaReadingView: View {
     @State private var shouldShowNavBar = true
     
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.stateless) { viewStore in
             GeometryReader { geo in
                 ZStack(alignment: .top) {
                     if shouldShowNavBar {
@@ -47,15 +47,12 @@ struct MangaReadingView: View {
 
 extension MangaReadingView {
     private var backButton: some View {
-        WithViewStore(store) { viewStore in
-            Button {
-                viewStore.send(.userLeftMangaReadingView)
-                self.presentationMode.wrappedValue.dismiss()
-            } label: {
-                Image(systemName: "arrow.left")
-                    .foregroundColor(.white)
-                    .padding(.vertical)
-            }
+        Button {
+            self.presentationMode.wrappedValue.dismiss()
+        } label: {
+            Image(systemName: "arrow.left")
+                .foregroundColor(.white)
+                .padding(.vertical)
         }
     }
 }
@@ -68,7 +65,7 @@ extension MangaReadingView {
                     Color.clear
                         .tag(-1)
                     
-                    ForEach(0..<urls.count, id: \.self) { pageIndex in
+                    ForEach(urls.indices, id: \.self) { pageIndex in
                         ZoomableScrollView {
                             KFImage.url(
                                 urls[pageIndex],
@@ -81,7 +78,6 @@ extension MangaReadingView {
                             .resizable()
                             .scaledToFit()
                         }
-                        .tag(pageIndex)
                     }
                     
                     Color.clear
@@ -100,7 +96,7 @@ extension MangaReadingView {
     
     private var navigationBar: some View {
         ZStack {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store.actionless) { viewStore in
                 Color.black
                     .ignoresSafeArea()
                 
