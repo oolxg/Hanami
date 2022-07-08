@@ -18,27 +18,17 @@ struct HomeView: View {
                     Text("by oolxg")
                     
                     ScrollView {
-                        if viewStore.mangaThumbnailStates.isEmpty {
-                            ForEach(0..<20) { _ in
-                                MangaThumbnailSkeletonView()
-                                    .padding()
-                            }
-                        }
-                        
-                        if !viewStore.mangaThumbnailStates.isEmpty {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.mangaThumbnailStates,
-                                    action: HomeAction.mangaThumbnailAction
-                                )
-                            ) { thumbnailViewStore in
-                                MangaThumbnailView(store: thumbnailViewStore)
-                                    .padding()
-                            }
+                        ForEachStore(
+                            store.scope(
+                                state: \.mangaThumbnailStates,
+                                action: HomeAction.mangaThumbnailAction
+                            )
+                        ) { thumbnailViewStore in
+                            MangaThumbnailView(store: thumbnailViewStore)
+                                .padding()
                         }
                     }
                     .transition(.opacity)
-                    .animation(.linear(duration: 0.7), value: viewStore.mangaThumbnailStates.isEmpty)
                 }
                 .navigationTitle("Smuggler")
                 .navigationBarTitleDisplayMode(.large)

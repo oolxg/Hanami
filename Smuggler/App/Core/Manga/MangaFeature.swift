@@ -126,8 +126,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
         action: /MangaViewAction.volumeTabAction,
         environment: { _ in .live(
                 environment: .init(
-            ),
-            isMainQueueAnimated: true
+            )
         ) }
     ),
     mangaReadingViewReducer.optional().pullback(
@@ -136,8 +135,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
         environment: { _ in .live(
             environment: .init(
                 fetchChapterPagesInfo: fetchPageInfoForChapter
-            ),
-            isMainQueueAnimated: true
+            )
         ) }
     ),
     Reducer { state, action, env in

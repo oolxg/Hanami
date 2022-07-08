@@ -32,8 +32,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             environment: { _ in .live(
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
-                ),
-                isMainQueueAnimated: false
+                )
             ) }
         ),
     Reducer { state, action, env in

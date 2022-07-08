@@ -16,7 +16,7 @@ struct MangaView: View {
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
     @Namespace private var tabAnimationNamespace
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) private var presentationMode
     @State private var artSectionHeight = 0.0
 
     private var isViewScrolledDown: Bool {
@@ -49,8 +49,7 @@ struct MangaView: View {
                 )
                 .navigationBarHidden(true)
                 .coordinateSpace(name: "scroll")
-                .ignoresSafeArea(.container, edges: .vertical)
-                .padding(.bottom, 1)
+                .ignoresSafeArea()
                 .background(
                     NavigationLink(
                         destination: mangaReadingView,
@@ -136,7 +135,7 @@ extension MangaView {
                                 
                                 HStack(spacing: 5) {
                                     Circle()
-                                        .fill(getColorForMangaStatus(viewStore.manga.attributes.status))
+                                        .fill(viewStore.manga.attributes.status.color)
                                         .frame(width: 10, height: 10)
                                     
                                     Text(viewStore.manga.attributes.status.rawValue.capitalized)
@@ -163,19 +162,17 @@ extension MangaView {
     }
     
     private var mangaBodyView: some View {
-        WithViewStore(store) { viewStore in
-            ZStack {
-                switch viewStore.selectedTab {
-                    case .about:
-                        mangaInfoView
-                    case .chapters:
-                        chaptersSection
-                    case .coverArt:
-                        coverArtSection
-                }
+        WithViewStore(store.actionless) { viewStore in
+            switch viewStore.selectedTab {
+                case .about:
+                    mangaInfoView
+                case .chapters:
+                    chaptersSection
+                case .coverArt:
+                    coverArtSection
             }
-            .transition(.opacity)
         }
+        .transition(.opacity)
         .padding(.horizontal, 5)
     }
     
@@ -194,12 +191,19 @@ extension MangaView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding()
             } else {
-                VStack {
+                LazyVStack {
                     ForEachStore(
                         store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
                     ) { volumeStore in
                         VolumeTabView(store: volumeStore)
+                        
+                        Rectangle()
+                            .fill(Color.theme.darkGray)
+                            .frame(height: 1.5)
+                            .padding(.leading, 50)
                     }
+                    
+                    Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                 }
             }
         }
@@ -279,27 +283,14 @@ extension MangaView {
                     .font(.subheadline)
                 }
                 
-                descriptionSection
+                description
                 
-                tagsSection
+                tags
             }
         }
     }
     
-    private func getColorForMangaStatus(_ status: Manga.Attributes.Status) -> Color {
-        switch status {
-            case .completed:
-                return .blue
-            case .ongoing:
-                return .green
-            case .cancelled:
-                return .red
-            case .hiatus:
-                return .red
-        }
-    }
-    
-    private var descriptionSection: some View {
+    private var description: some View {
         WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading) {
                 Text("Description")
@@ -315,7 +306,7 @@ extension MangaView {
         }
     }
     
-    private var tagsSection: some View {
+    private var tags: some View {
         WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading) {
                 Text("Tags")

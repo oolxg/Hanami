@@ -10,12 +10,12 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
-    @State var areChaptersShown = false
+    @State private var areChaptersShown = false
 
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                LazyVStack {
+                VStack(spacing: 0) {
                     ForEachStore(
                         store.scope(
                             state: \.chapterStates,
@@ -23,6 +23,8 @@ struct VolumeTabView: View {
                         )
                     ) { chapterState in
                         ChapterView(store: chapterState)
+                        
+                        Divider()
                     }
                 }
             } label: {
@@ -34,13 +36,7 @@ struct VolumeTabView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    // if there a low of chapters in one volume, we should slowly show them,
-                    // otherwise 10+ volumes will be shown 'w/o' animation(tooooo fast)
-                    withAnimation(
-                        .linear(
-                            duration: max(Double(viewStore.chapterStates.count / 25), 0.6)
-                        )
-                    ) {
+                    withAnimation {
                         areChaptersShown.toggle()
                     }
                 }

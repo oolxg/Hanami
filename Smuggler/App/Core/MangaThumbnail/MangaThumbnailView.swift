@@ -47,6 +47,9 @@ struct MangaThumbnailView: View {
             .onTapGesture {
                 isNavigationLinkActive.toggle()
             }
+            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+            }
         }
     }
 }
@@ -72,7 +75,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
 extension MangaThumbnailView {
     // all the stuff here is to make NavigationLink 'lazy'
     private var coverArt: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.actionless) { viewStore in
             KFImage.url(
                 viewStore.coverArtURL,
                 cacheKey: viewStore.coverArtURL?.absoluteString
@@ -91,9 +94,6 @@ extension MangaThumbnailView {
                     label: { EmptyView() }
                 )
             )
-            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-            }
         }
         .frame(width: 100, height: 150)
         .clipped()
@@ -145,28 +145,10 @@ extension MangaThumbnailView {
                 HStack(spacing: 5) {
                     let status = viewStore.manga.attributes.status
                     
-                    switch status {
-                        case .completed:
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 10, height: 10)
-                                .padding(0)
-                        case .ongoing:
-                            Circle()
-                                .fill(.green)
-                                .frame(width: 10, height: 10)
-                                .padding(0)
-                        case .cancelled:
-                            Circle()
-                                .fill(.red)
-                                .frame(width: 10, height: 10)
-                                .padding(0)
-                        case .hiatus:
-                            Circle()
-                                .fill(.orange)
-                                .frame(width: 10, height: 10)
-                                .padding(0)
-                    }
+                    Circle()
+                        .fill(status.color)
+                        .frame(width: 10, height: 10)
+                        .padding(0)
                     
                     Text(status.rawValue.capitalized)
                         .foregroundColor(.white)

@@ -49,8 +49,7 @@ let rootReducer = Reducer<RootState, RootAction, SystemEnvironment<RootEnvironme
                     environment: .init(
                         searchManga: makeMangaSearchRequest,
                         fetchStatistics: fetchMangaStatistics
-                    ),
-                    isMainQueueAnimated: false
+                    )
                 )
             }
         ),

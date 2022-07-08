@@ -27,7 +27,7 @@ struct MangaReadingView: View {
                     readingContent
                         .zIndex(0)
                 }
-                .frame(height: UIScreen.main.bounds.height)
+                .frame(height: UIScreen.main.bounds.height * 1.05)
             }
             .navigationBarHidden(true)
             .onAppear {

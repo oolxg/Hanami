@@ -10,13 +10,13 @@ import ComposableArchitecture
 
 struct ChapterView: View {
     let store: Store<ChapterState, ChapterAction>
-    @Environment(\.openURL) var openURL
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
                 VStack(spacing: 0) {
-                    ForEach(viewStore.chapterDetails) { chapter in
+                    ForEach(viewStore.areChaptersShown ? viewStore.chapterDetails : []) { chapter in
                         makeChapterView(chapter: chapter)
                         
                         Rectangle()
@@ -24,25 +24,32 @@ struct ChapterView: View {
                             .frame(height: 1.5)
                     }
                 }
+                .animation(.linear, value: viewStore.areChaptersShown)
                 .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
                 HStack {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 10, height: 10)
+                        .padding(.trailing)
+                    
                     Text(viewStore.chapter.chapterName)
                         .font(.title3)
-                        .fontWeight(.heavy)
+                        .fontWeight(.semibold)
                         .padding(.vertical, 3)
                     
-                    if !viewStore.areAllChapterDetailsDownloaded {
+                    if viewStore.shouldShowActivityIndicator {
                         Spacer()
                         
                         ActivityIndicator(lineWidth: 2)
                             .frame(width: 15)
+                            .transition(.opacity)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    viewStore.send(.userTappedOnChapter, animation: .linear(duration: 0.7))
+                    viewStore.send(.userTappedOnChapter, animation: .linear)
                 }
             }
             .buttonStyle(PlainButtonStyle())

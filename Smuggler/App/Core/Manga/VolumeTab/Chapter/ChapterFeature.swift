@@ -21,18 +21,21 @@ struct ChapterState: Equatable, Identifiable {
         chapter.id
     }
     
-    @BindableState var areChaptersShown = false
+    @BindableState var areChaptersShown = false {
+        willSet {
+            if newValue {
+                shouldShowActivityIndicator = false
+            }
+        }
+    }
     
     var loadingChapterDetailsCount = 0
-    var areAllChapterDetailsDownloaded: Bool {
-        loadingChapterDetailsCount == 0
-    }
+    var shouldShowActivityIndicator = false
 }
 
 enum ChapterAction: BindableAction {
     case userTappedOnChapter
     case userTappedOnChapterDetails(chapter: ChapterDetails)
-    case showChapterDetailsAfterDelayIfNeeded
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>, chapterID: UUID)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
     
@@ -57,32 +60,38 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             // if we fetched info about chapters, it means that pages info is downloaded too
             // (or externalURL, manga if to read on other webiste)
             if state.chapterDetails[id: state.chapter.id] == nil {
-                state.loadingChapterDetailsCount += 1
                 // need this var because state is 'inout'
                 let chapterID = state.chapter.id
                 effects.append(
                     env.downloadChapterInfo(chapterID, env.decoder())
+                        .delay(for: .seconds(0.8), scheduler: env.mainQueue())
                         .receive(on: env.mainQueue())
                         .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
+                        .animation(.linear)
                 )
             }
             
             for (i, otherChapterID) in state.chapter.others.enumerated() {
                 if state.chapterDetails[id: otherChapterID] == nil {
-                    state.loadingChapterDetailsCount += 1
                     effects.append(
                         env.downloadChapterInfo(otherChapterID, env.decoder())
+                            .delay(for: .seconds(0.8), scheduler: env.mainQueue())
                             .receive(on: env.mainQueue())
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
                                 chapterID: otherChapterID
                             ) }
+                            .animation(.linear)
                     )
                 }
             }
             
+            state.loadingChapterDetailsCount = effects.count
+            
             if effects.isEmpty {
                 state.areChaptersShown.toggle()
+            } else {
+                state.shouldShowActivityIndicator = true
             }
 
             return effects.isEmpty ? .none : .merge(effects)
@@ -105,35 +114,30 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                         return .none
                     }
                     
-                    return .merge(
-                        Effect(value: ChapterAction.showChapterDetailsAfterDelayIfNeeded)
-                            .delay(for: .seconds(0.2), scheduler: env.mainQueue())
-                            .eraseToEffect(),
-                        
-                        env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
-                            .receive(on: env.mainQueue())
-                            .catchToEffect {
-                                ChapterAction.scanlationGroupInfoFetched(
-                                    result: $0,
-                                    chapterID: response.data.id
-                                )
-                            }
-                    )
+                    if state.loadingChapterDetailsCount == 0 {
+                        state.shouldShowActivityIndicator = false
+                        state.areChaptersShown = true
+                    }
+                    
+                    return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
+                        .receive(on: env.mainQueue())
+                        .catchToEffect {
+                            ChapterAction.scanlationGroupInfoFetched(
+                                result: $0,
+                                chapterID: response.data.id
+                            )
+                        }
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
-                    return Effect(value: ChapterAction.showChapterDetailsAfterDelayIfNeeded)
-                        .delay(for: .seconds(0.2), scheduler: env.mainQueue())
-                        .eraseToEffect()
+                    
+                    if state.loadingChapterDetailsCount == 0 {
+                        state.shouldShowActivityIndicator = false
+                        state.areChaptersShown = true
+                    }
+                    
+                    return .none
             }
-            
-        // this made for better animation of DisclosureGroup
-        case .showChapterDetailsAfterDelayIfNeeded:
-            if state.areAllChapterDetailsDownloaded {
-                state.areChaptersShown = true
-            }
-            
-            return .none
             
         case .scanlationGroupInfoFetched(let result, let chapterID):
             switch result {

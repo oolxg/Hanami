@@ -67,8 +67,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             environment: { _ in .live(
                 environment: .init(
                     loadThumbnailInfo: downloadThumbnailInfo
-                ),
-                isMainQueueAnimated: false
+                )
             ) }
         ),
     filterReducer
@@ -77,8 +76,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             action: /SearchAction.filterAction,
             environment: { _ in
                 .live(
-                    environment: .init(getListOfTags: downloadTagsList),
-                    isMainQueueAnimated: false
+                    environment: .init(getListOfTags: downloadTagsList)
                 )
             }
         ),

@@ -26,10 +26,10 @@ struct SystemEnvironment<Environment> {
         AppUtil.decoder
     }
     
-    static func live(environment: Environment, isMainQueueAnimated: Bool = false) -> Self {
+    static func live(environment: Environment) -> Self {
         Self(
             environment: environment,
-            mainQueue: { isMainQueueAnimated ? .main.animation(.linear) : .main },
+            mainQueue: { .main },
             decoder: decoder
         )
     }

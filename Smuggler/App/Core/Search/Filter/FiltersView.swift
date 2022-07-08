@@ -36,8 +36,7 @@ struct FiltersView_Previews: PreviewProvider {
                 initialState: FiltersState(),
                 reducer: filterReducer,
                 environment: .live(
-                    environment: .init(getListOfTags: downloadTagsList),
-                    isMainQueueAnimated: true
+                    environment: .init(getListOfTags: downloadTagsList)
                 )
             )
         )
