@@ -16,7 +16,7 @@ struct ChapterView: View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
                 VStack(spacing: 0) {
-                    ForEach(viewStore.areChaptersShown ? viewStore.chapterDetails : []) { chapter in
+                    ForEach(viewStore.chapterDetails) { chapter in
                         makeChapterView(chapter: chapter)
                         
                         Rectangle()
@@ -30,8 +30,8 @@ struct ChapterView: View {
                 HStack {
                     Circle()
                         .fill(.white)
-                        .frame(width: 10, height: 10)
-                        .padding(.trailing)
+                        .frame(width: 5, height: 5)
+                        .padding(.trailing, 5)
                     
                     Text(viewStore.chapter.chapterName)
                         .font(.title3)

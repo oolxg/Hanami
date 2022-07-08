@@ -26,7 +26,7 @@ struct MangaView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             VStack {
-                ScrollView(showsIndicators: false) {
+                ScrollView(showsIndicators: true) {
                     header
                     
                     LazyVStack(pinnedViews: .sectionHeaders) {
@@ -35,6 +35,8 @@ struct MangaView: View {
                         } header: {
                             pinnedNavigation
                         }
+                        
+                        Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                     }
                 }
                 .onAppear {
@@ -191,19 +193,15 @@ extension MangaView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding()
             } else {
-                LazyVStack {
-                    ForEachStore(
-                        store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
-                    ) { volumeStore in
-                        VolumeTabView(store: volumeStore)
-                        
-                        Rectangle()
-                            .fill(Color.theme.darkGray)
-                            .frame(height: 1.5)
-                            .padding(.leading, 50)
-                    }
+                ForEachStore(
+                    store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
+                ) { volumeStore in
+                    VolumeTabView(store: volumeStore)
                     
-                    Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
+                    Rectangle()
+                        .fill(Color.theme.darkGray)
+                        .frame(height: 1.5)
+                        .padding(.leading, 50)
                 }
             }
         }
