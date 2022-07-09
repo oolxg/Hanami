@@ -167,7 +167,7 @@ extension MangaView {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
                 case .about:
-                    mangaInfoView
+                    aboutSection
                 case .chapters:
                     chaptersSection
                 case .coverArt:
@@ -260,9 +260,9 @@ extension MangaView {
         }
     }
     
-    private var mangaInfoView: some View {
+    private var aboutSection: some View {
         WithViewStore(store.actionless) { viewStore in
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 10) {
                 if let statistics = viewStore.statistics {
                     HStack(alignment: .top, spacing: 10) {
                         HStack(alignment: .top, spacing: 0) {
@@ -285,6 +285,7 @@ extension MangaView {
                 
                 tags
             }
+            .padding(.leading)
         }
     }
     
@@ -314,19 +315,22 @@ extension MangaView {
                 
                 Divider()
                 
-                GridChipsView(
-                    viewStore.manga.attributes.tags,
-                    width: UIScreen.main.bounds.width
-                ) { tag in
-                    Text(tag.name.capitalized)
-                        .font(.callout)
-                        .lineLimit(1)
-                        .padding(10)
-                        .foregroundColor(.white)
-                        .background(Color.theme.darkGray)
-                        .cornerRadius(10)
+                VStack(alignment: .leading) {
+                    GridChipsView(
+                        viewStore.manga.attributes.tags,
+                        width: UIScreen.main.bounds.width * 0.95
+                    ) { tag in
+                        Text(tag.name.capitalized)
+                            .font(.callout)
+                            .lineLimit(1)
+                            .padding(10)
+                            .foregroundColor(.white)
+                            .background(Color.theme.darkGray)
+                            .cornerRadius(10)
+                    }
                 }
-                .padding(15)
+                .frame(minHeight: 25)
+                .padding(.vertical, 15)
                 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     Text("Demographic")

@@ -176,7 +176,7 @@ extension DatabaseClient {
         entityType: MO.Type,
         id: UUID,
         createIfNil: Bool = false,
-        commitChanges: @escaping ((MO) -> Void)
+        commitChanges: @escaping (MO) -> Void
     ) {
         AppUtil.dispatchMainSync {
             let storedMO: MO?
@@ -214,5 +214,9 @@ extension DatabaseClient {
     
     func fetchManga(id: UUID) -> Manga? {
         fetch(entityType: MangaMO.self, id: id)?.toEntity()
+    }
+
+    func fetchAllMangas() -> [Manga] {
+        batchFetch(entityType: MangaMO.self).map { $0.toEntity() }
     }
 }

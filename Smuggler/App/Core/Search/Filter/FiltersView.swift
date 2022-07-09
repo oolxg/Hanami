@@ -208,17 +208,28 @@ extension FiltersView {
         _ path: KeyPath<FiltersState, IdentifiedArrayOf<FilterTag>>, navTitle: String? = nil
     ) -> some View {
         ZStack(alignment: .topLeading) {
-            if navTitle != nil {
+            if let navTitle = navTitle {
                 Color.clear
-                    .navigationTitle(navTitle!)
+                    .navigationTitle(navTitle)
             }
             
             WithViewStore(store) { viewStore in
-                GridChipsView(viewStore.state[keyPath: path], width: UIScreen.main.bounds.width / 1.1) { tag in
-                    makeChipsViewFor(tag)
-                        .onTapGesture {
-                            viewStore.send(.filterTagButtonTapped(tag))
+                if AppUtil.isIpad {
+                    GeometryReader { geo in
+                        GridChipsView(viewStore.state[keyPath: path], width: geo.size.width * 0.95) { tag in
+                            makeChipsViewFor(tag)
+                                .onTapGesture {
+                                    viewStore.send(.filterTagButtonTapped(tag))
+                                }
                         }
+                    }
+                } else {
+                    GridChipsView(viewStore.state[keyPath: path], width: UIScreen.main.bounds.width * 0.95) { tag in
+                        makeChipsViewFor(tag)
+                            .onTapGesture {
+                                viewStore.send(.filterTagButtonTapped(tag))
+                            }
+                    }
                 }
             }
         }

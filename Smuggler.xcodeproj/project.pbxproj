@@ -90,6 +90,7 @@
 		22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E385922857D5BE00F034BA /* ScanlationGroup.swift */; };
 		22F42DCE285FDBDD00E9E547 /* UITabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F42DCD285FDBDD00E9E547 /* UITabBar.swift */; };
 		22FDCE63284B865F0059FD6E /* FilterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FDCE62284B865F0059FD6E /* FilterModels.swift */; };
+		33240488313929035E6B311D /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 33240CCD5BD875E1E9324710 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -208,6 +209,7 @@
 		22E385922857D5BE00F034BA /* ScanlationGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanlationGroup.swift; sourceTree = "<group>"; };
 		22F42DCD285FDBDD00E9E547 /* UITabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITabBar.swift; sourceTree = "<group>"; };
 		22FDCE62284B865F0059FD6E /* FilterModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterModels.swift; sourceTree = "<group>"; };
+		33240CCD5BD875E1E9324710 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -385,6 +387,7 @@
 				224C658B2827204300AAEF2E /* SmugglerTests */,
 				224C65952827204300AAEF2E /* SmugglerUITests */,
 				224C65792827204100AAEF2E /* Products */,
+				33240CCD5BD875E1E9324710 /* .gitignore */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 0;
@@ -653,6 +656,7 @@
 			files = (
 				224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */,
 				224C65802827204300AAEF2E /* Assets.xcassets in Resources */,
+				33240488313929035E6B311D /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

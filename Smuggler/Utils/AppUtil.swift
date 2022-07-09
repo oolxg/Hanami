@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum AppUtil {
     static var version: String {
@@ -45,5 +46,9 @@ enum AppUtil {
         
         encoder.dateEncodingStrategy = .formatted(fmt)
         return encoder
+    }
+    
+    static var isIpad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
     }
 }
