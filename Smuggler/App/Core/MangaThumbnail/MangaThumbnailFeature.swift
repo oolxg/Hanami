@@ -45,6 +45,7 @@ enum MangaThumbnailAction {
 
 struct MangaThumbnailEnvironment {
     var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, AppError>
+    var databaseClient: DatabaseClient
 }
 
 // This struct is to cancel deletion cache manga info.
@@ -59,11 +60,12 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
     mangaViewReducer.pullback(
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,
-        environment: { _ in .live(
+        environment: { env in .live(
             environment: .init(
                 fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
                 fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
-                fetchMangaStatistics: fetchMangaStatistics
+                fetchMangaStatistics: fetchMangaStatistics,
+                databaseClient: env.databaseClient
             )
         ) }
     ),

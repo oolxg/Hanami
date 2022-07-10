@@ -2,7 +2,7 @@
 //  MangaMO+CoreDataClass.swift
 //  Smuggler
 //
-//  Created by mk.pwnz on 03/07/2022.
+//  Created by mk.pwnz on 10/07/2022.
 //
 //
 
@@ -15,8 +15,8 @@ public class MangaMO: NSManagedObject { }
 extension MangaMO: IdentifiableMO { }
 
 extension MangaMO: ManagedObjectProtocol {
-    func toEntity(decoder: JSONDecoder = AppUtil.decoder) -> Manga {
-        return Manga(
+    func toEntity() -> Manga {
+        Manga(
             id: id,
             type: .manga,
             attributes: attributes.decodeToObject()!,
@@ -27,23 +27,22 @@ extension MangaMO: ManagedObjectProtocol {
 
 extension Manga: ManagedObjectConvertible {
     @discardableResult
-    func toManagedObject(in context: NSManagedObjectContext) -> MangaMO {
+    func toManagedObject(in context: NSManagedObjectContext, withRelationships chapters: Set<ChapterDetailsMO>? = []) -> MangaMO {
         let mangaMO = MangaMO(context: context)
         
         mangaMO.id = id
         mangaMO.attributes = attributes.toData()!
         mangaMO.relationships = relationships.toData()!
-        print(String(data: mangaMO.attributes, encoding: .utf8)!)
+        mangaMO.chapterDetailsSet = chapters!
+        
         return mangaMO
     }
 }
 
 extension MangaMO {
-    func getChapters() -> [ChapterDetails] {
-        let set = chapters as? Set<ChapterDetails> ?? []
-        
-        return set.sorted { lhs, rhs in
-            (lhs.attributes.chapterIndex ?? 99999) > (rhs.attributes.chapterIndex ?? 99999)
+    var chapterDetails: [ChapterDetails] {
+        chapterDetailsSet.map { $0.toEntity() }.sorted {
+            ($0.attributes.chapterIndex ?? -1) > ($1.attributes.chapterIndex ?? -1)
         }
     }
 }

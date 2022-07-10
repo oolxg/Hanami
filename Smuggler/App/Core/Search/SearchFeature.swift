@@ -57,6 +57,7 @@ enum SearchAction: BindableAction {
 struct SearchEnvironment {
     var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, AppError>
     var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
+    var databaseClient: DatabaseClient
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEnvironment>> = .combine(
@@ -64,11 +65,14 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
         .forEach(
             state: \.mangaThumbnailStates,
             action: /SearchAction.mangaThumbnailAction,
-            environment: { _ in .live(
-                environment: .init(
-                    loadThumbnailInfo: downloadThumbnailInfo
+            environment: {
+                .live(
+                    environment: .init(
+                        loadThumbnailInfo: downloadThumbnailInfo,
+                        databaseClient: $0.databaseClient
+                    )
                 )
-            ) }
+            }
         ),
     filterReducer
         .pullback(

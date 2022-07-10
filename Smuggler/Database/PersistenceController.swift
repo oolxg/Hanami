@@ -56,14 +56,14 @@ extension PersistenceController {
 
 protocol ManagedObjectProtocol {
     associatedtype Entity
-    func toEntity(decoder: JSONDecoder) -> Entity
+    func toEntity() -> Entity
 }
 
 protocol ManagedObjectConvertible {
     associatedtype ManagedObject: NSManagedObject, ManagedObjectProtocol
-    
+    associatedtype RelationshipMO
     @discardableResult
-    func toManagedObject(in context: NSManagedObjectContext) -> ManagedObject
+    func toManagedObject(in context: NSManagedObjectContext, withRelationships: RelationshipMO?) -> ManagedObject
 }
 
 protocol IdentifiableMO: NSManagedObject {

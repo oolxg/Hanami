@@ -48,7 +48,8 @@ struct SearchView_Previews: PreviewProvider {
                 environment: .live(
                     environment: .init(
                         searchManga: makeMangaSearchRequest,
-                        fetchStatistics: fetchMangaStatistics
+                        fetchStatistics: fetchMangaStatistics,
+                        databaseClient: .live
                     )
                 )
             )

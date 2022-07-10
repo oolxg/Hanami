@@ -9,7 +9,6 @@ import Foundation
 
 // MARK: - Chapter
 struct ChapterPagesInfo: Codable {
-    let result: String
     let baseURL: String
     let chapter: ChapterInfo
 
@@ -20,7 +19,6 @@ struct ChapterPagesInfo: Codable {
     }
     
     enum CodingKeys: String, CodingKey {
-        case result
         case baseURL = "baseUrl"
         case chapter
     }

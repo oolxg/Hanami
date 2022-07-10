@@ -43,17 +43,3 @@ struct RootView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-
-struct RootView_Previews: PreviewProvider {
-    static var previews: some View {
-        RootView(
-            store: .init(
-                initialState: .init(selectedTab: .home),
-                reducer: rootReducer,
-                environment: .live(
-                    environment: .init()
-                )
-            )
-        )
-    }
-}

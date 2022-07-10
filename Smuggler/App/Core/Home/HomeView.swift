@@ -49,7 +49,8 @@ struct HomeView_Previews: PreviewProvider {
                 environment: .live(
                     environment: .init(
                         loadHomePage: downloadMangaList,
-                        fetchStatistics: fetchMangaStatistics
+                        fetchStatistics: fetchMangaStatistics,
+                        databaseClient: .live
                     )
                 )
             )

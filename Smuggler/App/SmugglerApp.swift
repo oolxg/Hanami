@@ -13,10 +13,8 @@ struct SmugglerApp: App {
     let store: Store<AppState, AppAction> = .init(
         initialState: AppState(rootState: .init(selectedTab: .home)),
         reducer: appReducer,
-        environment: .live(
-            environment: .init(
-                databaseClient: DatabaseClient.live
-            )
+        environment: .init(
+            databaseClient: .live
         )
     )
     @ObservedObject private var viewStore: ViewStore<AppState, AppAction>

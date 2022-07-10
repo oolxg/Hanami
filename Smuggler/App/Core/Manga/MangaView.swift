@@ -12,12 +12,12 @@ import Kingfisher
 
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
-    
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
+    @State private var artSectionHeight = 0.0
+    @State private var shouldShowChapters = true
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
-    @State private var artSectionHeight = 0.0
 
     private var isViewScrolledDown: Bool {
         headerOffset.0 < 9
@@ -25,40 +25,41 @@ struct MangaView: View {
     
     var body: some View {
         WithViewStore(store) { viewStore in
-            VStack {
-                ScrollView(showsIndicators: true) {
-                    header
-                    
-                    LazyVStack(pinnedViews: .sectionHeaders) {
-                        Section {
-                            mangaBodyView
-                        } header: {
-                            pinnedNavigation
-                        }
-                        
-                        Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
+            ScrollView(showsIndicators: false) {
+                header
+                
+                LazyVStack(pinnedViews: .sectionHeaders) {
+                    Section {
+                        mangaBodyView
+                    } header: {
+                        pinnedNavigation
                     }
+                    
+                    Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                 }
-                .onAppear {
-                    viewStore.send(.onAppear)
-                }
-                .overlay(
-                    Rectangle()
-                        .fill(.black)
-                        .frame(height: 50)
-                        .frame(maxHeight: .infinity, alignment: .top)
-                        .opacity(isViewScrolledDown ? 1 : 0)
+            }
+            .onAppear { viewStore.send(.onAppear) }
+            .overlay(
+                Rectangle()
+                    .fill(.black)
+                    .frame(height: 50)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .opacity(isViewScrolledDown ? 1 : 0)
+            )
+            .navigationBarHidden(true)
+            .coordinateSpace(name: "scroll")
+            .ignoresSafeArea()
+            .background(
+                NavigationLink(
+                    destination: mangaReadingView,
+                    isActive: viewStore.binding(\.$isUserOnReadingView),
+                    label: { EmptyView() }
                 )
-                .navigationBarHidden(true)
-                .coordinateSpace(name: "scroll")
-                .ignoresSafeArea()
-                .background(
-                    NavigationLink(
-                        destination: mangaReadingView,
-                        isActive: viewStore.binding(\.$isUserOnReadingView),
-                        label: { EmptyView() }
-                    )
-                )
+            )
+            .onChange(of: viewStore.selectedTab) { newValue in
+                // this hack is needed because `chaptersSection` returns volumes as simple ForEach - w/o any container
+                // so view will blink, and this is not good for UX
+                shouldShowChapters = newValue == .chapters
             }
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
@@ -71,23 +72,10 @@ struct MangaView: View {
     }
 }
 
+
 struct MangaView_Previews: PreviewProvider {
     static var previews: some View {
-        MangaView(
-            store: .init(
-                initialState: .init(
-                    manga: dev.manga
-                ),
-                reducer: mangaViewReducer,
-                environment: .live(
-                    environment: .init(
-                        fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
-                        fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
-                        fetchMangaStatistics: fetchMangaStatistics
-                    )
-                )
-            )
-        )
+        EmptyView()
     }
 }
 
@@ -104,15 +92,13 @@ extension MangaView {
     }
     
     private var header: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
-                let size = geo.size
-                let height = size.height + minY
+                let height = geo.size.height + minY
                 
                 KFImage.url(
-                    viewStore.mainCoverArtURL,
-                    cacheKey: viewStore.mainCoverArtURL?.absoluteString
+                    viewStore.mainCoverArtURL
                 )
                 .resizable()
                 .scaledToFill()
@@ -126,7 +112,20 @@ extension MangaView {
                         )
                         
                         VStack(alignment: .leading, spacing: 12) {
-                            backButton
+                            HStack {
+                                backButton
+                                
+                                Spacer()
+                                
+                                Button {
+                                    fatalError("Разделить reducer в MangaFeature на два подстейта - когда есть и когда нет сети")
+                                    // глянуть также SwitchStore или как то так
+                                } label: {
+                                    Image(systemName: "bookmark")
+                                        .foregroundColor(.white)
+                                        .padding(.vertical)
+                                }
+                            }
                             
                             Spacer()
                             
@@ -174,7 +173,7 @@ extension MangaView {
                     coverArtSection
             }
         }
-        .transition(.opacity)
+        .transition(.opacity.animation(.linear(duration: 0.2)))
         .padding(.horizontal, 5)
     }
     
@@ -193,15 +192,12 @@ extension MangaView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding()
             } else {
-                ForEachStore(
-                    store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction)
-                ) { volumeStore in
-                    VolumeTabView(store: volumeStore)
-                    
-                    Rectangle()
-                        .fill(Color.theme.darkGray)
-                        .frame(height: 1.5)
-                        .padding(.leading, 50)
+                if shouldShowChapters {
+                    ForEachStore(
+                        store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction),
+                        content: VolumeTabView.init
+                    )
+                    .transition(.opacity.animation(.linear(duration: 0.2)))
                 }
             }
         }
@@ -212,36 +208,30 @@ extension MangaView {
             GeometryReader { geo in
                 let columnsCount = Int(geo.size.width / 160)
                 
-                LazyVGrid(
-                    columns: Array(
-                        repeating: GridItem(.flexible(), spacing: 10),
-                        count: columnsCount
-                    )
-                ) {
-                    ForEach(0..<viewStore.coverArtURLs.count, id: \.self) { coverArtIndex in
-                        KFImage.url(
-                            viewStore.coverArtURLs[coverArtIndex],
-                            cacheKey: viewStore.coverArtURLs[coverArtIndex].absoluteString
-                        )
-                        .fade(duration: 0.3)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 240)
-                        .padding(.horizontal, 5)
-                        .overlay(
-                            ZStack(alignment: .bottom) {
-                                if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
-                                    LinearGradient(
-                                        colors: [.clear, .clear, .black],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                    
-                                    Text("Volume \(volumeName)")
-                                        .font(.callout)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columnsCount)) {
+                    ForEach(viewStore.coverArtURLs.indices, id: \.self) { coverArtIndex in
+                        let coverArtURL = viewStore.coverArtURLs[coverArtIndex]
+                        
+                        KFImage.url(coverArtURL)
+                            .fade(duration: 0.3)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 240)
+                            .padding(.horizontal, 5)
+                            .overlay(
+                                ZStack(alignment: .bottom) {
+                                    if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
+                                        LinearGradient(
+                                            colors: [.clear, .clear, .black],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                        
+                                        Text("Volume \(volumeName)")
+                                            .font(.callout)
+                                    }
                                 }
-                            }
-                        )
+                            )
                     }
                 }
                 .onAppear {
@@ -281,27 +271,21 @@ extension MangaView {
                     .font(.subheadline)
                 }
                 
-                description
+                VStack(alignment: .leading) {
+                    Text("Description")
+                        .font(.headline)
+                        .fontWeight(.black)
+                        .padding(10)
+                    
+                    Divider()
+                    
+                    Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
+                        .padding(15)
+                }
                 
                 tags
             }
             .padding(.leading)
-        }
-    }
-    
-    private var description: some View {
-        WithViewStore(store.actionless) { viewStore in
-            VStack(alignment: .leading) {
-                Text("Description")
-                    .font(.headline)
-                    .fontWeight(.black)
-                    .padding(10)
-                
-                Divider()
-                
-                Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                    .padding(15)
-            }
         }
     }
     
@@ -395,7 +379,7 @@ extension MangaView {
         )
     }
     
-    @ViewBuilder private func makeSectionFor(tab: MangaViewState.SelectedTab) -> some View {
+    private func makeSectionFor(tab: MangaViewState.SelectedTab) -> some View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)
@@ -421,35 +405,35 @@ extension MangaView {
             }
         }
     }
-}
-
-struct MangaViewOffsetModifier: ViewModifier {
-    @Binding var offset: CGFloat
-    @State private var startValue: CGFloat = 0
-    var returnFromStart = true
     
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(key: MangaViewOffsetKey.self, value: geo.frame(in: .named("scroll")).minY)
-                        .onPreferenceChange(MangaViewOffsetKey.self) { value in
-                            if startValue == 0 {
-                                startValue = value
+    struct MangaViewOffsetModifier: ViewModifier {
+        @Binding var offset: CGFloat
+        @State private var startValue: CGFloat = 0
+        var returnFromStart = true
+        
+        func body(content: Content) -> some View {
+            content
+                .overlay(
+                    GeometryReader { geo in
+                        Color.clear
+                            .preference(key: MangaViewOffsetKey.self, value: geo.frame(in: .named("scroll")).minY)
+                            .onPreferenceChange(MangaViewOffsetKey.self) { value in
+                                if startValue == 0 {
+                                    startValue = value
+                                }
+                                
+                                offset = value - (returnFromStart ? startValue : 0)
                             }
-                            
-                            offset = value - (returnFromStart ? startValue : 0)
-                        }
-                }
-            )
+                    }
+                )
+        }
     }
-}
-
-struct MangaViewOffsetKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
     
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+    struct MangaViewOffsetKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = nextValue()
+        }
     }
 }

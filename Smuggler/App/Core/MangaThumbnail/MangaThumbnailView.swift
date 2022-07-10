@@ -64,7 +64,8 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                 reducer: mangaThumbnailReducer,
                 environment: .live(
                     environment: .init(
-                        loadThumbnailInfo: downloadThumbnailInfo
+                        loadThumbnailInfo: downloadThumbnailInfo,
+                        databaseClient: .live
                     )
                 )
             )
@@ -77,8 +78,7 @@ extension MangaThumbnailView {
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
             KFImage.url(
-                viewStore.coverArtURL,
-                cacheKey: viewStore.coverArtURL?.absoluteString
+                viewStore.coverArtURL
             )
             .placeholder {
                 Color.black

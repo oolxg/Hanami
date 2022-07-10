@@ -216,7 +216,52 @@ extension DatabaseClient {
         fetch(entityType: MangaMO.self, id: id)?.toEntity()
     }
 
-    func fetchAllMangas() -> [Manga] {
+    func fetchAllCachedMangas() -> [Manga] {
         batchFetch(entityType: MangaMO.self).map { $0.toEntity() }
+    }
+}
+
+extension DatabaseClient {
+    func cacheChapterDetails(_ chapterDetails: ChapterDetails, forManga manga: Manga) -> Effect<Never, Never> {
+        .fireAndForget {
+            DispatchQueue.main.async {
+                let mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
+                    mangaManagedObject?.id = manga.id
+                    mangaManagedObject?.relationships = manga.relationships.toData()!
+                    mangaManagedObject?.attributes = manga.attributes.toData()!
+                }
+                
+                if mangaMO == nil {
+                    manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+                }
+                
+                let chapterDetailsMO = fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) { chapterDetailsManagedObject in
+                    chapterDetailsManagedObject?.id = chapterDetails.id
+                    chapterDetailsManagedObject?.relationships = chapterDetails.relationships.toData()!
+                    chapterDetailsManagedObject?.attributes = chapterDetails.attributes.toData()!
+                    chapterDetailsManagedObject?.fromManga = mangaMO!
+                }
+                
+                if chapterDetailsMO == nil {
+                    chapterDetails.toManagedObject(
+                        in: PersistenceController.shared.container.viewContext, withRelationships: mangaMO
+                    )
+                }
+                
+                saveContext()
+            }
+        }
+    }
+    
+    func fetchChaptersForManga(mangaID: UUID) -> [ChapterDetails] {
+        guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
+            return []
+        }
+        
+        return manga.chapterDetails
+    }
+    
+    func fetchAllChapters() -> [ChapterDetails] {
+        batchFetch(entityType: ChapterDetailsMO.self).map { $0.toEntity() }
     }
 }

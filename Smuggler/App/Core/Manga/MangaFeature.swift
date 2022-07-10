@@ -97,7 +97,6 @@ enum MangaViewAction: BindableAction {
     case volumesDownloaded(Result<VolumesContainer, AppError>)
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
-    case userOpenedCoverArtSection
     
     // MARK: - Substate actions
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
@@ -118,6 +117,7 @@ struct MangaViewEnvironment {
     var fetchAllCoverArtsInfo: (UUID, JSONDecoder) -> Effect<Response<[CoverArtInfo]>, AppError>
     
     var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
+    var databaseClient: DatabaseClient
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment<MangaViewEnvironment>> = .combine(
@@ -162,20 +162,13 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                         
                 return effects.isEmpty ? .none : .merge(effects)
                 
-            case .userOpenedCoverArtSection:
-                guard state.allCoverArtsInfo.isEmpty else {
-                    return .none
-                }
-                
-                return env.fetchAllCoverArtsInfo(state.manga.id, env.decoder())
-                    .receive(on: env.mainQueue())
-                    .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
-                
             case .mangaTabChanged(let newTab):
                 state.selectedTab = newTab
                 
-                if newTab == .coverArt {
-                    return Effect(value: MangaViewAction.userOpenedCoverArtSection)
+                if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
+                    return env.fetchAllCoverArtsInfo(state.manga.id, env.decoder())
+                        .receive(on: env.mainQueue())
+                        .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
                 }
                 
                 return .none

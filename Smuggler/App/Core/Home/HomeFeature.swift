@@ -22,6 +22,7 @@ enum HomeAction {
 struct HomeEnvironment {
     var loadHomePage: (JSONDecoder) -> Effect<Response<[Manga]>, AppError>
     var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
+    var databaseClient: DatabaseClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironment>>.combine(
@@ -29,11 +30,14 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
         .forEach(
             state: \.mangaThumbnailStates,
             action: /HomeAction.mangaThumbnailAction,
-            environment: { _ in .live(
-                environment: .init(
-                    loadThumbnailInfo: downloadThumbnailInfo
+            environment: {
+                .live(
+                    environment: .init(
+                        loadThumbnailInfo: downloadThumbnailInfo,
+                        databaseClient: $0.databaseClient
+                    )
                 )
-            ) }
+            }
         ),
     Reducer { state, action, env in
         switch action {

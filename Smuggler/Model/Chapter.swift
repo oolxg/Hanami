@@ -55,6 +55,6 @@ extension Chapter {
 
 extension Chapter {
     var chapterName: String {
-        chapterIndex == nil ? "Oneshot" : "Chapter \(chapterIndex!.clean())"
+        chapterIndex == nil ? "Chapter" : "Chapter \(chapterIndex!.clean())"
     }
 }

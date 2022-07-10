@@ -56,17 +56,18 @@ struct ChapterDetails: Codable {
     
     // MARK: - Attributes
     struct Attributes: Codable {
-        let chapterIndex: Double?
         let createdAt: Date
-        let externalURL: URL?
         let pagesCount: Int
         let publishAt: Date
-        let readableAt: Date?
-        let title: String?
         let translatedLanguage: String
         let updatedAt: Date
         let version: Int
-        let volumeIndex: String?
+
+        @NullCodable var chapterIndex: Double?
+        @NullCodable var externalURL: URL?
+        @NullCodable var readableAt: Date?
+        @NullCodable var title: String?
+        @NullCodable var volumeIndex: String?
         
         // swiftlint:disable:next nesting
         enum CodingKeys: String, CodingKey {
@@ -98,15 +99,21 @@ extension ChapterDetails.Attributes {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: ChapterDetails.Attributes.CodingKeys.self)
         
-        if try container.decode(String?.self, forKey: .chapterIndex) != nil {
-            chapterIndex = Double(try container.decode(
-                String?.self,
-                forKey: .chapterIndex
-            // swiftlint:disable:next multiline_function_chains
-            )!.replacingOccurrences(of: ",", with: "."))
-        } else {
-            chapterIndex = nil
+        // this needed because we get `chapterIndex` as String from MangaDex API, but we use it and save it as Double
+        do {
+            if try container.decode(String?.self, forKey: .chapterIndex) != nil {
+                chapterIndex = Double(try container.decode(
+                    String?.self,
+                    forKey: .chapterIndex
+                    // swiftlint:disable:next multiline_function_chains
+                )!.replacingOccurrences(of: ",", with: "."))
+            } else {
+                chapterIndex = nil
+            }
+        } catch DecodingError.typeMismatch {
+            chapterIndex = try container.decode(Double?.self, forKey: .chapterIndex)
         }
+        
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         externalURL = try container.decode(URL?.self, forKey: .externalURL)
         pagesCount = try container.decode(Int.self, forKey: .pagesCount)

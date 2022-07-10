@@ -47,6 +47,12 @@ struct VolumeTabView: View {
             .padding(.horizontal, 10)
             .animation(.linear, value: areChaptersShown)
             .frame(maxWidth: .infinity)
+            
+            
+            Rectangle()
+                .fill(Color.theme.darkGray)
+                .frame(height: 1.5)
+                .padding(.leading, 50)
         }
     }
 }

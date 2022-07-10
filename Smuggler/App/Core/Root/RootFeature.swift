@@ -26,29 +26,34 @@ enum RootAction {
 }
 
 struct RootEnvironment {
-    init() { }
+    var databaseClient: DatabaseClient
 }
 
-let rootReducer = Reducer<RootState, RootAction, SystemEnvironment<RootEnvironment>>.combine(
+let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
     homeReducer
         .pullback(
             state: \.homeState,
             action: /RootAction.homeAction,
-            environment: { _ in .live(
-                environment: .init(
-                    loadHomePage: downloadMangaList,
-                    fetchStatistics: fetchMangaStatistics
+            environment: {
+                .live(
+                    environment: .init(
+                        loadHomePage: downloadMangaList,
+                        fetchStatistics: fetchMangaStatistics,
+                        databaseClient: $0.databaseClient
+                    )
                 )
-            ) }
+            }
         ),
     searchReducer
         .pullback(
             state: \.searchState,
             action: /RootAction.searchAction,
-            environment: { _ in .live(
+            environment: {
+                .live(
                     environment: .init(
                         searchManga: makeMangaSearchRequest,
-                        fetchStatistics: fetchMangaStatistics
+                        fetchStatistics: fetchMangaStatistics,
+                        databaseClient: $0.databaseClient
                     )
                 )
             }

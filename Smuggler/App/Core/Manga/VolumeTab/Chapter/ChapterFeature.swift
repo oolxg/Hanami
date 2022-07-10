@@ -64,7 +64,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 let chapterID = state.chapter.id
                 effects.append(
                     env.downloadChapterInfo(chapterID, env.decoder())
-                        .delay(for: .seconds(0.8), scheduler: env.mainQueue())
+                        .delay(for: .seconds(0.3), scheduler: env.mainQueue())
                         .receive(on: env.mainQueue())
                         .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
                         .animation(.linear)
@@ -75,7 +75,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 if state.chapterDetails[id: otherChapterID] == nil {
                     effects.append(
                         env.downloadChapterInfo(otherChapterID, env.decoder())
-                            .delay(for: .seconds(0.8), scheduler: env.mainQueue())
+                            .delay(for: .seconds(0.3), scheduler: env.mainQueue())
                             .receive(on: env.mainQueue())
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
@@ -115,7 +115,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     }
                     
                     if state.loadingChapterDetailsCount == 0 {
-                        state.shouldShowActivityIndicator = false
+                        state.chapterDetails.sort { $0.languageFlag > $1.languageFlag }
                         state.areChaptersShown = true
                     }
                     
@@ -132,7 +132,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                     print("error on downloading chapter details, \(error)")
                     
                     if state.loadingChapterDetailsCount == 0 {
-                        state.shouldShowActivityIndicator = false
+                        state.chapterDetails.sort { $0.languageFlag > $1.languageFlag }
                         state.areChaptersShown = true
                     }
                     

@@ -46,6 +46,7 @@ struct ChapterView: View {
                             .transition(.opacity)
                     }
                 }
+                .animation(.linear, value: viewStore.shouldShowActivityIndicator)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {

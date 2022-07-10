@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="ChapterDetailsMO" representedClassName="ChapterDetailsMO" syncable="YES">
-        <attribute name="attributes" optional="YES" attributeType="Binary"/>
+        <attribute name="attributes" attributeType="Binary"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="relationships" optional="YES" attributeType="Binary"/>
-        <relationship name="fromManga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MangaMO" inverseName="chapters" inverseEntity="MangaMO"/>
+        <attribute name="relationships" attributeType="Binary"/>
+        <relationship name="chapterPagesInfoMO" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ChapterPagesInfoMO" inverseName="fromChapter" inverseEntity="ChapterPagesInfoMO"/>
+        <relationship name="fromManga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MangaMO" inverseName="chapterDetailsSet" inverseEntity="MangaMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="ChapterPagesInfoMO" representedClassName="ChapterPagesInfoMO" syncable="YES">
+        <attribute name="baseURL" attributeType="String"/>
+        <attribute name="chapter" attributeType="Binary"/>
+        <attribute name="chapterID" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="fromChapter" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ChapterDetailsMO" inverseName="chapterPagesInfoMO" inverseEntity="ChapterDetailsMO"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="chapterID"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="MangaMO" representedClassName="MangaMO" syncable="YES">
-        <attribute name="attributes" optional="YES" attributeType="Binary"/>
+        <attribute name="attributes" attributeType="Binary"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="relationships" optional="YES" attributeType="Binary"/>
-        <relationship name="chapters" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ChapterDetailsMO" inverseName="fromManga" inverseEntity="ChapterDetailsMO"/>
+        <attribute name="relationships" attributeType="Binary"/>
+        <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="ChapterDetailsMO" inverseName="fromManga" inverseEntity="ChapterDetailsMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -23,7 +35,8 @@
         </uniquenessConstraints>
     </entity>
     <elements>
-        <element name="MangaMO" positionX="-54" positionY="-9" width="128" height="103"/>
-        <element name="ChapterDetailsMO" positionX="193.1669921875" positionY="-8.89251708984375" width="128" height="103"/>
+        <element name="ChapterDetailsMO" positionX="150.7620849609375" positionY="-9.60968017578125" width="128" height="104"/>
+        <element name="MangaMO" positionX="-54" positionY="-9" width="128" height="89"/>
+        <element name="ChapterPagesInfoMO" positionX="45" positionY="27" width="128" height="89"/>
     </elements>
 </model>
