@@ -33,15 +33,13 @@ enum VolumeTabAction {
 struct VolumeTabEnvironment { }
 
 // this reducer is only to store chapters more coniviniently
-let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, SystemEnvironment<VolumeTabEnvironment>> = .combine(
+let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, VolumeTabEnvironment> = .combine(
     chapterReducer.forEach(
         state: \.chapterStates,
         action: /VolumeTabAction.chapterAction,
-        environment: { _ in .live(
-            environment: .init(
-                downloadChapterInfo: downloadChapterInfo,
-                fetchScanlationGroupInfo: fetchScanlationGroupInfo
-            )
+        environment: { _ in  .init(
+            downloadChapterInfo: downloadChapterInfo,
+            fetchScanlationGroupInfo: fetchScanlationGroupInfo
         ) }
     )
 )

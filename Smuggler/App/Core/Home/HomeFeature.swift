@@ -20,22 +20,20 @@ enum HomeAction {
 }
 
 struct HomeEnvironment {
-    var loadHomePage: (JSONDecoder) -> Effect<Response<[Manga]>, AppError>
+    var loadHomePage: () -> Effect<Response<[Manga]>, AppError>
     var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
     var databaseClient: DatabaseClient
 }
 
-let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironment>>.combine(
+let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
             action: /HomeAction.mangaThumbnailAction,
             environment: {
-                .live(
-                    environment: .init(
-                        loadThumbnailInfo: downloadThumbnailInfo,
-                        databaseClient: $0.databaseClient
-                    )
+                .init(
+                    loadThumbnailInfo: downloadThumbnailInfo,
+                    databaseClient: $0.databaseClient
                 )
             }
         ),
@@ -44,8 +42,8 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
             case .onAppear:
                 if !state.mangaThumbnailStates.isEmpty { return .none }
                 
-                return env.loadHomePage(env.decoder())
-                    .receive(on: env.mainQueue())
+                return env.loadHomePage()
+                    .receive(on: DispatchQueue.main)
                     .catchToEffect(HomeAction.dataLoaded)
                 
             case .dataLoaded(let result):
@@ -55,7 +53,7 @@ let homeReducer = Reducer<HomeState, HomeAction, SystemEnvironment<HomeEnvironme
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         return env.fetchStatistics(response.data.map(\.id))
-                            .receive(on: env.mainQueue())
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(HomeAction.mangaStatisticsFetched)
                         
                     case .failure(let error):

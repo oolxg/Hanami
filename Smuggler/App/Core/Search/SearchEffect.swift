@@ -19,7 +19,7 @@ enum QuerySortOption: String {
     }
 }
 
-func makeMangaSearchRequest(requestParams: SearchState.RequestParams, decoder: JSONDecoder) -> Effect<Response<[Manga]>, AppError> {
+func makeMangaSearchRequest(requestParams: SearchState.SearchParams) -> Effect<Response<[Manga]>, AppError> {
     var components = URLComponents()
     
     components.scheme = "https"
@@ -71,7 +71,7 @@ func makeMangaSearchRequest(requestParams: SearchState.RequestParams, decoder: J
         .validateResponseCode()
         .retry(3)
         .map(\.data)
-        .decode(type: Response<[Manga]>.self, decoder: decoder)
+        .decode(type: Response<[Manga]>.self, decoder: AppUtil.decoder)
         .mapError { err -> AppError in
             if let err = err as? URLError {
                 return AppError.downloadError(err)

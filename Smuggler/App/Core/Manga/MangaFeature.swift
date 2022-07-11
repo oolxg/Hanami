@@ -110,32 +110,26 @@ struct MangaViewEnvironment {
     var fetchChaptersFromExactScanlationGroup: (
         _ mangaID: UUID,
         _ scanlationGroup: UUID?,
-        _ translatedLanguage: String?,
-        _ decoder: JSONDecoder
+        _ translatedLanguage: String?
     ) -> Effect<VolumesContainer, AppError>
     
-    var fetchAllCoverArtsInfo: (UUID, JSONDecoder) -> Effect<Response<[CoverArtInfo]>, AppError>
+    var fetchAllCoverArtsInfo: (UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
     
     var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
     var databaseClient: DatabaseClient
 }
 
-let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment<MangaViewEnvironment>> = .combine(
+let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironment> = .combine(
     volumeTabReducer.forEach(
         state: \.volumeTabStates,
         action: /MangaViewAction.volumeTabAction,
-        environment: { _ in .live(
-                environment: .init(
-            )
-        ) }
+        environment: { _ in  .init() }
     ),
     mangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
         action: /MangaViewAction.mangaReadingViewAction,
-        environment: { _ in .live(
-            environment: .init(
-                fetchChapterPagesInfo: fetchPageInfoForChapter
-            )
+        environment: { _ in .init(
+            fetchChapterPagesInfo: fetchPageInfoForChapter
         ) }
     ),
     Reducer { state, action, env in
@@ -146,7 +140,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 if state.statistics == nil {
                     effects.append(
                         env.fetchMangaStatistics(state.manga.id)
-                            .receive(on: env.mainQueue())
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
                     )
                 }
@@ -154,8 +148,8 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 if state.volumeTabStates.isEmpty {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
-                        env.fetchChaptersFromExactScanlationGroup(state.manga.id, nil, nil, env.decoder())
-                            .receive(on: env.mainQueue())
+                        env.fetchChaptersFromExactScanlationGroup(state.manga.id, nil, nil)
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaViewAction.volumesDownloaded)
                     )
                 }
@@ -166,8 +160,8 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 state.selectedTab = newTab
                 
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
-                    return env.fetchAllCoverArtsInfo(state.manga.id, env.decoder())
-                        .receive(on: env.mainQueue())
+                    return env.fetchAllCoverArtsInfo(state.manga.id)
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
                 }
                 
@@ -246,25 +240,29 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                 
                 return .none
                 
-            // here we're handling users tap on chapter(means user wants to read chapter)
             case .volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter))):
-                    // we're looking for action on chapters
-                    // when user taps on some chapter, we send him to reading view
-                state.mangaReadingViewState = MangaReadingViewState(
+                let newMangaReadingViewState = MangaReadingViewState(
                     chapterID: chapter.id,
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
+                if state.mangaReadingViewState != newMangaReadingViewState {
+                    state.mangaReadingViewState = newMangaReadingViewState
+                }
+                
                 UITabBar.hideTabBar(animated: false)
                 
-                return env.fetchChaptersFromExactScanlationGroup(
-                    state.manga.id,
-                    chapter.scanltaionGroupID,
-                    chapter.attributes.translatedLanguage,
-                    env.decoder()
-                )
-                .receive(on: env.mainQueue())
-                .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
+                if state.sameScanlationGroupChapters != nil && !state.sameScanlationGroupChapters!.isEmpty {
+                    return .none
+                } else {
+                    return env.fetchChaptersFromExactScanlationGroup(
+                        state.manga.id,
+                        chapter.scanltaionGroupID,
+                        chapter.attributes.translatedLanguage
+                    )
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
+                }
                 
             case .volumeTabAction:
                 return .none
@@ -274,7 +272,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, SystemEnvironment
                       let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
-                    state.hudInfo.message = "🙁 This was the last chapter from this scanlation group."
+                    state.hudInfo.message = "🙁 You've read the last chapter from this scanlation group."
                     return .none
                 }
                 

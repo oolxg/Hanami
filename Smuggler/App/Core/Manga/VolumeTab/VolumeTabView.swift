@@ -15,17 +15,15 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                VStack(spacing: 0) {
-                    ForEachStore(
-                        store.scope(
-                            state: \.chapterStates,
-                            action: VolumeTabAction.chapterAction
-                        )
-                    ) { chapterState in
-                        ChapterView(store: chapterState)
-                        
-                        Divider()
-                    }
+                ForEachStore(
+                    store.scope(
+                        state: \.chapterStates,
+                        action: VolumeTabAction.chapterAction
+                    )
+                ) { chapterState in
+                    ChapterView(store: chapterState)
+                    
+                    Divider()
                 }
             } label: {
                 HStack {
@@ -43,11 +41,9 @@ struct VolumeTabView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .transition(.opacity)
-            .padding(.vertical)
-            .padding(.horizontal, 10)
+            .padding(10)
             .animation(.linear, value: areChaptersShown)
             .frame(maxWidth: .infinity)
-            
             
             Rectangle()
                 .fill(Color.theme.darkGray)
@@ -67,9 +63,7 @@ struct VolumeTabView_Previews: PreviewProvider {
                     )
                 ),
                 reducer: volumeTabReducer,
-                environment: .live(
-                    environment: .init()
-                )
+                environment: .init()
             )
         )
     }

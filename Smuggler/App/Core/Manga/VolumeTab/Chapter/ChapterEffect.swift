@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 // Example for URL https://api.mangadex.org/chapter/a33906f0-1928-4758-b6fc-f7f079e2dee2
-func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Response<ChapterDetails>, AppError> {
+func downloadChapterInfo(chapterID: UUID) -> Effect<Response<ChapterDetails>, AppError> {
     var components = URLComponents()
     
     components.scheme = "https"
@@ -24,8 +24,7 @@ func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .validateResponseCode()
         .retry(3)
         .map(\.data)
-        .debugDecode(type: Response<ChapterDetails>.self, decoder: decoder)
-        .decode(type: Response<ChapterDetails>.self, decoder: decoder)
+        .decode(type: Response<ChapterDetails>.self, decoder: AppUtil.decoder)
         .mapError { err -> AppError in
             if let err = err as? URLError {
                 return AppError.downloadError(err)
@@ -38,7 +37,7 @@ func downloadChapterInfo(chapterID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .eraseToEffect()
 }
 
-func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> Effect<Response<ScanlationGroup>, AppError> {
+func fetchScanlationGroupInfo(scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError> {
     var components = URLComponents()
     
     components.scheme = "https"
@@ -53,7 +52,7 @@ func fetchScanlationGroupInfo(scanlationGroupID: UUID, decoder: JSONDecoder) -> 
         .validateResponseCode()
         .retry(3)
         .map(\.data)
-        .decode(type: Response<ScanlationGroup>.self, decoder: decoder)
+        .decode(type: Response<ScanlationGroup>.self, decoder: AppUtil.decoder)
         .mapError { err -> AppError in
             if let err = err as? URLError {
                 return AppError.downloadError(err)

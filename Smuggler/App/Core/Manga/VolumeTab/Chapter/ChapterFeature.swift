@@ -43,8 +43,8 @@ enum ChapterAction: BindableAction {
 }
 
 struct ChapterEnvironment {
-    var downloadChapterInfo: (UUID, JSONDecoder) -> Effect<Response<ChapterDetails>, AppError>
-    var fetchScanlationGroupInfo: (UUID, JSONDecoder) -> Effect<Response<ScanlationGroup>, AppError>
+    var downloadChapterInfo: (UUID) -> Effect<Response<ChapterDetails>, AppError>
+    var fetchScanlationGroupInfo: (UUID) -> Effect<Response<ScanlationGroup>, AppError>
 }
 
 // About loading chapter pages
@@ -52,7 +52,7 @@ struct ChapterEnvironment {
 // we should load all pages when user opens chapter and only save it in caches directory
 // when user open page, we immidiately get it from cache(or load it again if something happend
 
-let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<ChapterEnvironment>> { state, action, env in
+let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { state, action, env in
     switch action {
         case .userTappedOnChapter:
             var effects: [Effect<ChapterAction, Never>] = []
@@ -63,9 +63,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                 // need this var because state is 'inout'
                 let chapterID = state.chapter.id
                 effects.append(
-                    env.downloadChapterInfo(chapterID, env.decoder())
-                        .delay(for: .seconds(0.3), scheduler: env.mainQueue())
-                        .receive(on: env.mainQueue())
+                    env.downloadChapterInfo(chapterID)
+                        .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect { ChapterAction.chapterDetailsDownloaded(result: $0, chapterID: chapterID) }
                         .animation(.linear)
                 )
@@ -74,9 +74,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
             for (i, otherChapterID) in state.chapter.others.enumerated() {
                 if state.chapterDetails[id: otherChapterID] == nil {
                     effects.append(
-                        env.downloadChapterInfo(otherChapterID, env.decoder())
-                            .delay(for: .seconds(0.3), scheduler: env.mainQueue())
-                            .receive(on: env.mainQueue())
+                        env.downloadChapterInfo(otherChapterID)
+                            .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect { ChapterAction.chapterDetailsDownloaded(
                                 result: $0,
                                 chapterID: otherChapterID
@@ -119,8 +119,8 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, SystemEnvironment<Chap
                         state.areChaptersShown = true
                     }
                     
-                    return env.fetchScanlationGroupInfo(scanlationGroupID, env.decoder())
-                        .receive(on: env.mainQueue())
+                    return env.fetchScanlationGroupInfo(scanlationGroupID)
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect {
                             ChapterAction.scanlationGroupInfoFetched(
                                 result: $0,

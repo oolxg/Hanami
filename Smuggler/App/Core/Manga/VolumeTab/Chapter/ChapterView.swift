@@ -15,14 +15,12 @@ struct ChapterView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
-                VStack(spacing: 0) {
-                    ForEach(viewStore.chapterDetails) { chapter in
-                        makeChapterView(chapter: chapter)
-                        
-                        Rectangle()
-                            .fill(.white)
-                            .frame(height: 1.5)
-                    }
+                ForEach(viewStore.chapterDetails) { chapter in
+                    makeChapterView(chapter: chapter)
+                    
+                    Rectangle()
+                        .fill(.white)
+                        .frame(height: 1.5)
                 }
                 .animation(.linear, value: viewStore.areChaptersShown)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -54,7 +52,7 @@ struct ChapterView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            .padding()
+            .padding(5)
         }
     }
 }
@@ -65,11 +63,9 @@ struct ChapterView_Previews: PreviewProvider {
             store: .init(
                 initialState: ChapterState(chapter: dev.chapter),
                 reducer: chapterReducer,
-                environment: .live(
-                    environment: .init(
-                        downloadChapterInfo: downloadChapterInfo,
-                        fetchScanlationGroupInfo: fetchScanlationGroupInfo
-                    )
+                environment: .init(
+                    downloadChapterInfo: downloadChapterInfo,
+                    fetchScanlationGroupInfo: fetchScanlationGroupInfo
                 )
             )
         )

@@ -60,13 +60,13 @@ struct FiltersEnvironment {
     var getListOfTags: () -> Effect<Response<[Tag]>, AppError>
 }
 
-let filterReducer = Reducer<FiltersState, FiltersAction, SystemEnvironment<FiltersEnvironment>> { state, action, env in
+let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { state, action, env in
     switch action {
         case .onAppear:
             guard state.allTags.isEmpty else { return .none }
             
             return env.getListOfTags()
-                .receive(on: env.mainQueue())
+                .receive(on: DispatchQueue.main)
                 .catchToEffect(FiltersAction.filterListDownloaded)
             
         case .filterListDownloaded(let result):

@@ -28,7 +28,7 @@ struct SearchState: Equatable {
     // 1) pass in search function one object, not bunch of arrays, string, enums, etc.
     // 2) to check, when going to make request, if the last request was with the same params,
     //      if yes - we don't need to make another request
-    struct RequestParams: Equatable {
+    struct SearchParams: Equatable {
         let searchQuery: String
         let resultsCount: Int
         let tags: IdentifiedArrayOf<FilterTag>
@@ -39,12 +39,12 @@ struct SearchState: Equatable {
         let sortOptionOrder: QuerySortOption.Order
     }
 
-    var lastSuccessfulRequestParams: RequestParams?
+    var lastSuccessfulRequestParams: SearchParams?
 }
 
 enum SearchAction: BindableAction {
     case searchForManga
-    case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchState.RequestParams)
+    case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchState.SearchParams)
     case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
     case searchStringChanged(String)
 
@@ -55,22 +55,20 @@ enum SearchAction: BindableAction {
 }
 
 struct SearchEnvironment {
-    var searchManga: (SearchState.RequestParams, JSONDecoder) -> Effect<Response<[Manga]>, AppError>
+    var searchManga: (SearchState.SearchParams) -> Effect<Response<[Manga]>, AppError>
     var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
     var databaseClient: DatabaseClient
 }
 
-let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEnvironment>> = .combine(
+let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
     mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
             action: /SearchAction.mangaThumbnailAction,
             environment: {
-                .live(
-                    environment: .init(
-                        loadThumbnailInfo: downloadThumbnailInfo,
-                        databaseClient: $0.databaseClient
-                    )
+                .init(
+                    loadThumbnailInfo: downloadThumbnailInfo,
+                    databaseClient: $0.databaseClient
                 )
             }
         ),
@@ -79,9 +77,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
             state: \.filtersState,
             action: /SearchAction.filterAction,
             environment: { _ in
-                .live(
-                    environment: .init(getListOfTags: downloadTagsList)
-                )
+                .init(getListOfTags: downloadTagsList)
             }
         ),
     Reducer { state, action, env in
@@ -92,7 +88,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 state.areSearchResultsDownloaded = false
                 state.searchText = query
                 return Effect(value: SearchAction.searchForManga)
-                    .debounce(id: DebounceForSearch(), for: 0.8, scheduler: env.mainQueue())
+                    .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
                     .eraseToEffect()
                 
             case .searchForManga:
@@ -110,7 +106,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                     )
                 }
                 
-                let requestParams = SearchState.RequestParams(
+                let searchParams = SearchState.SearchParams(
                     searchQuery: state.searchText,
                     resultsCount: state.resultsCount,
                     tags: state.filtersState.allTags.filter { $0.state != .notSelected },
@@ -122,7 +118,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                     sortOptionOrder: state.searchSortOptionOrder
                 )
                 
-                guard requestParams != state.lastSuccessfulRequestParams else {
+                guard searchParams != state.lastSuccessfulRequestParams else {
                     return .none
                 }
                                 
@@ -133,10 +129,10 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                 state.mangaThumbnailStates = []
                 state.areSearchResultsDownloaded = false
 
-                return env.searchManga(requestParams, env.decoder())
-                    .delay(for: .seconds(0.4), scheduler: env.mainQueue())
-                    .receive(on: env.mainQueue())
-                    .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: requestParams) }
+                return env.searchManga(searchParams)
+                    .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
                 
             case .searchResultDownloaded(let result, let requestParams):
                 switch result {
@@ -149,7 +145,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SystemEnvironment<SearchEn
                         )
                         
                         return env.fetchStatistics(response.data.map(\.id))
-                            .receive(on: env.mainQueue())
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(SearchAction.mangaStatisticsFetched)
                         
                     case .failure(let error):

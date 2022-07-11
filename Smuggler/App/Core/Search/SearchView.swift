@@ -45,12 +45,10 @@ struct SearchView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(),
                 reducer: searchReducer,
-                environment: .live(
-                    environment: .init(
-                        searchManga: makeMangaSearchRequest,
-                        fetchStatistics: fetchMangaStatistics,
-                        databaseClient: .live
-                    )
+                environment: .init(
+                    searchManga: makeMangaSearchRequest,
+                    fetchStatistics: fetchMangaStatistics,
+                    databaseClient: .live
                 )
             )
         )

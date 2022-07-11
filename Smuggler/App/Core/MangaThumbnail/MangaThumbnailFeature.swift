@@ -44,7 +44,7 @@ enum MangaThumbnailAction {
 }
 
 struct MangaThumbnailEnvironment {
-    var loadThumbnailInfo: (UUID, JSONDecoder) -> Effect<Response<CoverArtInfo>, AppError>
+    var loadThumbnailInfo: (UUID) -> Effect<Response<CoverArtInfo>, AppError>
     var databaseClient: DatabaseClient
 }
 
@@ -55,18 +55,15 @@ struct MangaThumbnailEnvironment {
 // It's better to control in from ThumbnailView, and because of it this struct here.
 struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
 
-// swiftlint:disable:next line_length
-let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, SystemEnvironment<MangaThumbnailEnvironment>>.combine(
+let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment>.combine(
     mangaViewReducer.pullback(
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,
-        environment: { env in .live(
-            environment: .init(
-                fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
-                fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
-                fetchMangaStatistics: fetchMangaStatistics,
-                databaseClient: env.databaseClient
-            )
+        environment: { env in .init(
+            fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
+            fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
+            fetchMangaStatistics: fetchMangaStatistics,
+            databaseClient: env.databaseClient
         ) }
     ),
     Reducer { state, action, env in
@@ -79,8 +76,8 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                     return .none
                 }
                 
-                return env.loadThumbnailInfo(coverArtID, env.decoder())
-                    .receive(on: env.mainQueue())
+                return env.loadThumbnailInfo(coverArtID)
+                    .receive(on: DispatchQueue.main)
                     .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 
             case .thumbnailInfoLoaded(let result):
@@ -103,7 +100,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, S
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
                 // Can be cancelled if user returns wihing 60 sec.
                 return Effect(value: MangaThumbnailAction.userLeftMangaViewDelayCompleted)
-                    .delay(for: .seconds(60), scheduler: env.mainQueue())
+                    .delay(for: .seconds(60), scheduler: DispatchQueue.main)
                     .eraseToEffect()
                     .cancellable(id: CancelClearCacheForManga(mangaID: state.manga.id))
                 

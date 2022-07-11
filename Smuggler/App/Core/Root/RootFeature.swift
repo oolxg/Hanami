@@ -35,12 +35,10 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             state: \.homeState,
             action: /RootAction.homeAction,
             environment: {
-                .live(
-                    environment: .init(
-                        loadHomePage: downloadMangaList,
-                        fetchStatistics: fetchMangaStatistics,
-                        databaseClient: $0.databaseClient
-                    )
+                .init(
+                    loadHomePage: downloadMangaList,
+                    fetchStatistics: fetchMangaStatistics,
+                    databaseClient: $0.databaseClient
                 )
             }
         ),
@@ -49,12 +47,10 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             state: \.searchState,
             action: /RootAction.searchAction,
             environment: {
-                .live(
-                    environment: .init(
-                        searchManga: makeMangaSearchRequest,
-                        fetchStatistics: fetchMangaStatistics,
-                        databaseClient: $0.databaseClient
-                    )
+                .init(
+                    searchManga: makeMangaSearchRequest,
+                    fetchStatistics: fetchMangaStatistics,
+                    databaseClient: $0.databaseClient
                 )
             }
         ),

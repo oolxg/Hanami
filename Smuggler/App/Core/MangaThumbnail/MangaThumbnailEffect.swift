@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-func downloadThumbnailInfo(coverID: UUID, decoder: JSONDecoder) -> Effect<Response<CoverArtInfo>, AppError> {
+func downloadThumbnailInfo(coverID: UUID) -> Effect<Response<CoverArtInfo>, AppError> {
     guard let url = URL(string: "https://api.mangadex.org/cover/\(coverID.uuidString.lowercased())") else {
         return .none
     }
@@ -18,7 +18,7 @@ func downloadThumbnailInfo(coverID: UUID, decoder: JSONDecoder) -> Effect<Respon
         .validateResponseCode()
         .retry(3)
         .map(\.data)
-        .decode(type: Response<CoverArtInfo>.self, decoder: decoder)
+        .decode(type: Response<CoverArtInfo>.self, decoder: AppUtil.decoder)
         .mapError { err -> AppError in
             if let err = err as? URLError {
                 return AppError.downloadError(err)

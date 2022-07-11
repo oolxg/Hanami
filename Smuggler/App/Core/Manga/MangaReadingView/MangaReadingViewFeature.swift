@@ -54,7 +54,7 @@ struct MangaReadingViewEnvironment {
 }
 
 // swiftlint:disable:next line_length
-let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAction, SystemEnvironment<MangaReadingViewEnvironment>> { state, action, env in
+let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAction, MangaReadingViewEnvironment> { state, action, env in
     switch action {
         case .userStartedReadingChapter:
             guard state.pagesInfo == nil else {
@@ -62,7 +62,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             }
             
             return env.fetchChapterPagesInfo(state.chapterID)
-                .receive(on: env.mainQueue())
+                .receive(on: DispatchQueue.main)
                 .catchToEffect(MangaReadingViewAction.chapterPagesInfoFetched)
             
         case .chapterPagesInfoFetched(let result):

@@ -17,7 +17,6 @@
 		2210482E285B670700CE8CED /* MangaReadingViewEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2210482D285B670700CE8CED /* MangaReadingViewEffect.swift */; };
 		2215CA56284829B000986F71 /* FiltersEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2215CA55284829B000986F71 /* FiltersEffect.swift */; };
 		2215CA5828482B3C00986F71 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2215CA5728482B3C00986F71 /* FiltersView.swift */; };
-		221E52C228342832001E82A7 /* SystemEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671C282EB371001D214C /* SystemEnvironment.swift */; };
 		221F59EC284530AC00B11D5D /* GridChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EB284530AC00B11D5D /* GridChipsView.swift */; };
 		221F59EF284551B200B11D5D /* FiltersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EE284551B200B11D5D /* FiltersFeature.swift */; };
 		2220E14F283074F10046F08A /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E14E283074F10046F08A /* LocalizedString.swift */; };
@@ -180,7 +179,6 @@
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
 		224E6715282E9D6F001D214C /* HomeEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeEffects.swift; sourceTree = "<group>"; };
 		224E671A282EAA50001D214C /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
-		224E671C282EB371001D214C /* SystemEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemEnvironment.swift; sourceTree = "<group>"; };
 		225AA5A7284D16D300B406DA /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		22693C15287B660A00E8B856 /* ChapterPagesInfoMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterPagesInfoMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		22693C16287B660A00E8B856 /* ChapterPagesInfoMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterPagesInfoMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -472,7 +470,6 @@
 			isa = PBXGroup;
 			children = (
 				22B9CA59285D50AE007EBE20 /* Effect */,
-				22B9CA58285D50A7007EBE20 /* System */,
 				2220E150283123F10046F08A /* Model */,
 			);
 			path = Shared;
@@ -528,14 +525,6 @@
 				22A7BF30283AB923008EDD52 /* ChapterEffect.swift */,
 			);
 			path = Chapter;
-			sourceTree = "<group>";
-		};
-		22B9CA58285D50A7007EBE20 /* System */ = {
-			isa = PBXGroup;
-			children = (
-				224E671C282EB371001D214C /* SystemEnvironment.swift */,
-			);
-			path = System;
 			sourceTree = "<group>";
 		};
 		22B9CA59285D50AE007EBE20 /* Effect */ = {
@@ -718,7 +707,6 @@
 				224E6712282E91FF001D214C /* Response.swift in Sources */,
 				222A0352287111D100D5B588 /* Data.swift in Sources */,
 				224E6716282E9D6F001D214C /* HomeEffects.swift in Sources */,
-				221E52C228342832001E82A7 /* SystemEnvironment.swift in Sources */,
 				22A7BF2A283A74E4008EDD52 /* MangaVolume.swift in Sources */,
 				2245D4B328400A9D005B1C83 /* VolumeTabView.swift in Sources */,
 				226DF7972865C08D007CF96A /* String.swift in Sources */,
