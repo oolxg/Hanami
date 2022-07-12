@@ -20,7 +20,7 @@ struct MangaView: View {
     @Environment(\.presentationMode) private var presentationMode
 
     private var isViewScrolledDown: Bool {
-        headerOffset.0 < 9
+        headerOffset.0 < 8
     }
     
     var body: some View {
@@ -34,6 +34,7 @@ struct MangaView: View {
                     } header: {
                         pinnedNavigation
                     }
+                    .animation(.linear, value: isViewScrolledDown)
                     
                     Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                 }
@@ -97,66 +98,64 @@ extension MangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                KFImage.url(
-                    viewStore.mainCoverArtURL
-                )
-                .resizable()
-                .scaledToFill()
-                .frame(height: height > 0 ? height : 0, alignment: .center)
-                .overlay(
-                    ZStack(alignment: .bottom) {
-                        LinearGradient(
-                            colors: [ .black.opacity(0.3), .black.opacity(0.8) ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                backButton
+                KFImage.url(viewStore.mainCoverArtURL)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                    .overlay(
+                        ZStack(alignment: .bottom) {
+                            LinearGradient(
+                                colors: [ .black.opacity(0.3), .black.opacity(0.8) ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    backButton
+                                    
+                                    Spacer()
+                                    
+                                    Button {
+//                                    fatalError("Разделить reducer в MangaFeature на два подстейта - когда есть и когда нет сети")
+                                        // глянуть также SwitchStore или как то так
+                                    } label: {
+                                        Image(systemName: "bookmark")
+                                            .foregroundColor(.white)
+                                            .padding(.vertical)
+                                    }
+                                }
                                 
                                 Spacer()
                                 
-                                Button {
-                                    fatalError("Разделить reducer в MangaFeature на два подстейта - когда есть и когда нет сети")
-                                    // глянуть также SwitchStore или как то так
-                                } label: {
-                                    Image(systemName: "bookmark")
-                                        .foregroundColor(.white)
-                                        .padding(.vertical)
-                                }
-                            }
-                            
-                            Spacer()
-                            
-                            HStack {
-                                Text("MANGA")
-                                    .font(.callout)
-                                    .foregroundColor(.gray)
-                                
-                                HStack(spacing: 5) {
-                                    Circle()
-                                        .fill(viewStore.manga.attributes.status.color)
-                                        .frame(width: 10, height: 10)
+                                HStack {
+                                    Text("MANGA")
+                                        .font(.callout)
+                                        .foregroundColor(.gray)
                                     
-                                    Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                        .foregroundColor(.white)
-                                        .fontWeight(.semibold)
+                                    HStack(spacing: 5) {
+                                        Circle()
+                                            .fill(viewStore.manga.attributes.status.color)
+                                            .frame(width: 10, height: 10)
+                                        
+                                        Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                                            .foregroundColor(.white)
+                                            .fontWeight(.semibold)
+                                    }
+                                    .font(.subheadline)
                                 }
-                                .font(.subheadline)
+                                
+                                Text(viewStore.manga.title)
+                                    .font(.title.bold())
                             }
-                            
-                            Text(viewStore.manga.title)
-                                .font(.title.bold())
+                            .padding(.horizontal)
+                            .padding(.top, 40)
+                            .padding(.bottom, 25)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 40)
-                        .padding(.bottom, 25)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                )
-                .cornerRadius(0)
-                .offset(y: -minY)
+                    )
+                    .cornerRadius(0)
+                    .offset(y: -minY)
             }
             .frame(height: 250)
         }
@@ -235,13 +234,13 @@ extension MangaView {
                     }
                 }
                 .onAppear {
-                    artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
-                    artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
+                    artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 248 - 20
+                    artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
                 }
-                .onChange(of: viewStore.coverArtURLs) { _ in
+                .onChange(of: viewStore.coverArtURLs.hashValue & columnsCount.hashValue) { _ in
                     withAnimation {
-                        artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 250 - 20
-                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 250
+                        artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 248 - 20
+                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
                     }
                 }
             }
@@ -298,23 +297,21 @@ extension MangaView {
                     .padding(10)
                 
                 Divider()
-                
-                VStack(alignment: .leading) {
-                    GridChipsView(
-                        viewStore.manga.attributes.tags,
-                        width: UIScreen.main.bounds.width * 0.95
-                    ) { tag in
-                        Text(tag.name.capitalized)
-                            .font(.callout)
-                            .lineLimit(1)
-                            .padding(10)
-                            .foregroundColor(.white)
-                            .background(Color.theme.darkGray)
-                            .cornerRadius(10)
-                    }
+            
+                GridChipsView(
+                    viewStore.manga.attributes.tags,
+                    width: UIScreen.main.bounds.width * 0.95
+                ) { tag in
+                    Text(tag.name.capitalized)
+                        .font(.callout)
+                        .lineLimit(1)
+                        .padding(10)
+                        .foregroundColor(.white)
+                        .background(Color.theme.darkGray)
+                        .cornerRadius(10)
                 }
                 .frame(minHeight: 25)
-                .padding(.vertical, 15)
+                .padding(15)
                 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     Text("Demographic")
@@ -359,7 +356,7 @@ extension MangaView {
                     makeSectionFor(tab: tab)
                 }
             }
-            .animation(.easeInOut, value: isViewScrolledDown)
+            .animation(.linear, value: isViewScrolledDown)
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)

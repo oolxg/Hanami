@@ -69,12 +69,12 @@ struct MangaViewState: Equatable {
     var coverArtURLs: [URL] {
         allCoverArtsInfo.compactMap { coverArt in
             URL(
-                string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(coverArt.attributes.fileName).256.jpg"
+                string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(coverArt.attributes.fileName).512.jpg"
             )
         }
     }
     
-    // should on be used for clearing cache
+    // should only be used for clearing cache
     mutating func reset() {
         let manga = manga
         let stat = statistics
@@ -107,7 +107,7 @@ enum MangaViewAction: BindableAction {
 }
 
 struct MangaViewEnvironment {
-    var fetchChaptersFromExactScanlationGroup: (
+    var fetchChapters: (
         _ mangaID: UUID,
         _ scanlationGroup: UUID?,
         _ translatedLanguage: String?
@@ -148,7 +148,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if state.volumeTabStates.isEmpty {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
-                        env.fetchChaptersFromExactScanlationGroup(state.manga.id, nil, nil)
+                        env.fetchChapters(state.manga.id, nil, nil)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaViewAction.volumesDownloaded)
                     )
@@ -251,18 +251,14 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 }
                 
                 UITabBar.hideTabBar(animated: false)
-                
-                if state.sameScanlationGroupChapters != nil && !state.sameScanlationGroupChapters!.isEmpty {
-                    return .none
-                } else {
-                    return env.fetchChaptersFromExactScanlationGroup(
-                        state.manga.id,
-                        chapter.scanltaionGroupID,
-                        chapter.attributes.translatedLanguage
-                    )
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
-                }
+            
+                return env.fetchChapters(
+                    state.manga.id,
+                    chapter.scanltaionGroupID,
+                    chapter.attributes.translatedLanguage
+                )
+                .receive(on: DispatchQueue.main)
+                .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
             case .volumeTabAction:
                 return .none

@@ -78,10 +78,12 @@ func fetchMangaStatistics(mangaID: UUID) -> Effect<MangaStatisticsContainer, App
 
 func fetchAllCoverArtsInfoForManga(mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError> {
     guard let url = URL(
-        string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=32"
+        string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=100"
     ) else {
         fatalError("Error on creating URL")
     }
+    
+    print(url)
     
     return URLSession.shared.dataTaskPublisher(for: url)
         .validateResponseCode()

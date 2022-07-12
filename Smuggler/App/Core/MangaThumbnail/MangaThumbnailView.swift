@@ -76,7 +76,7 @@ extension MangaThumbnailView {
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
             KFImage.url(
-                viewStore.coverArtURL
+                viewStore.coverArtURL512
             )
             .placeholder {
                 Color.black

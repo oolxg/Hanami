@@ -15,15 +15,24 @@ struct ChapterView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
-                ForEach(viewStore.chapterDetails) { chapter in
-                    makeChapterView(chapter: chapter)
-                    
-                    Rectangle()
-                        .fill(.white)
-                        .frame(height: 1.5)
+                LazyVStack {
+                    ForEach(viewStore.chapterDetails) { chapter in
+                        makeChapterView(for: chapter)
+                            .onTapGesture {
+                                // if manga has externalURL, means we can only read it on some other website, not in app
+                                if let url = chapter.attributes.externalURL {
+                                    openURL(url)
+                                } else {
+                                    viewStore.send(
+                                        .userTappedOnChapterDetails(chapter: chapter)
+                                    )
+                                }
+                            }
+                    }
+                    .transition(.opacity)
+                    .animation(.linear, value: viewStore.areChaptersShown)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .animation(.linear, value: viewStore.areChaptersShown)
-                .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
                 HStack {
                     Circle()
@@ -73,48 +82,35 @@ struct ChapterView_Previews: PreviewProvider {
 }
 
 extension ChapterView {
-    @ViewBuilder private func makeChapterView(chapter: ChapterDetails) -> some View {
-        WithViewStore(store.stateless) { viewStore in
+    private func makeChapterView(for chapter: ChapterDetails) -> some View {
+        VStack(alignment: .leading) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading) {
-                    HStack(alignment: .top) {
-                        Text(chapter.chapterName)
-                            .fontWeight(.medium)
-                            .font(.headline)
-                            .lineLimit(nil)
-                            .padding(5)
-                        
-                        if chapter.attributes.externalURL != nil {
-                            Spacer()
-                            
-                            Image(systemName: "arrow.up.forward.square")
-                                .foregroundColor(.theme.secondaryText)
-                                .font(.callout)
-                                .padding(5)
-                        }
-                    }
-                    
-                    makeScanlationGroupSection(for: chapter)
-                }
+                Text(chapter.chapterName)
+                    .fontWeight(.medium)
+                    .font(.headline)
+                    .lineLimit(nil)
+                    .padding(5)
                 
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                // if manga has externalURL, means we can only read it on some other website, not in app
-                if let url = chapter.attributes.externalURL {
-                    openURL(url)
-                } else {
-                    viewStore.send(
-                        .userTappedOnChapterDetails(chapter: chapter)
-                    )
+                if chapter.attributes.externalURL != nil {
+                    Spacer()
+                    
+                    Image(systemName: "arrow.up.forward.square")
+                        .foregroundColor(.theme.secondaryText)
+                        .font(.callout)
+                        .padding(5)
                 }
             }
+            
+            makeScanlationGroupSection(for: chapter)
+            
+            Rectangle()
+                .fill(.white)
+                .frame(height: 1.5)
         }
-        .padding(0)
+        .contentShape(Rectangle())
     }
 
-    @ViewBuilder private func makeScanlationGroupSection(for chapter: ChapterDetails) -> some View {
+    private func makeScanlationGroupSection(for chapter: ChapterDetails) -> some View {
         WithViewStore(store.actionless) { viewStore in
             HStack {
                 VStack(alignment: .leading) {
@@ -134,7 +130,6 @@ extension ChapterView {
                 .font(.caption)
                 .foregroundColor(.theme.secondaryText)
                 .padding(.horizontal, 5)
-                .padding(.bottom, 5)
                 
                 Spacer()
                 

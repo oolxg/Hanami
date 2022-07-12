@@ -25,12 +25,20 @@ struct MangaThumbnailState: Equatable, Identifiable {
     
     var id: UUID { manga.id }
     
+    var coverArtURL512: URL? {
+        guard let fileName = coverArtInfo?.attributes.fileName else {
+            return nil
+        }
+        
+        return URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(fileName).512.jpg")
+    }
+    
     var coverArtURL: URL? {
         guard let fileName = coverArtInfo?.attributes.fileName else {
             return nil
         }
         
-        return URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(fileName).256.jpg")
+        return URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(fileName)")
     }
 }
 
@@ -60,7 +68,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
         state: \.mangaState,
         action: /MangaThumbnailAction.mangaAction,
         environment: { env in .init(
-            fetchChaptersFromExactScanlationGroup: fetchChaptersForManga,
+            fetchChapters: fetchChaptersForManga,
             fetchAllCoverArtsInfo: fetchAllCoverArtsInfoForManga,
             fetchMangaStatistics: fetchMangaStatistics,
             databaseClient: env.databaseClient
@@ -69,7 +77,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                // if we already loaded info about cover and cover, we don't need to do it one more time
+                // if we already loaded info about cover, we don't need to do it one more time
                 guard state.coverArtInfo == nil else { return .none }
 
                 guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {

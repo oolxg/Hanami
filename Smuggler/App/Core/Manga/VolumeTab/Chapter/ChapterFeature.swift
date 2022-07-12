@@ -96,6 +96,12 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
 
             return effects.isEmpty ? .none : .merge(effects)
 
+        case .binding(\.$areChaptersShown):
+            // sometimes DisclosureGroup can toggle `areChaptersShown`,
+            // so if we getting signal as binding from view, we set `areChaptersShown` back
+            state.areChaptersShown.toggle()
+            return .none
+            
         case .binding:
             return .none
             
@@ -114,9 +120,11 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         return .none
                     }
                     
+                    state.areChaptersShown = state.loadingChapterDetailsCount == 0
                     if state.loadingChapterDetailsCount == 0 {
-                        state.chapterDetails.sort { $0.languageFlag > $1.languageFlag }
-                        state.areChaptersShown = true
+                        state.chapterDetails.sort {
+                            $0.attributes.translatedLanguage > $1.attributes.translatedLanguage
+                        }
                     }
                     
                     return env.fetchScanlationGroupInfo(scanlationGroupID)
@@ -130,10 +138,12 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
-                    
+
+                    state.areChaptersShown = state.loadingChapterDetailsCount == 0
                     if state.loadingChapterDetailsCount == 0 {
-                        state.chapterDetails.sort { $0.languageFlag > $1.languageFlag }
-                        state.areChaptersShown = true
+                        state.chapterDetails.sort {
+                            $0.attributes.translatedLanguage > $1.attributes.translatedLanguage
+                        }
                     }
                     
                     return .none
