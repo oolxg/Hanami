@@ -20,9 +20,9 @@ enum HomeAction {
 }
 
 struct HomeEnvironment {
-    var loadHomePage: () -> Effect<Response<[Manga]>, AppError>
-    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
@@ -32,8 +32,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             action: /HomeAction.mangaThumbnailAction,
             environment: {
                 .init(
-                    loadThumbnailInfo: downloadThumbnailInfo,
-                    databaseClient: $0.databaseClient
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient
                 )
             }
         ),
@@ -42,7 +42,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             case .onAppear:
                 if !state.mangaThumbnailStates.isEmpty { return .none }
                 
-                return env.loadHomePage()
+                return env.homeClient.fetchHomePage()
                     .receive(on: DispatchQueue.main)
                     .catchToEffect(HomeAction.dataLoaded)
                 
@@ -52,7 +52,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
-                        return env.fetchStatistics(response.data.map(\.id))
+                        return env.homeClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(HomeAction.mangaStatisticsFetched)
                         

@@ -191,10 +191,18 @@ extension DatabaseClient {
             }
         }
     }
+    
+    private func remove<MO: IdentifiableMO>(entityType: MO.Type, id: UUID) {
+        let storedMO = fetch(entityType: entityType, id: id)
+        
+        if let storedMO = storedMO {
+            PersistenceController.shared.container.viewContext.delete(storedMO)
+        }
+    }
 }
 
 extension DatabaseClient {
-    func cacheManga(_ manga: Manga) -> Effect<Never, Never> {
+    func saveManga(_ manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 let storedMO = fetch(entityType: MangaMO.self, id: manga.id) { managedObject in
@@ -222,17 +230,17 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func cacheChapterDetails(_ chapterDetails: ChapterDetails, forManga manga: Manga) -> Effect<Never, Never> {
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, forManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
-                let mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
+                var mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
                     mangaManagedObject?.id = manga.id
                     mangaManagedObject?.relationships = manga.relationships.toData()!
                     mangaManagedObject?.attributes = manga.attributes.toData()!
                 }
                 
                 if mangaMO == nil {
-                    manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+                    mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
                 }
                 
                 let chapterDetailsMO = fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) { chapterDetailsManagedObject in
@@ -258,10 +266,35 @@ extension DatabaseClient {
             return []
         }
         
-        return manga.chapterDetails
+        return manga.chapterDetailsList
+    }
+    
+    func fetchChapter(chapterID: UUID) -> ChapterDetails? {
+        fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.toEntity()
     }
     
     func fetchAllChapters() -> [ChapterDetails] {
         batchFetch(entityType: ChapterDetailsMO.self).map { $0.toEntity() }
+    }
+    
+    func deleteChapter(id: UUID) -> Effect<Never, Never> {
+        .fireAndForget {
+            DispatchQueue.main.async {
+                guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: id) else {
+                    return
+                }
+                
+                let leftChapters = chapterMO.fromManga.chapterDetailsSet.filter { $0.id != id }
+                let parentMangaID = chapterMO.fromManga.id
+                
+                remove(entityType: ChapterDetailsMO.self, id: id)
+
+                if leftChapters.isEmpty {
+                    remove(entityType: MangaMO.self, id: parentMangaID)
+                }
+                
+                saveContext()
+            }
+        }
     }
 }

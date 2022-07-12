@@ -18,7 +18,10 @@ enum AppAction {
 }
 
 struct AppEnvironment {
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
+    let searchClient: SearchClient
 }
 
 let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
@@ -28,15 +31,18 @@ let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
             action: /AppAction.rootAction,
             environment: {
                 .init(
-                    databaseClient: $0.databaseClient
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    homeClient: $0.homeClient,
+                    searchClient: $0.searchClient
                 )
             }
         ),
     Reducer { _, action, env in
         switch action {
             case .initApp:
-                return env.databaseClient.dropDatabase().fireAndForget()
-//                    env.databaseClient.prepareDatabase()
+                return env.databaseClient.prepareDatabase().fireAndForget()
+//                env.databaseClient.dropDatabase().fireAndForget()
                 
             case .rootAction:
                 return .none

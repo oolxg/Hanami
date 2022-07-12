@@ -79,3 +79,14 @@ struct FilterMangaStatus: FilterTagProtocol {
         tag.rawValue
     }
 }
+
+enum QuerySortOption: String {
+    case relevance
+    // can be desc and asc
+    case latestUploadedChapter, title, rating
+    case createdAt, followedCount, year
+    
+    enum Order: String {
+        case asc, desc
+    }
+}

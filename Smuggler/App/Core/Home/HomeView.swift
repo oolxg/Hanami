@@ -47,9 +47,9 @@ struct HomeView_Previews: PreviewProvider {
                 initialState: HomeState(),
                 reducer: homeReducer,
                 environment: .init(
-                    loadHomePage: downloadMangaList,
-                    fetchStatistics: fetchMangaStatistics,
-                    databaseClient: DatabaseClient.live
+                    databaseClient: .live,
+                    mangaClient: .live,
+                    homeClient: .live
                 )
             )
         )

@@ -57,7 +57,7 @@ enum FiltersAction {
 }
 
 struct FiltersEnvironment {
-    var getListOfTags: () -> Effect<Response<[Tag]>, AppError>
+    let searchClient: SearchClient
 }
 
 let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { state, action, env in
@@ -65,7 +65,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
         case .onAppear:
             guard state.allTags.isEmpty else { return .none }
             
-            return env.getListOfTags()
+            return env.searchClient.fetchTags()
                 .receive(on: DispatchQueue.main)
                 .catchToEffect(FiltersAction.filterListDownloaded)
             
@@ -76,6 +76,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
                     state.allTags.sort(by: <)
                     
                     return .none
+                    
                 case .failure(let error):
                     print("error on downloading tags list \(error)")
                     return .none

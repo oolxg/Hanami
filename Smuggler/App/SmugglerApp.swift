@@ -14,7 +14,10 @@ struct SmugglerApp: App {
         initialState: AppState(rootState: .init(selectedTab: .home)),
         reducer: appReducer,
         environment: .init(
-            databaseClient: .live
+            databaseClient: .live,
+            mangaClient: .live,
+            homeClient: .live,
+            searchClient: .live
         )
     )
     @ObservedObject private var viewStore: ViewStore<AppState, AppAction>

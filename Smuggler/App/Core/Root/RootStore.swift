@@ -26,7 +26,10 @@ enum RootAction {
 }
 
 struct RootEnvironment {
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
+    let searchClient: SearchClient
 }
 
 let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
@@ -36,9 +39,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             action: /RootAction.homeAction,
             environment: {
                 .init(
-                    loadHomePage: downloadMangaList,
-                    fetchStatistics: fetchMangaStatistics,
-                    databaseClient: $0.databaseClient
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    homeClient: $0.homeClient
                 )
             }
         ),
@@ -48,9 +51,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             action: /RootAction.searchAction,
             environment: {
                 .init(
-                    searchManga: makeMangaSearchRequest,
-                    fetchStatistics: fetchMangaStatistics,
-                    databaseClient: $0.databaseClient
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    searchClient: $0.searchClient
                 )
             }
         ),

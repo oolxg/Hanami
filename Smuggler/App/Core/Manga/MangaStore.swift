@@ -107,29 +107,24 @@ enum MangaViewAction: BindableAction {
 }
 
 struct MangaViewEnvironment {
-    var fetchChapters: (
-        _ mangaID: UUID,
-        _ scanlationGroup: UUID?,
-        _ translatedLanguage: String?
-    ) -> Effect<VolumesContainer, AppError>
-    
-    var fetchAllCoverArtsInfo: (UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
-    
-    var fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironment> = .combine(
     volumeTabReducer.forEach(
         state: \.volumeTabStates,
         action: /MangaViewAction.volumeTabAction,
-        environment: { _ in  .init() }
+        environment: { .init(
+            databaseClient: $0.databaseClient,
+            mangaClient: $0.mangaClient
+        ) }
     ),
     mangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
         action: /MangaViewAction.mangaReadingViewAction,
-        environment: { _ in .init(
-            fetchChapterPagesInfo: fetchPageInfoForChapter
+        environment: { .init(
+            mangaClient: $0.mangaClient
         ) }
     ),
     Reducer { state, action, env in
@@ -139,7 +134,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 
                 if state.statistics == nil {
                     effects.append(
-                        env.fetchMangaStatistics(state.manga.id)
+                        env.mangaClient.fetchMangaStatistics(state.manga.id)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
                     )
@@ -148,7 +143,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if state.volumeTabStates.isEmpty {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
-                        env.fetchChapters(state.manga.id, nil, nil)
+                        env.mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaViewAction.volumesDownloaded)
                     )
@@ -160,7 +155,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 state.selectedTab = newTab
                 
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
-                    return env.fetchAllCoverArtsInfo(state.manga.id)
+                    return env.mangaClient.fetchAllCoverArtsInfForManga(state.manga.id)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
                 }
@@ -252,7 +247,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 
                 UITabBar.hideTabBar(animated: false)
             
-                return env.fetchChapters(
+                return env.mangaClient.fetchMangaChapters(
                     state.manga.id,
                     chapter.scanltaionGroupID,
                     chapter.attributes.translatedLanguage
@@ -260,8 +255,11 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 .receive(on: DispatchQueue.main)
                 .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
-            case .volumeTabAction:
-                return .none
+            case .volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter))):
+                return env.databaseClient.saveChapterDetails(chapter, forManga: state.manga).fireAndForget()
+                
+            case .volumeTabAction(_, .chapterAction(_, .userConfirmedChapterDelete(let chapter))):
+                return env.databaseClient.deleteChapter(id: chapter.id).fireAndForget()
                 
             case .mangaReadingViewAction(.userHitLastPage):
                 guard let nextChapterIndex = state.nextReadingChapterIndex,
@@ -309,7 +307,10 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 UITabBar.showTabBar(animated: true)
                 state.isUserOnReadingView = false
                 return .none
-
+                
+            case .volumeTabAction:
+                return .none
+                
             case .mangaReadingViewAction:
                 return .none
                 

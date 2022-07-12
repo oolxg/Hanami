@@ -35,7 +35,7 @@ struct FiltersView_Previews: PreviewProvider {
             store: .init(
                 initialState: FiltersState(),
                 reducer: filterReducer,
-                environment: .init(getListOfTags: downloadTagsList)
+                environment: .init(searchClient: .live)
             )
         )
         .preferredColorScheme(.dark)

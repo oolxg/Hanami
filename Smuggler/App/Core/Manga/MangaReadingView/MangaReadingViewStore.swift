@@ -49,8 +49,7 @@ enum MangaReadingViewAction: BindableAction {
 }
 
 struct MangaReadingViewEnvironment {
-    // UUID - chapter id
-    var fetchChapterPagesInfo: (UUID) -> Effect<ChapterPagesInfo, AppError>
+    var mangaClient: MangaClient
 }
 
 // swiftlint:disable:next line_length
@@ -61,7 +60,7 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 return .none
             }
             
-            return env.fetchChapterPagesInfo(state.chapterID)
+            return env.mangaClient.fetchPagesInfo(state.chapterID)
                 .receive(on: DispatchQueue.main)
                 .catchToEffect(MangaReadingViewAction.chapterPagesInfoFetched)
             

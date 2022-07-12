@@ -55,9 +55,9 @@ enum SearchAction: BindableAction {
 }
 
 struct SearchEnvironment {
-    var searchManga: (SearchState.SearchParams) -> Effect<Response<[Manga]>, AppError>
-    var fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
+    let searchClient: SearchClient
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
@@ -67,8 +67,8 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
             action: /SearchAction.mangaThumbnailAction,
             environment: {
                 .init(
-                    loadThumbnailInfo: downloadThumbnailInfo,
-                    databaseClient: $0.databaseClient
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient
                 )
             }
         ),
@@ -76,8 +76,8 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
         .pullback(
             state: \.filtersState,
             action: /SearchAction.filterAction,
-            environment: { _ in
-                .init(getListOfTags: downloadTagsList)
+            environment: {
+                .init(searchClient: $0.searchClient)
             }
         ),
     Reducer { state, action, env in
@@ -129,7 +129,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 state.mangaThumbnailStates = []
                 state.areSearchResultsDownloaded = false
 
-                return env.searchManga(searchParams)
+                return env.searchClient.makeSearchRequest(searchParams)
                     .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
                     .receive(on: DispatchQueue.main)
                     .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
@@ -144,7 +144,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         
-                        return env.fetchStatistics(response.data.map(\.id))
+                        return env.searchClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(SearchAction.mangaStatisticsFetched)
                         

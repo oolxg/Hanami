@@ -30,16 +30,19 @@ enum VolumeTabAction {
     case chapterAction(id: UUID, action: ChapterAction)
 }
 
-struct VolumeTabEnvironment { }
+struct VolumeTabEnvironment {
+    let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
+}
 
-// this reducer is only to store chapters more coniviniently
+// this reducer is only to store chapters more conveniently
 let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, VolumeTabEnvironment> = .combine(
     chapterReducer.forEach(
         state: \.chapterStates,
         action: /VolumeTabAction.chapterAction,
-        environment: { _ in  .init(
-            downloadChapterInfo: downloadChapterInfo,
-            fetchScanlationGroupInfo: fetchScanlationGroupInfo
+        environment: { .init(
+            databaseClient: $0.databaseClient,
+            mangaClient: $0.mangaClient
         ) }
     )
 )

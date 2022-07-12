@@ -27,7 +27,7 @@
         <attribute name="attributes" attributeType="Binary"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="relationships" attributeType="Binary"/>
-        <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="ChapterDetailsMO" inverseName="fromManga" inverseEntity="ChapterDetailsMO"/>
+        <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" destinationEntity="ChapterDetailsMO" inverseName="fromManga" inverseEntity="ChapterDetailsMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -36,7 +36,7 @@
     </entity>
     <elements>
         <element name="ChapterDetailsMO" positionX="150.7620849609375" positionY="-9.60968017578125" width="128" height="104"/>
-        <element name="MangaMO" positionX="-54" positionY="-9" width="128" height="89"/>
         <element name="ChapterPagesInfoMO" positionX="45" positionY="27" width="128" height="89"/>
+        <element name="MangaMO" positionX="-54" positionY="-9" width="128" height="89"/>
     </elements>
 </model>
