@@ -13,9 +13,8 @@ import Kingfisher
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
-    @State private var headerOffset: (CGFloat, CGFloat) = (10, 10)
+    @State private var headerOffset: (CGFloat, CGFloat) = (100, 10)
     @State private var artSectionHeight = 0.0
-    @State private var shouldShowChapters = true
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
 
@@ -23,20 +22,32 @@ struct MangaView: View {
         headerOffset.0 < 8
     }
     
+    private var isHeaderBackButtonVisible: Bool {
+        headerOffset.0 > 80
+    }
+    
     var body: some View {
         WithViewStore(store) { viewStore in
             ScrollView(showsIndicators: false) {
-                header
-                
-                LazyVStack(pinnedViews: .sectionHeaders) {
-                    Section {
-                        mangaBodyView
-                    } header: {
-                        pinnedNavigation
-                    }
-                    .animation(.linear, value: isViewScrolledDown)
+                ScrollViewReader { proxy in
+                    header
+                        .id("header")
                     
-                    Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
+                    LazyVStack(pinnedViews: .sectionHeaders) {
+                        Section {
+                            mangaBodyView
+                        } header: {
+                            pinnedNavigation
+                        }
+                        .animation(.linear, value: isViewScrolledDown)
+                        
+                        Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
+                    }
+                    .onChange(of: viewStore.pagesState?.currentPage) { _ in
+                        withAnimation(.easeInOut) {
+                            proxy.scrollTo("header")
+                        }
+                    }
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
@@ -57,11 +68,6 @@ struct MangaView: View {
                     label: { EmptyView() }
                 )
             )
-            .onChange(of: viewStore.selectedTab) { newValue in
-                // this hack is needed because `chaptersSection` returns volumes as simple ForEach - w/o any container
-                // so view will blink, and this is not good for UX
-                shouldShowChapters = newValue == .chapters
-            }
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
                 message: viewStore.hudInfo.message,
@@ -87,7 +93,7 @@ extension MangaView {
             store.scope(
                 state: \.mangaReadingViewState,
                 action: MangaViewAction.mangaReadingViewAction
-                ),
+            ),
             then: MangaReadingView.init
         )
     }
@@ -99,6 +105,12 @@ extension MangaView {
                 let height = geo.size.height + minY
                 
                 KFImage.url(viewStore.mainCoverArtURL)
+                    .placeholder {
+                        KFImage.url(viewStore.coverArtURL512)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                    }
                     .resizable()
                     .scaledToFill()
                     .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
@@ -177,26 +189,20 @@ extension MangaView {
     }
     
     private var chaptersSection: some View {
-        WithViewStore(store) { viewStore in
-            if viewStore.shouldShowEmptyMangaMessage {
-                VStack(spacing: 0) {
-                    Text("Ooops, there's nothing to read")
-                        .font(.title2)
-                        .fontWeight(.black)
-                    
-                    Text("😢")
-                        .font(.title2)
-                        .fontWeight(.black)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            } else {
-                if shouldShowChapters {
-                    ForEachStore(
-                        store.scope(state: \.volumeTabStates, action: MangaViewAction.volumeTabAction),
-                        content: VolumeTabView.init
-                    )
-                    .transition(.opacity.animation(.linear(duration: 0.2)))
+        IfLetStore(store.scope(state: \.pagesState, action: MangaViewAction.pagesAction), then: PagesView.init) {
+            WithViewStore(store) { viewStore in
+                if viewStore.shouldShowEmptyMangaMessage {
+                    VStack(spacing: 0) {
+                        Text("Ooops, there's nothing to read")
+                            .font(.title2)
+                            .fontWeight(.black)
+                        
+                        Text("😢")
+                            .font(.title2)
+                            .fontWeight(.black)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
                 }
             }
         }
@@ -348,15 +354,17 @@ extension MangaView {
     private var pinnedNavigation: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 25) {
-                if isViewScrolledDown {
-                    backButton
-                }
+                backButton
+                    .opacity(isHeaderBackButtonVisible ? 0 : 1)
                 
-                ForEach(MangaViewState.SelectedTab.allCases) { tab in
-                    makeSectionFor(tab: tab)
+                HStack {
+                    ForEach(MangaViewState.SelectedTab.allCases) { tab in
+                        makeSectionFor(tab: tab)
+                    }
+                    .offset(x: isHeaderBackButtonVisible ? -50 : 0)
                 }
             }
-            .animation(.linear, value: isViewScrolledDown)
+            .animation(.linear, value: isHeaderBackButtonVisible)
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)

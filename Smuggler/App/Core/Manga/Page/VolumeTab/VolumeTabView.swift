@@ -10,21 +10,15 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
-    @State private var areChaptersShown = false
+    @State private var areChaptersShown = true
 
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
                 ForEachStore(
-                    store.scope(
-                        state: \.chapterStates,
-                        action: VolumeTabAction.chapterAction
-                    )
-                ) { chapterState in
-                    ChapterView(store: chapterState)
-                    
-                    Divider()
-                }
+                    store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction),
+                    content: ChapterView.init
+                )
             } label: {
                 HStack {
                     Text(viewStore.volume.volumeName)
@@ -44,11 +38,6 @@ struct VolumeTabView: View {
             .padding(10)
             .animation(.linear, value: areChaptersShown)
             .frame(maxWidth: .infinity)
-            
-            Rectangle()
-                .fill(Color.theme.darkGray)
-                .frame(height: 1.5)
-                .padding(.leading, 50)
         }
     }
 }
@@ -58,9 +47,7 @@ struct VolumeTabView_Previews: PreviewProvider {
         VolumeTabView(
             store: .init(
                 initialState: .init(
-                    volume: .init(
-                        dummyInit: true
-                    )
+                    volume: .init(chapters: [], count: 0, volumeIndex: nil)
                 ),
                 reducer: volumeTabReducer,
                 environment: .init(

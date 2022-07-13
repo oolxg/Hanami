@@ -19,8 +19,6 @@ class DeveloperPreview {
     
     private init() { }
     
-    let volume = MangaVolume(dummyInit: true)
-    
     let chapter = Chapter(
         chapterIndex: 1.2,
         count: 2,

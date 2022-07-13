@@ -22,6 +22,8 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
+            
+            Divider()
         }
     }
 }
@@ -121,20 +123,15 @@ extension ChapterView {
                                     .foregroundColor(.green)
                                     .padding(5)
                             }
-                            .confirmationDialog(
-                                store.scope(state: \.confiramtionDialog),
-                                dismiss: .cancelTapped
-                            )
                         } else {
                             Button {
                                 viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
                             } label: {
-                                Image(systemName: "arrow.down.to.line.circle")
+                                Image(systemName: "square.and.arrow.down")
                                     .font(.callout)
                                     .foregroundColor(.white)
                                     .padding(5)
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
@@ -145,8 +142,12 @@ extension ChapterView {
                     .fill(.white)
                     .frame(height: 1.5)
             }
-            .contentShape(Rectangle())
         }
+        .contentShape(Rectangle())
+        .confirmationDialog(
+            store.scope(state: \.confiramtionDialog),
+            dismiss: .cancelTapped
+        )
     }
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
         WithViewStore(store.actionless) { viewStore in

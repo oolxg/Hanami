@@ -175,18 +175,6 @@ extension MangaVolume: Equatable {
 
 extension MangaVolume: Identifiable { }
 
-extension MangaVolume {
-    init(dummyInit: Bool) {
-        if !dummyInit {
-            fatalError("Only for testing")
-        }
-        
-        self.chapters = []
-        self.id = UUID()
-        self.volumeIndex = 0
-        self.count = 0
-    }
-}
 
 extension VolumesContainer: Equatable {
     static func == (lhs: VolumesContainer, rhs: VolumesContainer) -> Bool {
@@ -201,5 +189,14 @@ extension MangaVolume {
     
     var availableChapters: [Double] {
         chapters.compactMap(\.chapterIndex)
+    }
+}
+
+extension MangaVolume {
+    init(chapters: [Chapter], count: Int, volumeIndex: Double?) {
+        self.chapters = chapters
+        self.count = count
+        self.volumeIndex = volumeIndex
+        id = UUID()
     }
 }

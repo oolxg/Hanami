@@ -11,12 +11,15 @@ import SwiftUI
 
 struct MangaViewState: Equatable {
     let manga: Manga
+    
     var statistics: MangaStatistics?
 
-    var volumeTabStates: IdentifiedArrayOf<VolumeTabState> = []
+    var pagesState: PagesState?
+    var currentPageIndex: Int = 0
+    
     var areVolumesLoaded = false
     var shouldShowEmptyMangaMessage: Bool {
-        areVolumesLoaded && volumeTabStates.isEmpty
+        pagesState != nil && pagesState!.volumeTabStateToBeShown.isEmpty
     }
     
     var allCoverArtsInfo: [CoverArtInfo] = []
@@ -27,9 +30,7 @@ struct MangaViewState: Equatable {
         case about = "About"
         case coverArt = "Art"
         
-        var id: String {
-            rawValue
-        }
+        var id: String { rawValue }
     }
     
     @BindableState var hudInfo = HUDInfo()
@@ -66,11 +67,10 @@ struct MangaViewState: Equatable {
     var sameScanlationGroupChapters: [Chapter]?
      
     var mainCoverArtURL: URL?
+    var coverArtURL512: URL?
     var coverArtURLs: [URL] {
-        allCoverArtsInfo.compactMap { coverArt in
-            URL(
-                string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(coverArt.attributes.fileName).512.jpg"
-            )
+        allCoverArtsInfo.compactMap {
+            URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\($0.attributes.fileName).512.jpg")
         }
     }
     
@@ -99,8 +99,8 @@ enum MangaViewAction: BindableAction {
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
     
     // MARK: - Substate actions
-    case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
     case mangaReadingViewAction(MangaReadingViewAction)
+    case pagesAction(pageAction: PageAction)
     
     // MARK: - Binding
     case binding(BindingAction<MangaViewState>)
@@ -112,12 +112,12 @@ struct MangaViewEnvironment {
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironment> = .combine(
-    volumeTabReducer.forEach(
-        state: \.volumeTabStates,
-        action: /MangaViewAction.volumeTabAction,
+    pagesReducer.optional().pullback(
+        state: \.pagesState,
+        action: /MangaViewAction.pagesAction,
         environment: { .init(
-            databaseClient: $0.databaseClient,
-            mangaClient: $0.mangaClient
+            mangaClient: $0.mangaClient,
+            databaseClient: $0.databaseClient
         ) }
     ),
     mangaReadingViewReducer.optional().pullback(
@@ -140,7 +140,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     )
                 }
                 
-                if state.volumeTabStates.isEmpty {
+                if state.pagesState == nil {
                     effects.append(
                         // we are loading here all chapters, no need to select lang or scanlation group
                         env.mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
@@ -177,9 +177,9 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 switch result {
                     case .success(let response):
                         state.areVolumesLoaded = true
-                        state.volumeTabStates = .init(
-                            uniqueElements: response.volumes.map { VolumeTabState(volume: $0) }
-                        )
+
+                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 15)
+                        
                         return .none
                         
                     case .failure(let error):
@@ -235,7 +235,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 
                 return .none
                 
-            case .volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter))):
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
                 let newMangaReadingViewState = MangaReadingViewState(
                     chapterID: chapter.id,
                     chapterIndex: chapter.attributes.chapterIndex
@@ -255,10 +255,10 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 .receive(on: DispatchQueue.main)
                 .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
-            case .volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter))):
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter)))):
                 return env.databaseClient.saveChapterDetails(chapter, forManga: state.manga).fireAndForget()
                 
-            case .volumeTabAction(_, .chapterAction(_, .userConfirmedChapterDelete(let chapter))):
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userConfirmedChapterDelete(let chapter)))):
                 return env.databaseClient.deleteChapter(id: chapter.id).fireAndForget()
                 
             case .mangaReadingViewAction(.userHitLastPage):
@@ -308,10 +308,10 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 state.isUserOnReadingView = false
                 return .none
                 
-            case .volumeTabAction:
+            case .mangaReadingViewAction:
                 return .none
                 
-            case .mangaReadingViewAction:
+            case .pagesAction:
                 return .none
                 
             case .binding:

@@ -101,9 +101,7 @@ extension DatabaseClient {
     }
     
     private func fetchOrCreate<MO: NSManagedObject>(
-        entityType: MO.Type,
-        predicate: NSPredicate? = nil,
-        commitChanges: ((MO?) -> Void)? = nil
+        entityType: MO.Type, predicate: NSPredicate? = nil, commitChanges: ((MO?) -> Void)? = nil
     ) -> MO {
         if let storedMO = fetch(
             entityType: entityType, predicate: predicate, commitChanges: commitChanges
@@ -153,10 +151,7 @@ extension DatabaseClient {
 
 extension DatabaseClient {
     private func fetch<MO: IdentifiableMO>(
-        entityType: MO.Type,
-        id: UUID,
-        findBeforeFetch: Bool = true,
-        commitChanges: ((MO?) -> Void)? = nil
+        entityType: MO.Type, id: UUID, findBeforeFetch: Bool = true, commitChanges: ((MO?) -> Void)? = nil
     ) -> MO? {
         fetch(
             entityType: entityType,

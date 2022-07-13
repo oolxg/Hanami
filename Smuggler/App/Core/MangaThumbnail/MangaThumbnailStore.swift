@@ -91,6 +91,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                     case .success(let response):
                         state.coverArtInfo = response.data
                         state.mangaState.mainCoverArtURL = state.coverArtURL
+                        state.mangaState.coverArtURL512 = state.coverArtURL512
                         return .none
                         
                     case .failure(let error):
