@@ -72,10 +72,7 @@ struct PagesState: Equatable {
 }
 
 enum PageAction {
-    case userTappedNextPageButton
-    case userTappenOnLastPageButton
-    case userTappedPreviousPageButton
-    case userTappedOnFirstPageButton
+    case changePage(newPageIndex: Int)
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
 }
 
@@ -95,33 +92,16 @@ let pagesReducer: Reducer<PagesState, PageAction, PageEnvironment>  = .combine(
     ),
     Reducer { state, action, _ in
         switch action {
-            case .userTappedNextPageButton:
-                if state.currentPage + 1 < state.pagesCount {
-                    state.currentPage += 1
+            case .changePage(let newPageIndex):
+                if newPageIndex >= 0 && newPageIndex < state.pagesCount {
+                    state.currentPage = newPageIndex
                     return .cancel(id: ChapterState.CancelChapterFetch())
                 }
                 
                 return .none
-                
-            case .userTappedPreviousPageButton:
-                if state.currentPage > 0 {
-                    state.currentPage -= 1
-                    return .cancel(id: ChapterState.CancelChapterFetch())
-                }
-                
-                return .none
-                
-            case .userTappedOnFirstPageButton:
-                state.currentPage = 0
-                return .cancel(id: ChapterState.CancelChapterFetch())
-                
-            case .userTappenOnLastPageButton:
-                state.currentPage = state.pagesCount - 1
-                return .cancel(id: ChapterState.CancelChapterFetch())
                 
             case .volumeTabAction:
                 return .none
-                
         }
     }
 )

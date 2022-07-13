@@ -179,16 +179,17 @@ extension MangaView {
                 case .about:
                     aboutSection
                 case .chapters:
-                    chaptersSection
+                    mangaPagesSection
                 case .coverArt:
                     coverArtSection
             }
         }
-        .transition(.opacity.animation(.linear(duration: 0.2)))
+        .transition(.opacity)
+        .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
     }
     
-    private var chaptersSection: some View {
+    private var mangaPagesSection: some View {
         IfLetStore(store.scope(state: \.pagesState, action: MangaViewAction.pagesAction), then: PagesView.init) {
             WithViewStore(store) { viewStore in
                 if viewStore.shouldShowEmptyMangaMessage {
@@ -203,6 +204,10 @@ extension MangaView {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding()
+                } else {
+                    ActivityIndicator(lineWidth: 5)
+                        .frame(width: 140, height: 140, alignment: .center)
+                        .padding(.top, 150)
                 }
             }
         }

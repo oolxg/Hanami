@@ -178,7 +178,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     case .success(let response):
                         state.areVolumesLoaded = true
 
-                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 15)
+                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 25)
                         
                         return .none
                         

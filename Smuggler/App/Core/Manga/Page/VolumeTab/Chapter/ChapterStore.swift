@@ -93,8 +93,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 )
             }
             
-            print(effects.count)
-            
             state.loadingChapterDetailsCount = effects.count
             
             if effects.isEmpty {

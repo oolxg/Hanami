@@ -12,17 +12,16 @@ struct PagesView: View {
     let store: Store<PagesState, PageAction>
     
     var body: some View {
-        VStack {
+        LazyVStack {
             ForEachStore(
-                store.scope(
-                    state: \.volumeTabStateToBeShown, action: PageAction.volumeTabAction)
-            ) { voluteTabStore in
-                VolumeTabView(store: voluteTabStore)
-            }
+                store.scope(state: \.volumeTabStateToBeShown, action: PageAction.volumeTabAction),
+                content: VolumeTabView.init
+            )
             .transition(.opacity)
-            
+
             footer
         }
+        .frame(maxHeight: .infinity)
     }
 }
 
@@ -46,56 +45,66 @@ extension PagesView {
         WithViewStore(store) { viewStore in
             HStack {
                 Button {
-                    viewStore.send(.userTappedPreviousPageButton)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPage - 1), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.left")
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal)
-                .disabled(viewStore.currentPage == 0)
+                .padding(.horizontal, 5)
                 .opacity(viewStore.currentPage != 0 ? 1 : 0)
-                .animation(.linear, value: viewStore.currentPage != 0)
                 
                 makePageLabel(for: 1)
-                    .animation(.linear, value: viewStore.currentPage)
                     .opacity(viewStore.currentPage != 0 ? 1 : 0)
                     .disabled(viewStore.currentPage == 0)
-                    .onTapGesture {
-                        viewStore.send(.userTappedOnFirstPageButton)
-                    }
+                
+                if viewStore.currentPage - 1 > 0 {
+                    Text("...")
+                        .font(.headline)
+                }
+                
+                if viewStore.currentPage > 1 {
+                    makePageLabel(for: viewStore.currentPage, bgColor: .theme.darkGray)
+                }
                 
                 makePageLabel(for: viewStore.currentPage + 1, bgColor: .theme.accent)
-                    .animation(.linear, value: viewStore.currentPage)
+                
+                if viewStore.currentPage + 2 < viewStore.pagesCount {
+                    makePageLabel(for: viewStore.currentPage + 2, bgColor: .theme.darkGray)
+                }
+                
+                if viewStore.currentPage + 2 < viewStore.pagesCount - 1 {
+                    Text("...")
+                        .font(.headline)
+                }
                 
                 makePageLabel(for: viewStore.pagesCount)
-                    .animation(.linear, value: viewStore.currentPage)
                     .opacity(viewStore.currentPage + 1 != viewStore.pagesCount ? 1 : 0)
-                    .disabled(viewStore.currentPage + 1 == viewStore.pagesCount)
-                    .onTapGesture {
-                        viewStore.send(.userTappenOnLastPageButton)
-                    }
                 
                 Button {
-                    viewStore.send(.userTappedNextPageButton)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPage + 1), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.right")
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal)
-                .disabled(viewStore.currentPage + 1 == viewStore.pagesCount)
+                .padding(.horizontal, 5)
                 .opacity(viewStore.currentPage + 1 != viewStore.pagesCount ? 1 : 0)
-                .animation(.linear, value: viewStore.currentPage + 1 != viewStore.pagesCount)
             }
         }
         .padding(.bottom, 5)
     }
     
     private func makePageLabel(for pageIndex: Int, bgColor: Color = .theme.darkGray) -> some View {
-        Text("\(pageIndex)")
-            .foregroundColor(.white)
-            .frame(width: 20, height: 20, alignment: .center)
-            .padding()
-            .background(bgColor)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+        WithViewStore(store) { viewStore in
+            Text("\(pageIndex)")
+                .foregroundColor(.white)
+                .font(viewStore.currentPage == pageIndex - 1 ? .headline.bold() : .headline)
+                .frame(width: 20, height: 20, alignment: .center)
+                .padding(7)
+                .background(bgColor)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .onTapGesture {
+                    viewStore.send(.changePage(newPageIndex: pageIndex - 1), animation: .linear)
+                }
+        }
     }
 }

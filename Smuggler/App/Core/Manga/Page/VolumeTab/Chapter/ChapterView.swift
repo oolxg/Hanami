@@ -127,7 +127,7 @@ extension ChapterView {
                             Button {
                                 viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
                             } label: {
-                                Image(systemName: "square.and.arrow.down")
+                                Image(systemName: "arrow.down.to.line.circle")
                                     .font(.callout)
                                     .foregroundColor(.white)
                                     .padding(5)
