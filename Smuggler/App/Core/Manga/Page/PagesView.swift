@@ -14,14 +14,13 @@ struct PagesView: View {
     var body: some View {
         LazyVStack {
             ForEachStore(
-                store.scope(state: \.volumeTabStateToBeShown, action: PageAction.volumeTabAction),
+                store.scope(state: \.volumeTabStatesOnCurrentPage, action: PageAction.volumeTabAction),
                 content: VolumeTabView.init
             )
             .transition(.opacity)
 
             footer
         }
-        .frame(maxHeight: .infinity)
     }
 }
 
@@ -45,49 +44,49 @@ extension PagesView {
         WithViewStore(store) { viewStore in
             HStack {
                 Button {
-                    viewStore.send(.changePage(newPageIndex: viewStore.currentPage - 1), animation: .linear)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex - 1), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.left")
                         .foregroundColor(.white)
                 }
                 .padding(.horizontal, 5)
-                .opacity(viewStore.currentPage != 0 ? 1 : 0)
+                .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
                 
                 makePageLabel(for: 1)
-                    .opacity(viewStore.currentPage != 0 ? 1 : 0)
-                    .disabled(viewStore.currentPage == 0)
+                    .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
+                    .disabled(viewStore.currentPageIndex == 0)
                 
-                if viewStore.currentPage - 1 > 0 {
+                if viewStore.currentPageIndex - 2 > 0 {
                     Text("...")
                         .font(.headline)
                 }
                 
-                if viewStore.currentPage > 1 {
-                    makePageLabel(for: viewStore.currentPage, bgColor: .theme.darkGray)
+                if viewStore.currentPageIndex > 1 {
+                    makePageLabel(for: viewStore.currentPageIndex, bgColor: .theme.darkGray)
                 }
                 
-                makePageLabel(for: viewStore.currentPage + 1, bgColor: .theme.accent)
+                makePageLabel(for: viewStore.currentPageIndex + 1, bgColor: .theme.accent)
                 
-                if viewStore.currentPage + 2 < viewStore.pagesCount {
-                    makePageLabel(for: viewStore.currentPage + 2, bgColor: .theme.darkGray)
+                if viewStore.currentPageIndex + 2 < viewStore.pagesCount {
+                    makePageLabel(for: viewStore.currentPageIndex + 2, bgColor: .theme.darkGray)
                 }
                 
-                if viewStore.currentPage + 2 < viewStore.pagesCount - 1 {
+                if viewStore.currentPageIndex + 2 < viewStore.pagesCount - 1 {
                     Text("...")
                         .font(.headline)
                 }
                 
                 makePageLabel(for: viewStore.pagesCount)
-                    .opacity(viewStore.currentPage + 1 != viewStore.pagesCount ? 1 : 0)
+                    .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
                 
                 Button {
-                    viewStore.send(.changePage(newPageIndex: viewStore.currentPage + 1), animation: .linear)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex + 1), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.right")
                         .foregroundColor(.white)
                 }
                 .padding(.horizontal, 5)
-                .opacity(viewStore.currentPage + 1 != viewStore.pagesCount ? 1 : 0)
+                .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
             }
         }
         .padding(.bottom, 5)
@@ -97,8 +96,8 @@ extension PagesView {
         WithViewStore(store) { viewStore in
             Text("\(pageIndex)")
                 .foregroundColor(.white)
-                .font(viewStore.currentPage == pageIndex - 1 ? .headline.bold() : .headline)
-                .frame(width: 20, height: 20, alignment: .center)
+                .font(viewStore.currentPageIndex == pageIndex - 1 ? .headline.bold() : .headline)
+                .frame(width: 25, height: 25, alignment: .center)
                 .padding(7)
                 .background(bgColor)
                 .clipShape(RoundedRectangle(cornerRadius: 6))

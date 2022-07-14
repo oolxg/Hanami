@@ -22,6 +22,9 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
             
             Divider()
         }

@@ -19,13 +19,13 @@ struct MangaViewState: Equatable {
     
     var areVolumesLoaded = false
     var shouldShowEmptyMangaMessage: Bool {
-        pagesState != nil && pagesState!.volumeTabStateToBeShown.isEmpty
+        pagesState != nil && pagesState!.volumeTabStatesOnCurrentPage.isEmpty
     }
     
     var allCoverArtsInfo: [CoverArtInfo] = []
 
-    var selectedTab: SelectedTab = .chapters
-    enum SelectedTab: String, CaseIterable, Identifiable {
+    var selectedTab: Tab = .chapters
+    enum Tab: String, CaseIterable, Identifiable {
         case chapters = "Chapters"
         case about = "About"
         case coverArt = "Art"
@@ -89,7 +89,7 @@ struct MangaViewState: Equatable {
 enum MangaViewAction: BindableAction {
     // MARK: - Actions to be called from view
     case onAppear
-    case mangaTabChanged(MangaViewState.SelectedTab)
+    case mangaTabChanged(MangaViewState.Tab)
 
     // MARK: - Actions to be called from reducer
     case computeNextAndPreviousChapterIndexes
@@ -178,7 +178,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     case .success(let response):
                         state.areVolumesLoaded = true
 
-                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 25)
+                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 20)
                         
                         return .none
                         

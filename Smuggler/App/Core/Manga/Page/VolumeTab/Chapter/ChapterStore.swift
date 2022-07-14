@@ -34,6 +34,7 @@ struct ChapterState: Equatable, Identifiable {
 }
 
 enum ChapterAction: BindableAction, Equatable {
+    case onAppear
     case userTappedOnChapter
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>)
@@ -54,9 +55,7 @@ struct ChapterEnvironment {
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { state, action, env in
     switch action {
-        case .userTappedOnChapter:
-            var effects: [Effect<ChapterAction, Never>] = []
-            
+        case .onAppear:
             if env.databaseClient.fetchChapter(chapterID: state.chapter.id) != nil {
                 state.cachedChaptersIDs.insert(state.chapter.id)
             } else {
@@ -70,7 +69,12 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     state.cachedChaptersIDs.remove(chapterID)
                 }
             }
-
+            
+            return .none
+            
+        case .userTappedOnChapter:
+            var effects: [Effect<ChapterAction, Never>] = []
+            
             if state.chapterDetails[id: state.chapter.id] == nil {
                 effects.append(
                     env.mangaClient.fetchChapterDetails(state.chapter.id)

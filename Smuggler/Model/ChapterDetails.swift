@@ -63,11 +63,11 @@ struct ChapterDetails: Codable {
         let updatedAt: Date
         let version: Int
 
-        @NullCodable var chapterIndex: Double?
-        @NullCodable var externalURL: URL?
-        @NullCodable var readableAt: Date?
-        @NullCodable var title: String?
-        @NullCodable var volumeIndex: String?
+        let chapterIndex: Double?
+        let externalURL: URL?
+        let readableAt: Date?
+        let title: String?
+        let volumeIndex: String?
         
         // swiftlint:disable:next nesting
         enum CodingKeys: String, CodingKey {
@@ -101,32 +101,25 @@ extension ChapterDetails.Attributes {
         
         // this needed because we get `chapterIndex` as String from MangaDex API, but we use it and save it as Double
         do {
-            if try container.decode(String?.self, forKey: .chapterIndex) != nil {
-                chapterIndex = Double(try container.decode(
-                    String?.self,
-                    forKey: .chapterIndex
-                    // swiftlint:disable:next multiline_function_chains
-                )!.replacingOccurrences(of: ",", with: "."))
-            } else {
-                chapterIndex = nil
-            }
-        } catch DecodingError.typeMismatch {
-            chapterIndex = try container.decode(Double?.self, forKey: .chapterIndex)
+            let chapterIndexString = try container.decode(String.self, forKey: .chapterIndex)
+            chapterIndex = Double(chapterIndexString.replacingOccurrences(of: ",", with: "."))
+        } catch {
+            chapterIndex = try? container.decode(Double?.self, forKey: .chapterIndex)
         }
         
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        externalURL = try container.decode(URL?.self, forKey: .externalURL)
+        externalURL = try? container.decode(URL?.self, forKey: .externalURL)
         pagesCount = try container.decode(Int.self, forKey: .pagesCount)
         publishAt = try container.decode(Date.self, forKey: .publishAt)
-        readableAt = try container.decode(Date?.self, forKey: .readableAt)
-        let tempTitle = try container.decode(String?.self, forKey: .title)
+        readableAt = try? container.decode(Date?.self, forKey: .readableAt)
+        let tempTitle = try? container.decode(String?.self, forKey: .title)
         // this also disable because tempTitle is Optional
         // swiftlint:disable:next empty_string
         title = tempTitle == "" ? nil : tempTitle
         translatedLanguage = try container.decode(String.self, forKey: .translatedLanguage)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         version = try container.decode(Int.self, forKey: .version)
-        volumeIndex = try container.decode(String?.self, forKey: .volumeIndex)
+        volumeIndex = try? container.decode(String?.self, forKey: .volumeIndex)
     }
 }
 

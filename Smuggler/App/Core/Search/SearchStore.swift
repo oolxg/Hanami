@@ -123,7 +123,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 }
                                 
                 // we remove all elements from 'mangaThumbnailStates' because MangaThumbnail loads data only after '.onAppear()' modifier was called
-                // it also possible, that thumbnail was deinitialized, but because of SwiftUI it won't disapper, so it will no 'appear', it stays on the screen
+                // it also possible, that thumbnail was deinitialized, but because of SwiftUI it won't disappeer, so it will no 'appear', it stays on the screen
                 // and '.onAppear()' won't be called
                 // so we remove everything here, then load items and if we got the same thumbnail as before, '.onAppear()' will fire
                 state.mangaThumbnailStates = []
@@ -139,7 +139,6 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     case .success(let response):
                         state.lastSuccessfulRequestParams = requestParams
                         state.areSearchResultsDownloaded = true
-                        state.mangaThumbnailStates = []
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )

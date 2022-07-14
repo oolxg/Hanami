@@ -33,6 +33,11 @@ struct SearchView: View {
                     
                     searchResults
                 }
+                .onChange(of: viewStore.areSearchResultsDownloaded) { newValue in
+                    if newValue {
+                        UIApplication.shared.endEditing()
+                    }
+                }
             }
             .navigationTitle("Search")
         }

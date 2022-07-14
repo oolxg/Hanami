@@ -43,7 +43,7 @@ struct MangaView: View {
                         
                         Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                     }
-                    .onChange(of: viewStore.pagesState?.currentPage) { _ in
+                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
                         withAnimation(.easeInOut) {
                             proxy.scrollTo("header")
                         }
@@ -177,11 +177,11 @@ extension MangaView {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
                 case .about:
-                    aboutSection
+                    aboutTab
                 case .chapters:
-                    mangaPagesSection
+                    mangaPagesTab
                 case .coverArt:
-                    coverArtSection
+                    coverArtTab
             }
         }
         .transition(.opacity)
@@ -189,31 +189,42 @@ extension MangaView {
         .padding(.horizontal, 5)
     }
     
-    private var mangaPagesSection: some View {
-        IfLetStore(store.scope(state: \.pagesState, action: MangaViewAction.pagesAction), then: PagesView.init) {
-            WithViewStore(store) { viewStore in
-                if viewStore.shouldShowEmptyMangaMessage {
-                    VStack(spacing: 0) {
-                        Text("Ooops, there's nothing to read")
-                            .font(.title2)
-                            .fontWeight(.black)
-                        
-                        Text("😢")
-                            .font(.title2)
-                            .fontWeight(.black)
+    private var mangaPagesTab: some View {
+        WithViewStore(store) { viewStore in
+            ZStack {
+                if viewStore.areVolumesLoaded {
+                    if !viewStore.shouldShowEmptyMangaMessage {
+                        IfLetStore(
+                            store.scope(state: \.pagesState, action: MangaViewAction.pagesAction),
+                            then: PagesView.init
+                        )
+                    } else {
+                        VStack(spacing: 0) {
+                            Text("Ooops, there's nothing to read")
+                                .font(.title2)
+                                .fontWeight(.black)
+                            
+                            Text("😢")
+                                .font(.title2)
+                                .fontWeight(.black)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
                 } else {
                     ActivityIndicator(lineWidth: 5)
                         .frame(width: 140, height: 140, alignment: .center)
                         .padding(.top, 150)
+                        .transition(.opacity)
                 }
             }
+            .transition(.opacity)
+            .animation(.linear, value: viewStore.areVolumesLoaded)
+            .animation(.linear, value: viewStore.shouldShowEmptyMangaMessage)
         }
     }
     
-    private var coverArtSection: some View {
+    private var coverArtTab: some View {
         WithViewStore(store.actionless) { viewStore in
             GeometryReader { geo in
                 let columnsCount = Int(geo.size.width / 160)
@@ -260,7 +271,7 @@ extension MangaView {
         }
     }
     
-    private var aboutSection: some View {
+    private var aboutTab: some View {
         WithViewStore(store.actionless) { viewStore in
             VStack(alignment: .leading, spacing: 10) {
                 if let statistics = viewStore.statistics {
@@ -362,12 +373,8 @@ extension MangaView {
                 backButton
                     .opacity(isHeaderBackButtonVisible ? 0 : 1)
                 
-                HStack {
-                    ForEach(MangaViewState.SelectedTab.allCases) { tab in
-                        makeSectionFor(tab: tab)
-                    }
+                ForEach(MangaViewState.Tab.allCases, content: makeTabLabel)
                     .offset(x: isHeaderBackButtonVisible ? -50 : 0)
-                }
             }
             .animation(.linear, value: isHeaderBackButtonVisible)
             .padding(.horizontal)
@@ -389,7 +396,8 @@ extension MangaView {
         )
     }
     
-    private func makeSectionFor(tab: MangaViewState.SelectedTab) -> some View {
+    /// Makes label for navigation through MangaView
+    private func makeTabLabel(for tab: MangaViewState.Tab) -> some View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)

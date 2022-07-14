@@ -33,12 +33,12 @@ struct Manga: Codable {
         let state: State
         
         // MARK: all this @NullCodable's are for json encoding and storing them with CoreData.
-        @NullCodable var createdAt: Date?
-        @NullCodable var updatedAt: Date?
-        @NullCodable var lastVolume: String?
-        @NullCodable var lastChapter: String?
-        @NullCodable var publicationDemographic: PublicationDemographic?
-        @NullCodable var year: Int?
+        let createdAt: Date?
+        let updatedAt: Date?
+        let lastVolume: String?
+        let lastChapter: String?
+        let publicationDemographic: PublicationDemographic?
+        let year: Int?
         
         enum CodingKeys: String, CodingKey {
             case title, altTitles
@@ -78,17 +78,17 @@ extension Manga.Attributes {
         }
         do {
             description = try container.decode(LocalizedString.self, forKey: .description)
-        } catch DecodingError.typeMismatch(_, _) {
+        } catch DecodingError.typeMismatch {
             let descriptions = try container.decode([LocalizedString].self, forKey: .description)
             description = LocalizedString(localizedStrings: descriptions)
         }
         isLocked = try container.decode(Bool.self, forKey: .isLocked)
         originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
-        lastVolume = try container.decode(String?.self, forKey: .lastVolume)
-        lastChapter = try container.decode(String?.self, forKey: .lastChapter)
-        publicationDemographic = try container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
+        lastVolume = try? container.decode(String?.self, forKey: .lastVolume)
+        lastChapter = try? container.decode(String?.self, forKey: .lastChapter)
+        publicationDemographic = try? container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
         status = try container.decode(Status.self, forKey: .status)
-        year = try container.decode(Int?.self, forKey: .year)
+        year = try? container.decode(Int?.self, forKey: .year)
         contentRating = try container.decode(ContentRatings.self, forKey: .contentRating)
         tags = try container.decode([Tag].self, forKey: .tags)
         state = try container.decode(State.self, forKey: .state)
@@ -96,8 +96,8 @@ extension Manga.Attributes {
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
-        createdAt = fmt.date(from: try container.decode(String.self, forKey: .createdAt))
-        updatedAt = fmt.date(from: try container.decode(String.self, forKey: .updatedAt))
+        createdAt = fmt.date(from: (try? container.decode(String.self, forKey: .createdAt)) ?? "")
+        updatedAt = fmt.date(from: (try? container.decode(String.self, forKey: .updatedAt)) ?? "")
     }
 }
 
