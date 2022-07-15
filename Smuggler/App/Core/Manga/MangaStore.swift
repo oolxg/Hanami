@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import SwiftUI
+import Kingfisher
 
 struct MangaViewState: Equatable {
     let manga: Manga
@@ -56,8 +56,8 @@ struct MangaViewState: Equatable {
      
     var mainCoverArtURL: URL?
     var coverArtURL512: URL?
-    var coverArtURLs: [URL] {
-        allCoverArtsInfo.compactMap { $0.coverArtURL }
+    var croppedCoverArtURLs: [URL] {
+        allCoverArtsInfo.compactMap { $0.coverArtURL512 }
     }
     
     // should only be used for clearing cache
@@ -86,7 +86,7 @@ enum MangaViewAction: BindableAction {
     
     // MARK: - Substate actions
     case mangaReadingViewAction(MangaReadingViewAction)
-    case pagesAction(pageAction: PageAction)
+    case pagesAction(pageAction: PagesAction)
     
     // MARK: - Binding
     case binding(BindingAction<MangaViewState>)
@@ -163,8 +163,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 state.areVolumesLoaded = true
                 switch result {
                     case .success(let response):
-
-                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 20)
+                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 10)
                         
                         return .none
                         
@@ -230,15 +229,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if state.mangaReadingViewState?.chapterID != newMangaReadingViewState.chapterID {
                     state.mangaReadingViewState = newMangaReadingViewState
                 } else {
-                    let currentPage = state.mangaReadingViewState!.currentPage
-                    let pagesCount = state.mangaReadingViewState!.pagesCount
-                    
-                    if currentPage < 0 {
-                        state.mangaReadingViewState!.currentPage = 0
-                    } else if let pagesCount = pagesCount, currentPage >= pagesCount {
-                        state.mangaReadingViewState!.currentPage = pagesCount - 1
-                    }
-                    
                     state.isUserOnReadingView = true
                 }
                 

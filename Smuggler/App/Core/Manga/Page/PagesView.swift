@@ -9,12 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PagesView: View {
-    let store: Store<PagesState, PageAction>
+    let store: Store<PagesState, PagesAction>
     
     var body: some View {
         LazyVStack {
             ForEachStore(
-                store.scope(state: \.volumeTabStatesOnCurrentPage, action: PageAction.volumeTabAction),
+                store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
                 content: VolumeTabView.init
             )
             .transition(.opacity)
@@ -96,7 +96,7 @@ extension PagesView {
         WithViewStore(store) { viewStore in
             Text("\(pageIndex)")
                 .foregroundColor(.white)
-                .font(viewStore.currentPageIndex == pageIndex - 1 ? .headline.bold() : .headline)
+                .font(.subheadline)
                 .frame(width: 25, height: 25, alignment: .center)
                 .padding(7)
                 .background(bgColor)

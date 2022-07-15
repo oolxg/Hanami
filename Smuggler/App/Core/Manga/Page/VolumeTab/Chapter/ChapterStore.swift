@@ -56,6 +56,8 @@ struct ChapterEnvironment {
 let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { state, action, env in
     switch action {
         case .onAppear:
+            state.shouldShowActivityIndicator = false
+            
             if env.databaseClient.fetchChapter(chapterID: state.chapter.id) != nil {
                 state.cachedChaptersIDs.insert(state.chapter.id)
             } else {

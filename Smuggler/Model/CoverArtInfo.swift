@@ -37,9 +37,9 @@ extension CoverArtInfo: Equatable {
 }
 
 extension CoverArtInfo {
-    private var coverArtString: String {
+    private var coverArtString: String? {
         guard let mangaID = relationships.first(where: { $0.type == .manga })?.id else {
-            return ""
+            return nil
         }
         
         let lowercased = mangaID.uuidString.lowercased()
@@ -48,14 +48,14 @@ extension CoverArtInfo {
         return "https://uploads.mangadex.org/covers/\(lowercased)/\(fileName)"
     }
     var coverArtURL: URL? {
-        URL(string: coverArtString)
+        coverArtString != nil ? URL(string: coverArtString!) : nil
     }
     
     var coverArtURL512: URL? {
-        URL(string: coverArtString + ".512.jpg")
+        coverArtString != nil ? URL(string: coverArtString! + ".512.jpg") : nil
     }
     
     var coverArtURL256: URL? {
-        URL(string: coverArtString + ".256.jpg")
+        coverArtString != nil ? URL(string: coverArtString! + ".256.jpg") : nil
     }
 }

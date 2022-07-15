@@ -39,17 +39,18 @@ struct MangaView: View {
                         } header: {
                             pinnedNavigation
                         }
-                        .animation(.linear, value: isViewScrolledDown)
                         
                         Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                     }
                     .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
-                        withAnimation(.easeInOut) {
+                        withAnimation(.default) {
                             proxy.scrollTo("header")
                         }
                     }
                 }
             }
+            .animation(.linear, value: isViewScrolledDown)
+            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -220,11 +221,11 @@ extension MangaView {
     private var coverArtTab: some View {
         WithViewStore(store.actionless) { viewStore in
             GeometryReader { geo in
-                let columnsCount = Int(geo.size.width / 160)
-                
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columnsCount)) {
-                    ForEach(viewStore.coverArtURLs.indices, id: \.self) { coverArtIndex in
-                        let coverArtURL = viewStore.coverArtURLs[coverArtIndex]
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: Int(geo.size.width / 160))
+                ) {
+                    ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
+                        let coverArtURL = viewStore.croppedCoverArtURLs[coverArtIndex]
                         
                         KFImage.url(coverArtURL)
                             .fade(duration: 0.3)
@@ -249,18 +250,27 @@ extension MangaView {
                     }
                 }
                 .onAppear {
-                    artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 248 - 20
-                    artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
+                    computeArtSectionHegiht(
+                        screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
+                    )
                 }
-                .onChange(of: viewStore.coverArtURLs.hashValue & columnsCount.hashValue) { _ in
-                    withAnimation {
-                        artSectionHeight = ceil(Double(viewStore.coverArtURLs.count) / Double(columnsCount)) * 248 - 20
-                        artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
-                    }
+                .onChange(of: viewStore.croppedCoverArtURLs.hashValue & geo.size.width.hashValue) { _ in
+                    computeArtSectionHegiht(
+                        screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
+                    )
                 }
             }
             .frame(height: artSectionHeight)
             .padding()
+        }
+    }
+    
+    private func computeArtSectionHegiht(screenWidth: CGFloat, coverArtsCount: Int) {
+        withAnimation {
+            let columnsCount = Int(screenWidth / 160)
+            let rowsCount = ceil(Double(coverArtsCount) / Double(columnsCount))
+            artSectionHeight = rowsCount * 248 - 20
+            artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
         }
     }
     

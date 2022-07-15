@@ -31,9 +31,9 @@ struct PagesState: Equatable {
 
         // This 'if' is here because of strange LazyVStack animations
         // if there're only few chapters on page, then on page change we're getting bad animations
-        // so the next lines of code checking if last page contains 5 or less chapters and if yes,
+        // so the next lines of code checking if last page contains 3 or less chapters and if yes,
         // we merge it with penultimate page
-        if chunkedChapters.count > 1 && chunkedChapters.last!.count <= 5 {
+        if chunkedChapters.count > 1 && chunkedChapters.last!.count <= 3 {
             let lastPageChunkedChapters = chunkedChapters.last!
             chunkedChapters.removeLast()
             chunkedChapters[chunkedChapters.count - 1].append(contentsOf: lastPageChunkedChapters)
@@ -78,20 +78,21 @@ struct PagesState: Equatable {
     }
 }
 
-enum PageAction {
+enum PagesAction {
     case changePage(newPageIndex: Int)
+    case changePageAfterEffectCancellation(newPageIndex: Int)
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
 }
 
-struct PageEnvironment {
+struct PagesEnvironment {
     let mangaClient: MangaClient
     let databaseClient: DatabaseClient
 }
 
-let pagesReducer: Reducer<PagesState, PageAction, PageEnvironment>  = .combine(
+let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine(
     volumeTabReducer.forEach(
         state: \.volumeTabStatesOnCurrentPage,
-        action: /PageAction.volumeTabAction,
+        action: /PagesAction.volumeTabAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
             mangaClient: $0.mangaClient
@@ -101,10 +102,16 @@ let pagesReducer: Reducer<PagesState, PageAction, PageEnvironment>  = .combine(
         switch action {
             case .changePage(let newPageIndex):
                 if newPageIndex >= 0 && newPageIndex < state.pagesCount {
-                    state.currentPageIndex = newPageIndex
-                    return .cancel(id: ChapterState.CancelChapterFetch())
+                    return .concatenate(
+                        .cancel(id: ChapterState.CancelChapterFetch()),
+                        Effect(value: PagesAction.changePageAfterEffectCancellation(newPageIndex: newPageIndex))
+                    )
                 }
                 
+                return .none
+                
+            case .changePageAfterEffectCancellation(let newPageIndex):
+                state.currentPageIndex = newPageIndex
                 return .none
                 
             case .volumeTabAction:

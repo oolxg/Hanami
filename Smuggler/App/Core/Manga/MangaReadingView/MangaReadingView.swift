@@ -10,37 +10,44 @@ import ComposableArchitecture
 import Kingfisher
 
 struct MangaReadingView: View {
+    private let store: Store<MangaReadingViewState, MangaReadingViewAction>
+    private let viewStore: ViewStore<MangaReadingViewState, MangaReadingViewAction>
     @Environment(\.presentationMode) private var presentationMode
-    let store: Store<MangaReadingViewState, MangaReadingViewAction>
     @State private var shouldShowNavBar = true
+    @State private var currentPageIndex = 0
+    
+    init(store: Store<MangaReadingViewState, MangaReadingViewAction>) {
+        self.store = store
+        viewStore = ViewStore(store)
+        viewStore.send(.userStartedReadingChapter)
+    }
     
     var body: some View {
-        WithViewStore(store.stateless) { viewStore in
-            GeometryReader { geo in
-                ZStack(alignment: .top) {
-                    if shouldShowNavBar {
-                        navigationBar
-                            .frame(height: geo.size.height * 0.05)
-                            .zIndex(1)
-                    }
-                    
-                    readingContent
-                        .zIndex(0)
+        GeometryReader { geo in
+            ZStack(alignment: .top) {
+                if shouldShowNavBar {
+                    navigationBar
+                        .frame(height: geo.size.height * 0.05)
+                        .zIndex(1)
                 }
-                .frame(height: UIScreen.main.bounds.height * 1.05)
+                
+                readingContent
+                    .zIndex(0)
             }
-            .navigationBarHidden(true)
-            .onAppear {
-                viewStore.send(.userStartedReadingChapter)
+            .frame(height: UIScreen.main.bounds.height * 1.05)
+        }
+        .navigationBarHidden(true)
+        .gesture(tapGesture)
+        .gesture(swipeGesture)
+        .onChange(of: viewStore.pagesInfo) { _ in
+            if viewStore.shouldSendUserToTheLastPage {
+                currentPageIndex = viewStore.pagesCount - 1
+            } else {
+                currentPageIndex = 0
             }
-            .onDisappear {
-                viewStore.send(.userLeftMangaReadingView)
-            }
-            .onTapGesture {
-                withAnimation(.linear) {
-                    shouldShowNavBar.toggle()
-                }
-            }
+        }
+        .onChange(of: currentPageIndex) {
+            viewStore.send(.userChangedPage(newPageIndex: $0))
         }
     }
 }
@@ -50,7 +57,8 @@ extension MangaReadingView {
         Button {
             self.presentationMode.wrappedValue.dismiss()
         } label: {
-            Image(systemName: "arrow.left")
+            Image(systemName: "xmark")
+                .font(.title3)
                 .foregroundColor(.white)
                 .padding(.vertical)
         }
@@ -59,9 +67,9 @@ extension MangaReadingView {
 
 extension MangaReadingView {
     private var readingContent: some View {
-        WithViewStore(store) { viewStore in
+        ZStack {
             if let urls = viewStore.pagesInfo?.dataSaverURLs {
-                TabView(selection: viewStore.binding(\.$currentPage)) {
+                TabView(selection: $currentPageIndex) {
                     Color.clear
                         .tag(-1)
                     
@@ -96,38 +104,53 @@ extension MangaReadingView {
     
     private var navigationBar: some View {
         ZStack {
-            WithViewStore(store.actionless) { viewStore in
-                Color.black
-                    .ignoresSafeArea()
-                
-                HStack(spacing: 15) {
-                    backButton
-                        .padding(.horizontal)
-                    
-                    Spacer()
-                    
-                    VStack {
-                        if let chapterIndex = viewStore.chapterIndex {
-                            Text("Chapter \(chapterIndex.clean())")
-                        }
-                        
-                        if let pagesCount = viewStore.pagesCount,
-                            viewStore.currentPage < pagesCount &&
-                            viewStore.currentPage + 1 > 0 {
-                            Text("\(viewStore.currentPage + 1)/\(pagesCount)")
-                        }
-                    }
-                    .font(.callout)
+            Color.black
+                .ignoresSafeArea()
+            
+            HStack(spacing: 15) {
+                backButton
                     .padding(.horizontal)
+                
+                Spacer()
+                
+                VStack {
+                    if let chapterIndex = viewStore.chapterIndex {
+                        Text("Chapter \(chapterIndex.clean())")
+                    }
                     
-                    Spacer()
-                    
-                    // to align VStack in center
-                    backButton
-                        .padding(.horizontal)
-                        .opacity(0)
-                        .disabled(true)
+                    if currentPageIndex < viewStore.pagesCount && currentPageIndex + 1 > 0 {
+                        Text("\(currentPageIndex + 1)/\(viewStore.pagesCount)")
+                    }
                 }
+                .font(.callout)
+                .padding(.horizontal)
+                
+                Spacer()
+                
+                // to align VStack in center
+                backButton
+                    .padding(.horizontal)
+                    .opacity(0)
+                    .disabled(true)
+            }
+        }
+    }
+    
+    // MARK: - Gestures
+    private var swipeGesture: some Gesture {
+        DragGesture(minimumDistance: 100, coordinateSpace: .local)
+            .onEnded { value in
+                if value.translation.height > 100 {
+                    viewStore.send(.userLeftMangaReadingView)
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+    }
+    
+    private var tapGesture: some Gesture {
+        TapGesture().onEnded {
+            withAnimation(.linear) {
+                shouldShowNavBar.toggle()
             }
         }
     }

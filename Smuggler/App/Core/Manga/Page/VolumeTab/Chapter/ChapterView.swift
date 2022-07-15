@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct ChapterView: View {
     let store: Store<ChapterState, ChapterAction>
     @Environment(\.openURL) private var openURL
-    @State private var showConfirmationDialog = false
 
     var body: some View {
         WithViewStore(store) { viewStore in
@@ -22,6 +21,9 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
             
             Divider()
         }
@@ -57,13 +59,12 @@ extension ChapterView {
                     .fontWeight(.semibold)
                     .padding(.vertical, 3)
                 
-                if viewStore.shouldShowActivityIndicator {
-                    Spacer()
-                    
-                    ActivityIndicator(lineWidth: 2)
-                        .frame(width: 15)
-                        .transition(.opacity)
-                }
+                Spacer()
+                
+                ActivityIndicator(lineWidth: 2)
+                    .frame(width: 15)
+                    .opacity(viewStore.shouldShowActivityIndicator ? 1 : 0)
+                    .transition(.opacity)
             }
             .animation(.linear, value: viewStore.shouldShowActivityIndicator)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -80,7 +81,7 @@ extension ChapterView {
                 ForEach(viewStore.chapterDetails) { chapter in
                     makeChapterDetailsView(for: chapter)
                         .onTapGesture {
-                                // if manga has externalURL, means we can only read it on some other website, not in app
+                            // if manga has externalURL, means we can only read it on some other website, not in app
                             if let url = chapter.attributes.externalURL {
                                 openURL(url)
                             } else {
@@ -94,9 +95,6 @@ extension ChapterView {
             .transition(.opacity)
             .animation(.linear, value: viewStore.areChaptersShown)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
         }
     }
     

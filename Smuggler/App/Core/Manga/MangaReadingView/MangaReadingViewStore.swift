@@ -22,22 +22,20 @@ struct MangaReadingViewState: Equatable {
     let shouldSendUserToTheLastPage: Bool
     
     var pagesInfo: ChapterPagesInfo?
-    @BindableState var currentPage: Int = 0
-    var pagesCount: Int? {
-        pagesInfo?.dataSaverURLs.count
+    var pagesCount: Int {
+        pagesInfo?.dataSaverURLs.count ?? 0
     }
 }
 
-enum MangaReadingViewAction: BindableAction {
+enum MangaReadingViewAction {
     case userStartedReadingChapter
     case chapterPagesInfoFetched(Result<ChapterPagesInfo, AppError>)
-    
+    case userChangedPage(newPageIndex: Int)
+
     // MARK: - Actions to be hijacked in MangaFeature
     case userHitLastPage
     case userHitTheMostFirstPage
     case userLeftMangaReadingView
-    
-    case binding(BindingAction<MangaReadingViewState>)
 }
 
 struct MangaReadingViewEnvironment {
@@ -61,10 +59,6 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 case .success(let chapterPagesInfo):
                     state.pagesInfo = chapterPagesInfo
                     
-                    if state.shouldSendUserToTheLastPage {
-                        state.currentPage = chapterPagesInfo.dataSaverURLs.count - 1
-                    }
-                    
                     ImagePrefetcher(
                         urls: chapterPagesInfo.dataSaverURLs,
                         options: [.memoryCacheExpiration(.days(1))]
@@ -77,16 +71,13 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                     return .none
             }
             
-        case .binding(\.$currentPage):
-            if state.currentPage == -1 {
+        case .userChangedPage(let newPageIndex):
+            if newPageIndex == -1 {
                 return Effect(value: MangaReadingViewAction.userHitTheMostFirstPage)
-            } else if state.currentPage == state.pagesInfo?.dataSaverURLs.count {
+            } else if newPageIndex == state.pagesInfo?.dataSaverURLs.count {
                 return Effect(value: MangaReadingViewAction.userHitLastPage)
             }
-            
-            return .none
-            
-        case .binding:
+
             return .none
             
         // MARK: - Actions to be hijacked in MangaFeature
@@ -100,4 +91,3 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             return .none
     }
 }
-.binding()
