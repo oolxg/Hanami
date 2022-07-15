@@ -61,13 +61,7 @@ struct MangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea()
-            .background(
-                NavigationLink(
-                    destination: mangaReadingView,
-                    isActive: viewStore.binding(\.$isUserOnReadingView),
-                    label: { EmptyView() }
-                )
-            )
+            .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
                 message: viewStore.hudInfo.message,
@@ -88,11 +82,10 @@ struct MangaView_Previews: PreviewProvider {
 
 
 extension MangaView {
-    private var mangaReadingView: some View {
+    private func mangaReadingView() -> some View {
         IfLetStore(
             store.scope(
-                state: \.mangaReadingViewState,
-                action: MangaViewAction.mangaReadingViewAction
+                state: \.mangaReadingViewState, action: MangaViewAction.mangaReadingViewAction
             ),
             then: MangaReadingView.init
         )
@@ -376,11 +369,11 @@ extension MangaView {
                 ForEach(MangaViewState.Tab.allCases, content: makeTabLabel)
                     .offset(x: isHeaderBackButtonVisible ? -50 : 0)
             }
-            .animation(.linear, value: isHeaderBackButtonVisible)
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
+        .animation(.linear, value: isHeaderBackButtonVisible)
         .background(Color.black)
         .offset(y: headerOffset.1 > 0 ? 0 : -headerOffset.1 / 10)
         .modifier(
@@ -411,15 +404,13 @@ extension MangaView {
                             .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)
                     }
                 }
-                .animation(.easeInOut, value: viewStore.selectedTab)
-                .padding(.horizontal, 8)
-                .frame(height: 8)
+                .padding(.horizontal, 4)
+                .frame(height: 6)
             }
             .contentShape(Rectangle())
+            .animation(.easeInOut, value: viewStore.selectedTab)
             .onTapGesture {
-                withAnimation(.easeInOut) {
-                    viewStore.send(.mangaTabChanged(tab))
-                }
+                viewStore.send(.mangaTabChanged(tab), animation: .easeInOut)
             }
         }
     }

@@ -39,3 +39,10 @@ struct HUD: View {
         )
     }
 }
+
+struct HUDInfo: Equatable {
+    var show = false
+    var message = ""
+    var iconName: String?
+    var backgroundColor = Color.theme.red
+}

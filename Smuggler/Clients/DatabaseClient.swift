@@ -225,7 +225,7 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func saveChapterDetails(_ chapterDetails: ChapterDetails, forManga manga: Manga) -> Effect<Never, Never> {
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, fromManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 var mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in

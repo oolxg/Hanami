@@ -30,7 +30,7 @@ struct HomeView: View {
                     }
                     .transition(.opacity)
                 }
-                .navigationTitle("Smuggler")
+                .navigationTitle("Kamakura")
                 .navigationBarTitleDisplayMode(.large)
                 .onAppear {
                     viewStore.send(.onAppear)

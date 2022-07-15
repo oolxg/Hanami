@@ -111,8 +111,9 @@ extension MangaReadingView {
                             Text("Chapter \(chapterIndex.clean())")
                         }
                         
-                        if let pagesCount = viewStore.pagesInfo?.dataSaverURLs.count,
-                           viewStore.currentPage < pagesCount && viewStore.currentPage + 1 > 0 {
+                        if let pagesCount = viewStore.pagesCount,
+                            viewStore.currentPage < pagesCount &&
+                            viewStore.currentPage + 1 > 0 {
                             Text("\(viewStore.currentPage + 1)/\(pagesCount)")
                         }
                     }

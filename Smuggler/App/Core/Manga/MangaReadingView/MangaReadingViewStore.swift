@@ -22,17 +22,9 @@ struct MangaReadingViewState: Equatable {
     let shouldSendUserToTheLastPage: Bool
     
     var pagesInfo: ChapterPagesInfo?
-    var imagePrefetcher: ImagePrefetcher?
     @BindableState var currentPage: Int = 0
-}
-
-extension MangaReadingViewState {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.currentPage == rhs.currentPage &&
-        lhs.pagesInfo == rhs.pagesInfo &&
-        lhs.chapterIndex == rhs.chapterIndex &&
-        lhs.chapterID == rhs.chapterID &&
-        lhs.shouldSendUserToTheLastPage == rhs.shouldSendUserToTheLastPage
+    var pagesCount: Int? {
+        pagesInfo?.dataSaverURLs.count
     }
 }
 
@@ -73,12 +65,10 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                         state.currentPage = chapterPagesInfo.dataSaverURLs.count - 1
                     }
                     
-                    state.imagePrefetcher = ImagePrefetcher(
+                    ImagePrefetcher(
                         urls: chapterPagesInfo.dataSaverURLs,
                         options: [.memoryCacheExpiration(.days(1))]
-                    )
-                    
-                    state.imagePrefetcher?.start()
+                    ).start()
                     
                     return .none
 
@@ -101,15 +91,12 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         // MARK: - Actions to be hijacked in MangaFeature
         case .userHitLastPage:
-            state.imagePrefetcher?.stop()
             return .none
             
         case .userHitTheMostFirstPage:
-            state.imagePrefetcher?.stop()
             return .none
             
         case .userLeftMangaReadingView:
-            state.imagePrefetcher?.stop()
             return .none
     }
 }

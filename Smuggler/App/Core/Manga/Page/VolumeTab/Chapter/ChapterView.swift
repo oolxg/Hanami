@@ -22,9 +22,6 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
             
             Divider()
         }
@@ -93,9 +90,12 @@ extension ChapterView {
                             }
                         }
                 }
-                .transition(.opacity)
-                .animation(.linear, value: viewStore.areChaptersShown)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .transition(.opacity)
+            .animation(.linear, value: viewStore.areChaptersShown)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }

@@ -35,3 +35,27 @@ extension CoverArtInfo: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension CoverArtInfo {
+    private var coverArtString: String {
+        guard let mangaID = relationships.first(where: { $0.type == .manga })?.id else {
+            return ""
+        }
+        
+        let lowercased = mangaID.uuidString.lowercased()
+        let fileName = attributes.fileName
+        
+        return "https://uploads.mangadex.org/covers/\(lowercased)/\(fileName)"
+    }
+    var coverArtURL: URL? {
+        URL(string: coverArtString)
+    }
+    
+    var coverArtURL512: URL? {
+        URL(string: coverArtString + ".512.jpg")
+    }
+    
+    var coverArtURL256: URL? {
+        URL(string: coverArtString + ".256.jpg")
+    }
+}

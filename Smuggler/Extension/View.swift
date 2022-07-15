@@ -17,7 +17,6 @@ extension View {
         isPresented: Binding<Bool>,
         message: String,
         iconName: String? = nil,
-        transition: AnyTransition = .move(edge: .top).combined(with: .opacity),
         hideAfter hideInterval: Double,
         backgroundColor: Color
     ) -> some View {
@@ -27,7 +26,7 @@ extension View {
             if isPresented.wrappedValue {
                 HUD(text: message, iconName: iconName, backgroundColor: backgroundColor)
                     .zIndex(1)
-                    .transition(transition)
+                    .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.horizontal)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + hideInterval) {

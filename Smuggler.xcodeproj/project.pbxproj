@@ -69,6 +69,7 @@
 		2273E2BA285BFB9000A40C0B /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2273E2B9285BFB9000A40C0B /* Date.swift */; };
 		228D8D55287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */; };
 		228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */; };
+		2291EF5D2880E15B007FE0B0 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2291EF5C2880E15B007FE0B0 /* NetworkMonitor.swift */; };
 		229F8D8B282DB34C00761054 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F8D8A282DB34C00761054 /* RootView.swift */; };
 		229F8D90282DB5E400761054 /* RootStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F8D8F282DB5E400761054 /* RootStore.swift */; };
 		229F8D93282DB9D200761054 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F8D92282DB9D200761054 /* HomeView.swift */; };
@@ -185,6 +186,7 @@
 		2273E2B9285BFB9000A40C0B /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterDetailsMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		2291EF5C2880E15B007FE0B0 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		229DA9EE28725F5E00C6EF91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		229F8D8A282DB34C00761054 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		229F8D8F282DB5E400761054 /* RootStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootStore.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 			isa = PBXGroup;
 			children = (
 				222A03692871BD7500D5B588 /* AppUtil.swift */,
+				2291EF5C2880E15B007FE0B0 /* NetworkMonitor.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -732,6 +735,7 @@
 				229F8D93282DB9D200761054 /* HomeView.swift in Sources */,
 				2215CA5828482B3C00986F71 /* FiltersView.swift in Sources */,
 				222A03662871B9D800D5B588 /* DatabaseClient.swift in Sources */,
+				2291EF5D2880E15B007FE0B0 /* NetworkMonitor.swift in Sources */,
 				225AA5A8284D16D300B406DA /* LazyView.swift in Sources */,
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,
 				2205CBA02856A91900421888 /* UINavigationController.swift in Sources */,
@@ -933,6 +937,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Smuggler/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamakura;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -967,6 +972,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Smuggler/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamakura;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

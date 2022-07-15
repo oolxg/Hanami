@@ -24,22 +24,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
     }
     
     var id: UUID { manga.id }
-    
-    var coverArtURL512: URL? {
-        guard let fileName = coverArtInfo?.attributes.fileName else {
-            return nil
-        }
-        
-        return URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(fileName).512.jpg")
-    }
-    
-    var coverArtURL: URL? {
-        guard let fileName = coverArtInfo?.attributes.fileName else {
-            return nil
-        }
-        
-        return URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\(fileName)")
-    }
 }
 
 enum MangaThumbnailAction {
@@ -90,8 +74,8 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                 switch result {
                     case .success(let response):
                         state.coverArtInfo = response.data
-                        state.mangaState.mainCoverArtURL = state.coverArtURL
-                        state.mangaState.coverArtURL512 = state.coverArtURL512
+                        state.mangaState.mainCoverArtURL = state.coverArtInfo?.coverArtURL
+                        state.mangaState.coverArtURL512 = state.coverArtInfo?.coverArtURL512
                         return .none
                         
                     case .failure(let error):

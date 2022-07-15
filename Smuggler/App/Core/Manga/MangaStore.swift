@@ -14,7 +14,9 @@ struct MangaViewState: Equatable {
     
     var statistics: MangaStatistics?
 
-    var pagesState: PagesState?
+    var pagesState: PagesState? {
+        willSet { areVolumesLoaded = newValue != nil }
+    }
     var currentPageIndex: Int = 0
     
     var areVolumesLoaded = false
@@ -35,13 +37,6 @@ struct MangaViewState: Equatable {
     
     @BindableState var hudInfo = HUDInfo()
     
-    struct HUDInfo: Equatable {
-        var show = false
-        var message = ""
-        var iconName: String?
-        var backgroundColor = Color.theme.red
-    }
-    
     // MARK: - Props for reading view
     @BindableState var isUserOnReadingView = false
     // if user reads some chapter with scanlation group 'A', e.g. ch. 21
@@ -50,17 +45,10 @@ struct MangaViewState: Equatable {
     var nextReadingChapterIndex: Int?
     var previousReadingChapterIndex: Int?
     
-    var mangaReadingViewState: MangaReadingViewState? {
-        // it's better not to set value of 'mangaReadingViewState' to nil
+    // it's better not to set value of 'mangaReadingViewState' to nil
+    @BindableState var mangaReadingViewState: MangaReadingViewState? {
         willSet {
-            if newValue != nil {
-                isUserOnReadingView = true
-            } else {
-                isUserOnReadingView = false
-                nextReadingChapterIndex = nil
-                previousReadingChapterIndex = nil
-                sameScanlationGroupChapters = nil
-            }
+            isUserOnReadingView = newValue != nil
         }
     }
     // if user starts reading some chapter, we fetch all chapters from the same scanlation group
@@ -69,9 +57,7 @@ struct MangaViewState: Equatable {
     var mainCoverArtURL: URL?
     var coverArtURL512: URL?
     var coverArtURLs: [URL] {
-        allCoverArtsInfo.compactMap {
-            URL(string: "https://uploads.mangadex.org/covers/\(manga.id.uuidString.lowercased())/\($0.attributes.fileName).512.jpg")
-        }
+        allCoverArtsInfo.compactMap { $0.coverArtURL }
     }
     
     // should only be used for clearing cache
@@ -174,9 +160,9 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 }
 
             case .volumesDownloaded(let result):
+                state.areVolumesLoaded = true
                 switch result {
                     case .success(let response):
-                        state.areVolumesLoaded = true
 
                         state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 20)
                         
@@ -241,12 +227,21 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     chapterIndex: chapter.attributes.chapterIndex
                 )
                 
-                if state.mangaReadingViewState != newMangaReadingViewState {
+                if state.mangaReadingViewState?.chapterID != newMangaReadingViewState.chapterID {
                     state.mangaReadingViewState = newMangaReadingViewState
+                } else {
+                    let currentPage = state.mangaReadingViewState!.currentPage
+                    let pagesCount = state.mangaReadingViewState!.pagesCount
+                    
+                    if currentPage < 0 {
+                        state.mangaReadingViewState!.currentPage = 0
+                    } else if let pagesCount = pagesCount, currentPage >= pagesCount {
+                        state.mangaReadingViewState!.currentPage = pagesCount - 1
+                    }
+                    
+                    state.isUserOnReadingView = true
                 }
                 
-                UITabBar.hideTabBar(animated: false)
-            
                 return env.mangaClient.fetchMangaChapters(
                     state.manga.id,
                     chapter.scanltaionGroupID,
@@ -256,7 +251,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
                 
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter)))):
-                return env.databaseClient.saveChapterDetails(chapter, forManga: state.manga).fireAndForget()
+                return env.databaseClient.saveChapterDetails(chapter, fromManga: state.manga).fireAndForget()
                 
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userConfirmedChapterDelete(let chapter)))):
                 return env.databaseClient.deleteChapter(id: chapter.id).fireAndForget()
@@ -304,7 +299,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 )
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
-                UITabBar.showTabBar(animated: true)
                 state.isUserOnReadingView = false
                 return .none
                 
