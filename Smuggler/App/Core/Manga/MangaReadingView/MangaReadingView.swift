@@ -12,7 +12,6 @@ import Kingfisher
 struct MangaReadingView: View {
     private let store: Store<MangaReadingViewState, MangaReadingViewAction>
     private let viewStore: ViewStore<MangaReadingViewState, MangaReadingViewAction>
-    @Environment(\.presentationMode) private var presentationMode
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
@@ -55,7 +54,7 @@ struct MangaReadingView: View {
 extension MangaReadingView {
     private var backButton: some View {
         Button {
-            self.presentationMode.wrappedValue.dismiss()
+            viewStore.send(.userLeftMangaReadingView)
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)
@@ -124,6 +123,7 @@ extension MangaReadingView {
                 }
                 .font(.callout)
                 .padding(.horizontal)
+                .animation(.linear, value: viewStore.pagesCount)
                 
                 Spacer()
                 
@@ -142,7 +142,6 @@ extension MangaReadingView {
             .onEnded { value in
                 if value.translation.height > 100 {
                     viewStore.send(.userLeftMangaReadingView)
-                    presentationMode.wrappedValue.dismiss()
                 }
             }
     }

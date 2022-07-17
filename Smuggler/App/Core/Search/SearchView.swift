@@ -33,11 +33,6 @@ struct SearchView: View {
                     
                     searchResults
                 }
-                .onChange(of: viewStore.areSearchResultsDownloaded) { newValue in
-                    if newValue {
-                        UIApplication.shared.endEditing()
-                    }
-                }
             }
             .navigationTitle("Search")
         }
@@ -123,10 +118,11 @@ extension SearchView {
         VStack {
             Text("Ehm, i found no manga")
                 .fontWeight(.medium)
+                .foregroundColor(.theme.accent)
                 .font(.title2)
             Text("👉👈")
         }
-        .padding()
+        .padding(.top, 100)
         
         Spacer()
     }

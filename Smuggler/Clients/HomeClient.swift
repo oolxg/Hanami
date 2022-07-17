@@ -38,7 +38,7 @@ extension HomeClient {
             ]
             
             guard let url = components.url else {
-                fatalError("Error on creating URL")
+                return .none
             }
             
             return URLSession.shared.dataTaskPublisher(for: url)
@@ -71,7 +71,7 @@ extension HomeClient {
             )
             
             guard let url = components.url else {
-                fatalError("Error on creating URL")
+                return .none
             }
             
             return URLSession.shared.dataTaskPublisher(for: url)

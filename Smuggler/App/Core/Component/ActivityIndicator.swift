@@ -34,10 +34,10 @@ struct ActivityIndicator: View {
             }
             .onAppear {
                 withAnimation(.linear(duration: 0.5).repeatForever(autoreverses: false)) {
-                    degrees1 += 360
+                    degrees1 += degrees1 < 360 ? 360 : 0
                 }
                 withAnimation(.linear(duration: 1.2).repeatForever(autoreverses: false)) {
-                    degrees2 += 360
+                    degrees2 += degrees2 < 360 ? 360 : 0
                 }
             }
         }

@@ -61,7 +61,7 @@ extension SearchClient {
             )
             
             guard let url = components.url else {
-                fatalError("Error on creating URL")
+                return .none
             }
             
             return URLSession.shared.dataTaskPublisher(for: url)
@@ -94,7 +94,7 @@ extension SearchClient {
             )
             
             guard let url = components.url else {
-                fatalError("Error on creating URL")
+                return .none
             }
             
             return URLSession.shared.dataTaskPublisher(for: url)
@@ -115,7 +115,7 @@ extension SearchClient {
         },
         fetchTags: {
             guard let url = URL(string: "https://api.mangadex.org/manga/tag") else {
-                fatalError("Error on creating URL")
+                return .none
             }
             
             return URLSession.shared.dataTaskPublisher(for: url)

@@ -117,20 +117,7 @@ extension MangaView {
                             )
                             
                             VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    backButton
-                                    
-                                    Spacer()
-                                    
-                                    Button {
-//                                    fatalError("Разделить reducer в MangaFeature на два подстейта - когда есть и когда нет сети")
-                                        // глянуть также SwitchStore или как то так
-                                    } label: {
-                                        Image(systemName: "bookmark")
-                                            .foregroundColor(.white)
-                                            .padding(.vertical)
-                                    }
-                                }
+                                backButton
                                 
                                 Spacer()
                                 
@@ -143,6 +130,8 @@ extension MangaView {
                                         Circle()
                                             .fill(viewStore.manga.attributes.status.color)
                                             .frame(width: 10, height: 10)
+                                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                                            .drawingGroup()
                                         
                                         Text(viewStore.manga.attributes.status.rawValue.capitalized)
                                             .foregroundColor(.white)
@@ -159,13 +148,24 @@ extension MangaView {
                             .padding(.bottom, 25)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        .opacity(headerTextOpacity)
                     )
                     .cornerRadius(0)
                     .offset(y: -minY)
             }
-            .frame(height: 250)
+            .frame(height: 320)
         }
     }
+
+    // when user scrolls up, we make all text and gradient on header slowly disappear
+    private var headerTextOpacity: Double {
+        if headerOffset.1 < 0 { return 1 }
+        
+        let opacity = 1 - headerOffset.1 * 0.01
+        
+        return opacity >= 0 ? opacity : 0
+    }
+    
     
     private var mangaBodyView: some View {
         WithViewStore(store.actionless) { viewStore in
@@ -231,7 +231,6 @@ extension MangaView {
                             .fade(duration: 0.3)
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 240)
                             .padding(.horizontal, 5)
                             .overlay(
                                 ZStack(alignment: .bottom) {

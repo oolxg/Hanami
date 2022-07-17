@@ -35,9 +35,9 @@ struct ChapterState: Equatable, Identifiable {
 
 enum ChapterAction: BindableAction, Equatable {
     case onAppear
-    case userTappedOnChapter
+    case fetchChapterDetails
     case userTappedOnChapterDetails(chapter: ChapterDetails)
-    case chapterDetailsDownloaded(result: Result<Response<ChapterDetails>, AppError>)
+    case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
     case downloadChapterForOfflineReading(chapter: ChapterDetails)
     
@@ -74,7 +74,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return .none
             
-        case .userTappedOnChapter:
+        case .fetchChapterDetails:
             var effects: [Effect<ChapterAction, Never>] = []
             
             if state.chapterDetails[id: state.chapter.id] == nil {
@@ -82,7 +82,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     env.mangaClient.fetchChapterDetails(state.chapter.id)
                         .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(ChapterAction.chapterDetailsDownloaded)
+                        .catchToEffect(ChapterAction.chapterDetailsFetched)
                         .animation(.linear)
                         .cancellable(id: ChapterState.CancelChapterFetch())
                 )
@@ -93,7 +93,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     env.mangaClient.fetchChapterDetails(otherChapterID)
                         .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(ChapterAction.chapterDetailsDownloaded)
+                        .catchToEffect(ChapterAction.chapterDetailsFetched)
                         .animation(.linear)
                         .cancellable(id: ChapterState.CancelChapterFetch())
                 )
@@ -136,7 +136,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             state.cachedChaptersIDs.insert(chapter.id)
             return .none
             
-        case .chapterDetailsDownloaded(let result):
+        case .chapterDetailsFetched(let result):
             state.loadingChapterDetailsCount -= 1
             switch result {
                 case .success(let response):

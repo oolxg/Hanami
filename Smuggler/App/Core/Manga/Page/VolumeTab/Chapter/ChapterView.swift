@@ -70,7 +70,7 @@ extension ChapterView {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .onTapGesture {
-                viewStore.send(.userTappedOnChapter, animation: .linear)
+                viewStore.send(.fetchChapterDetails, animation: .linear)
             }
         }
     }

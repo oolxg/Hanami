@@ -37,14 +37,8 @@ struct MangaViewState: Equatable {
     
     @BindableState var hudInfo = HUDInfo()
     
-    // MARK: - Props for reading view
+    // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    // if user reads some chapter with scanlation group 'A', e.g. ch. 21
-    // it means we have to get ch. 22(as next chapter) and 20(as previous) from the scanlation group 'A'
-    // this indexes are array indexes in 'sameScanlationGroupChapters'
-    var nextReadingChapterIndex: Int?
-    var previousReadingChapterIndex: Int?
-    
     // it's better not to set value of 'mangaReadingViewState' to nil
     @BindableState var mangaReadingViewState: MangaReadingViewState? {
         willSet {
@@ -78,7 +72,6 @@ enum MangaViewAction: BindableAction {
     case mangaTabChanged(MangaViewState.Tab)
 
     // MARK: - Actions to be called from reducer
-    case computeNextAndPreviousChapterIndexes
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
     case volumesDownloaded(Result<VolumesContainer, AppError>)
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
@@ -86,7 +79,7 @@ enum MangaViewAction: BindableAction {
     
     // MARK: - Substate actions
     case mangaReadingViewAction(MangaReadingViewAction)
-    case pagesAction(pageAction: PagesAction)
+    case pagesAction(PagesAction)
     
     // MARK: - Binding
     case binding(BindingAction<MangaViewState>)
@@ -189,36 +182,12 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     case .success(let response):
                         state.sameScanlationGroupChapters = response.volumes.flatMap(\.chapters).sorted(by: <)
                                             
-                        return Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes)
+                        return .none
                         
                     case .failure(let error):
                         print("error on chaptersDownloaded, \(error)")
                         return .none
                 }
-                
-            case .computeNextAndPreviousChapterIndexes:
-                // it's index from mangaDex API, not index in 'sameScanlationGroupChapters'
-                let currentReadingChapterIndex = state.mangaReadingViewState?.chapterIndex
-
-                // here we're trying to get index in 'sameScanlationGroupChapters'
-                guard let chapterIndex = state.sameScanlationGroupChapters?
-                    .firstIndex(where: { $0.chapterIndex == currentReadingChapterIndex }) else {
-                    return .none
-                }
-                
-                if chapterIndex > 0 {
-                    state.previousReadingChapterIndex = chapterIndex - 1
-                } else {
-                    state.previousReadingChapterIndex = nil
-                }
-                
-                if chapterIndex < state.sameScanlationGroupChapters!.count - 1 {
-                    state.nextReadingChapterIndex = chapterIndex + 1
-                } else {
-                    state.nextReadingChapterIndex = nil
-                }
-                
-                return .none
                 
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
                 let newMangaReadingViewState = MangaReadingViewState(
@@ -247,7 +216,11 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 return env.databaseClient.deleteChapter(id: chapter.id).fireAndForget()
                 
             case .mangaReadingViewAction(.userHitLastPage):
-                guard let nextChapterIndex = state.nextReadingChapterIndex,
+                let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
+                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
+                )
+                
+                guard let nextChapterIndex = nextChapterIndex,
                       let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
@@ -259,15 +232,21 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     chapterID: nextChapter.id,
                     chapterIndex: nextChapter.chapterIndex
                 )
-                // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
-                return .merge(
-                    Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
-                    Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                )
+                
+                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
+                    nextChapter.chapterIndex, state.pagesState!.splittedIntoPagesVolumeTabStates
+                ) {
+                    return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                }
+                
+                return .none
 
             case .mangaReadingViewAction(.userHitTheMostFirstPage):
-                guard let previousChapterIndex = state.previousReadingChapterIndex,
+                let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
+                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
+                )
+                
+                guard let previousChapterIndex = previousChapterIndex,
                       let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
@@ -281,15 +260,35 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     shoudSendUserToTheLastPage: true
                 )
                 
-                // we're firing this effect -> Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                // to download new pages. View itself doesn't disappear -> it doesn't appear, so we have to do it manually
-                return .merge(
-                    Effect(value: MangaViewAction.computeNextAndPreviousChapterIndexes),
-                    Effect(value: MangaViewAction.mangaReadingViewAction(.userStartedReadingChapter))
-                )
+                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
+                    previousChapter.chapterIndex, state.pagesState!.splittedIntoPagesVolumeTabStates
+                ) {
+                    return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                }
+                
+                return .none
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
+                let chapterIndex = state.mangaReadingViewState!.chapterIndex
+                let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
+                
+                let info = env.mangaClient.getReadChapterOnPaginationPage(chapterIndex, volumes)
                 state.isUserOnReadingView = false
+                
+                if let info = info {
+                    return Effect(
+                        value: MangaViewAction.pagesAction(
+                            .volumeTabAction(
+                                volumeID: info.volumeID,
+                                volumeAction: .chapterAction(
+                                    id: info.chapterID,
+                                    action: .fetchChapterDetails
+                                )
+                            )
+                        )
+                    )
+                }
+                
                 return .none
                 
             case .mangaReadingViewAction:

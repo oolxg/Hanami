@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import SwiftUI
 
 struct SearchState: Equatable {
     var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
@@ -126,7 +127,6 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 // it also possible, that thumbnail was deinitialized, but because of SwiftUI it won't disappeer, so it will no 'appear', it stays on the screen
                 // and '.onAppear()' won't be called
                 // so we remove everything here, then load items and if we got the same thumbnail as before, '.onAppear()' will fire
-                state.mangaThumbnailStates = []
                 state.areSearchResultsDownloaded = false
 
                 return env.searchClient.makeSearchRequest(searchParams)
@@ -135,6 +135,8 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
                 
             case .searchResultDownloaded(let result, let requestParams):
+                UIApplication.shared.endEditing()
+
                 switch result {
                     case .success(let response):
                         state.lastSuccessfulRequestParams = requestParams
