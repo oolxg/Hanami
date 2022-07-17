@@ -282,7 +282,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                                 volumeID: info.volumeID,
                                 volumeAction: .chapterAction(
                                     id: info.chapterID,
-                                    action: .fetchChapterDetails
+                                    action: .fetchChapterDetailsIfNeeded
                                 )
                             )
                         )

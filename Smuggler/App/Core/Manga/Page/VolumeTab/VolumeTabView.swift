@@ -15,10 +15,12 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                ForEachStore(
-                    store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction),
-                    content: ChapterView.init
-                )
+                LazyVStack {
+                    ForEachStore(
+                        store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction),
+                        content: ChapterView.init
+                    )
+                }
             } label: {
                 HStack {
                     Text(viewStore.volume.volumeName)

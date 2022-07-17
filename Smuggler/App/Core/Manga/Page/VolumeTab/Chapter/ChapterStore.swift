@@ -13,29 +13,24 @@ struct ChapterState: Equatable, Identifiable {
     // Chapter basic info
     let chapter: Chapter
     // we can have many 'chapterDetails' in one ChapterState because one chapter can be translated by different scanlation groups
-    // here are each chapter with details
     var chapterDetails: IdentifiedArrayOf<ChapterDetails> = []
+    // '_chapterDetails' is only to accumulate all ChapterDetails and then show it at once
+    // swiftlint:disable:next identifier_name
+    var _chapterDetails: [ChapterDetails] = []
     var scanlationGroups: [UUID: ScanlationGroup] = [:]
     var cachedChaptersIDs = Set<UUID>()
     
     var id: UUID { chapter.id }
     
-    @BindableState var areChaptersShown = false {
-        willSet {
-            if newValue { shouldShowActivityIndicator = false }
-        }
-    }
+    @BindableState var areChaptersShown = false
     
-    var loadingChapterDetailsCount = 0
-    var shouldShowActivityIndicator = false
     var confiramtionDialog: ConfirmationDialogState<ChapterAction>?
     
     struct CancelChapterFetch: Hashable { }
 }
 
 enum ChapterAction: BindableAction, Equatable {
-    case onAppear
-    case fetchChapterDetails
+    case fetchChapterDetailsIfNeeded
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
@@ -55,29 +50,16 @@ struct ChapterEnvironment {
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { state, action, env in
     switch action {
-        case .onAppear:
-            state.shouldShowActivityIndicator = false
-            
-            if env.databaseClient.fetchChapter(chapterID: state.chapter.id) != nil {
-                state.cachedChaptersIDs.insert(state.chapter.id)
-            } else {
-                state.cachedChaptersIDs.remove(state.chapter.id)
-            }
-            
-            for chapterID in state.chapter.others {
-                if env.databaseClient.fetchChapter(chapterID: chapterID) != nil {
-                    state.cachedChaptersIDs.insert(chapterID)
-                } else {
-                    state.cachedChaptersIDs.remove(chapterID)
-                }
-            }
-            
-            return .none
-            
-        case .fetchChapterDetails:
+        case .fetchChapterDetailsIfNeeded:
             var effects: [Effect<ChapterAction, Never>] = []
             
             if state.chapterDetails[id: state.chapter.id] == nil {
+                if env.databaseClient.fetchChapter(chapterID: state.chapter.id) != nil {
+                    state.cachedChaptersIDs.insert(state.chapter.id)
+                } else {
+                    state.cachedChaptersIDs.remove(state.chapter.id)
+                }
+                
                 effects.append(
                     env.mangaClient.fetchChapterDetails(state.chapter.id)
                         .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
@@ -89,6 +71,12 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             }
             
             for otherChapterID in state.chapter.others where state.chapterDetails[id: otherChapterID] == nil {
+                if env.databaseClient.fetchChapter(chapterID: otherChapterID) != nil {
+                    state.cachedChaptersIDs.insert(otherChapterID)
+                } else {
+                    state.cachedChaptersIDs.remove(otherChapterID)
+                }
+                
                 effects.append(
                     env.mangaClient.fetchChapterDetails(otherChapterID)
                         .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
@@ -99,13 +87,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 )
             }
             
-            state.loadingChapterDetailsCount = effects.count
-            
-            if effects.isEmpty {
-                state.areChaptersShown.toggle()
-            } else {
-                state.shouldShowActivityIndicator = true
-            }
+            state.areChaptersShown.toggle()
 
             return effects.isEmpty ? .none : .merge(effects)
             
@@ -137,23 +119,20 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             return .none
             
         case .chapterDetailsFetched(let result):
-            state.loadingChapterDetailsCount -= 1
             switch result {
                 case .success(let response):
-                    state.chapterDetails.append(response.data)
+                    state._chapterDetails.append(response.data)
+                    
+                    if state._chapterDetails.count == state.chapter.others.count + 1 {
+                        state.chapterDetails = .init(uniqueElements: state._chapterDetails.sorted {
+                            $0.attributes.translatedLanguage < $1.attributes.translatedLanguage
+                        })
+                        state._chapterDetails = []
+                    }
                     
                     guard let scanlationGroupID = response.data.scanltaionGroupID else {
                         return .none
                     }
-                    
-                    
-                    if state.loadingChapterDetailsCount == 0 {
-                        state.chapterDetails.sort {
-                            $0.attributes.translatedLanguage > $1.attributes.translatedLanguage
-                        }
-                    }
-                    
-                    state.areChaptersShown = state.loadingChapterDetailsCount == 0
                     
                     return env.mangaClient.fetchScanlationGroup(scanlationGroupID)
                         .receive(on: DispatchQueue.main)
@@ -167,15 +146,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")
-
-                    if state.loadingChapterDetailsCount == 0 {
-                        state.chapterDetails.sort {
-                            $0.attributes.translatedLanguage > $1.attributes.translatedLanguage
-                        }
-                    }
-                    
-                    state.areChaptersShown = state.loadingChapterDetailsCount == 0
-                    
                     return .none
             }
             

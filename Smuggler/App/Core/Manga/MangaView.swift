@@ -43,9 +43,7 @@ struct MangaView: View {
                         Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                     }
                     .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
-                        withAnimation(.default) {
-                            proxy.scrollTo("header")
-                        }
+                        scrollToHeader(proxy: proxy)
                     }
                 }
             }
@@ -90,6 +88,14 @@ extension MangaView {
             ),
             then: MangaReadingView.init
         )
+    }
+    
+    private func scrollToHeader(proxy: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            withAnimation(.linear) {
+                proxy.scrollTo("header")
+            }
+        }
     }
     
     private var header: some View {
@@ -185,7 +191,7 @@ extension MangaView {
     
     private var mangaPagesTab: some View {
         WithViewStore(store) { viewStore in
-            ZStack {
+            VStack {
                 if viewStore.areVolumesLoaded {
                     if !viewStore.shouldShowEmptyMangaMessage {
                         IfLetStore(
@@ -206,7 +212,7 @@ extension MangaView {
                         .padding()
                     }
                 } else {
-                    ActivityIndicator(lineWidth: 5)
+                    ProgressView()
                         .frame(width: 140, height: 140, alignment: .center)
                         .padding(.top, 150)
                         .transition(.opacity)

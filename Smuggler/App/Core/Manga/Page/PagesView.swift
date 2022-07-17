@@ -12,15 +12,15 @@ struct PagesView: View {
     let store: Store<PagesState, PagesAction>
     
     var body: some View {
-        LazyVStack {
-            ForEachStore(
-                store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
-                content: VolumeTabView.init
-            )
-            .transition(.opacity)
-
-            footer
-        }
+         ForEachStore(
+            store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
+            content: VolumeTabView.init
+        )
+        .transition(.opacity)
+        
+        footer
+            .animation(nil)
+            .padding(.top, 10)
     }
 }
 
@@ -44,7 +44,7 @@ extension PagesView {
         WithViewStore(store) { viewStore in
             HStack {
                 Button {
-                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex - 1), animation: .linear)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex - 1))
                 } label: {
                     Image(systemName: "arrow.left")
                         .foregroundColor(.white)
@@ -80,7 +80,7 @@ extension PagesView {
                     .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
                 
                 Button {
-                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex + 1), animation: .linear)
+                    viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex + 1))
                 } label: {
                     Image(systemName: "arrow.right")
                         .foregroundColor(.white)
@@ -102,7 +102,7 @@ extension PagesView {
                 .background(bgColor)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .onTapGesture {
-                    viewStore.send(.changePage(newPageIndex: pageIndex - 1), animation: .linear)
+                    viewStore.send(.changePage(newPageIndex: pageIndex - 1))
                 }
         }
     }

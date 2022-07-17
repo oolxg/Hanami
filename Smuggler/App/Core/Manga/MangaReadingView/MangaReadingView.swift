@@ -79,7 +79,7 @@ extension MangaReadingView {
                                 cacheKey: urls[pageIndex].absoluteString
                             )
                             .placeholder {
-                                ActivityIndicator()
+                                ProgressView()
                                     .frame(width: 120)
                             }
                             .resizable()
@@ -92,7 +92,7 @@ extension MangaReadingView {
                 }
             } else {
                 TabView {
-                    ActivityIndicator()
+                    ProgressView()
                         .frame(width: 120)
                 }
             }

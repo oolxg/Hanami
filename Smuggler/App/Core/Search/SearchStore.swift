@@ -98,7 +98,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
                 guard !state.searchText.isEmpty else {
                     state.areSearchResultsDownloaded = true
-                    let mangaIDs = state.mangaThumbnailStates.map(\.manga.id)
+                    let mangaIDs = state.mangaThumbnailStates.map(\.id)
                     state.mangaThumbnailStates.removeAll()
                     state.lastSuccessfulRequestParams = nil
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
@@ -129,14 +129,16 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 // so we remove everything here, then load items and if we got the same thumbnail as before, '.onAppear()' will fire
                 state.areSearchResultsDownloaded = false
 
-                return env.searchClient.makeSearchRequest(searchParams)
-                    .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
+                return .merge(
+                    .cancel(ids: state.mangaThumbnailStates.map { CancelClearCacheForManga(mangaID: $0.id) }),
+                    
+                    env.searchClient.makeSearchRequest(searchParams)
+                        .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
+                )
                 
             case .searchResultDownloaded(let result, let requestParams):
-                UIApplication.shared.endEditing()
-
                 switch result {
                     case .success(let response):
                         state.lastSuccessfulRequestParams = requestParams
@@ -144,6 +146,10 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
+                        
+                        if !state.mangaThumbnailStates.isEmpty {
+                            UIApplication.shared.endEditing()
+                        }
                         
                         return env.searchClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: DispatchQueue.main)

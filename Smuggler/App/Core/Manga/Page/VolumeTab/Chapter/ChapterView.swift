@@ -21,9 +21,6 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
             
             Divider()
         }
@@ -58,19 +55,11 @@ extension ChapterView {
                     .font(.title3)
                     .fontWeight(.semibold)
                     .padding(.vertical, 3)
-                
-                Spacer()
-                
-                ActivityIndicator(lineWidth: 2)
-                    .frame(width: 15)
-                    .opacity(viewStore.shouldShowActivityIndicator ? 1 : 0)
-                    .transition(.opacity)
             }
-            .animation(.linear, value: viewStore.shouldShowActivityIndicator)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .onTapGesture {
-                viewStore.send(.fetchChapterDetails, animation: .linear)
+                viewStore.send(.fetchChapterDetailsIfNeeded, animation: .linear)
             }
         }
     }
@@ -78,23 +67,32 @@ extension ChapterView {
     private var disclosureGroupBody: some View {
         WithViewStore(store) { viewStore in
             LazyVStack {
-                ForEach(viewStore.chapterDetails) { chapter in
-                    makeChapterDetailsView(for: chapter)
-                        .onTapGesture {
-                            // if manga has externalURL, means we can only read it on some other website, not in app
-                            if let url = chapter.attributes.externalURL {
-                                openURL(url)
-                            } else {
-                                viewStore.send(
-                                    .userTappedOnChapterDetails(chapter: chapter)
-                                )
+                if viewStore.chapterDetails.isEmpty {
+                    ProgressView()
+                        .frame(width: 40, height: 40)
+                        .padding()
+                        .transition(.opacity)
+                } else {
+                    ForEach(viewStore.chapterDetails) { chapter in
+                        makeChapterDetailsView(for: chapter)
+                            .onTapGesture {
+                                // if manga has externalURL, means we can only read it on some other website, not in app
+                                if let url = chapter.attributes.externalURL {
+                                    openURL(url)
+                                } else {
+                                    viewStore.send(
+                                        .userTappedOnChapterDetails(chapter: chapter)
+                                    )
+                                }
                             }
-                        }
+                    }
+                    .transition(.opacity)
+                    .animation(.linear, value: viewStore.chapterDetails.isEmpty)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .transition(.opacity)
-            .animation(.linear, value: viewStore.areChaptersShown)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(minHeight: CGFloat(viewStore.chapterDetails.count) * 40)
+            .animation(.linear, value: viewStore.chapterDetails.isEmpty)
         }
     }
     
