@@ -64,6 +64,8 @@ struct MangaViewState: Equatable {
         self.statistics = stat
         self.mainCoverArtURL = coverArtURL
     }
+    
+    struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
 }
 
 enum MangaViewAction: BindableAction {
@@ -275,21 +277,29 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 let info = env.mangaClient.getReadChapterOnPaginationPage(chapterIndex, volumes)
                 state.isUserOnReadingView = false
                 
-                if let info = info {
-                    return Effect(
-                        value: MangaViewAction.pagesAction(
-                            .volumeTabAction(
-                                volumeID: info.volumeID,
-                                volumeAction: .chapterAction(
-                                    id: info.chapterID,
-                                    action: .fetchChapterDetailsIfNeeded
-                                )
+                guard let info = info else {
+                    return .none
+                }
+                
+                let chapterState = state.pagesState!
+                    .volumeTabStatesOnCurrentPage[id: info.volumeID]!
+                    .chapterStates[id: info.chapterID]!
+                
+                if chapterState.areChaptersShown {
+                    return .none
+                }
+                
+                return Effect(
+                    value: MangaViewAction.pagesAction(
+                        .volumeTabAction(
+                            volumeID: info.volumeID,
+                            volumeAction: .chapterAction(
+                                id: info.chapterID,
+                                action: .fetchChapterDetailsIfNeeded
                             )
                         )
                     )
-                }
-                
-                return .none
+                )
                 
             case .mangaReadingViewAction:
                 return .none

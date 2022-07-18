@@ -15,6 +15,7 @@ struct PagesState: Equatable {
     var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabState> = []
     var currentPageIndex = 0 {
         willSet {
+            lockPage = true
             let temp = volumeTabStatesOnCurrentPage
             volumeTabStatesOnCurrentPage = .init(
                 uniqueElements: splitIntoPagesVolumeTabStates[newValue]
@@ -22,6 +23,9 @@ struct PagesState: Equatable {
             splitIntoPagesVolumeTabStates[currentPageIndex] = Array(temp)
         }
     }
+    
+    // this lock to disable user on pressing on chapterDetails right after he changed page(this causes crashes)
+    var lockPage = false
 
     // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
     init(mangaVolumes: [MangaVolume], chaptersPerPage: Int) {
@@ -29,19 +33,7 @@ struct PagesState: Equatable {
             volume.chapters.map { (chapter: $0, count: volume.count, volumeIndex: volume.volumeIndex) }
         }
         
-        var chunkedChapters = allMangaChapters.chunked(into: chaptersPerPage)
-
-        // This 'if' is here because of strange LazyVStack animations
-        // if there're only few chapters on page, then on page change we're getting bad animations
-        // so the next lines of code checking if last page contains 3 or less chapters and if yes,
-        // we merge it with penultimate page
-        if chunkedChapters.count > 1 && chunkedChapters.last!.count <= 3 {
-            let lastPageChunkedChapters = chunkedChapters.last!
-            chunkedChapters.removeLast()
-            chunkedChapters[chunkedChapters.count - 1].append(contentsOf: lastPageChunkedChapters)
-        }
-        
-        for chaptersOnPage in chunkedChapters {
+        for chaptersOnPage in allMangaChapters.chunked(into: chaptersPerPage) {
             var volumesOnPage: [MangaVolume] = []
             var chaptersToBeAdded: [(chapter: Chapter, count: Int, volumeIndex: Double?)] = []
             
@@ -83,6 +75,7 @@ struct PagesState: Equatable {
 enum PagesAction {
     case changePage(newPageIndex: Int)
     case changePageAfterEffectCancellation(newPageIndex: Int)
+    case unlockPage
     case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabAction)
 }
 
@@ -103,7 +96,7 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
     Reducer { state, action, _ in
         switch action {
             case .changePage(let newPageIndex):
-                if newPageIndex >= 0 && newPageIndex < state.pagesCount {
+                if newPageIndex != state.currentPageIndex && newPageIndex >= 0 && newPageIndex < state.pagesCount {
                     return .concatenate(
                         .cancel(id: ChapterState.CancelChapterFetch()),
                         Effect(value: PagesAction.changePageAfterEffectCancellation(newPageIndex: newPageIndex))
@@ -113,7 +106,14 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
                 return .none
                 
             case .changePageAfterEffectCancellation(let newPageIndex):
+                state.lockPage = true
                 state.currentPageIndex = newPageIndex
+                return Effect(value: PagesAction.unlockPage)
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
+                
+            case .unlockPage:
+                state.lockPage = false
                 return .none
                 
             case .volumeTabAction:

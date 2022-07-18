@@ -23,13 +23,7 @@ struct CircleButtonView: View {
             .frame(width: 60, height: 60)
             .background(
                 Circle()
-                    .foregroundColor(.theme.background)
-            )
-            .shadow(
-                color: .theme.accent.opacity(0.25),
-                radius: 10,
-                x: 0,
-                y: 0
+                    .stroke(Color.theme.accent, lineWidth: 1)
             )
             .onTapGesture(perform: action)
     }

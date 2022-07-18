@@ -40,13 +40,6 @@ struct MangaThumbnailEnvironment {
     let mangaClient: MangaClient
 }
 
-// This struct is to cancel deletion cache manga info.
-// This was put not in reducer because manga instance can be destroyed outside(e.g. destroyed in SearchView),
-// so we must have an opportunity to cancel all cancellables outside too.
-// This struct is in this file because user can switch to another tab, e.g. search, so .onDisappear() in MangaView will fire.
-// It's better to control in from ThumbnailView, and because of it this struct here.
-struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
-
 let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment>.combine(
     mangaViewReducer.pullback(
         state: \.mangaState,
@@ -85,7 +78,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                 
             case .userOpenedMangaView:
                 // when users enters the view, we must cancel clearing manga info
-                return .cancel(id: CancelClearCacheForManga(mangaID: state.manga.id))
+                return .cancel(id: MangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
@@ -93,7 +86,7 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                 return Effect(value: MangaThumbnailAction.userLeftMangaViewDelayCompleted)
                     .delay(for: .seconds(60), scheduler: DispatchQueue.main)
                     .eraseToEffect()
-                    .cancellable(id: CancelClearCacheForManga(mangaID: state.manga.id))
+                    .cancellable(id: MangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaViewDelayCompleted:
                 state.mangaState.reset()

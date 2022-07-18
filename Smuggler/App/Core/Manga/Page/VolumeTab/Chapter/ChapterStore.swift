@@ -19,6 +19,9 @@ struct ChapterState: Equatable, Identifiable {
     var _chapterDetails: [ChapterDetails] = []
     var scanlationGroups: [UUID: ScanlationGroup] = [:]
     var cachedChaptersIDs = Set<UUID>()
+    var chaptersCount: Int {
+        chapter.others.count + 1
+    }
     
     var id: UUID { chapter.id }
     

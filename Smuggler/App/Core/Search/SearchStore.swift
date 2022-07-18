@@ -82,15 +82,21 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
             }
         ),
     Reducer { state, action, env in
+        struct CancelSearch: Hashable { }
         switch action {
             case .searchStringChanged(let query):
                 struct DebounceForSearch: Hashable { }
 
                 state.areSearchResultsDownloaded = false
                 state.searchText = query
-                return Effect(value: SearchAction.searchForManga)
-                    .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
-                    .eraseToEffect()
+                return .merge(
+                    .cancel(id: CancelSearch()),
+                    
+                    Effect(value: SearchAction.searchForManga)
+                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
+                        .eraseToEffect()
+                    )
+                
                 
             case .searchForManga:
                 // if user clears the search string, we should delete all, what we've found for previous search request
@@ -103,7 +109,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     state.lastSuccessfulRequestParams = nil
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
-                        ids: mangaIDs.map { CancelClearCacheForManga(mangaID: $0) }
+                        ids: mangaIDs.map { MangaViewState.CancelClearCacheForManga(mangaID: $0) }
                     )
                 }
                 
@@ -123,19 +129,18 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     return .none
                 }
                                 
-                // we remove all elements from 'mangaThumbnailStates' because MangaThumbnail loads data only after '.onAppear()' modifier was called
-                // it also possible, that thumbnail was deinitialized, but because of SwiftUI it won't disappear, so it will no 'appear', it stays on the screen
-                // and '.onAppear()' won't be called
-                // so we remove everything here, then load items and if we got the same thumbnail as before, '.onAppear()' will fire
                 state.areSearchResultsDownloaded = false
 
                 return .merge(
-                    .cancel(ids: state.mangaThumbnailStates.map { CancelClearCacheForManga(mangaID: $0.id) }),
+                    .cancel(
+                        ids: state.mangaThumbnailStates.map { MangaViewState.CancelClearCacheForManga(mangaID: $0.id) }
+                    ),
                     
                     env.searchClient.makeSearchRequest(searchParams)
                         .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
+                        .cancellable(id: CancelSearch())
                 )
                 
             case .searchResultDownloaded(let result, let requestParams):

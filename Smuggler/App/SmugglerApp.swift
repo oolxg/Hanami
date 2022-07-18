@@ -26,9 +26,6 @@ struct SmugglerApp: App {
         viewStore = ViewStore(store)
         viewStore.send(.initApp)
         
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
-        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(.theme.accent)]
-        UINavigationBar.appearance().tintColor = UIColor(Color.theme.accent)
         UITabBar.appearance().backgroundColor = .black
         UITabBar.appearance().tintColor = .black
         UITabBar.appearance().barTintColor = .black

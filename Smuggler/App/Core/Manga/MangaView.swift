@@ -13,17 +13,17 @@ import Kingfisher
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
-    @State private var headerOffset: (CGFloat, CGFloat) = (100, 10)
+    @State private var headerOffset: CGFloat = 100
     @State private var artSectionHeight = 0.0
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
 
     private var isViewScrolledDown: Bool {
-        headerOffset.0 < 8
+        headerOffset < -320
     }
     
     private var isHeaderBackButtonVisible: Bool {
-        headerOffset.0 > 80
+        headerOffset > -240
     }
     
     var body: some View {
@@ -39,10 +39,11 @@ struct MangaView: View {
                         } header: {
                             pinnedNavigation
                         }
-                        
-                        Color.clear.frame(height: UIScreen.main.bounds.height * 0.1)
                     }
                     .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
+                        scrollToHeader(proxy: proxy)
+                    }
+                    .onChange(of: viewStore.selectedTab) { _ in
                         scrollToHeader(proxy: proxy)
                     }
                 }
@@ -59,7 +60,8 @@ struct MangaView: View {
             )
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
-            .ignoresSafeArea()
+            .ignoresSafeArea(edges: .top)
+            .padding(.bottom, 5)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
@@ -91,7 +93,7 @@ extension MangaView {
     }
     
     private func scrollToHeader(proxy: ScrollViewProxy) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.linear) {
                 proxy.scrollTo("header")
             }
@@ -165,9 +167,9 @@ extension MangaView {
 
     // when user scrolls up, we make all text and gradient on header slowly disappear
     private var headerTextOpacity: Double {
-        if headerOffset.1 < 0 { return 1 }
+        if headerOffset < 0 { return 1 }
         
-        let opacity = 1 - headerOffset.1 * 0.01
+        let opacity = 1 - headerOffset * 0.01
         
         return opacity >= 0 ? opacity : 0
     }
@@ -390,16 +392,10 @@ extension MangaView {
         }
         .animation(.linear, value: isHeaderBackButtonVisible)
         .background(Color.black)
-        .offset(y: headerOffset.1 > 0 ? 0 : -headerOffset.1 / 10)
+        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
         .modifier(
             MangaViewOffsetModifier(
-                offset: $headerOffset.0,
-                returnFromStart: false
-            )
-        )
-        .modifier(
-            MangaViewOffsetModifier(
-                offset: $headerOffset.1
+                offset: $headerOffset
             )
         )
     }
@@ -433,7 +429,6 @@ extension MangaView {
     struct MangaViewOffsetModifier: ViewModifier {
         @Binding var offset: CGFloat
         @State private var startValue: CGFloat = 0
-        var returnFromStart = true
         
         func body(content: Content) -> some View {
             content
@@ -446,7 +441,7 @@ extension MangaView {
                                     startValue = value
                                 }
                                 
-                                offset = value - (returnFromStart ? startValue : 0)
+                                offset = value - startValue
                             }
                     }
                 )

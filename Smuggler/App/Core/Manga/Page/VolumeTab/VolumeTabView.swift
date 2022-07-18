@@ -15,7 +15,7 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
             DisclosureGroup(isExpanded: $areChaptersShown) {
-                LazyVStack {
+                VStack {
                     ForEachStore(
                         store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction),
                         content: ChapterView.init
@@ -25,7 +25,7 @@ struct VolumeTabView: View {
                 HStack {
                     Text(viewStore.volume.volumeName)
                         .font(.title2)
-                        .fontWeight(.heavy)
+                        .fontWeight(.medium)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
@@ -36,10 +36,8 @@ struct VolumeTabView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            .transition(.opacity)
             .padding(10)
             .animation(.linear, value: areChaptersShown)
-            .frame(maxWidth: .infinity)
         }
     }
 }

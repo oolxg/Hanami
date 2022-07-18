@@ -21,6 +21,10 @@ struct ChapterView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .padding(5)
+            .confirmationDialog(
+                store.scope(state: \.confirmationDialog),
+                dismiss: .cancelTapped
+            )
             
             Divider()
         }
@@ -53,8 +57,22 @@ extension ChapterView {
                 
                 Text(viewStore.chapter.chapterName)
                     .font(.title3)
-                    .fontWeight(.semibold)
+                    .fontWeight(.light)
                     .padding(.vertical, 3)
+                
+                Spacer()
+                
+                if viewStore.chaptersCount > 1 {
+                    Text("\(viewStore.chaptersCount) translations")
+                        .font(.subheadline)
+                        .fontWeight(.thin)
+                        .padding(.vertical, 3)
+                } else {
+                    Text("1 translation")
+                        .font(.subheadline)
+                        .fontWeight(.thin)
+                        .padding(.vertical, 3)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
@@ -66,13 +84,13 @@ extension ChapterView {
     
     private var disclosureGroupBody: some View {
         WithViewStore(store) { viewStore in
-            LazyVStack {
-                if viewStore.chapterDetails.isEmpty {
-                    ProgressView()
-                        .frame(width: 40, height: 40)
-                        .padding()
-                        .transition(.opacity)
-                } else {
+            if viewStore.chapterDetails.isEmpty {
+                ProgressView()
+                    .frame(width: 40, height: 40)
+                    .padding()
+                    .transition(.opacity)
+            } else {
+                LazyVStack {
                     ForEach(viewStore.chapterDetails) { chapter in
                         makeChapterDetailsView(for: chapter)
                             .onTapGesture {
@@ -87,12 +105,12 @@ extension ChapterView {
                             }
                     }
                     .transition(.opacity)
-                    .animation(.linear, value: viewStore.chapterDetails)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .animation(.linear, value: viewStore.chapterDetails)
+                .animation(.linear, value: viewStore.chapterDetails.isEmpty)
             }
-            .animation(.linear, value: viewStore.chapterDetails.isEmpty)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
     
     private func makeChapterDetailsView(for chapter: ChapterDetails) -> some View {
@@ -142,11 +160,8 @@ extension ChapterView {
             }
         }
         .contentShape(Rectangle())
-        .confirmationDialog(
-            store.scope(state: \.confirmationDialog),
-            dismiss: .cancelTapped
-        )
     }
+    
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
         WithViewStore(store.actionless) { viewStore in
             HStack {

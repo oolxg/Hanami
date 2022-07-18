@@ -82,7 +82,6 @@ extension SearchView {
                 ResultsCountPicker(count: viewStore.binding(\.$resultsCount))
             }
         }
-        .foregroundColor(.theme.accent)
     }
     
     private var mangaList: some View {
@@ -170,6 +169,7 @@ extension SearchView {
                 }
                 .font(.callout)
             }
+            .accentColor(.white)
         }
     }
     
@@ -254,6 +254,7 @@ extension SearchView {
                 }
                 .padding(.trailing)
             }
+            .accentColor(.white)
         }
         
         @ViewBuilder private func makeButtonViewFor(sortOption: QuerySortOption, order: QuerySortOption.Order) -> some View {
