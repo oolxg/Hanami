@@ -87,11 +87,10 @@ extension ChapterView {
                             }
                     }
                     .transition(.opacity)
-                    .animation(.linear, value: viewStore.chapterDetails.isEmpty)
+                    .animation(.linear, value: viewStore.chapterDetails)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .frame(minHeight: CGFloat(viewStore.chapterDetails.count) * 40)
             .animation(.linear, value: viewStore.chapterDetails.isEmpty)
         }
     }
@@ -144,7 +143,7 @@ extension ChapterView {
         }
         .contentShape(Rectangle())
         .confirmationDialog(
-            store.scope(state: \.confiramtionDialog),
+            store.scope(state: \.confirmationDialog),
             dismiss: .cancelTapped
         )
     }
@@ -155,7 +154,7 @@ extension ChapterView {
                     Text("Translated by:")
                         .fontWeight(.light)
                     
-                    if viewStore.chapterDetails[id: chapter.id]?.scanltaionGroupID != nil {
+                    if viewStore.chapterDetails[id: chapter.id]?.scanlationGroupID != nil {
                         Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
                             .fontWeight(.bold)
                             .lineLimit(1)

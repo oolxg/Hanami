@@ -108,7 +108,7 @@ extension FiltersView {
                     GridChipsView(viewStore.publicationDemographics, width: sectionWidth) { demographic in
                         makeChipsViewFor(demographic)
                             .onTapGesture {
-                                viewStore.send(.publicationDemogrphicButtonTapped(demographic))
+                                viewStore.send(.publicationDemographicButtonTapped(demographic))
                             }
                     }
                     .padding(5)

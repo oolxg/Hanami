@@ -53,7 +53,7 @@ enum FiltersAction {
     
     case mangaStatusButtonTapped(FilterMangaStatus)
     case contentRatingButtonTapped(FilterContentRatings)
-    case publicationDemogrphicButtonTapped(FilterPublicationDemographic)
+    case publicationDemographicButtonTapped(FilterPublicationDemographic)
 }
 
 struct FiltersEnvironment {
@@ -121,7 +121,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             }
             return .none
             
-        case .publicationDemogrphicButtonTapped(let tag):
+        case .publicationDemographicButtonTapped(let tag):
             if tag.state == .selected {
                 state.publicationDemographics[id: tag.id]!.state = .notSelected
             } else {

@@ -10,10 +10,10 @@ import ComposableArchitecture
 import Kingfisher
 
 struct MangaReadingViewState: Equatable {
-    init(chapterID: UUID, chapterIndex: Double?, shoudSendUserToTheLastPage: Bool = false) {
+    init(chapterID: UUID, chapterIndex: Double?, shouldSendUserToTheLastPage: Bool = false) {
         self.chapterID = chapterID
         self.chapterIndex = chapterIndex
-        self.shouldSendUserToTheLastPage = shoudSendUserToTheLastPage
+        self.shouldSendUserToTheLastPage = shouldSendUserToTheLastPage
     }
     
     let chapterID: UUID

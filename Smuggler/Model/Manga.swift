@@ -114,7 +114,7 @@ extension Manga {
         if attributes.title.availableLang != nil {
             return attributes.title.availableLang!
         } else {
-            return attributes.altTitles.availableLang ?? "No titile available"
+            return attributes.altTitles.availableLang ?? "No title available"
         }
     }
     

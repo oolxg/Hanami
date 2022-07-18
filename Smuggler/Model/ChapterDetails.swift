@@ -166,7 +166,7 @@ extension ChapterDetails {
         }
     }
     
-    var scanltaionGroupID: UUID? {
+    var scanlationGroupID: UUID? {
         relationships.first { $0.type == .scanlationGroup }?.id
     }
 }

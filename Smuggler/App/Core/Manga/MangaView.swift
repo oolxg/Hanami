@@ -117,7 +117,7 @@ extension MangaView {
                     .overlay(
                         ZStack(alignment: .bottom) {
                             LinearGradient(
-                                colors: [ .black.opacity(0.3), .black.opacity(0.8) ],
+                                colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -191,7 +191,7 @@ extension MangaView {
     
     private var mangaPagesTab: some View {
         WithViewStore(store) { viewStore in
-            VStack {
+            Group {
                 if viewStore.areVolumesLoaded {
                     if !viewStore.shouldShowEmptyMangaMessage {
                         IfLetStore(
@@ -255,12 +255,12 @@ extension MangaView {
                     }
                 }
                 .onAppear {
-                    computeArtSectionHegiht(
+                    computeArtSectionHeight(
                         screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
                     )
                 }
                 .onChange(of: viewStore.croppedCoverArtURLs.hashValue & geo.size.width.hashValue) { _ in
-                    computeArtSectionHegiht(
+                    computeArtSectionHeight(
                         screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
                     )
                 }
@@ -270,7 +270,7 @@ extension MangaView {
         }
     }
     
-    private func computeArtSectionHegiht(screenWidth: CGFloat, coverArtsCount: Int) {
+    private func computeArtSectionHeight(screenWidth: CGFloat, coverArtsCount: Int) {
         withAnimation {
             let columnsCount = Int(screenWidth / 160)
             let rowsCount = ceil(Double(coverArtsCount) / Double(columnsCount))

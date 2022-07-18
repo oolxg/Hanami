@@ -24,7 +24,7 @@ struct ChapterState: Equatable, Identifiable {
     
     @BindableState var areChaptersShown = false
     
-    var confiramtionDialog: ConfirmationDialogState<ChapterAction>?
+    var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
     struct CancelChapterFetch: Hashable { }
 }
@@ -92,7 +92,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             return effects.isEmpty ? .none : .merge(effects)
             
         case .userWantsToDeleteChapter(let chapter):
-            state.confiramtionDialog = ConfirmationDialogState(
+            state.confirmationDialog = ConfirmationDialogState(
                 title: TextState("Delete this chapter from device?"),
                 message: TextState("Delete this chapter from device?"),
                 buttons: [
@@ -104,11 +104,11 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
         case .userConfirmedChapterDelete(let chapter):
             state.cachedChaptersIDs.remove(chapter.id)
-            state.confiramtionDialog = nil
+            state.confirmationDialog = nil
             return .none
             
         case .cancelTapped:
-            state.confiramtionDialog = nil
+            state.confirmationDialog = nil
             return .none
             
         case .userTappedOnChapterDetails:
@@ -130,7 +130,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         state._chapterDetails = []
                     }
                     
-                    guard let scanlationGroupID = response.data.scanltaionGroupID else {
+                    guard let scanlationGroupID = response.data.scanlationGroupID else {
                         return .none
                     }
                     

@@ -12,7 +12,7 @@ struct MangaClient {
     // swiftlint:disable line_length
     let fetchMangaChapters: (_ mangaID: UUID, _ scanlationGroupID: UUID?, _ translatedLang: String?) -> Effect<VolumesContainer, AppError>
     let fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
-    let fetchAllCoverArtsInfForManga: (_ mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
+    let fetchAllCoverArtsForManga: (_ mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
     let fetchChapterDetails: (_ chapterID: UUID) -> Effect<Response<ChapterDetails>, AppError>
     let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError>
     let fetchPagesInfo: (_ chapterID: UUID) -> Effect<ChapterPagesInfo, AppError>
@@ -87,7 +87,7 @@ extension MangaClient {
                 }
                 .eraseToEffect()
         },
-        fetchAllCoverArtsInfForManga: { mangaID in
+        fetchAllCoverArtsForManga: { mangaID in
             guard let url = URL(string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=100") else {
                 return .none
             }

@@ -134,7 +134,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 state.selectedTab = newTab
                 
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
-                    return env.mangaClient.fetchAllCoverArtsInfForManga(state.manga.id)
+                    return env.mangaClient.fetchAllCoverArtsForManga(state.manga.id)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
                 }
@@ -203,7 +203,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 
                 return env.mangaClient.fetchMangaChapters(
                     state.manga.id,
-                    chapter.scanltaionGroupID,
+                    chapter.scanlationGroupID,
                     chapter.attributes.translatedLanguage
                 )
                 .receive(on: DispatchQueue.main)
@@ -234,7 +234,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 )
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-                    nextChapter.chapterIndex, state.pagesState!.splittedIntoPagesVolumeTabStates
+                    nextChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
                     return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
@@ -257,11 +257,11 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 state.mangaReadingViewState = MangaReadingViewState(
                     chapterID: previousChapter.id,
                     chapterIndex: previousChapter.chapterIndex,
-                    shoudSendUserToTheLastPage: true
+                    shouldSendUserToTheLastPage: true
                 )
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-                    previousChapter.chapterIndex, state.pagesState!.splittedIntoPagesVolumeTabStates
+                    previousChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
                     return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }

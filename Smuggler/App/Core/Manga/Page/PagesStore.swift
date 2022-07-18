@@ -9,17 +9,17 @@ import Foundation
 import ComposableArchitecture
 
 struct PagesState: Equatable {
-    private(set) var splittedIntoPagesVolumeTabStates: [[VolumeTabState]] = []
-    var pagesCount: Int { splittedIntoPagesVolumeTabStates.count }
+    private(set) var splitIntoPagesVolumeTabStates: [[VolumeTabState]] = []
+    var pagesCount: Int { splitIntoPagesVolumeTabStates.count }
     // represents all volumes on page
     var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabState> = []
     var currentPageIndex = 0 {
         willSet {
             let temp = volumeTabStatesOnCurrentPage
             volumeTabStatesOnCurrentPage = .init(
-                uniqueElements: splittedIntoPagesVolumeTabStates[newValue]
+                uniqueElements: splitIntoPagesVolumeTabStates[newValue]
             )
-            splittedIntoPagesVolumeTabStates[currentPageIndex] = Array(temp)
+            splitIntoPagesVolumeTabStates[currentPageIndex] = Array(temp)
         }
     }
 
@@ -71,11 +71,11 @@ struct PagesState: Equatable {
                 }
             }
             
-            splittedIntoPagesVolumeTabStates.append(volumesOnPage.map { VolumeTabState(volume: $0) })
+            splitIntoPagesVolumeTabStates.append(volumesOnPage.map { VolumeTabState(volume: $0) })
         }
         
-        if !splittedIntoPagesVolumeTabStates.isEmpty {
-            volumeTabStatesOnCurrentPage = .init(uniqueElements: splittedIntoPagesVolumeTabStates.first!)
+        if !splitIntoPagesVolumeTabStates.isEmpty {
+            volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates.first!)
         }
     }
 }

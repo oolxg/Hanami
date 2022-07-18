@@ -2,7 +2,7 @@
 //  ChapterPagesInfoMO+CoreDataClass.swift
 //  Smuggler
 //
-//  Created by mk.pwnz on 10/07/2022.
+//  Created by mk.w on 10/07/2022.
 //
 //
 
