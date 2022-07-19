@@ -37,6 +37,18 @@ struct RootView: View {
                     Text("Search")
                 }
                 .tag(RootState.Tab.search)
+                
+                DownloadsView(
+                    store: store.scope(
+                        state: \.downloadsState,
+                        action: RootAction.downloadsAction
+                    )
+                )
+                .tabItem {
+                    Image(systemName: "square.and.arrow.down")
+                    Text("Downloads")
+                }
+                .tag(RootState.Tab.downloads)
             }
         }
         .accentColor(.theme.accent)

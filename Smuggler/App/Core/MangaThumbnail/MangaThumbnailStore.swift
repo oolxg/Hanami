@@ -29,6 +29,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
 enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
+    case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
@@ -59,9 +60,33 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                     return .none
                 }
                 
-                return env.mangaClient.fetchCoverArtInfo(coverArtID)
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                var effects: [Effect<MangaThumbnailAction, Never>] = [
+                    env.mangaClient.fetchCoverArtInfo(coverArtID)
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                ]
+                
+                if state.mangaStatistics == nil {
+                    effects.append(
+                        env.mangaClient.fetchMangaStatistics(state.manga.id)
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(MangaThumbnailAction.mangaStatisticsFetched)
+                    )
+                }
+                
+                return .merge(effects)
+                
+            case .mangaStatisticsFetched(let result):
+                switch result {
+                    case .success(let response):
+                        state.mangaState.statistics = response.statistics[state.manga.id]
+
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on downloading thumbnail info: \(error)")
+                        return .none
+                }
                 
             case .thumbnailInfoLoaded(let result):
                 switch result {

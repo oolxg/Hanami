@@ -219,8 +219,20 @@ extension DatabaseClient {
         fetch(entityType: MangaMO.self, id: id)?.toEntity()
     }
 
-    func fetchAllCachedMangas() -> [Manga] {
-        batchFetch(entityType: MangaMO.self).map { $0.toEntity() }
+    func fetchAllCachedMangas() -> Effect<[Manga], Never> {
+        Future { promise in
+            DispatchQueue.main.async {
+                promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
+            }
+        }
+        .receive(on: DispatchQueue.main)
+        .eraseToEffect()
+    }
+    
+    func removeManga(mangaID: UUID) {
+        remove(entityType: MangaMO.self, id: mangaID)
+        
+        saveContext()
     }
 }
 
@@ -278,17 +290,15 @@ extension DatabaseClient {
                 guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: id) else {
                     return
                 }
-                
+
                 let leftChapters = chapterMO.fromManga.chapterDetailsSet.filter { $0.id != id }
                 let parentMangaID = chapterMO.fromManga.id
                 
-                remove(entityType: ChapterDetailsMO.self, id: id)
-
-                if leftChapters.isEmpty {
-                    remove(entityType: MangaMO.self, id: parentMangaID)
-                }
-                
                 saveContext()
+                
+                if leftChapters.isEmpty {
+                    removeManga(mangaID: parentMangaID)
+                }
             }
         }
     }

@@ -9,9 +9,16 @@ import Foundation
 import ComposableArchitecture
 
 struct PagesState: Equatable {
+    let manga: Manga
+    let chaptersPerPage: Int
+    
+    init(manga: Manga, chaptersPerPage: Int) {
+        self.manga = manga
+        self.chaptersPerPage = chaptersPerPage
+    }
+    
     private(set) var splitIntoPagesVolumeTabStates: [[VolumeTabState]] = []
     var pagesCount: Int { splitIntoPagesVolumeTabStates.count }
-    // represents all volumes on page
     var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabState> = []
     var currentPageIndex = 0 {
         willSet {
@@ -26,17 +33,21 @@ struct PagesState: Equatable {
     
     // this lock to disable user on pressing on chapterDetails right after he changed page(this causes crashes)
     var lockPage = false
-
+    var areVolumesLoaded = false
+    
+    var shouldShowNothingToReadMessage: Bool {
+        volumeTabStatesOnCurrentPage.isEmpty && areVolumesLoaded
+    }
     // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
-    init(mangaVolumes: [MangaVolume], chaptersPerPage: Int) {
+    mutating func handleLoadedVolumes(mangaVolumes: [MangaVolume]) {
         let allMangaChapters: [(chapter: Chapter, count: Int, volumeIndex: Double?)] = mangaVolumes.flatMap { volume in
             volume.chapters.map { (chapter: $0, count: volume.count, volumeIndex: volume.volumeIndex) }
         }
-        
+
         for chaptersOnPage in allMangaChapters.chunked(into: chaptersPerPage) {
             var volumesOnPage: [MangaVolume] = []
             var chaptersToBeAdded: [(chapter: Chapter, count: Int, volumeIndex: Double?)] = []
-            
+
             for chapter in chaptersOnPage {
                 if chaptersToBeAdded.isEmpty || chapter.volumeIndex == chaptersToBeAdded.last!.volumeIndex {
                     chaptersToBeAdded.append(chapter)
@@ -48,10 +59,10 @@ struct PagesState: Equatable {
                             volumeIndex: chaptersToBeAdded.first!.volumeIndex
                         )
                     )
-                    
+
                     chaptersToBeAdded = [chapter]
                 }
-                
+
                 if chapter == chaptersOnPage.last! {
                     volumesOnPage.append(
                         MangaVolume(
@@ -62,10 +73,10 @@ struct PagesState: Equatable {
                     )
                 }
             }
-            
+
             splitIntoPagesVolumeTabStates.append(volumesOnPage.map { VolumeTabState(volume: $0) })
         }
-        
+
         if !splitIntoPagesVolumeTabStates.isEmpty {
             volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates.first!)
         }
@@ -73,6 +84,8 @@ struct PagesState: Equatable {
 }
 
 enum PagesAction {
+    case onAppear
+    case volumesDownloaded(Result<VolumesContainer, AppError>)
     case changePage(newPageIndex: Int)
     case changePageAfterEffectCancellation(newPageIndex: Int)
     case unlockPage
@@ -93,8 +106,30 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
             mangaClient: $0.mangaClient
         ) }
     ),
-    Reducer { state, action, _ in
+    Reducer { state, action, env in
         switch action {
+            case .onAppear:
+                if state.areVolumesLoaded {
+                    return .none
+                }
+                
+                return env.mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(PagesAction.volumesDownloaded)
+                
+            case .volumesDownloaded(let result):
+                state.areVolumesLoaded = true
+                switch result {
+                    case .success(let response):
+                        state.handleLoadedVolumes(mangaVolumes: response.volumes)
+                        
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on chaptersDownloaded, \(error)")
+                        return .none
+                }
+                
             case .changePage(let newPageIndex):
                 if newPageIndex != state.currentPageIndex && newPageIndex >= 0 && newPageIndex < state.pagesCount {
                     return .concatenate(

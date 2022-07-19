@@ -13,7 +13,7 @@ import Kingfisher
 struct MangaView: View {
     let store: Store<MangaViewState, MangaViewAction>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
-    @State private var headerOffset: CGFloat = 100
+    @State private var headerOffset: CGFloat = 0
     @State private var artSectionHeight = 0.0
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
@@ -40,7 +40,7 @@ struct MangaView: View {
                             pinnedNavigation
                         }
                     }
-                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
+                    .onChange(of: viewStore.pagesState.currentPageIndex) { _ in
                         scrollToHeader(proxy: proxy)
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
@@ -49,7 +49,7 @@ struct MangaView: View {
                 }
             }
             .animation(.linear, value: isViewScrolledDown)
-            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
+            .animation(.default, value: viewStore.pagesState.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -93,7 +93,7 @@ extension MangaView {
     }
     
     private func scrollToHeader(proxy: ScrollViewProxy) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             withAnimation(.linear) {
                 proxy.scrollTo("header")
             }
@@ -178,10 +178,14 @@ extension MangaView {
     private var mangaBodyView: some View {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
-                case .about:
+                case .info:
                     aboutTab
                 case .chapters:
-                    mangaPagesTab
+                    PagesView(
+                        store: store.scope(
+                            state: \.pagesState, action: MangaViewAction.pagesAction
+                        )
+                    )
                 case .coverArt:
                     coverArtTab
             }
@@ -189,41 +193,6 @@ extension MangaView {
         .transition(.opacity)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
-    }
-    
-    private var mangaPagesTab: some View {
-        WithViewStore(store) { viewStore in
-            Group {
-                if viewStore.areVolumesLoaded {
-                    if !viewStore.shouldShowEmptyMangaMessage {
-                        IfLetStore(
-                            store.scope(state: \.pagesState, action: MangaViewAction.pagesAction),
-                            then: PagesView.init
-                        )
-                    } else {
-                        VStack(spacing: 0) {
-                            Text("Ooops, there's nothing to read")
-                                .font(.title2)
-                                .fontWeight(.black)
-                            
-                            Text("😢")
-                                .font(.title2)
-                                .fontWeight(.black)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding()
-                    }
-                } else {
-                    ProgressView()
-                        .frame(width: 140, height: 140, alignment: .center)
-                        .padding(.top, 150)
-                        .transition(.opacity)
-                }
-            }
-            .transition(.opacity)
-            .animation(.linear, value: viewStore.areVolumesLoaded)
-            .animation(.linear, value: viewStore.shouldShowEmptyMangaMessage)
-        }
     }
     
     private var coverArtTab: some View {
@@ -236,6 +205,9 @@ extension MangaView {
                         let coverArtURL = viewStore.croppedCoverArtURLs[coverArtIndex]
                         
                         KFImage.url(coverArtURL)
+                            .placeholder {
+                                KFImage.url(viewStore.coverArtURL512)
+                            }
                             .fade(duration: 0.3)
                             .resizable()
                             .scaledToFit()
@@ -316,7 +288,7 @@ extension MangaView {
                 
                 tags
             }
-            .padding(.leading)
+            .padding(.horizontal)
         }
     }
     

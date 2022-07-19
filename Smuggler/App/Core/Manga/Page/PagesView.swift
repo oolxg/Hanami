@@ -19,17 +19,26 @@ struct PagesView: View {
     
     var body: some View {
         LazyVStack {
-            ForEachStore(
-                store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
-                content: VolumeTabView.init
-            )
-            .disabled(viewStore.lockPage)
+            if viewStore.shouldShowNothingToReadMessage {
+                emptyMangaMessageView
+            } else {
+                if viewStore.volumeTabStatesOnCurrentPage.isEmpty {
+                    ProgressView()
+                        .frame(width: 140, height: 140, alignment: .center)
+                        .padding(.top, 150)
+                        .transition(.opacity)
+                } else {
+                    pages
+                    
+                    footer.transition(.identity)
+                }
+            }
         }
-        
-        if !viewStore.lockPage {
-            footer
-                .animation(nil)
-                .transition(.identity)
+        .animation(.linear, value: viewStore.currentPageIndex)
+        .animation(.linear, value: viewStore.shouldShowNothingToReadMessage)
+        .animation(.linear, value: viewStore.areVolumesLoaded)
+        .onAppear {
+            viewStore.send(.onAppear)
         }
     }
 }
@@ -38,7 +47,7 @@ struct PagesView_Previews: PreviewProvider {
     static var previews: some View {
         PagesView(
             store: .init(
-                initialState: .init(mangaVolumes: [], chaptersPerPage: 0),
+                initialState: .init(manga: dev.manga, chaptersPerPage: 10),
                 reducer: pagesReducer,
                 environment: .init(
                     mangaClient: .live,
@@ -50,6 +59,28 @@ struct PagesView_Previews: PreviewProvider {
 }
 
 extension PagesView {
+    private var pages: some View {
+        ForEachStore(
+            store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
+            content: VolumeTabView.init
+        )
+        .disabled(viewStore.lockPage)
+    }
+    
+    private var emptyMangaMessageView: some View {
+        VStack(spacing: 0) {
+            Text("Ooops, there's nothing to read")
+                .font(.title2)
+                .fontWeight(.black)
+            
+            Text("😢")
+                .font(.title2)
+                .fontWeight(.black)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding()
+    }
+    
     private var footer: some View {
         HStack {
             Button {

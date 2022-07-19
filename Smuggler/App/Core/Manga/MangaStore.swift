@@ -11,25 +11,21 @@ import Kingfisher
 
 struct MangaViewState: Equatable {
     let manga: Manga
+    var pagesState: PagesState
+
+    init(manga: Manga) {
+        self.manga = manga
+        pagesState = PagesState(manga: manga, chaptersPerPage: 10)
+    }
     
     var statistics: MangaStatistics?
-
-    var pagesState: PagesState? {
-        willSet { areVolumesLoaded = newValue != nil }
-    }
-    var currentPageIndex: Int = 0
-    
-    var areVolumesLoaded = false
-    var shouldShowEmptyMangaMessage: Bool {
-        pagesState != nil && pagesState!.volumeTabStatesOnCurrentPage.isEmpty
-    }
     
     var allCoverArtsInfo: [CoverArtInfo] = []
 
     var selectedTab: Tab = .chapters
     enum Tab: String, CaseIterable, Identifiable {
         case chapters = "Chapters"
-        case about = "About"
+        case info = "Info"
         case coverArt = "Art"
         
         var id: String { rawValue }
@@ -75,7 +71,6 @@ enum MangaViewAction: BindableAction {
 
     // MARK: - Actions to be called from reducer
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
-    case volumesDownloaded(Result<VolumesContainer, AppError>)
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
     
@@ -93,7 +88,7 @@ struct MangaViewEnvironment {
 }
 
 let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironment> = .combine(
-    pagesReducer.optional().pullback(
+    pagesReducer.pullback(
         state: \.pagesState,
         action: /MangaViewAction.pagesAction,
         environment: { .init(
@@ -111,26 +106,13 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                var effects: [Effect<MangaViewAction, Never>] = []
-                
                 if state.statistics == nil {
-                    effects.append(
-                        env.mangaClient.fetchMangaStatistics(state.manga.id)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
-                    )
+                    return env.mangaClient.fetchMangaStatistics(state.manga.id)
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
                 }
                 
-                if state.pagesState == nil {
-                    effects.append(
-                        // we are loading here all chapters, no need to select lang or scanlation group
-                        env.mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(MangaViewAction.volumesDownloaded)
-                    )
-                }
-                        
-                return effects.isEmpty ? .none : .merge(effects)
+                return .none
                 
             case .mangaTabChanged(let newTab):
                 state.selectedTab = newTab
@@ -151,19 +133,6 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                         
                     case .failure(let error):
                         print("error on fetching allCoverArtsInfo, \(error)")
-                        return .none
-                }
-
-            case .volumesDownloaded(let result):
-                state.areVolumesLoaded = true
-                switch result {
-                    case .success(let response):
-                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 10)
-                        
-                        return .none
-                        
-                    case .failure(let error):
-                        print("error on chaptersDownloaded, \(error)")
                         return .none
                 }
                 
@@ -236,7 +205,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 )
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-                    nextChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+                    nextChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
                     return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
@@ -263,7 +232,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 )
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-                    previousChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+                    previousChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
                     return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
@@ -271,21 +240,19 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 return .none
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
+                defer { state.isUserOnReadingView = false }
+                
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
-                let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
+                let volumes = state.pagesState.volumeTabStatesOnCurrentPage
                 
-                let info = env.mangaClient.getReadChapterOnPaginationPage(chapterIndex, volumes)
-                state.isUserOnReadingView = false
-                
-                guard let info = info else {
+                guard let info = env.mangaClient.getReadChapterOnPaginationPage(chapterIndex, volumes) else {
                     return .none
                 }
                 
-                let chapterState = state.pagesState!
+                if state.pagesState
                     .volumeTabStatesOnCurrentPage[id: info.volumeID]!
                     .chapterStates[id: info.chapterID]!
-                
-                if chapterState.areChaptersShown {
+                    .areChaptersShown {
                     return .none
                 }
                 

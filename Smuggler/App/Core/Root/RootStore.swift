@@ -11,9 +11,10 @@ import ComposableArchitecture
 struct RootState: Equatable {
     var homeState = HomeState()
     var searchState = SearchState()
+    var downloadsState = DownloadsState()
     
     enum Tab: Equatable {
-        case home, search
+        case home, search, downloads
     }
     
     var selectedTab: Tab
@@ -23,6 +24,7 @@ enum RootAction {
     case tabChanged(RootState.Tab)
     case homeAction(HomeAction)
     case searchAction(SearchAction)
+    case downloadsAction(DownloadsAction)
 }
 
 struct RootEnvironment {
@@ -57,6 +59,17 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                 )
             }
         ),
+    downloadsReducer
+        .pullback(
+            state: \.downloadsState,
+            action: /RootAction.downloadsAction,
+            environment: {
+                .init(
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient
+                )
+            }
+        ),
     Reducer { state, action, _ in
         switch action {
             case .tabChanged(let newTab):
@@ -67,6 +80,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                 return .none
                 
             case .searchAction:
+                return .none
+                
+            case .downloadsAction:
                 return .none
         }
     }
