@@ -229,7 +229,7 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func removeManga(mangaID: UUID) {
+    func deleteManga(mangaID: UUID) {
         remove(entityType: MangaMO.self, id: mangaID)
         
         saveContext()
@@ -297,7 +297,7 @@ extension DatabaseClient {
                 saveContext()
                 
                 if leftChapters.isEmpty {
-                    removeManga(mangaID: parentMangaID)
+                    deleteManga(mangaID: parentMangaID)
                 }
             }
         }

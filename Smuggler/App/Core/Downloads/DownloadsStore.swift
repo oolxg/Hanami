@@ -10,17 +10,15 @@ import ComposableArchitecture
 
 
 struct DownloadsState: Equatable {
-    var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
-    var hideThumbnails = false
+    var cachedMangaThumbnailStates: IdentifiedArrayOf<OfflineMangaThumbnailState> = []
 }
 
 enum DownloadsAction {
-    case onAppear
-    case onDisappear
+    case fetchCachedManga
     
     case cachedMangaFetched(Result<[Manga], Never>)
     
-    case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
+    case cachedMangaThumbnailAction(id: UUID, action: OfflineMangaThumbnailAction)
 }
 
 struct DownloadsEnvironment {
@@ -29,7 +27,7 @@ struct DownloadsEnvironment {
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(
-    mangaThumbnailReducer
+    offlineMangaThumbnailReducer
         .forEach(
             state: \.cachedMangaThumbnailStates,
             action: /DownloadsAction.cachedMangaThumbnailAction,
@@ -42,9 +40,7 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
         ),
     Reducer { state, action, env in
         switch action {
-            case .onAppear:
-                state.hideThumbnails = false
-                
+            case .fetchCachedManga:
                 return env.databaseClient.fetchAllCachedMangas()
                     .catchToEffect(DownloadsAction.cachedMangaFetched)
                 
@@ -61,7 +57,7 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                         for manga in cachedManga {
                             if newMangaIDs.contains(manga.id) {
                                 state.cachedMangaThumbnailStates.append(
-                                    MangaThumbnailState(manga: manga)
+                                    OfflineMangaThumbnailState(manga: manga)
                                 )
                             }
                         }
@@ -71,10 +67,6 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                     case .failure:
                         return .none
                 }
-                
-            case .onDisappear:
-                state.hideThumbnails = true
-                return .none
                 
             case .cachedMangaThumbnailAction:
                 return .none

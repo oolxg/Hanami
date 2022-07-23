@@ -24,7 +24,7 @@ struct HomeView: View {
                                 action: HomeAction.mangaThumbnailAction
                             )
                         ) { thumbnailViewStore in
-                            MangaThumbnailView(store: thumbnailViewStore)
+                            OnlineMangaThumbnailView(store: thumbnailViewStore)
                                 .padding()
                         }
                     }

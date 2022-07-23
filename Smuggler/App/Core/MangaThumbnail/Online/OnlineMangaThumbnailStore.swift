@@ -9,13 +9,13 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-struct MangaThumbnailState: Equatable, Identifiable {
+struct OnlineMangaThumbnailState: Equatable, Identifiable {
     init(manga: Manga) {
         self.manga = manga
-        self.mangaState = MangaViewState(manga: manga)
+        self.mangaState = OnlineMangaViewState(manga: manga)
     }
     
-    var mangaState: MangaViewState
+    var mangaState: OnlineMangaViewState
     let manga: Manga
     var coverArtInfo: CoverArtInfo?
     
@@ -26,14 +26,14 @@ struct MangaThumbnailState: Equatable, Identifiable {
     var id: UUID { manga.id }
 }
 
-enum MangaThumbnailAction {
+enum OnlineMangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
-    case mangaAction(MangaViewAction)
+    case mangaAction(OnlineMangaViewAction)
 }
 
 struct MangaThumbnailEnvironment {
@@ -41,10 +41,11 @@ struct MangaThumbnailEnvironment {
     let mangaClient: MangaClient
 }
 
-let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment>.combine(
-    mangaViewReducer.pullback(
+// swiftlint:disable:next line_length
+let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineMangaThumbnailAction, MangaThumbnailEnvironment>.combine(
+    onlineMangaViewReducer.pullback(
         state: \.mangaState,
-        action: /MangaThumbnailAction.mangaAction,
+        action: /OnlineMangaThumbnailAction.mangaAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
             mangaClient: $0.mangaClient
@@ -60,17 +61,17 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                     return .none
                 }
                 
-                var effects: [Effect<MangaThumbnailAction, Never>] = [
+                var effects: [Effect<OnlineMangaThumbnailAction, Never>] = [
                     env.mangaClient.fetchCoverArtInfo(coverArtID)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                        .catchToEffect(OnlineMangaThumbnailAction.thumbnailInfoLoaded)
                 ]
                 
                 if state.mangaStatistics == nil {
                     effects.append(
                         env.mangaClient.fetchMangaStatistics(state.manga.id)
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(MangaThumbnailAction.mangaStatisticsFetched)
+                            .catchToEffect(OnlineMangaThumbnailAction.mangaStatisticsFetched)
                     )
                 }
                 
@@ -103,15 +104,15 @@ let mangaThumbnailReducer = Reducer<MangaThumbnailState, MangaThumbnailAction, M
                 
             case .userOpenedMangaView:
                 // when users enters the view, we must cancel clearing manga info
-                return .cancel(id: MangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
+                return .cancel(id: OnlineMangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
                 // Can be cancelled if user returns wihing 60 sec.
-                return Effect(value: MangaThumbnailAction.userLeftMangaViewDelayCompleted)
+                return Effect(value: OnlineMangaThumbnailAction.userLeftMangaViewDelayCompleted)
                     .delay(for: .seconds(60), scheduler: DispatchQueue.main)
                     .eraseToEffect()
-                    .cancellable(id: MangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
+                    .cancellable(id: OnlineMangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaViewDelayCompleted:
                 state.mangaState.reset()

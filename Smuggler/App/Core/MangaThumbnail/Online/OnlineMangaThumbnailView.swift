@@ -1,5 +1,5 @@
 //
-//  MangaThumbnailView.swift
+//  OnlineMangaThumbnailView.swift
 //  Smuggler
 //
 //  Created by mk.pwnz on 15/05/2022.
@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 import Kingfisher
 
-struct MangaThumbnailView: View {
-    let store: Store<MangaThumbnailState, MangaThumbnailAction>
+struct OnlineMangaThumbnailView: View {
+    let store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>
     @State private var isNavigationLinkActive = false
     
     var body: some View {
         WithViewStore(store) { viewStore in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.theme.darkGray)
+                    .fill(Color.theme.darkGray.opacity(0.6))
                 
                 HStack(alignment: .top) {
                     coverArt
@@ -56,12 +56,12 @@ struct MangaThumbnailView: View {
 
 struct MangaThumbnailView_Previews: PreviewProvider {
     static var previews: some View {
-        MangaThumbnailView(
+        OnlineMangaThumbnailView(
             store: .init(
                 initialState: .init(
                     manga: dev.manga
                 ),
-                reducer: mangaThumbnailReducer,
+                reducer: onlineMangaThumbnailReducer,
                 environment: .init(
                     databaseClient: .live,
                     mangaClient: .live
@@ -71,8 +71,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
     }
 }
 
-extension MangaThumbnailView {
-    // all the stuff here is to make NavigationLink 'lazy'
+extension OnlineMangaThumbnailView {
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
             KFImage.url(
@@ -101,10 +100,10 @@ extension MangaThumbnailView {
     private var navigationLinkDestination: some View {
         ZStack {
             if isNavigationLinkActive {
-                MangaView(
+                OnlineMangaView(
                     store: store.scope(
                         state: \.mangaState,
-                        action: MangaThumbnailAction.mangaAction
+                        action: OnlineMangaThumbnailAction.mangaAction
                     )
                 )
             }

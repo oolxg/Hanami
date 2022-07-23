@@ -26,18 +26,6 @@ struct RootView: View {
                 }
                 .tag(RootState.Tab.home)
                 
-                SearchView(
-                    store: store.scope(
-                        state: \.searchState,
-                        action: RootAction.searchAction
-                    )
-                )
-                .tabItem {
-                    Image(systemName: "magnifyingglass")
-                    Text("Search")
-                }
-                .tag(RootState.Tab.search)
-                
                 DownloadsView(
                     store: store.scope(
                         state: \.downloadsState,
@@ -49,6 +37,18 @@ struct RootView: View {
                     Text("Downloads")
                 }
                 .tag(RootState.Tab.downloads)
+                
+                SearchView(
+                    store: store.scope(
+                        state: \.searchState,
+                        action: RootAction.searchAction
+                    )
+                )
+                .tabItem {
+                    Image(systemName: "magnifyingglass")
+                    Text("Search")
+                }
+                .tag(RootState.Tab.search)
             }
         }
         .accentColor(.theme.accent)

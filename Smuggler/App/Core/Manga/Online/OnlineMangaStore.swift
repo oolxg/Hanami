@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Kingfisher
 
-struct MangaViewState: Equatable {
+struct OnlineMangaViewState: Equatable {
     let manga: Manga
     var pagesState: PagesState
 
@@ -56,7 +56,7 @@ struct MangaViewState: Equatable {
         let stat = statistics
         let coverArtURL = mainCoverArtURL
         
-        self = MangaViewState(manga: manga)
+        self = OnlineMangaViewState(manga: manga)
         self.statistics = stat
         self.mainCoverArtURL = coverArtURL
     }
@@ -64,10 +64,10 @@ struct MangaViewState: Equatable {
     struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
 }
 
-enum MangaViewAction: BindableAction {
+enum OnlineMangaViewAction: BindableAction {
     // MARK: - Actions to be called from view
     case onAppear
-    case mangaTabChanged(MangaViewState.Tab)
+    case mangaTabChanged(OnlineMangaViewState.Tab)
 
     // MARK: - Actions to be called from reducer
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
@@ -79,7 +79,7 @@ enum MangaViewAction: BindableAction {
     case pagesAction(PagesAction)
     
     // MARK: - Binding
-    case binding(BindingAction<MangaViewState>)
+    case binding(BindingAction<OnlineMangaViewState>)
 }
 
 struct MangaViewEnvironment {
@@ -87,10 +87,10 @@ struct MangaViewEnvironment {
     let mangaClient: MangaClient
 }
 
-let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironment> = .combine(
+let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction, MangaViewEnvironment> = .combine(
     pagesReducer.pullback(
         state: \.pagesState,
-        action: /MangaViewAction.pagesAction,
+        action: /OnlineMangaViewAction.pagesAction,
         environment: { .init(
             mangaClient: $0.mangaClient,
             databaseClient: $0.databaseClient
@@ -98,7 +98,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
     ),
     mangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
-        action: /MangaViewAction.mangaReadingViewAction,
+        action: /OnlineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
             mangaClient: $0.mangaClient
         ) }
@@ -109,7 +109,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if state.statistics == nil {
                     return env.mangaClient.fetchMangaStatistics(state.manga.id)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(MangaViewAction.mangaStatisticsDownloaded)
+                        .catchToEffect(OnlineMangaViewAction.mangaStatisticsDownloaded)
                 }
                 
                 return .none
@@ -120,7 +120,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
                     return env.mangaClient.fetchAllCoverArtsForManga(state.manga.id)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(MangaViewAction.allCoverArtsInfoFetched)
+                        .catchToEffect(OnlineMangaViewAction.allCoverArtsInfoFetched)
                 }
                 
                 return .none
@@ -178,7 +178,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                     chapter.attributes.translatedLanguage
                 )
                 .receive(on: DispatchQueue.main)
-                .catchToEffect(MangaViewAction.sameScanlationGroupChaptersFetched)
+                .catchToEffect(OnlineMangaViewAction.sameScanlationGroupChaptersFetched)
                 
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter)))):
                 return env.databaseClient.saveChapterDetails(chapter, fromManga: state.manga).fireAndForget()
@@ -207,7 +207,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     nextChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return Effect(value: OnlineMangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
                 
                 return .none
@@ -234,7 +234,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     previousChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: MangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return Effect(value: OnlineMangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
                 
                 return .none
@@ -257,7 +257,7 @@ let mangaViewReducer: Reducer<MangaViewState, MangaViewAction, MangaViewEnvironm
                 }
                 
                 return Effect(
-                    value: MangaViewAction.pagesAction(
+                    value: OnlineMangaViewAction.pagesAction(
                         .volumeTabAction(
                             volumeID: info.volumeID,
                             volumeAction: .chapterAction(

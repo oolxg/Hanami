@@ -12,31 +12,22 @@ struct DownloadsView: View {
     let store: Store<DownloadsState, DownloadsAction>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            NavigationView {
-                VStack {
-                    ScrollView {
-                        if !viewStore.hideThumbnails {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.cachedMangaThumbnailStates,
-                                    action: DownloadsAction.cachedMangaThumbnailAction
-                                )
-                            ) { thumbnailViewStore in
-                                MangaThumbnailView(store: thumbnailViewStore)
-                                    .padding()
-                            }
-                        }
+        NavigationView {
+            VStack {
+                ScrollView {
+                    ForEachStore(
+                        store.scope(
+                            state: \.cachedMangaThumbnailStates,
+                            action: DownloadsAction.cachedMangaThumbnailAction
+                        )
+                    ) { thumbnailViewStore in
+                        OfflineMangaThumbnailView(store: thumbnailViewStore)
+                            .padding()
                     }
-                    .transition(.opacity)
                 }
-                .navigationTitle("Downloads")
-                .onAppear {
-                    print("on appear")
-                    viewStore.send(.onAppear)
-                }
+                .transition(.opacity)
             }
-            .animation(.linear, value: viewStore.hideThumbnails)
+            .navigationTitle("Downloads")
         }
     }
 }

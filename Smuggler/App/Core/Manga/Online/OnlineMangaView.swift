@@ -1,5 +1,5 @@
 //
-//  MangaView.swift
+//  OnlineMangaView.swift
 //  Smuggler
 //
 //  Created by mk.pwnz on 16/05/2022.
@@ -10,8 +10,8 @@ import SwiftUI
 import ComposableArchitecture
 import Kingfisher
 
-struct MangaView: View {
-    let store: Store<MangaViewState, MangaViewAction>
+struct OnlineMangaView: View {
+    let store: Store<OnlineMangaViewState, OnlineMangaViewAction>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
     @State private var artSectionHeight = 0.0
@@ -82,11 +82,11 @@ struct MangaView_Previews: PreviewProvider {
 }
 
 
-extension MangaView {
+extension OnlineMangaView {
     private func mangaReadingView() -> some View {
         IfLetStore(
             store.scope(
-                state: \.mangaReadingViewState, action: MangaViewAction.mangaReadingViewAction
+                state: \.mangaReadingViewState, action: OnlineMangaViewAction.mangaReadingViewAction
             ),
             then: MangaReadingView.init
         )
@@ -183,7 +183,7 @@ extension MangaView {
                 case .chapters:
                     PagesView(
                         store: store.scope(
-                            state: \.pagesState, action: MangaViewAction.pagesAction
+                            state: \.pagesState, action: OnlineMangaViewAction.pagesAction
                         )
                     )
                 case .coverArt:
@@ -355,7 +355,7 @@ extension MangaView {
                 backButton
                     .opacity(isHeaderBackButtonVisible ? 0 : 1)
                 
-                ForEach(MangaViewState.Tab.allCases, content: makeTabLabel)
+                ForEach(OnlineMangaViewState.Tab.allCases, content: makeTabLabel)
                     .offset(x: isHeaderBackButtonVisible ? -50 : 0)
             }
             .padding(.horizontal)
@@ -373,7 +373,7 @@ extension MangaView {
     }
     
     /// Makes label for navigation through MangaView
-    private func makeTabLabel(for tab: MangaViewState.Tab) -> some View {
+    private func makeTabLabel(for tab: OnlineMangaViewState.Tab) -> some View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)

@@ -10,7 +10,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct SearchState: Equatable {
-    var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var mangaThumbnailStates: IdentifiedArrayOf<OnlineMangaThumbnailState> = []
     var filtersState = FiltersState()
     
     var areSearchResultsDownloaded = false
@@ -49,7 +49,7 @@ enum SearchAction: BindableAction {
     case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
     case searchStringChanged(String)
 
-    case mangaThumbnailAction(UUID, MangaThumbnailAction)
+    case mangaThumbnailAction(UUID, OnlineMangaThumbnailAction)
     case filterAction(FiltersAction)
 
     case binding(BindingAction<SearchState>)
@@ -62,7 +62,7 @@ struct SearchEnvironment {
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
-    mangaThumbnailReducer
+    onlineMangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
             action: /SearchAction.mangaThumbnailAction,
@@ -109,7 +109,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     state.lastSuccessfulRequestParams = nil
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
-                        ids: mangaIDs.map { MangaViewState.CancelClearCacheForManga(mangaID: $0) }
+                        ids: mangaIDs.map { OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0) }
                     )
                 }
                 
@@ -133,7 +133,9 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
 
                 return .merge(
                     .cancel(
-                        ids: state.mangaThumbnailStates.map { MangaViewState.CancelClearCacheForManga(mangaID: $0.id) }
+                        ids: state.mangaThumbnailStates.map {
+                            OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0.id)
+                        }
                     ),
                     
                     env.searchClient.makeSearchRequest(searchParams)
@@ -149,7 +151,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         state.lastSuccessfulRequestParams = requestParams
                         state.areSearchResultsDownloaded = true
                         state.mangaThumbnailStates = .init(
-                            uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
+                            uniqueElements: response.data.map { OnlineMangaThumbnailState(manga: $0) }
                         )
                         
                         if !state.mangaThumbnailStates.isEmpty {

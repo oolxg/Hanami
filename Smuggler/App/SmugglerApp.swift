@@ -26,9 +26,16 @@ struct SmugglerApp: App {
         viewStore = ViewStore(store)
         viewStore.send(.initApp)
         
-        UITabBar.appearance().backgroundColor = .black
-        UITabBar.appearance().tintColor = .black
-        UITabBar.appearance().barTintColor = .black
+        let appearance = UITabBarAppearance()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemThinMaterialDark)
+        appearance.backgroundColor = UIColor(Color.black.opacity(0.1))
+        
+        // Use this appearance when scrolling behind the TabView:
+        UITabBar.appearance().standardAppearance = appearance
+        // Use this appearance when scrolled all the way up:
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
     
     var body: some Scene {
