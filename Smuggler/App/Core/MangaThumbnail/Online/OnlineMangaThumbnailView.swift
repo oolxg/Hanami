@@ -65,7 +65,8 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                 reducer: onlineMangaThumbnailReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live
+                    mangaClient: .live,
+                    cacheClient: .live
                 )
             ),
             compact: true

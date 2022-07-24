@@ -123,22 +123,6 @@ class DeveloperPreview {
             publicationDemographic: .seinen,
             year: 2022
         ),
-        relationships: [
-            Relationship(
-                id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
-                type: .coverArt,
-                related: nil
-            ),
-            Relationship(
-                id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
-                type: .author,
-                related: nil
-            ),
-            Relationship(
-                id: UUID(uuidString: "03e4afc4-cd94-45a0-bb36-dfd34fa370b3")!,
-                type: .artist,
-                related: nil
-            )
-        ]
+        relationships: [ ]
     )
 }

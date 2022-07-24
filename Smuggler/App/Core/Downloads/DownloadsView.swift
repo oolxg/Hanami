@@ -46,7 +46,8 @@ struct DownloadsView_Previews: PreviewProvider {
                 reducer: downloadsReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live
+                    mangaClient: .live,
+                    cacheClient: .live
                 )
             )
         )

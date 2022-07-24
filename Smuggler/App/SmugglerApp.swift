@@ -17,7 +17,8 @@ struct SmugglerApp: App {
             databaseClient: .live,
             mangaClient: .live,
             homeClient: .live,
-            searchClient: .live
+            searchClient: .live,
+            cacheClient: .live
         )
     )
     @ObservedObject private var viewStore: ViewStore<AppState, AppAction>

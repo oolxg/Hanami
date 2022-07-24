@@ -14,7 +14,7 @@ struct CacheClient {
         let diskConfig = DiskConfig(name: "Smuggler_Cache")
         let memoryConfig = MemoryConfig(expiry: .never)
         
-        // switflint:disable:next force_try
+        // swiftlint:disable:next force_try
         return try! Storage(
             diskConfig: diskConfig,
             memoryConfig: memoryConfig,

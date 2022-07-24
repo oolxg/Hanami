@@ -37,13 +37,14 @@ extension HomeClient {
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "updatedAtSince", value: fmt.string(from: today)),
                 URLQueryItem(name: "order[latestUploadedChapter]", value: "desc"),
-                URLQueryItem(name: "order[relevance]", value: "desc")
+                URLQueryItem(name: "order[relevance]", value: "desc"),
+                URLQueryItem(name: "includes[]", value: "cover_art")
             ]
             
             guard let url = components.url else {
                 return .none
             }
-            
+                        
             return URLSession.shared.dataTaskPublisher(for: url)
                 .validateResponseCode()
                 .retry(3)
@@ -62,7 +63,7 @@ extension HomeClient {
         },
         fetchSeasonalTitlesList: {
             // admin user has 'Seasonal' manga list
-            let adminUserListsURL = URL(string: "https://api.mangadex.org/list/7df1dabc-b1c5-4e8e-a757-de5a2a3d37e9?includes[]=user")
+            let adminUserListsURL = URL(string: "https://api.mangadex.org/list/7df1dabc-b1c5-4e8e-a757-de5a2a3d37e9?includes[]=user&includes[]=cover_art")
             
             guard let adminUserListsURL = adminUserListsURL else {
                 return .none

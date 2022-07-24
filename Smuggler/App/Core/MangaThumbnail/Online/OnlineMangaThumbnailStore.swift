@@ -37,8 +37,9 @@ enum OnlineMangaThumbnailAction {
 }
 
 struct MangaThumbnailEnvironment {
-    var databaseClient: DatabaseClient
+    let databaseClient: DatabaseClient
     let mangaClient: MangaClient
+    let cacheClient: CacheClient
 }
 
 // swiftlint:disable:next line_length
@@ -57,23 +58,30 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
                 // if we already loaded info about cover, we don't need to do it one more time
                 guard state.coverArtInfo == nil else { return .none }
                 
-                guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {
-                    return .none
+                // in some cases we can have coverArt included with manga as relationship
+                if let coverArtInfo = state.manga.relationships
+                        .first(where: { $0.attributes != nil && $0.type == .coverArt }),
+                   let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
+                    state.coverArtInfo = CoverArtInfo(
+                        id: UUID(), type: .coverArt, attributes: coverArtAttr, relationships: [
+                            .init(id: state.manga.id, type: .manga)
+                        ]
+                    )
+                    
+                    state.mangaState.mainCoverArtURL = state.coverArtInfo!.coverArtURL
+                    state.mangaState.coverArtURL512 = state.coverArtInfo!.coverArtURL512
                 }
                 
                 var effects: [Effect<OnlineMangaThumbnailAction, Never>] = []
                 
-                if let cached = CacheClient.live.fetchCoverArtInfo(coverArtID) {
-                    print("found!")
-                    state.coverArtInfo = cached
-                } else {
+                if state.coverArtInfo == nil,
+                   let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
                     effects.append(
                         env.mangaClient.fetchCoverArtInfo(coverArtID)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(OnlineMangaThumbnailAction.thumbnailInfoLoaded)
                     )
                 }
-                
                 
                 if state.mangaStatistics == nil {
                     effects.append(

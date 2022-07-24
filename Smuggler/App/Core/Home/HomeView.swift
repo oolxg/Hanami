@@ -48,7 +48,8 @@ struct HomeView_Previews: PreviewProvider {
                 environment: .init(
                     databaseClient: .live,
                     mangaClient: .live,
-                    homeClient: .live
+                    homeClient: .live,
+                    cacheClient: .live
                 )
             )
         )
@@ -75,6 +76,7 @@ extension HomeView {
         } header: {
             makeSectionHeader(title: "Seasonal")
         }
+        .padding(.horizontal)
     }
     
     private var other: some View {

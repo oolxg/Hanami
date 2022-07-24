@@ -33,6 +33,7 @@ struct HomeEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
     let homeClient: HomeClient
+    let cacheClient: CacheClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
@@ -43,7 +44,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
                 )
             }
         ),
@@ -54,7 +56,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
                 )
             }
         ),
@@ -65,7 +68,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
                 )
             }
         ),
@@ -151,11 +155,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         state.seasonalMangaThumbnailStates = .init(
                             uniqueElements: response.data.map { OnlineMangaThumbnailState(manga: $0) }
                         )
-                        
-//                        let t = CoverArtInfo(
-//                            id: UUID(), type: .coverArt, attributes: <#T##Attributes#>, relationships: <#T##[Relationship]#>)
-                        print(response.data.first!.relationships.filter { $0.type == .coverArt })
-                        
+
                         return .none
                         
                     case .failure(let error):

@@ -24,6 +24,7 @@ enum DownloadsAction {
 struct DownloadsEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
+    let cacheClient: CacheClient
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(
@@ -34,7 +35,8 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
                 )
             }
         ),
