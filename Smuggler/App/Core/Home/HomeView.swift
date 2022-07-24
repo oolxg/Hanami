@@ -16,19 +16,18 @@ struct HomeView: View {
             WithViewStore(store) { viewStore in
                 VStack {
                     Text("by oolxg")
+                        .font(.caption2)
+                        .frame(height: 0)
+                        .foregroundColor(.black)
                     
                     ScrollView {
-                        ForEachStore(
-                            store.scope(
-                                state: \.mangaThumbnailStates,
-                                action: HomeAction.mangaThumbnailAction
-                            )
-                        ) { thumbnailViewStore in
-                            OnlineMangaThumbnailView(store: thumbnailViewStore)
-                                .padding()
+                        LazyVStack(alignment: .leading, pinnedViews: .sectionHeaders) {
+                            seasonal
+                            
+                            other
                         }
+                        .transition(.opacity)
                     }
-                    .transition(.opacity)
                 }
                 .navigationTitle("Kamakura")
                 .navigationBarTitleDisplayMode(.large)
@@ -53,5 +52,57 @@ struct HomeView_Previews: PreviewProvider {
                 )
             )
         )
+    }
+}
+
+extension HomeView {
+    private var seasonal: some View {
+        Section {
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 15) {
+                    ForEachStore(
+                        store.scope(
+                            state: \.seasonalMangaThumbnailStates,
+                            action: HomeAction.seasonalMangaThumbnailAction
+                        )) { thumbnailStore in
+                            OnlineMangaThumbnailView(store: thumbnailStore, compact: true)
+                                .padding(.vertical)
+                        }
+                }
+                .padding(.vertical)
+            }
+            .frame(height: 170)
+        } header: {
+            makeSectionHeader(title: "Seasonal")
+        }
+    }
+    
+    private var other: some View {
+        Section {
+            ForEachStore(
+                store.scope(
+                    state: \.mangaThumbnailStates,
+                    action: HomeAction.mangaThumbnailAction
+                )
+            ) { thumbnailViewStore in
+                OnlineMangaThumbnailView(store: thumbnailViewStore)
+                    .padding()
+            }
+        } header: {
+            makeSectionHeader(title: "Other")
+        }
+    }
+    
+    @ViewBuilder private func makeSectionHeader(title: String) -> some View {
+        Text(title)
+            .foregroundColor(.white)
+            .font(.title3)
+            .fontWeight(.semibold)
+            .padding(.horizontal)
+            .padding(.bottom, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                LinearGradient(colors: [.black, .black, .black, .clear], startPoint: .top, endPoint: .bottom)
+            )
     }
 }

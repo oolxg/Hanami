@@ -14,6 +14,12 @@ struct DownloadsView: View {
     var body: some View {
         NavigationView {
             VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.black)
+                
+                
                 ScrollView {
                     ForEachStore(
                         store.scope(

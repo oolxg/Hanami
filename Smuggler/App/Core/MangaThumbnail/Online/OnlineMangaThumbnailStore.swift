@@ -56,16 +56,24 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
             case .onAppear:
                 // if we already loaded info about cover, we don't need to do it one more time
                 guard state.coverArtInfo == nil else { return .none }
-
+                
                 guard let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id else {
                     return .none
                 }
                 
-                var effects: [Effect<OnlineMangaThumbnailAction, Never>] = [
-                    env.mangaClient.fetchCoverArtInfo(coverArtID)
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(OnlineMangaThumbnailAction.thumbnailInfoLoaded)
-                ]
+                var effects: [Effect<OnlineMangaThumbnailAction, Never>] = []
+                
+                if let cached = CacheClient.live.fetchCoverArtInfo(coverArtID) {
+                    print("found!")
+                    state.coverArtInfo = cached
+                } else {
+                    effects.append(
+                        env.mangaClient.fetchCoverArtInfo(coverArtID)
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(OnlineMangaThumbnailAction.thumbnailInfoLoaded)
+                    )
+                }
+                
                 
                 if state.mangaStatistics == nil {
                     effects.append(
@@ -92,6 +100,7 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
             case .thumbnailInfoLoaded(let result):
                 switch result {
                     case .success(let response):
+                        CacheClient.live.cacheCoverArtInfo(response.data)
                         state.coverArtInfo = response.data
                         state.mangaState.mainCoverArtURL = state.coverArtInfo?.coverArtURL
                         state.mangaState.coverArtURL512 = state.coverArtInfo?.coverArtURL512

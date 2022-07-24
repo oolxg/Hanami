@@ -10,68 +10,25 @@ import ComposableArchitecture
 import Kingfisher
 
 struct OnlineMangaThumbnailView: View {
-    let store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>
+    init(store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>, compact: Bool = false) {
+        self.store = store
+        isCompact = compact
+    }
+    
+    private let isCompact: Bool
+    private let store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>
     @State private var isNavigationLinkActive = false
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.theme.darkGray.opacity(0.6))
-                
-                HStack(alignment: .top) {
-                    coverArt
-                    
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(viewStore.manga.title)
-                            .lineLimit(2)
-                            .foregroundColor(.white)
-                            .font(.headline)
-                        
-                        statistics
-                            
-                        if let mangaDescription = viewStore.manga.description {
-                            Text(LocalizedStringKey(mangaDescription))
-                                .lineLimit(5)
-                                .foregroundColor(.white)
-                                .font(.footnote)
-                        }
-                    }
-                }
-                .padding(10)
-            }
-            .frame(height: 150)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
-            .onTapGesture {
-                isNavigationLinkActive.toggle()
-            }
-            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+        VStack {
+            if isCompact {
+                compactVersion
+            } else {
+                fullVersion
             }
         }
     }
-}
-
-struct MangaThumbnailView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnlineMangaThumbnailView(
-            store: .init(
-                initialState: .init(
-                    manga: dev.manga
-                ),
-                reducer: onlineMangaThumbnailReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    mangaClient: .live
-                )
-            )
-        )
-    }
-}
-
-extension OnlineMangaThumbnailView {
+    
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
             KFImage.url(
@@ -95,6 +52,67 @@ extension OnlineMangaThumbnailView {
         .frame(width: 100, height: 150)
         .clipped()
         .cornerRadius(10)
+    }
+}
+
+struct MangaThumbnailView_Previews: PreviewProvider {
+    static var previews: some View {
+        OnlineMangaThumbnailView(
+            store: .init(
+                initialState: .init(
+                    manga: dev.manga
+                ),
+                reducer: onlineMangaThumbnailReducer,
+                environment: .init(
+                    databaseClient: .live,
+                    mangaClient: .live
+                )
+            ),
+            compact: true
+        )
+    }
+}
+
+// MARK: - Full version
+extension OnlineMangaThumbnailView {
+    private var fullVersion: some View {
+        WithViewStore(store) { viewStore in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.theme.darkGray.opacity(0.6))
+                
+                HStack(alignment: .top) {
+                    coverArt
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(viewStore.manga.title)
+                            .lineLimit(2)
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        statistics
+                        
+                        if let mangaDescription = viewStore.manga.description {
+                            Text(LocalizedStringKey(mangaDescription))
+                                .lineLimit(5)
+                                .foregroundColor(.white)
+                                .font(.footnote)
+                        }
+                    }
+                }
+                .padding(10)
+            }
+            .frame(height: 150)
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
+            .onTapGesture {
+                isNavigationLinkActive.toggle()
+            }
+            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+            }
+        }
     }
     
     private var navigationLinkDestination: some View {
@@ -153,6 +171,76 @@ extension OnlineMangaThumbnailView {
                 }
             }
             .font(.footnote)
+        }
+    }
+}
+
+// MARK: - Compact
+extension OnlineMangaThumbnailView {
+    private var compactVersion: some View {
+        WithViewStore(store) { viewStore in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.theme.darkGray.opacity(0.6))
+                
+                HStack(alignment: .top) {
+                    coverArt
+                    
+                    
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(viewStore.manga.title)
+                            .lineLimit(3)
+                            .foregroundColor(.white)
+                            .font(.callout)
+                        
+                        HStack {
+                            HStack(alignment: .top, spacing: 0) {
+                                Image(systemName: "star.fill")
+                                
+                                ZStack {
+                                    if let rating = viewStore.mangaStatistics?.rating {
+                                        Text(rating.average?.clean(accuracy: 2) ?? rating.bayesian.clean(accuracy: 2))
+                                    } else {
+                                        Text(String.placeholder(length: 3))
+                                            .redacted(reason: .placeholder)
+                                    }
+                                }
+                            }
+                            
+                            HStack(alignment: .top, spacing: 0) {
+                                Image(systemName: "bookmark.fill")
+                                
+                                ZStack {
+                                    if let followsCount = viewStore.mangaStatistics?.follows.abbreviation {
+                                        Text(followsCount)
+                                    } else {
+                                        Text(String.placeholder(length: 7))
+                                            .redacted(reason: .placeholder)
+                                    }
+                                }
+                            }
+                        }
+                        .font(.caption)
+                        
+                        if let mangaDescription = viewStore.manga.description {
+                            Text(LocalizedStringKey(mangaDescription))
+                                .foregroundColor(.white)
+                                .font(.footnote)
+                        }
+                    }
+                }
+                .padding(10)
+            }
+            .frame(width: 250, height: 150)
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
+            .onTapGesture {
+                isNavigationLinkActive.toggle()
+            }
+            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+            }
         }
     }
 }

@@ -194,52 +194,34 @@ extension OnlineMangaView {
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
     }
-    
+
     private var coverArtTab: some View {
         WithViewStore(store.actionless) { viewStore in
-            GeometryReader { geo in
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: Int(geo.size.width / 160))
-                ) {
-                    ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
-                        let coverArtURL = viewStore.croppedCoverArtURLs[coverArtIndex]
-                        
-                        KFImage.url(coverArtURL)
-                            .placeholder {
-                                KFImage.url(viewStore.coverArtURL512)
-                            }
-                            .fade(duration: 0.3)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(.horizontal, 5)
-                            .overlay(
-                                ZStack(alignment: .bottom) {
-                                    if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
-                                        LinearGradient(
-                                            colors: [.clear, .clear, .black],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                        
-                                        Text("Volume \(volumeName)")
-                                            .font(.callout)
-                                    }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
+                ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
+                    let coverArtURL = viewStore.croppedCoverArtURLs[coverArtIndex]
+                    
+                    KFImage.url(coverArtURL)
+                        .fade(duration: 0.3)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(.horizontal, 5)
+                        .overlay(
+                            ZStack(alignment: .bottom) {
+                                if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
+                                    LinearGradient(
+                                        colors: [.clear, .clear, .black],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                    
+                                    Text("Volume \(volumeName)")
+                                        .font(.callout)
                                 }
-                            )
-                    }
-                }
-                .onAppear {
-                    computeArtSectionHeight(
-                        screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
-                    )
-                }
-                .onChange(of: viewStore.croppedCoverArtURLs.hashValue & geo.size.width.hashValue) { _ in
-                    computeArtSectionHeight(
-                        screenWidth: geo.size.width, coverArtsCount: viewStore.croppedCoverArtURLs.count
-                    )
+                            }
+                        )
                 }
             }
-            .frame(height: artSectionHeight)
             .padding()
         }
     }

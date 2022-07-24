@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "cache",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hyperoslo/Cache",
+      "state" : {
+        "revision" : "c7f4d633049c3bd649a353bad36f6c17e9df085f",
+        "version" : "6.0.0"
+      }
+    },
+    {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",

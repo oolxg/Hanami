@@ -12,13 +12,6 @@ struct Relationship: Codable {
     let id: UUID
     let type: ResponseDataType
     let related: RelatedType?
-    let attributes: RelationshipAttributes?
-    
-    // MARK: - RelationshipAttributes
-    struct RelationshipAttributes: Codable {
-        let id: UUID
-        let type: ResponseDataType
-    }
 
     enum RelatedType: String, Codable {
         case monochrome
