@@ -13,7 +13,7 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store.stateless) { viewStore in
                 VStack {
                     Text("by oolxg")
                         .font(.caption2)
@@ -67,16 +67,14 @@ extension HomeView {
                             action: HomeAction.seasonalMangaThumbnailAction
                         )) { thumbnailStore in
                             OnlineMangaThumbnailView(store: thumbnailStore, compact: true)
-                                .padding(.vertical)
                         }
                 }
-                .padding(.vertical)
+                .padding()
             }
             .frame(height: 170)
         } header: {
             makeSectionHeader(title: "Seasonal")
         }
-        .padding(.horizontal)
     }
     
     private var other: some View {

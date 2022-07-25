@@ -7,11 +7,10 @@
 
 import Foundation
 
-// swiftlint:disable nesting identifier_name
+// swiftlint:disable identifier_name
 // MARK: - Tag
 struct Tag: Codable {
     let id: UUID
-    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [Relationship]?
     

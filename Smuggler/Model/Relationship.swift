@@ -14,6 +14,13 @@ struct Relationship: Codable {
     let related: RelatedType?
     let attributes: RelationshipAttributes?
     
+    init(id: UUID, type: ResponseDataType, related: RelatedType? = nil, attributes: RelationshipAttributes? = nil) {
+        self.id = id
+        self.type = type
+        self.related = related
+        self.attributes = attributes
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
@@ -30,6 +37,10 @@ struct Relationship: Codable {
                     )
                 case .manga:
                     attributes = .manga(try container.decode(Manga.Attributes.self, forKey: .attributes))
+                    
+                case .author:
+                    attributes = .author(try container.decode(Author.Attributes.self, forKey: .attributes))
+                    
                 default:
                     attributes = nil
             }
@@ -43,15 +54,21 @@ struct Relationship: Codable {
         case coverArt(CoverArtInfo.Attributes)
         case manga(Manga.Attributes)
         case scanlationGroup(ScanlationGroup.Attributes)
+        case author(Author.Attributes)
         
         func get() -> Any {
             switch self {
                 case .coverArt(let coverArt):
                     return coverArt
+                    
                 case .manga(let manga):
                     return manga
+                    
                 case .scanlationGroup(let scanlationGroup):
                     return scanlationGroup
+                    
+                case .author(let author):
+                    return author
             }
         }
     }

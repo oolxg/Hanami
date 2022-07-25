@@ -7,12 +7,9 @@
 
 import Foundation
 
-// swiftlint:disable nesting
-
 // MARK: - Manga
 struct Manga: Codable {
     let id: UUID
-    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [Relationship]
     
@@ -120,5 +117,19 @@ extension Manga {
     
     var description: String? {
         attributes.description.availableLang
+    }
+    
+    var authors: [Author] {
+        relationships
+            .filter { $0.type == .author && $0.attributes != nil }
+            .compactMap {
+                guard let attrs = $0.attributes!.get() as? Author.Attributes else {
+                    return nil
+                }
+                
+                return Author(id: $0.id, attributes: attrs, relationships: [
+                    .init(id: self.id, type: .manga)
+                ])
+            }
     }
 }

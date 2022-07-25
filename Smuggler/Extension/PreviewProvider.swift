@@ -28,7 +28,6 @@ class DeveloperPreview {
     
     let coverArtInfo = CoverArtInfo(
         id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
-        type: .coverArt,
         attributes: .init(
             description: "",
             volume: "1",
@@ -52,7 +51,6 @@ class DeveloperPreview {
 
     let manga = Manga(
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
-        type: .manga,
         attributes: .init(
             title: LocalizedString(
                 en: "JoJo's Bizarre Adventure Part 6: Stone Ocean (Fan-Coloured)",
@@ -92,7 +90,6 @@ class DeveloperPreview {
             tags: [
                 Tag(
                     id: UUID(),
-                    type: .tag,
                     attributes: .init(
                         name: .init(
                             en: .action
@@ -104,7 +101,6 @@ class DeveloperPreview {
                 ),
                 Tag(
                     id: UUID(),
-                    type: .tag,
                     attributes: .init(
                         name: .init(
                             en: .fanColored

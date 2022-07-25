@@ -38,7 +38,8 @@ extension HomeClient {
                 URLQueryItem(name: "updatedAtSince", value: fmt.string(from: today)),
                 URLQueryItem(name: "order[latestUploadedChapter]", value: "desc"),
                 URLQueryItem(name: "order[relevance]", value: "desc"),
-                URLQueryItem(name: "includes[]", value: "cover_art")
+                URLQueryItem(name: "includes[]", value: "cover_art"),
+                URLQueryItem(name: "includes[]", value: "author")
             ]
             
             guard let url = components.url else {
@@ -63,9 +64,17 @@ extension HomeClient {
         },
         fetchSeasonalTitlesList: {
             // admin user has 'Seasonal' manga list
-            let adminUserListsURL = URL(string: "https://api.mangadex.org/list/7df1dabc-b1c5-4e8e-a757-de5a2a3d37e9?includes[]=user&includes[]=cover_art")
-            
-            guard let adminUserListsURL = adminUserListsURL else {
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "api.mangadex.org"
+            components.path = "/list/7df1dabc-b1c5-4e8e-a757-de5a2a3d37e9"
+            components.queryItems = [
+                URLQueryItem(name: "includes[]", value: "author"),
+                URLQueryItem(name: "includes[]", value: "cover_art"),
+                URLQueryItem(name: "includes[]", value: "user")
+            ]
+
+            guard let adminUserListsURL = components.url else {
                 return .none
             }
             
@@ -94,7 +103,8 @@ extension HomeClient {
             components.path = "/manga"
             components.queryItems = [
                 URLQueryItem(name: "limit", value: "\(mangaIDs.count)"),
-                URLQueryItem(name: "includes[]=", value: "cover_art")
+                URLQueryItem(name: "includes[]", value: "cover_art"),
+                URLQueryItem(name: "includes[]", value: "author")
             ]
             
             components.queryItems!.append(
@@ -135,7 +145,8 @@ extension HomeClient {
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 // award-winning tag UUID
                 URLQueryItem(name: "includedTags[]", value: "0a39b5a1-b235-4886-a747-1d05d216532d"),
-                URLQueryItem(name: "order[rating]", value: "desc")
+                URLQueryItem(name: "order[rating]", value: "desc"),
+                URLQueryItem(name: "includes[]", value: "author")
             ]
             
             guard let url = components.url else {

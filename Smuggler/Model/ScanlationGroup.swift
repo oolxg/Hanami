@@ -7,12 +7,10 @@
 
 import Foundation
 
-// swiftlint:disable nesting
 
 // MARK: - ScanlationGroup
 struct ScanlationGroup: Codable {
     let id: UUID
-    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [ScanlationGroupRelationship]
     
@@ -59,32 +57,11 @@ extension ScanlationGroup.Attributes {
         name = try container.decode(String.self, forKey: .name)
         isLocked = try container.decode(Bool.self, forKey: .isLocked)
         
-        do {
-            website = try container.decode(URL?.self, forKey: .website)
-        } catch {
-            website = nil
-        }
-        
-        do {
-            discord = try container.decode(URL?.self, forKey: .discord)
-        } catch {
-            discord = nil
-        }
-        
-        do {
-            contactEmail = try container.decode(URL?.self, forKey: .contactEmail)
-        } catch {
-            contactEmail = nil
-        }
-        
+        website = try? container.decode(URL?.self, forKey: .website)
+        discord = try? container.decode(URL?.self, forKey: .discord)
+        contactEmail = try? container.decode(URL?.self, forKey: .contactEmail)
         description = try container.decode(String?.self, forKey: .description)
-        
-        do {
-            twitter = try container.decode(URL?.self, forKey: .twitter)
-        } catch {
-            twitter = nil
-        }
-        
+        twitter = try? container.decode(URL?.self, forKey: .twitter)
         focusedLanguages = try container.decode([String]?.self, forKey: .focusedLanguages)
         isOfficial = try container.decode(Bool.self, forKey: .isOfficial)
         isVerified = try container.decode(Bool.self, forKey: .isVerified)

@@ -31,6 +31,7 @@ extension SearchClient {
                 URLQueryItem(name: "contentRating[]", value: "suggestive"),
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),
+                URLQueryItem(name: "includes[]", value: "author"),
                 URLQueryItem(name: "order[\(requestParams.sortOption)]", value: "\(requestParams.sortOptionOrder)")
             ]
             

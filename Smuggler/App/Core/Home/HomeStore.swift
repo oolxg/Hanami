@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+import Kingfisher
 
 struct HomeState: Equatable {
     var mangaThumbnailStates: IdentifiedArrayOf<OnlineMangaThumbnailState> = []
@@ -21,6 +22,8 @@ enum HomeAction {
     case mangaThumbnailAction(id: UUID, action: OnlineMangaThumbnailAction)
     case seasonalMangaThumbnailAction(id: UUID, action: OnlineMangaThumbnailAction)
     case awardWinningMangaThumbnailAction(id: UUID, action: OnlineMangaThumbnailAction)
+    
+    case seasonalMangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
@@ -98,6 +101,12 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         state.mangaThumbnailStates = .init(
                             uniqueElements: response.data.map { OnlineMangaThumbnailState(manga: $0) }
                         )
+                        
+                        ImagePrefetcher(
+                            urls: state.mangaThumbnailStates.compactMap { $0.coverArtInfo?.coverArtURL512 },
+                            options: [.memoryCacheExpiration(.days(1))]
+                        ).start()
+                        
                         return env.homeClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(HomeAction.mangaStatisticsFetched)
@@ -140,6 +149,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     case .success(let response):
                         let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
                         
+                        ImagePrefetcher(
+                            urls: state.seasonalMangaThumbnailStates.compactMap { $0.coverArtInfo?.coverArtURL512 },
+                            options: [.memoryCacheExpiration(.days(1))]
+                        ).start()
+                        
                         return env.homeClient.fetchMangaByIDs(mangaIDs)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(HomeAction.seasonalMangaFetched)
@@ -156,10 +170,26 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                             uniqueElements: response.data.map { OnlineMangaThumbnailState(manga: $0) }
                         )
 
-                        return .none
+                        return env.homeClient.fetchStatistics(response.data.map(\.id))
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(HomeAction.seasonalMangaStatisticsFetched)
                         
                     case .failure(let error):
                         print("error: \(error)")
+                        return .none
+                }
+                
+            case .seasonalMangaStatisticsFetched(let result):
+                switch result {
+                    case .success(let response):
+                        for stat in response.statistics {
+                            state.seasonalMangaThumbnailStates[id: stat.key]?.mangaState.statistics = stat.value
+                        }
+                        
+                        return .none
+                        
+                    case .failure(let error):
+                        print("Error on fetching statistics on homeReducer: \(error)")
                         return .none
                 }
                 

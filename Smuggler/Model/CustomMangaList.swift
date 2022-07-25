@@ -7,12 +7,10 @@
 
 import Foundation
 
-// swiftlint:disable nesting
 
 // MARK: - CustomMangaList
 struct CustomMangaList: Codable {
     let id: UUID
-    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [Relationship]
     

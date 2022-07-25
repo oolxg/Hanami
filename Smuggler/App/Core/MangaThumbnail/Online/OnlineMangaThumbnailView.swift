@@ -27,27 +27,32 @@ struct OnlineMangaThumbnailView: View {
                 fullVersion
             }
         }
+        .background(
+            NavigationLink(
+                isActive: $isNavigationLinkActive,
+                destination: {
+                    OnlineMangaView(
+                        store: store.scope(
+                            state: \.mangaState,
+                            action: OnlineMangaThumbnailAction.mangaAction
+                        )
+                    )
+                },
+                label: { EmptyView() }
+            )
+        )
     }
     
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
-            KFImage.url(
-                viewStore.coverArtInfo?.coverArtURL512
-            )
-            .placeholder {
-                Color.black
-                    .opacity(0.45)
-                    .redacted(reason: .placeholder)
-            }
-            .resizable()
-            .scaledToFill()
-            .background(
-                NavigationLink(
-                    isActive: $isNavigationLinkActive,
-                    destination: { navigationLinkDestination },
-                    label: { EmptyView() }
-                )
-            )
+            KFImage.url(viewStore.coverArtInfo?.coverArtURL512)
+                .placeholder {
+                    Color.black
+                        .opacity(0.45)
+                        .redacted(reason: .placeholder)
+                }
+                .resizable()
+                .scaledToFill()
         }
         .frame(width: 100, height: 150)
         .clipped()
@@ -116,19 +121,6 @@ extension OnlineMangaThumbnailView {
         }
     }
     
-    private var navigationLinkDestination: some View {
-        ZStack {
-            if isNavigationLinkActive {
-                OnlineMangaView(
-                    store: store.scope(
-                        state: \.mangaState,
-                        action: OnlineMangaThumbnailAction.mangaAction
-                    )
-                )
-            }
-        }
-    }
-    
     private var statistics: some View {
         WithViewStore(store.actionless) { viewStore in
             HStack(alignment: .top, spacing: 10) {
@@ -186,7 +178,13 @@ extension OnlineMangaThumbnailView {
                 
                 HStack(alignment: .top) {
                     coverArt
-                    
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(
+                                    viewStore.manga.attributes.status.color,
+                                    lineWidth: 1.5
+                                )
+                        )
                     
                     VStack(alignment: .leading, spacing: 10) {
                         Text(viewStore.manga.title)

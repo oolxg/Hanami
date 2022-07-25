@@ -52,7 +52,6 @@ struct ChapterDetails: Codable {
     let attributes: Attributes
     let id: UUID
     let relationships: [Relationship]
-    let type: ResponseDataType
     
     // MARK: - Attributes
     struct Attributes: Codable {
@@ -69,7 +68,6 @@ struct ChapterDetails: Codable {
         let title: String?
         let volumeIndex: String?
         
-        // swiftlint:disable:next nesting
         enum CodingKeys: String, CodingKey {
             case chapterIndex = "chapter"
             case createdAt

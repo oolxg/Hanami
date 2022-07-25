@@ -10,7 +10,6 @@ import Foundation
 // MARK: - CoverArt
 struct CoverArtInfo: Codable {
     let id: UUID
-    let type: ResponseDataType
     let attributes: Attributes
     let relationships: [Relationship]
     
@@ -21,12 +20,6 @@ struct CoverArtInfo: Codable {
         let fileName, locale: String
         let createdAt, updatedAt: Date
         let version: Int
-    }
-
-    // MARK: - Relationship
-    struct Relationship: Codable {
-        let id: UUID
-        let type: ResponseDataType
     }
 }
 

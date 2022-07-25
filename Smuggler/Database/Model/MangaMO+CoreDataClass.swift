@@ -18,7 +18,6 @@ extension MangaMO: ManagedObjectProtocol {
     func toEntity() -> Manga {
         Manga(
             id: id,
-            type: .manga,
             attributes: attributes.decodeToObject()!,
             relationships: relationships.decodeToObject()!
         )

@@ -63,7 +63,8 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
                         .first(where: { $0.attributes != nil && $0.type == .coverArt }),
                    let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
                     state.coverArtInfo = CoverArtInfo(
-                        id: UUID(), type: .coverArt, attributes: coverArtAttr, relationships: [
+                        id: coverArtInfo.id, attributes: coverArtAttr, relationships: [
+                            
                             .init(id: state.manga.id, type: .manga)
                         ]
                     )
@@ -108,7 +109,6 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
             case .thumbnailInfoLoaded(let result):
                 switch result {
                     case .success(let response):
-                        CacheClient.live.cacheCoverArtInfo(response.data)
                         state.coverArtInfo = response.data
                         state.mangaState.mainCoverArtURL = state.coverArtInfo?.coverArtURL
                         state.mangaState.coverArtURL512 = state.coverArtInfo?.coverArtURL512

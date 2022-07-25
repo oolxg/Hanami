@@ -45,12 +45,11 @@
 		2245D4BE284109AF005B1C83 /* SearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4BD284109AF005B1C83 /* SearchStore.swift */; };
 		2245D4C028413642005B1C83 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4BF28413642005B1C83 /* SearchView.swift */; };
 		2246D7312878AC31009006D7 /* ChapterStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2246D7302878AC31009006D7 /* ChapterStore.swift */; };
+		22471E1E288E10A300223D35 /* Author.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22471E1D288E10A300223D35 /* Author.swift */; };
 		224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* SmugglerApp.swift */; };
 		224C65802827204300AAEF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C657F2827204300AAEF2E /* Assets.xcassets */; };
 		224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C65822827204300AAEF2E /* Preview Assets.xcassets */; };
 		224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* SmugglerTests.swift */; };
-		224C65972827204300AAEF2E /* SmugglerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65962827204300AAEF2E /* SmugglerUITests.swift */; };
-		224C65992827204300AAEF2E /* SmugglerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */; };
 		224E6712282E91FF001D214C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6711282E91FF001D214C /* Response.swift */; };
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E671B282EAA50001D214C /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671A282EAA50001D214C /* AppError.swift */; };
@@ -167,6 +166,7 @@
 		2245D4BD284109AF005B1C83 /* SearchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchStore.swift; sourceTree = "<group>"; };
 		2245D4BF28413642005B1C83 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		2246D7302878AC31009006D7 /* ChapterStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChapterStore.swift; sourceTree = "<group>"; };
+		22471E1D288E10A300223D35 /* Author.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Author.swift; sourceTree = "<group>"; };
 		224C65782827204100AAEF2E /* Smuggler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Smuggler.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		224C657B2827204100AAEF2E /* SmugglerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerApp.swift; sourceTree = "<group>"; };
 		224C657F2827204300AAEF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -174,8 +174,6 @@
 		224C65882827204300AAEF2E /* SmugglerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmugglerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		224C658C2827204300AAEF2E /* SmugglerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerTests.swift; sourceTree = "<group>"; };
 		224C65922827204300AAEF2E /* SmugglerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmugglerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		224C65962827204300AAEF2E /* SmugglerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITests.swift; sourceTree = "<group>"; };
-		224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		224E6711282E91FF001D214C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
 		224E671A282EAA50001D214C /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
@@ -395,7 +393,6 @@
 			children = (
 				224C657A2827204100AAEF2E /* Smuggler */,
 				224C658B2827204300AAEF2E /* SmugglerTests */,
-				224C65952827204300AAEF2E /* SmugglerUITests */,
 				224C65792827204100AAEF2E /* Products */,
 				33240CCD5BD875E1E9324710 /* .gitignore */,
 			);
@@ -445,15 +442,6 @@
 			path = SmugglerTests;
 			sourceTree = "<group>";
 		};
-		224C65952827204300AAEF2E /* SmugglerUITests */ = {
-			isa = PBXGroup;
-			children = (
-				224C65962827204300AAEF2E /* SmugglerUITests.swift */,
-				224C65982827204300AAEF2E /* SmugglerUITestsLaunchTests.swift */,
-			);
-			path = SmugglerUITests;
-			sourceTree = "<group>";
-		};
 		224E6710282E8E18001D214C /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -470,6 +458,7 @@
 				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
 				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
 				228FA497288D86C800369529 /* CustomMangaList.swift */,
+				22471E1D288E10A300223D35 /* Author.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -832,6 +821,7 @@
 				22FDCE63284B865F0059FD6E /* FilterModels.swift in Sources */,
 				22693C19287B660A00E8B856 /* ChapterPagesInfoMO+CoreDataClass.swift in Sources */,
 				2220E15428312D1F0046F08A /* OnlineMangaThumbnailView.swift in Sources */,
+				22471E1E288E10A300223D35 /* Author.swift in Sources */,
 				226DF7952865BFDC007CF96A /* View.swift in Sources */,
 				224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */,
 				226DF79028652A3A007CF96A /* ZoomableScrollView.swift in Sources */,
@@ -860,8 +850,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224C65992827204300AAEF2E /* SmugglerUITestsLaunchTests.swift in Sources */,
-				224C65972827204300AAEF2E /* SmugglerUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

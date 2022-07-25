@@ -202,32 +202,48 @@ extension OfflineMangaView {
     
     private var aboutTab: some View {
         WithViewStore(store.actionless) { viewStore in
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 15) {
+                if !viewStore.manga.authors.isEmpty {
+                    VStack(alignment: .leading) {
+                        Text("Author")
+                            .font(.headline)
+                            .fontWeight(.black)
+                        
+                        Divider()
+                        
+                        GridChipsView(
+                            viewStore.manga.authors,
+                            width: UIScreen.main.bounds.width * 0.95
+                        ) { author in
+                            makeChipsView(text: author.name)
+                        }
+                        .frame(minHeight: 20)
+                    }
+                }
+                
                 VStack(alignment: .leading) {
                     Text("Description")
                         .font(.headline)
                         .fontWeight(.black)
-                        .padding(10)
                     
                     Divider()
                     
                     Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                        .padding(15)
+                        .padding(.horizontal, 10)
                 }
                 
                 tags
             }
-            .padding(.horizontal)
         }
+        .padding(.horizontal, 20)
     }
     
     private var tags: some View {
         WithViewStore(store.actionless) { viewStore in
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 15) {
                 Text("Tags")
                     .font(.headline)
                     .fontWeight(.black)
-                    .padding(10)
                 
                 Divider()
                 
@@ -235,36 +251,35 @@ extension OfflineMangaView {
                     viewStore.manga.attributes.tags,
                     width: UIScreen.main.bounds.width * 0.95
                 ) { tag in
-                    Text(tag.name.capitalized)
-                        .font(.callout)
-                        .lineLimit(1)
-                        .padding(10)
-                        .foregroundColor(.white)
-                        .background(Color.theme.darkGray)
-                        .cornerRadius(10)
+                    makeChipsView(text: tag.name.capitalized)
                 }
-                .frame(minHeight: 25)
-                .padding(15)
+                .frame(minHeight: 20)
                 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
-                    Text("Demographic")
-                        .font(.headline)
-                        .fontWeight(.black)
-                        .padding(10)
-                    
-                    Divider()
-                    
-                    Text(demographic.capitalized)
-                        .font(.callout)
-                        .lineLimit(1)
-                        .padding(10)
-                        .foregroundColor(.white)
-                        .background(Color.theme.darkGray)
-                        .cornerRadius(10)
-                        .padding(15)
+                    VStack(alignment: .leading) {
+                        Text("Demographic")
+                            .font(.headline)
+                            .fontWeight(.black)
+                        
+                        Divider()
+                        
+                        makeChipsView(text: demographic.capitalized)
+                            .padding(.horizontal, 5)
+                    }
+                    .frame(minHeight: 20)
                 }
             }
         }
+    }
+
+    @ViewBuilder private func makeChipsView(text: String) -> some View {
+        Text(text)
+            .font(.callout)
+            .lineLimit(1)
+            .padding(10)
+            .foregroundColor(.white)
+            .background(Color.theme.darkGray)
+            .cornerRadius(10)
     }
     
     private var backButton: some View {

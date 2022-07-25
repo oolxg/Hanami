@@ -19,8 +19,7 @@ extension ChapterDetailsMO: ManagedObjectProtocol {
         ChapterDetails(
             attributes: attributes.decodeToObject()!,
             id: id,
-            relationships: relationships.decodeToObject()!,
-            type: .chapter
+            relationships: relationships.decodeToObject()!
         )
     }
 }
