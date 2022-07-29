@@ -18,7 +18,6 @@ struct CoverArtInfo: Codable {
         let description: String
         let volume: String?
         let fileName, locale: String
-        let createdAt, updatedAt: Date
         let version: Int
     }
 }

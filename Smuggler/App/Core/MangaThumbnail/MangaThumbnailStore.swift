@@ -110,6 +110,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
+                    print("fetch")
                     return env.mangaClient.fetchCoverArtInfo(coverArtID)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)

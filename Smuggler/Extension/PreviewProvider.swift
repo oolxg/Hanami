@@ -33,8 +33,6 @@ class DeveloperPreview {
             volume: "1",
             fileName: "9c8d9166-7b7e-4376-849b-faa50c3df7ef.jpg",
             locale: "ja",
-            createdAt: Date(timeIntervalSince1970: 1652567400),
-            updatedAt: Date(timeIntervalSince1970: 1652567700),
             version: 1
         ),
         relationships: [

@@ -10,7 +10,9 @@ import ComposableArchitecture
 
 struct HomeView: View {
     let store: Store<HomeState, HomeAction>
-    
+    @State private var showAwardWinning = false
+    @State private var showMostFollowed = false
+
     var body: some View {
         NavigationView {
             WithViewStore(store.stateless) { viewStore in
@@ -21,10 +23,12 @@ struct HomeView: View {
                         .foregroundColor(.black)
                     
                     ScrollView {
-                        LazyVStack(alignment: .leading, pinnedViews: .sectionHeaders) {
+                        LazyVStack(alignment: .leading, spacing: 20, pinnedViews: .sectionHeaders) {
                             seasonal
                             
-                            other
+                            selections
+                            
+                            latestUpdates
                         }
                         .transition(.opacity)
                     }
@@ -77,12 +81,27 @@ extension HomeView {
         }
     }
     
-    private var other: some View {
+    private var selections: some View {
+        Section {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(minimum: 140, maximum: 500)),
+                    GridItem(.flexible(minimum: 140, maximum: 500))
+                ]) {
+                    awardWinningNavLink
+                    mostFollowedNavLink
+                }
+        } header: {
+            makeSectionHeader(title: "Selections")
+        }
+    }
+        
+    private var latestUpdates: some View {
         Section {
             LazyVStack {
                 ForEachStore(
                     store.scope(
-                        state: \.mangaThumbnailStates,
+                        state: \.lastUpdatedMangaThumbnailStates,
                         action: HomeAction.mangaThumbnailAction
                     )
                 ) { thumbnailViewStore in
@@ -91,7 +110,7 @@ extension HomeView {
             }
             }
         } header: {
-            makeSectionHeader(title: "Other")
+            makeSectionHeader(title: "Latest Updates")
         }
     }
     
@@ -106,5 +125,156 @@ extension HomeView {
             .background(
                 LinearGradient(colors: [.black, .black, .black, .clear], startPoint: .top, endPoint: .bottom)
             )
+    }
+}
+
+
+// MARK: - Selections
+extension HomeView {
+    private var mostFollowedNavLink: some View {
+        NavigationLink(isActive: $showMostFollowed) {
+            mostFollowed
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [.pink, .green, .yellow],
+                            startPoint: .bottomLeading,
+                            endPoint: .top
+                        )
+                    )
+                    .zIndex(0)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Most")
+                    Text("Followed")
+                }
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .padding(.bottom, 10)
+                .padding(.leading, 10)
+                .zIndex(1)
+            }
+            .frame(height: 125)
+            .padding(.trailing)
+        }
+    }
+    
+    private var mostFollowed: some View {
+        WithViewStore(store) { viewStore in
+            VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.black)
+                
+                ScrollView {
+                    LazyVStack {
+                        ForEachStore(
+                            store.scope(
+                                state: \.mostFollowedMangaThumbnailStates,
+                                action: HomeAction.mostFollowedMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(store: thumbnailStore)
+                                    .padding()
+                            }
+                    }
+                    .navigationTitle("Award Winning")
+                    .navigationBarBackButtonHidden(true)
+                    .navigationBarTitleDisplayMode(.large)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button {
+                                showMostFollowed = false
+                            } label: {
+                                Image(systemName: "arrow.left")
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical)
+                            }
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                viewStore.send(.userOpenedMostFollowedView)
+            }
+        }
+    }
+    
+    private var awardWinningNavLink: some View {
+        NavigationLink(isActive: $showAwardWinning) {
+            awardWinning
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [.green, .blue, .yellow],
+                            startPoint: .bottomLeading,
+                            endPoint: .topTrailing
+                        )
+                    )
+                    .zIndex(0)
+                
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Award")
+                    Text("Winning")
+                }
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .padding(.bottom, 10)
+                .padding(.leading, 10)
+                .zIndex(1)
+            }
+            .frame(height: 125)
+            .padding(.leading)
+        }
+    }
+    
+    private var awardWinning: some View {
+        WithViewStore(store.stateless) { viewStore in
+            VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.black)
+                
+                ScrollView {
+                    LazyVStack {
+                        ForEachStore(
+                            store.scope(
+                                state: \.awardWinningMangaThumbnailStates,
+                                action: HomeAction.awardWinningMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(store: thumbnailStore)
+                                    .padding()
+                            }
+                    }
+                    .navigationTitle("Award Winning")
+                    .navigationBarTitleDisplayMode(.large)
+                    .navigationBarBackButtonHidden(true)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button {
+                                showAwardWinning = false
+                            } label: {
+                                Image(systemName: "arrow.left")
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical)
+                            }
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                viewStore.send(.userOpenedAwardWinningView)
+            }
+        }
     }
 }

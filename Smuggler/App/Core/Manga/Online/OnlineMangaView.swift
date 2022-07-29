@@ -61,6 +61,7 @@ struct OnlineMangaView: View {
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
+            .accentColor(.theme.accent)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
                 message: viewStore.hudInfo.message,

@@ -9,16 +9,17 @@ import Foundation
 import ComposableArchitecture
 
 struct HomeClient {
-    let fetchHomePage: () -> Effect<Response<[Manga]>, AppError>
+    let fetchLastUpdates: () -> Effect<Response<[Manga]>, AppError>
     let fetchSeasonalTitlesList: () -> Effect<Response<CustomMangaList>, AppError>
     let fetchMangaByIDs: ([UUID]) -> Effect<Response<[Manga]>, AppError>
     let fetchAwardWinningManga: () -> Effect<Response<[Manga]>, AppError>
+    let fetchMostFollewManga: () -> Effect<Response<[Manga]>, AppError>
     let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
 }
 
 extension HomeClient {
     static var live = HomeClient(
-        fetchHomePage: {
+        fetchLastUpdates: {
             let today = Calendar.current.startOfDay(for: Date(timeIntervalSinceNow: -86400))
             let fmt = DateFormatter()
             fmt.locale = Locale(identifier: "en_US_POSIX")
@@ -111,11 +112,10 @@ extension HomeClient {
                 contentsOf: mangaIDs.map { URLQueryItem(name: "ids[]", value: $0.uuidString.lowercased()) }
             )
             
-            
             guard let url = components.url else {
                 return .none
             }
-            
+                        
             return URLSession.shared.dataTaskPublisher(for: url)
                 .validateResponseCode()
                 .retry(3)
@@ -138,7 +138,7 @@ extension HomeClient {
             components.host = "api.mangadex.org"
             components.path = "/manga"
             components.queryItems = [
-                URLQueryItem(name: "limit", value: "50"),
+                URLQueryItem(name: "limit", value: "25"),
                 URLQueryItem(name: "offset", value: "0"),
                 URLQueryItem(name: "contentRating[]", value: "safe"),
                 URLQueryItem(name: "contentRating[]", value: "suggestive"),
@@ -146,13 +146,50 @@ extension HomeClient {
                 // award-winning tag UUID
                 URLQueryItem(name: "includedTags[]", value: "0a39b5a1-b235-4886-a747-1d05d216532d"),
                 URLQueryItem(name: "order[rating]", value: "desc"),
+                URLQueryItem(name: "includes[]", value: "cover_art"),
                 URLQueryItem(name: "includes[]", value: "author")
             ]
             
             guard let url = components.url else {
                 return .none
             }
-                
+
+            return URLSession.shared.dataTaskPublisher(for: url)
+                .validateResponseCode()
+                .retry(3)
+                .map(\.data)
+                .decode(type: Response<[Manga]>.self, decoder: JSONDecoder())
+                .mapError { err -> AppError in
+                    if let err = err as? URLError {
+                        return AppError.downloadError(err)
+                    } else if let err = err as? DecodingError {
+                        return AppError.decodingError(err)
+                    }
+                    
+                    return AppError.unknownError(err)
+                }
+                .eraseToEffect()
+        },
+        fetchMostFollewManga: {
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "api.mangadex.org"
+            components.path = "/manga"
+            components.queryItems = [
+                URLQueryItem(name: "limit", value: "25"),
+                URLQueryItem(name: "offset", value: "0"),
+                URLQueryItem(name: "contentRating[]", value: "safe"),
+                URLQueryItem(name: "contentRating[]", value: "suggestive"),
+                URLQueryItem(name: "contentRating[]", value: "erotica"),
+                URLQueryItem(name: "order[followedCount]", value: "desc"),
+                URLQueryItem(name: "includes[]", value: "author"),
+                URLQueryItem(name: "includes[]", value: "cover_art")
+            ]
+            
+            guard let url = components.url else {
+                return .none
+            }
+            
             return URLSession.shared.dataTaskPublisher(for: url)
                 .validateResponseCode()
                 .retry(3)

@@ -10,26 +10,31 @@ import ComposableArchitecture
 import Kingfisher
 
 struct HomeState: Equatable {
-    var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var lastUpdatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var awardWinningMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
 }
 
 enum HomeAction {
     case onAppear
-    case dataLoaded(Result<Response<[Manga]>, AppError>)
+    
+    case statisticsFetched(
+        Result<MangaStatisticsContainer, AppError>, WritableKeyPath<HomeState, IdentifiedArrayOf<MangaThumbnailState>>
+    )
+    case mangaListFetched(
+        Result<Response<[Manga]>, AppError>, WritableKeyPath<HomeState, IdentifiedArrayOf<MangaThumbnailState>>
+    )
+    
+    case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
+    
+    case userOpenedAwardWinningView
+    case userOpenedMostFollowedView
     
     case mangaThumbnailAction(UUID, MangaThumbnailAction)
     case seasonalMangaThumbnailAction(UUID, MangaThumbnailAction)
     case awardWinningMangaThumbnailAction(UUID, MangaThumbnailAction)
-    
-    case seasonalMangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
-    
-    case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
-    case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
-    
-    case seasonalMangaFetched(Result<Response<[Manga]>, AppError>)
-    case awardWinningMangaFetched(Result<Response<[Manga]>, AppError>)
+    case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailAction)
 }
 
 struct HomeEnvironment {
@@ -42,7 +47,7 @@ struct HomeEnvironment {
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
     mangaThumbnailReducer
         .forEach(
-            state: \.mangaThumbnailStates,
+            state: \.lastUpdatedMangaThumbnailStates,
             action: /HomeAction.mangaThumbnailAction,
             environment: {
                 .init(
@@ -76,60 +81,68 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 )
             }
         ),
+    mangaThumbnailReducer
+        .forEach(
+            state: \.mostFollowedMangaThumbnailStates,
+            action: /HomeAction.mostFollowedMangaThumbnailAction,
+            environment: {
+                .init(
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
+                )
+            }
+        ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if !state.mangaThumbnailStates.isEmpty { return .none }
+                if !state.lastUpdatedMangaThumbnailStates.isEmpty { return .none }
                 
                 return .merge(
-                    env.homeClient.fetchHomePage()
+                    env.homeClient.fetchLastUpdates()
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(HomeAction.dataLoaded),
+                        .catchToEffect { HomeAction.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
                     
                     env.homeClient.fetchSeasonalTitlesList()
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(HomeAction.seasonalMangaListFetched),
-                    
-                    env.homeClient.fetchAwardWinningManga()
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(HomeAction.awardWinningMangaFetched)
+                        .catchToEffect(HomeAction.seasonalMangaListFetched)
                     )
                 
-            case .dataLoaded(let result):
+            case .userOpenedAwardWinningView:
+                guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
+                
+                return env.homeClient.fetchAwardWinningManga()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { HomeAction.mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
+                
+            case .userOpenedMostFollowedView:
+                guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
+                
+                return env.homeClient.fetchMostFollewManga()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { HomeAction.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
+                
+            case .mangaListFetched(let result, let keyPath):
                 switch result {
                     case .success(let response):
-                        state.mangaThumbnailStates = .init(
+                        state[keyPath: keyPath] = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         
                         return env.homeClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(HomeAction.mangaStatisticsFetched)
-                        
-                    case .failure(let error):
-                        print("error on fetching statistics: \(error)")
-                        return .none
-                }
-                
-            case .awardWinningMangaFetched(let result):
-                switch result {
-                    case .success(let response):
-                        state.awardWinningMangaThumbnailStates = .init(
-                            uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
-                        )
-                        
-                        return .none
+                            .catchToEffect { HomeAction.statisticsFetched($0, keyPath) }
                         
                     case .failure(let error):
                         print("error: \(error)")
                         return .none
                 }
                 
-            case .mangaStatisticsFetched(let result):
+            case .statisticsFetched(let result, let keyPath):
                 switch result {
                     case .success(let response):
                         for stat in response.statistics {
-                            state.mangaThumbnailStates[id: stat.key]?.onlineMangaState!.statistics = stat.value
+                            state[keyPath: keyPath][id: stat.key]?.onlineMangaState!.statistics = stat.value
                         }
                         
                         return .none
@@ -146,40 +159,10 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         
                         return env.homeClient.fetchMangaByIDs(mangaIDs)
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(HomeAction.seasonalMangaFetched)
-                        
-                    case .failure(let error):
-                        print("error: \(error)")
-                        return .none
-                }
-                
-            case .seasonalMangaFetched(let result):
-                switch result {
-                    case .success(let response):
-                        state.seasonalMangaThumbnailStates = .init(
-                            uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
-                        )
+                            .catchToEffect { HomeAction.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
 
-                        return env.homeClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(HomeAction.seasonalMangaStatisticsFetched)
-                        
                     case .failure(let error):
                         print("error: \(error)")
-                        return .none
-                }
-                
-            case .seasonalMangaStatisticsFetched(let result):
-                switch result {
-                    case .success(let response):
-                        for stat in response.statistics {
-                            state.seasonalMangaThumbnailStates[id: stat.key]?.onlineMangaState!.statistics = stat.value
-                        }
-                        
-                        return .none
-                        
-                    case .failure(let error):
-                        print("Error on fetching statistics on homeReducer: \(error)")
                         return .none
                 }
                 
@@ -190,6 +173,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 return .none
                 
             case .awardWinningMangaThumbnailAction:
+                return .none
+                
+            case .mostFollowedMangaThumbnailAction:
                 return .none
         }
     }

@@ -21,6 +21,7 @@ struct SmugglerApp: App {
             cacheClient: .live
         )
     )
+    
     @ObservedObject private var viewStore: ViewStore<AppState, AppAction>
     
     init() {
