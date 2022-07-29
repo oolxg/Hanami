@@ -1,5 +1,5 @@
 //
-//  OnlineMangaThumbnailView.swift
+//  MangaThumbnailView.swift
 //  Smuggler
 //
 //  Created by mk.pwnz on 15/05/2022.
@@ -9,14 +9,14 @@ import SwiftUI
 import ComposableArchitecture
 import Kingfisher
 
-struct OnlineMangaThumbnailView: View {
-    init(store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>, compact: Bool = false) {
+struct MangaThumbnailView: View {
+    init(store: Store<MangaThumbnailState, MangaThumbnailAction>, compact: Bool = false) {
         self.store = store
         isCompact = compact
     }
     
     private let isCompact: Bool
-    private let store: Store<OnlineMangaThumbnailState, OnlineMangaThumbnailAction>
+    private let store: Store<MangaThumbnailState, MangaThumbnailAction>
     @State private var isNavigationLinkActive = false
     
     var body: some View {
@@ -30,14 +30,7 @@ struct OnlineMangaThumbnailView: View {
         .background(
             NavigationLink(
                 isActive: $isNavigationLinkActive,
-                destination: {
-                    OnlineMangaView(
-                        store: store.scope(
-                            state: \.mangaState,
-                            action: OnlineMangaThumbnailAction.mangaAction
-                        )
-                    )
-                },
+                destination: { mangaView },
                 label: { EmptyView() }
             )
         )
@@ -51,23 +44,50 @@ struct OnlineMangaThumbnailView: View {
                         .opacity(0.45)
                         .redacted(reason: .placeholder)
                 }
+                .fade(duration: 0.5)
+                .fromMemoryCacheOrRefresh()
+                .backgroundDecode()
                 .resizable()
                 .scaledToFill()
+                .frame(width: 100, height: 150)
+                .clipped()
+                .cornerRadius(10)
         }
-        .frame(width: 100, height: 150)
-        .clipped()
-        .cornerRadius(10)
+    }
+    
+    private var mangaView: some View {
+        WithViewStore(store.actionless) { viewStore in
+            ZStack {
+                if viewStore.isOnline {
+                    IfLetStore(
+                        store.scope(
+                            state: \.onlineMangaState,
+                            action: MangaThumbnailAction.onlineMangaAction
+                        ),
+                        then: OnlineMangaView.init
+                    )
+                } else {
+                    IfLetStore(
+                        store.scope(
+                            state: \.offlineMangaState,
+                            action: MangaThumbnailAction.offlineMangaAction
+                        ),
+                        then: OfflineMangaView.init
+                    )
+                }
+            }
+        }
     }
 }
 
 struct MangaThumbnailView_Previews: PreviewProvider {
     static var previews: some View {
-        OnlineMangaThumbnailView(
+        MangaThumbnailView(
             store: .init(
                 initialState: .init(
                     manga: dev.manga
                 ),
-                reducer: onlineMangaThumbnailReducer,
+                reducer: mangaThumbnailReducer,
                 environment: .init(
                     databaseClient: .live,
                     mangaClient: .live,
@@ -80,7 +100,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
 }
 
 // MARK: - Full version
-extension OnlineMangaThumbnailView {
+extension MangaThumbnailView {
     private var fullVersion: some View {
         WithViewStore(store) { viewStore in
             ZStack(alignment: .leading) {
@@ -96,7 +116,9 @@ extension OnlineMangaThumbnailView {
                             .foregroundColor(.white)
                             .font(.headline)
                         
-                        statistics
+                        if viewStore.isOnline {
+                            statistics
+                        }
                         
                         if let mangaDescription = viewStore.manga.description {
                             Text(LocalizedStringKey(mangaDescription))
@@ -169,7 +191,7 @@ extension OnlineMangaThumbnailView {
 }
 
 // MARK: - Compact
-extension OnlineMangaThumbnailView {
+extension MangaThumbnailView {
     private var compactVersion: some View {
         WithViewStore(store) { viewStore in
             ZStack(alignment: .leading) {

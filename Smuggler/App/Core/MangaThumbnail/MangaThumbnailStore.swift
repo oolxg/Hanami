@@ -9,31 +9,41 @@ import Foundation
 import ComposableArchitecture
 import SwiftUI
 
-struct OnlineMangaThumbnailState: Equatable, Identifiable {
-    init(manga: Manga) {
+struct MangaThumbnailState: Equatable, Identifiable {
+    init(manga: Manga, isOnline: Bool = true) {
         self.manga = manga
-        self.mangaState = OnlineMangaViewState(manga: manga)
+        self.isOnline = isOnline
+        
+        if isOnline {
+            onlineMangaState = OnlineMangaViewState(manga: manga)
+        } else {
+            offlineMangaState = OfflineMangaViewState(manga: manga)
+        }
     }
     
-    var mangaState: OnlineMangaViewState
+    var onlineMangaState: OnlineMangaViewState?
+    var offlineMangaState: OfflineMangaViewState?
     let manga: Manga
     var coverArtInfo: CoverArtInfo?
     
+    let isOnline: Bool
+    
     var mangaStatistics: MangaStatistics? {
-        mangaState.statistics
+        onlineMangaState?.statistics
     }
     
     var id: UUID { manga.id }
 }
 
-enum OnlineMangaThumbnailAction {
+enum MangaThumbnailAction {
     case onAppear
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case userOpenedMangaView
     case userLeftMangaView
     case userLeftMangaViewDelayCompleted
-    case mangaAction(OnlineMangaViewAction)
+    case onlineMangaAction(OnlineMangaViewAction)
+    case offlineMangaAction(OfflineMangaViewAction)
 }
 
 struct MangaThumbnailEnvironment {
@@ -42,63 +52,76 @@ struct MangaThumbnailEnvironment {
     let cacheClient: CacheClient
 }
 
+let mangaThumbnailReducer = Reducer.combine(
+    onlineMangaThumbnailReducer,
+    offlineMangaThumbnailReducer
+)
+
+
 // swiftlint:disable:next line_length
-let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineMangaThumbnailAction, MangaThumbnailEnvironment>.combine(
-    onlineMangaViewReducer.pullback(
-        state: \.mangaState,
-        action: /OnlineMangaThumbnailAction.mangaAction,
+let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment>  = .combine(
+    offlineMangaViewReducer.optional().pullback(
+        state: \.offlineMangaState,
+        action: /MangaThumbnailAction.offlineMangaAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
             mangaClient: $0.mangaClient
         ) }
     ),
     Reducer { state, action, env in
+        if state.isOnline {
+            return .none
+        }
+        
+        return .none
+    }
+)
+
+// swiftlint:disable:next line_length
+let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment> = .combine(
+    onlineMangaViewReducer.optional().pullback(
+        state: \.onlineMangaState,
+        action: /MangaThumbnailAction.onlineMangaAction,
+        environment: { .init(
+            databaseClient: $0.databaseClient,
+            mangaClient: $0.mangaClient
+        ) }
+    ),
+    Reducer { state, action, env in
+        if !state.isOnline {
+            return .none
+        }
+        
         switch action {
             case .onAppear:
-                // if we already loaded info about cover, we don't need to do it one more time
-                guard state.coverArtInfo == nil else { return .none }
-                
-                // in some cases we can have coverArt included with manga as relationship
-                if let coverArtInfo = state.manga.relationships
-                        .first(where: { $0.attributes != nil && $0.type == .coverArt }),
-                   let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
+                    // in some cases we can have coverArt included with manga as relationship
+                if let coverArtInfo = state.manga.relationships.first(
+                    where: { $0.attributes != nil && $0.type == .coverArt }
+                ), let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
                     state.coverArtInfo = CoverArtInfo(
                         id: coverArtInfo.id, attributes: coverArtAttr, relationships: [
-                            
                             .init(id: state.manga.id, type: .manga)
                         ]
                     )
                     
-                    state.mangaState.mainCoverArtURL = state.coverArtInfo!.coverArtURL
-                    state.mangaState.coverArtURL512 = state.coverArtInfo!.coverArtURL512
+                    state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
+                    state.onlineMangaState!.coverArtURL512 = state.coverArtInfo!.coverArtURL512
                 }
-                
-                var effects: [Effect<OnlineMangaThumbnailAction, Never>] = []
                 
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
-                    effects.append(
-                        env.mangaClient.fetchCoverArtInfo(coverArtID)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(OnlineMangaThumbnailAction.thumbnailInfoLoaded)
-                    )
+                    return env.mangaClient.fetchCoverArtInfo(coverArtID)
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 }
                 
-                if state.mangaStatistics == nil {
-                    effects.append(
-                        env.mangaClient.fetchMangaStatistics(state.manga.id)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(OnlineMangaThumbnailAction.mangaStatisticsFetched)
-                    )
-                }
-                
-                return .merge(effects)
+                return .none
                 
             case .mangaStatisticsFetched(let result):
                 switch result {
                     case .success(let response):
-                        state.mangaState.statistics = response.statistics[state.manga.id]
-
+                        state.onlineMangaState!.statistics = response.statistics[state.manga.id]
+                        
                         return .none
                         
                     case .failure(let error):
@@ -110,8 +133,8 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
                 switch result {
                     case .success(let response):
                         state.coverArtInfo = response.data
-                        state.mangaState.mainCoverArtURL = state.coverArtInfo?.coverArtURL
-                        state.mangaState.coverArtURL512 = state.coverArtInfo?.coverArtURL512
+                        state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo?.coverArtURL
+                        state.onlineMangaState!.coverArtURL512 = state.coverArtInfo?.coverArtURL512
                         return .none
                         
                     case .failure(let error):
@@ -126,16 +149,19 @@ let onlineMangaThumbnailReducer = Reducer<OnlineMangaThumbnailState, OnlineManga
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
                 // Can be cancelled if user returns wihing 60 sec.
-                return Effect(value: OnlineMangaThumbnailAction.userLeftMangaViewDelayCompleted)
+                return Effect(value: MangaThumbnailAction.userLeftMangaViewDelayCompleted)
                     .delay(for: .seconds(60), scheduler: DispatchQueue.main)
                     .eraseToEffect()
                     .cancellable(id: OnlineMangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
                 
             case .userLeftMangaViewDelayCompleted:
-                state.mangaState.reset()
+                state.onlineMangaState!.reset()
                 return .none
                 
-            case .mangaAction:
+            case .onlineMangaAction:
+                return .none
+                
+            case .offlineMangaAction:
                 return .none
         }
     }

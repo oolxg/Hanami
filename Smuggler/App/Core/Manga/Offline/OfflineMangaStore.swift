@@ -31,7 +31,7 @@ struct OfflineMangaViewState: Equatable {
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
     // it's better not to set value of 'mangaReadingViewState' to nil
-    @BindableState var mangaReadingViewState: MangaReadingViewState? {
+    var mangaReadingViewState: MangaReadingViewState? {
         willSet {
             isUserOnReadingView = newValue != nil
         }
@@ -41,7 +41,7 @@ struct OfflineMangaViewState: Equatable {
     
     var mainCoverArtURL: URL?
     
-        // should only be used for clearing cache
+    // should only be used for clearing cache
     mutating func reset() {
         let manga = manga
         let coverArtURL = mainCoverArtURL
@@ -54,6 +54,7 @@ struct OfflineMangaViewState: Equatable {
 }
 
 enum OfflineMangaViewAction: BindableAction {
+    case onAppear
     case mangaTabChanged(OfflineMangaViewState.Tab)
     
     case mangaReadingViewAction(MangaReadingViewAction)
@@ -81,6 +82,9 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
     ),
     Reducer { state, action, env in
         switch action {
+            case .onAppear:
+                return .none
+                
             case .mangaTabChanged(let tab):
                 state.selectedTab = tab
                 return .none

@@ -27,7 +27,7 @@ struct DownloadsView: View {
                             action: DownloadsAction.cachedMangaThumbnailAction
                         )
                     ) { thumbnailViewStore in
-                        OfflineMangaThumbnailView(store: thumbnailViewStore)
+                        MangaThumbnailView(store: thumbnailViewStore)
                             .padding()
                     }
                 }

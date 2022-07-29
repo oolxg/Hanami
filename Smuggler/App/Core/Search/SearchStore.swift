@@ -10,7 +10,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct SearchState: Equatable {
-    var mangaThumbnailStates: IdentifiedArrayOf<OnlineMangaThumbnailState> = []
+    var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var filtersState = FiltersState()
     
     var areSearchResultsDownloaded = false
@@ -49,7 +49,7 @@ enum SearchAction: BindableAction {
     case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
     case searchStringChanged(String)
 
-    case mangaThumbnailAction(UUID, OnlineMangaThumbnailAction)
+    case mangaThumbnailAction(UUID, MangaThumbnailAction)
     case filterAction(FiltersAction)
 
     case binding(BindingAction<SearchState>)
@@ -63,7 +63,7 @@ struct SearchEnvironment {
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
-    onlineMangaThumbnailReducer
+    mangaThumbnailReducer
         .forEach(
             state: \.mangaThumbnailStates,
             action: /SearchAction.mangaThumbnailAction,
@@ -153,7 +153,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         state.lastSuccessfulRequestParams = requestParams
                         state.areSearchResultsDownloaded = true
                         state.mangaThumbnailStates = .init(
-                            uniqueElements: response.data.map { OnlineMangaThumbnailState(manga: $0) }
+                            uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         
                         if !state.mangaThumbnailStates.isEmpty {
@@ -173,7 +173,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 switch result {
                     case .success(let response):
                         for stat in response.statistics {
-                            state.mangaThumbnailStates[id: stat.key]?.mangaState.statistics = stat.value
+                            state.mangaThumbnailStates[id: stat.key]?.onlineMangaState!.statistics = stat.value
                         }
                         
                         return .none

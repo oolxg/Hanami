@@ -95,7 +95,7 @@ extension SearchView {
                                 state: \.mangaThumbnailStates,
                                 action: SearchAction.mangaThumbnailAction)
                         ) { thumbnailStore in
-                            OnlineMangaThumbnailView(store: thumbnailStore)
+                            MangaThumbnailView(store: thumbnailStore)
                                 .padding()
                         }
                         

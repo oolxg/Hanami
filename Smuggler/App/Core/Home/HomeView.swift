@@ -66,7 +66,7 @@ extension HomeView {
                             state: \.seasonalMangaThumbnailStates,
                             action: HomeAction.seasonalMangaThumbnailAction
                         )) { thumbnailStore in
-                            OnlineMangaThumbnailView(store: thumbnailStore, compact: true)
+                            MangaThumbnailView(store: thumbnailStore, compact: true)
                         }
                 }
                 .padding()
@@ -79,14 +79,16 @@ extension HomeView {
     
     private var other: some View {
         Section {
-            ForEachStore(
-                store.scope(
-                    state: \.mangaThumbnailStates,
-                    action: HomeAction.mangaThumbnailAction
-                )
-            ) { thumbnailViewStore in
-                OnlineMangaThumbnailView(store: thumbnailViewStore)
-                    .padding()
+            LazyVStack {
+                ForEachStore(
+                    store.scope(
+                        state: \.mangaThumbnailStates,
+                        action: HomeAction.mangaThumbnailAction
+                    )
+                ) { thumbnailViewStore in
+                    MangaThumbnailView(store: thumbnailViewStore)
+                        .padding()
+            }
             }
         } header: {
             makeSectionHeader(title: "Other")

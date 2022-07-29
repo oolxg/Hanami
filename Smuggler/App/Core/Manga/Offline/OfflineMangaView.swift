@@ -12,7 +12,6 @@ import ComposableArchitecture
 struct OfflineMangaView: View {
     let store: Store<OfflineMangaViewState, OfflineMangaViewAction>
     @State private var headerOffset: CGFloat = 0
-    @State private var artSectionHeight = 0.0
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
     
@@ -58,7 +57,6 @@ struct OfflineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .padding(.bottom, 5)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
@@ -189,15 +187,6 @@ extension OfflineMangaView {
         .transition(.opacity)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
-    }
-    
-    private func computeArtSectionHeight(screenWidth: CGFloat, coverArtsCount: Int) {
-        withAnimation {
-            let columnsCount = Int(screenWidth / 160)
-            let rowsCount = ceil(Double(coverArtsCount) / Double(columnsCount))
-            artSectionHeight = rowsCount * 248 - 20
-            artSectionHeight = artSectionHeight > 0 ? artSectionHeight : 248
-        }
     }
     
     private var aboutTab: some View {
@@ -335,7 +324,6 @@ extension OfflineMangaView {
                 .frame(height: 6)
             }
             .contentShape(Rectangle())
-            .animation(.easeInOut, value: viewStore.selectedTab)
             .onTapGesture {
                 viewStore.send(.mangaTabChanged(tab), animation: .easeInOut)
             }

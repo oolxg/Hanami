@@ -36,7 +36,7 @@ struct OnlineMangaViewState: Equatable {
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
     // it's better not to set value of 'mangaReadingViewState' to nil
-    @BindableState var mangaReadingViewState: MangaReadingViewState? {
+    var mangaReadingViewState: MangaReadingViewState? {
         willSet {
             isUserOnReadingView = newValue != nil
         }

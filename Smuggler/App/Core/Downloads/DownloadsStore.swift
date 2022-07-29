@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 
 struct DownloadsState: Equatable {
-    var cachedMangaThumbnailStates: IdentifiedArrayOf<OfflineMangaThumbnailState> = []
+    var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
 }
 
 enum DownloadsAction {
@@ -18,7 +18,7 @@ enum DownloadsAction {
     
     case cachedMangaFetched(Result<[Manga], Never>)
     
-    case cachedMangaThumbnailAction(id: UUID, action: OfflineMangaThumbnailAction)
+    case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
 }
 
 struct DownloadsEnvironment {
@@ -28,7 +28,7 @@ struct DownloadsEnvironment {
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(
-    offlineMangaThumbnailReducer
+    mangaThumbnailReducer
         .forEach(
             state: \.cachedMangaThumbnailStates,
             action: /DownloadsAction.cachedMangaThumbnailAction,
@@ -59,7 +59,7 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                         for manga in cachedManga {
                             if newMangaIDs.contains(manga.id) {
                                 state.cachedMangaThumbnailStates.append(
-                                    OfflineMangaThumbnailState(manga: manga)
+                                    MangaThumbnailState(manga: manga, isOnline: false)
                                 )
                             }
                         }

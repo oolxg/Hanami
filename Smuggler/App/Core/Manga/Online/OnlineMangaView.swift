@@ -14,16 +14,15 @@ struct OnlineMangaView: View {
     let store: Store<OnlineMangaViewState, OnlineMangaViewAction>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
-    @State private var artSectionHeight = 0.0
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
 
     private var isViewScrolledDown: Bool {
-        headerOffset < -320
+        headerOffset < -350
     }
     
     private var isHeaderBackButtonVisible: Bool {
-        headerOffset > -240
+        headerOffset > -270
     }
     
     var body: some View {
@@ -61,7 +60,6 @@ struct OnlineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .padding(.bottom, 5)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
@@ -161,7 +159,7 @@ extension OnlineMangaView {
                     .cornerRadius(0)
                     .offset(y: -minY)
             }
-            .frame(height: 320)
+            .frame(height: 350)
         }
     }
 
@@ -199,12 +197,11 @@ extension OnlineMangaView {
         WithViewStore(store.actionless) { viewStore in
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
                 ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
-                    let coverArtURL = viewStore.croppedCoverArtURLs[coverArtIndex]
-                    
-                    KFImage.url(coverArtURL)
+                    KFImage.url(viewStore.croppedCoverArtURLs[coverArtIndex])
                         .fade(duration: 0.3)
                         .resizable()
                         .scaledToFit()
+                        .frame(height: 240)
                         .padding(.horizontal, 5)
                         .overlay(
                             ZStack(alignment: .bottom) {
@@ -328,7 +325,7 @@ extension OnlineMangaView {
      
     private var backButton: some View {
         Button {
-            self.presentationMode.wrappedValue.dismiss()
+            presentationMode.wrappedValue.dismiss()
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)
@@ -353,11 +350,7 @@ extension OnlineMangaView {
         .animation(.linear, value: isHeaderBackButtonVisible)
         .background(Color.black)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
-        .modifier(
-            MangaViewOffsetModifier(
-                offset: $headerOffset
-            )
-        )
+        .modifier(MangaViewOffsetModifier(offset: $headerOffset))
     }
     
     /// Makes label for navigation through MangaView
@@ -379,7 +372,6 @@ extension OnlineMangaView {
                 .frame(height: 6)
             }
             .contentShape(Rectangle())
-            .animation(.easeInOut, value: viewStore.selectedTab)
             .onTapGesture {
                 viewStore.send(.mangaTabChanged(tab), animation: .easeInOut)
             }
