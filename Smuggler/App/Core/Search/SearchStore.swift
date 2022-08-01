@@ -101,10 +101,16 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 
                 
             case .searchForManga:
+                let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
+                let selectedPublicationDemographic = state.filtersState.publicationDemographics
+                    .filter { $0.state != .notSelected }
+                let selectedContentRatings = state.filtersState.contentRatings.filter { $0.state != .notSelected }
+                let selectedMangaStatuses = state.filtersState.mangaStatuses.filter { $0.state != .notSelected }
                 // if user clears the search string, we should delete all, what we've found for previous search request
                 // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
                 // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
-                guard !state.searchText.isEmpty else {
+                guard !state.searchText.isEmpty || !selectedTags.isEmpty || !selectedContentRatings.isEmpty ||
+                        !selectedPublicationDemographic.isEmpty || !selectedMangaStatuses.isEmpty else {
                     state.areSearchResultsDownloaded = true
                     let mangaIDs = state.mangaThumbnailStates.map(\.id)
                     state.mangaThumbnailStates.removeAll()
@@ -118,11 +124,10 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 let searchParams = SearchState.SearchParams(
                     searchQuery: state.searchText,
                     resultsCount: state.resultsCount,
-                    tags: state.filtersState.allTags.filter { $0.state != .notSelected },
-                    // swiftlint:disable:next line_length
-                    publicationDemographic: state.filtersState.publicationDemographics.filter { $0.state != .notSelected },
-                    contentRatings: state.filtersState.contentRatings.filter { $0.state != .notSelected },
-                    mangaStatuses: state.filtersState.mangaStatuses.filter { $0.state != .notSelected },
+                    tags: selectedTags,
+                    publicationDemographic: selectedPublicationDemographic,
+                    contentRatings: selectedContentRatings,
+                    mangaStatuses: selectedMangaStatuses,
                     sortOption: state.searchSortOption,
                     sortOptionOrder: state.searchSortOptionOrder
                 )
@@ -133,7 +138,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                                 
                 state.areSearchResultsDownloaded = false
 
-                return .merge(
+                return .concatenate(
                     .cancel(
                         ids: state.mangaThumbnailStates.map {
                             OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0.id)
@@ -144,7 +149,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect { SearchAction.searchResultDownloaded(result: $0, requestParams: searchParams) }
-                        .cancellable(id: CancelSearch())
+                        .cancellable(id: CancelSearch(), cancelInFlight: true)
                 )
                 
             case .searchResultDownloaded(let result, let requestParams):

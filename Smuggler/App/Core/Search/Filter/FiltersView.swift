@@ -10,6 +10,9 @@ import ComposableArchitecture
 
 struct FiltersView: View {
     let store: Store<FiltersState, FiltersAction>
+    @State private var showFormatFiltersPage = false
+    @State private var showThemesFiltersPage = false
+    @State private var showGenresFiltersPage = false
     
     var body: some View {
         WithViewStore(store.stateless) { viewStore in
@@ -21,6 +24,7 @@ struct FiltersView: View {
                 }
                 .navigationTitle("Filters")
                 .toolbar(content: toolbar)
+                .navigationBarTitleDisplayMode(.inline)
             }
             .onAppear {
                 viewStore.send(.onAppear)
@@ -135,20 +139,20 @@ extension FiltersView {
     
     private var filtersList: some View {
         Group {
-            makeTagNavigationLink(title: "Format", \.formatTypes) {
-                makeFiltersViewFor(\.formatTypes, navTitle: "Format")
+            makeTagNavigationLink(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
+                makeFiltersViewFor(\.formatTypes, navTitle: "Format", isActive: $showFormatFiltersPage)
                     .padding()
             }
             
-            makeTagNavigationLink(title: "Themes", \.themeTypes) {
+            makeTagNavigationLink(title: "Themes", \.themeTypes, isActive: $showThemesFiltersPage) {
                 ScrollView(showsIndicators: false) {
-                    makeFiltersViewFor(\.themeTypes, navTitle: "Themes")
+                    makeFiltersViewFor(\.themeTypes, navTitle: "Themes", isActive: $showThemesFiltersPage)
                         .padding()
                 }
             }
             
-            makeTagNavigationLink(title: "Genres", \.genres) {
-                makeFiltersViewFor(\.genres, navTitle: "Genres")
+            makeTagNavigationLink(title: "Genres", \.genres, isActive: $showGenresFiltersPage) {
+                makeFiltersViewFor(\.genres, navTitle: "Genres", isActive: $showGenresFiltersPage)
                     .padding()
             }
         }
@@ -164,10 +168,10 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeTagNavigationLink<T, Content>(
-        title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>, _ content: @escaping () -> Content
+        title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>, isActive: Binding<Bool>, _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FilterTagProtocol {
         WithViewStore(store.actionless) { viewStore in
-            NavigationLink {
+            NavigationLink(isActive: isActive) {
                 content()
             } label: {
                 HStack {
@@ -201,7 +205,10 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeFiltersViewFor(
-        _ path: KeyPath<FiltersState, IdentifiedArrayOf<FilterTag>>, navTitle: String? = nil
+        _ path: KeyPath<FiltersState,
+        IdentifiedArrayOf<FilterTag>>,
+        navTitle: String? = nil,
+        isActive: Binding<Bool>? = nil
     ) -> some View {
         ZStack(alignment: .topLeading) {
             if let navTitle = navTitle {
@@ -226,6 +233,19 @@ extension FiltersView {
                                 viewStore.send(.filterTagButtonTapped(tag))
                             }
                     }
+                }
+            }
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        isActive?.wrappedValue = false
+                    } label: {
+                        Image(systemName: "arrow.left")
+                            .foregroundColor(.white)
+                            .padding(.vertical)
+                    }
+                    .opacity(isActive == nil ? 0 : 1)
                 }
             }
         }

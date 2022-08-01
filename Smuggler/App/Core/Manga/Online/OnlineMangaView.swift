@@ -16,6 +16,7 @@ struct OnlineMangaView: View {
     @State private var headerOffset: CGFloat = 0
     @Namespace private var tabAnimationNamespace
     @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.openURL) private var openURL
 
     private var isViewScrolledDown: Bool {
         headerOffset < -350
@@ -37,6 +38,8 @@ struct OnlineMangaView: View {
                             mangaBodyView
                         } header: {
                             pinnedNavigation
+                        } footer: {
+                            footer
                         }
                     }
                     .onChange(of: viewStore.pagesState.currentPageIndex) { _ in
@@ -60,7 +63,7 @@ struct OnlineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
+            .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: { mangaReadingView })
             .accentColor(.theme.accent)
             .hud(
                 isPresented: viewStore.binding(\.$hudInfo.show),
@@ -82,7 +85,18 @@ struct MangaView_Previews: PreviewProvider {
 
 
 extension OnlineMangaView {
-    private func mangaReadingView() -> some View {
+    private var footer: some View {
+        Text("All information on this page provided by MANGADEX")
+            .font(.caption2)
+            .foregroundColor(.gray)
+            .padding(.horizontal)
+            .padding(.bottom, 5)
+            .onTapGesture {
+                openURL(URL(string: "https://mangadex.org/")!)
+            }
+    }
+    
+    private var mangaReadingView: some View {
         IfLetStore(
             store.scope(
                 state: \.mangaReadingViewState, action: OnlineMangaViewAction.mangaReadingViewAction

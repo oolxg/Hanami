@@ -139,7 +139,7 @@ extension HomeView {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
                         LinearGradient(
-                            colors: [.pink, .green, .yellow],
+                            colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
                         )
@@ -181,20 +181,20 @@ extension HomeView {
                                     .padding()
                             }
                     }
-                    .navigationTitle("Award Winning")
-                    .navigationBarBackButtonHidden(true)
-                    .navigationBarTitleDisplayMode(.large)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button {
-                                showMostFollowed = false
-                            } label: {
-                                Image(systemName: "arrow.left")
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-                                    .padding(.vertical)
-                            }
-                        }
+                }
+            }
+            .navigationTitle("Most Followed")
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showMostFollowed = false
+                    } label: {
+                        Image(systemName: "arrow.left")
+                            .font(.title3)
+                            .foregroundColor(.white)
+                            .padding(.vertical)
                     }
                 }
             }
@@ -212,9 +212,9 @@ extension HomeView {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
                         LinearGradient(
-                            colors: [.green, .blue, .yellow],
+                            colors: [.yellow, .blue],
                             startPoint: .bottomLeading,
-                            endPoint: .topTrailing
+                            endPoint: .top
                         )
                     )
                     .zIndex(0)
@@ -255,20 +255,20 @@ extension HomeView {
                                     .padding()
                             }
                     }
-                    .navigationTitle("Award Winning")
-                    .navigationBarTitleDisplayMode(.large)
-                    .navigationBarBackButtonHidden(true)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button {
-                                showAwardWinning = false
-                            } label: {
-                                Image(systemName: "arrow.left")
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-                                    .padding(.vertical)
-                            }
-                        }
+                }
+            }
+            .navigationTitle("Award Winning")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showAwardWinning = false
+                    } label: {
+                        Image(systemName: "arrow.left")
+                            .font(.title3)
+                            .foregroundColor(.white)
+                            .padding(.vertical)
                     }
                 }
             }

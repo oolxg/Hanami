@@ -18,14 +18,13 @@ struct Author: Codable, Identifiable {
         let biography: LocalizedString?
         let twitter, pixiv, melonBook, fanBox: URL?
         let youtube, weibo, website: URL?
-        let createdAt, updatedAt: Date
         let version: Int
         
         enum CodingKeys: String, CodingKey {
             case name
             case imageURL = "imageUrl"
             case biography, twitter, pixiv, melonBook, fanBox
-            case youtube, weibo, website, createdAt, updatedAt, version
+            case youtube, weibo, website, version
         }
         
         init(from decoder: Decoder) throws {
@@ -41,8 +40,6 @@ struct Author: Codable, Identifiable {
             youtube = try? container.decode(URL.self, forKey: .youtube)
             weibo = try? container.decode(URL.self, forKey: .weibo)
             website = try? container.decode(URL.self, forKey: .website)
-            createdAt = try container.decode(Date.self, forKey: .createdAt)
-            updatedAt = try container.decode(Date.self, forKey: .updatedAt)
             version = try container.decode(Int.self, forKey: .version)
         }
     }
