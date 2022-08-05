@@ -22,11 +22,8 @@ struct PagesState: Equatable {
     var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabState> = []
     var currentPageIndex = 0 {
         willSet {
-            lockPage = true
             let temp = volumeTabStatesOnCurrentPage
-            volumeTabStatesOnCurrentPage = .init(
-                uniqueElements: splitIntoPagesVolumeTabStates[newValue]
-            )
+            volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates[newValue])
             splitIntoPagesVolumeTabStates[currentPageIndex] = Array(temp)
         }
     }
@@ -34,7 +31,8 @@ struct PagesState: Equatable {
     // this lock to disable user on pressing on chapterDetails right after he changed page(this causes crashes)
     var lockPage = false
     var areVolumesLoaded = false
-    
+    var areVolumesFetchedWithError = false
+
     var shouldShowNothingToReadMessage: Bool {
         volumeTabStatesOnCurrentPage.isEmpty && areVolumesLoaded
     }
@@ -109,7 +107,7 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if state.areVolumesLoaded {
+                if state.areVolumesLoaded && !state.areVolumesFetchedWithError {
                     return .none
                 }
                 
@@ -122,11 +120,14 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
                 switch result {
                     case .success(let response):
                         state.handleLoadedVolumes(mangaVolumes: response.volumes)
+                        state.areVolumesFetchedWithError = false
                         
                         return .none
                         
                     case .failure(let error):
                         print("error on chaptersDownloaded, \(error)")
+                        state.areVolumesFetchedWithError = true
+                        
                         return .none
                 }
                 

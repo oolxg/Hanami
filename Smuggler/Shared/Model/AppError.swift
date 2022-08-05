@@ -33,4 +33,17 @@ extension AppError: Equatable {
                 return false
         }
     }
+    
+    var description: String {
+        switch self {
+            case .downloadError(let err):
+                return err.localizedDescription
+            case .decodingError(let err):
+                return err.localizedDescription
+            case .unknownError(let err):
+                return err.localizedDescription
+            case .databaseError(let errorStr):
+                return errorStr
+        }
+    }
 }

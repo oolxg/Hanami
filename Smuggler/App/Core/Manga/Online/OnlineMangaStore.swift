@@ -45,9 +45,13 @@ struct OnlineMangaViewState: Equatable {
     var sameScanlationGroupChapters: [Chapter]?
      
     var mainCoverArtURL: URL?
-    var coverArtURL512: URL?
+    var coverArtURL256: URL?
     var croppedCoverArtURLs: [URL] {
         allCoverArtsInfo.compactMap { $0.coverArtURL512 }
+    }
+    
+    var mangaLink: URL {
+        URL(string: "https://mangadex.org/title/\(manga.id.uuidString.lowercased())")!
     }
     
     // should only be used for clearing cache
@@ -132,6 +136,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         return .none
                         
                     case .failure(let error):
+                        state.hudInfo.message = error.description
+                        state.hudInfo.show = true
                         print("error on fetching allCoverArtsInfo, \(error)")
                         return .none
                 }
@@ -151,7 +157,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             case .sameScanlationGroupChaptersFetched(let result):
                 switch result {
                     case .success(let response):
-                        state.sameScanlationGroupChapters = response.volumes.flatMap(\.chapters).sorted(by: <)
+                        state.sameScanlationGroupChapters = response.volumes.flatMap(\.chapters)
                                             
                         return .none
                         

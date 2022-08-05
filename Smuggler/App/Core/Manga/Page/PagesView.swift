@@ -25,7 +25,7 @@ struct PagesView: View {
                 if viewStore.volumeTabStatesOnCurrentPage.isEmpty {
                     ProgressView()
                         .frame(width: 140, height: 140, alignment: .center)
-                        .padding(.top, 150)
+                        .padding(.top, 100)
                         .transition(.opacity)
                 } else {
                     pages
@@ -96,25 +96,21 @@ extension PagesView {
                 .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
                 .disabled(viewStore.currentPageIndex == 0)
             
-            if viewStore.currentPageIndex - 2 > 0 {
-                Text("...")
-                    .font(.headline)
-            }
+            Text("...")
+                .font(.headline)
+                .opacity(viewStore.currentPageIndex - 2 > 0 ? 1 : 0)
             
-            if viewStore.currentPageIndex > 1 {
-                makePageLabel(for: viewStore.currentPageIndex, bgColor: .theme.darkGray)
-            }
+            makePageLabel(for: viewStore.currentPageIndex, bgColor: .theme.darkGray)
+                .opacity(viewStore.currentPageIndex > 1 ? 1 : 0)
             
-            makePageLabel(for: viewStore.currentPageIndex + 1, bgColor: .theme.accent)
+            pagesPicker
             
-            if viewStore.currentPageIndex + 2 < viewStore.pagesCount {
-                makePageLabel(for: viewStore.currentPageIndex + 2, bgColor: .theme.darkGray)
-            }
+            makePageLabel(for: viewStore.currentPageIndex + 2, bgColor: .theme.darkGray)
+                .opacity(viewStore.currentPageIndex + 2 < viewStore.pagesCount ? 1 : 0)
             
-            if viewStore.currentPageIndex + 2 < viewStore.pagesCount - 1 {
-                Text("...")
-                    .font(.headline)
-            }
+            Text("...")
+                .font(.headline)
+                .opacity(viewStore.currentPageIndex + 2 < viewStore.pagesCount - 1 ? 1 : 0)
             
             makePageLabel(for: viewStore.pagesCount)
                 .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
@@ -129,6 +125,29 @@ extension PagesView {
             .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
         }
         .padding(.bottom, 5)
+    }
+    
+    private var pagesPicker: some View {
+        Menu {
+            Picker(
+                selection: viewStore.binding(
+                    get: \.currentPageIndex,
+                    send: PagesAction.changePage
+                )
+            ) {
+                ForEach(0..<viewStore.pagesCount, id: \.self) { pageIndex in
+                    Text("Page \(pageIndex + 1)")
+                }
+            } label: { EmptyView() }
+        } label: {
+            Text("\(viewStore.currentPageIndex + 1)")
+                .foregroundColor(.white)
+                .font(.subheadline)
+                .frame(width: 30, height: 30, alignment: .center)
+                .padding(7)
+                .background(Color.theme.accent)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
     }
     
     private func makePageLabel(for pageIndex: Int, bgColor: Color = .theme.darkGray) -> some View {

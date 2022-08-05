@@ -100,12 +100,12 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 ), let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
                     state.coverArtInfo = CoverArtInfo(
                         id: coverArtInfo.id, attributes: coverArtAttr, relationships: [
-                            .init(id: state.manga.id, type: .manga)
+                            Relationship(id: state.manga.id, type: .manga)
                         ]
                     )
                     
                     state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
-                    state.onlineMangaState!.coverArtURL512 = state.coverArtInfo!.coverArtURL512
+                    state.onlineMangaState!.coverArtURL256 = state.coverArtInfo?.coverArtURL256
                 }
                 
                 if state.coverArtInfo == nil,
@@ -135,7 +135,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                     case .success(let response):
                         state.coverArtInfo = response.data
                         state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo?.coverArtURL
-                        state.onlineMangaState!.coverArtURL512 = state.coverArtInfo?.coverArtURL512
+                        state.onlineMangaState!.coverArtURL256 = state.coverArtInfo?.coverArtURL256
                         return .none
                         
                     case .failure(let error):

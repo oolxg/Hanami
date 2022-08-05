@@ -38,15 +38,15 @@ struct MangaThumbnailView: View {
     
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
-            KFImage.url(viewStore.coverArtInfo?.coverArtURL512)
+            KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
                 .placeholder {
                     Color.black
                         .opacity(0.45)
                         .redacted(reason: .placeholder)
                 }
-                .fade(duration: 0.5)
-                .fromMemoryCacheOrRefresh()
                 .backgroundDecode()
+                .fade(duration: 0.5)
+                .cacheMemoryOnly()
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 150)

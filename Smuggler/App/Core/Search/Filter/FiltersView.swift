@@ -85,7 +85,6 @@ extension FiltersView {
                     .padding(5)
                 }
                 
-                
                 Rectangle()
                     .frame(height: 3)
                     .foregroundColor(.theme.darkGray)
@@ -168,7 +167,10 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeTagNavigationLink<T, Content>(
-        title: String, _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>, isActive: Binding<Bool>, _ content: @escaping () -> Content
+        title: String,
+        _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>,
+        isActive: Binding<Bool>,
+        _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FilterTagProtocol {
         WithViewStore(store.actionless) { viewStore in
             NavigationLink(isActive: isActive) {
@@ -205,8 +207,7 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeFiltersViewFor(
-        _ path: KeyPath<FiltersState,
-        IdentifiedArrayOf<FilterTag>>,
+        _ path: KeyPath<FiltersState, IdentifiedArrayOf<FilterTag>>,
         navTitle: String? = nil,
         isActive: Binding<Bool>? = nil
     ) -> some View {

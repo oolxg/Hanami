@@ -86,14 +86,18 @@ struct MangaView_Previews: PreviewProvider {
 
 extension OnlineMangaView {
     private var footer: some View {
-        Text("All information on this page provided by MANGADEX")
-            .font(.caption2)
-            .foregroundColor(.gray)
-            .padding(.horizontal)
-            .padding(.bottom, 5)
-            .onTapGesture {
-                openURL(URL(string: "https://mangadex.org/")!)
-            }
+        HStack(spacing: 0) {
+            Text("All information on this page provided by ")
+            
+            Text("MANGADEX")
+                .onTapGesture {
+                    openURL(URL(string: "https://mangadex.org/")!)
+                }
+        }
+        .font(.caption2)
+        .foregroundColor(.gray)
+        .padding(.horizontal)
+        .padding(.bottom, 5)
     }
     
     private var mangaReadingView: some View {
@@ -121,7 +125,7 @@ extension OnlineMangaView {
                 
                 KFImage.url(viewStore.mainCoverArtURL)
                     .placeholder {
-                        KFImage.url(viewStore.coverArtURL512)
+                        KFImage.url(viewStore.coverArtURL256)
                             .resizable()
                             .scaledToFill()
                             .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
