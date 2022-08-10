@@ -200,13 +200,6 @@ extension MangaThumbnailView {
                 
                 HStack(alignment: .top) {
                     coverArt
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(
-                                    viewStore.manga.attributes.status.color,
-                                    lineWidth: 1.5
-                                )
-                        )
                     
                     VStack(alignment: .leading, spacing: 10) {
                         Text(viewStore.manga.title)

@@ -80,7 +80,7 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                 state.selectedTab = newTab
                 
                 if newTab == .downloads {
-                    return Effect(value: RootAction.downloadsAction(.fetchCachedManga))
+                    return Effect(value: .downloadsAction(.fetchCachedManga))
                 }
                 
                 return .none

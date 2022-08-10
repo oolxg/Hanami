@@ -12,6 +12,8 @@ struct HomeView: View {
     let store: Store<HomeState, HomeAction>
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
+    @State private var showHighestRating = false
+    @State private var showRecentlyAdded = false
 
     var body: some View {
         NavigationView {
@@ -35,6 +37,7 @@ struct HomeView: View {
                 }
                 .navigationTitle("Kamakura")
                 .navigationBarTitleDisplayMode(.large)
+                .navigationBarBackButtonHidden(true)
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
@@ -82,17 +85,17 @@ extension HomeView {
     }
     
     private var selections: some View {
-        Section {
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(minimum: 140, maximum: 500)),
-                    GridItem(.flexible(minimum: 140, maximum: 500))
-                ]) {
-                    awardWinningNavLink
-                    mostFollowedNavLink
-                }
-        } header: {
-            makeSectionHeader(title: "Selections")
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(minimum: 140, maximum: 1000)),
+                GridItem(.flexible(minimum: 140, maximum: 1000))
+            ]
+        ) {
+            awardWinningNavLink
+            mostFollowedNavLink
+            
+            highestRatingNavLink
+            recentlyAddedNavLink
         }
     }
         
@@ -107,7 +110,7 @@ extension HomeView {
                 ) { thumbnailViewStore in
                     MangaThumbnailView(store: thumbnailViewStore)
                         .padding()
-            }
+                }
             }
         } header: {
             makeSectionHeader(title: "Latest Updates")
@@ -129,7 +132,7 @@ extension HomeView {
 }
 
 
-// MARK: - Selections
+// MARK: - Most Followed
 extension HomeView {
     private var mostFollowedNavLink: some View {
         NavigationLink(isActive: $showMostFollowed) {
@@ -137,12 +140,13 @@ extension HomeView {
         } label: {
             ZStack(alignment: .bottomLeading) {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(
+                    .stroke(
                         LinearGradient(
                             colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
-                        )
+                        ),
+                        lineWidth: 4
                     )
                     .zIndex(0)
                 
@@ -187,38 +191,32 @@ extension HomeView {
             .navigationBarBackButtonHidden(true)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showMostFollowed = false
-                    } label: {
-                        Image(systemName: "arrow.left")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                            .padding(.vertical)
-                    }
-                }
+                toolbar { showMostFollowed = false }
             }
             .onAppear {
                 viewStore.send(.userOpenedMostFollowedView)
             }
         }
     }
-    
+}
+
+// MARK: - Award Winning
+extension HomeView {
     private var awardWinningNavLink: some View {
         NavigationLink(isActive: $showAwardWinning) {
             awardWinning
         } label: {
             ZStack(alignment: .bottomLeading) {
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(
+                    .stroke(
                         LinearGradient(
-                            colors: [.yellow, .blue],
+                            colors: [.pink, .mint],
                             startPoint: .bottomLeading,
                             endPoint: .top
-                        )
+                        ),
+                        lineWidth: 4
                     )
                     .zIndex(0)
-                
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Award")
@@ -261,19 +259,159 @@ extension HomeView {
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showAwardWinning = false
-                    } label: {
-                        Image(systemName: "arrow.left")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                            .padding(.vertical)
-                    }
-                }
+                toolbar { showAwardWinning = false }
             }
             .onAppear {
                 viewStore.send(.userOpenedAwardWinningView)
+            }
+        }
+    }
+}
+
+// MARK: - Highest Rating
+extension HomeView {
+    private var highestRatingNavLink: some View {
+        NavigationLink(isActive: $showHighestRating) {
+            highestRating
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.pink, .cyan],
+                            startPoint: .bottomLeading,
+                            endPoint: .top
+                        ),
+                        lineWidth: 4
+                    )
+                    .zIndex(0)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Highest")
+                    Text("Rating")
+                }
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .padding(.bottom, 10)
+                .padding(.leading, 10)
+                .zIndex(1)
+            }
+            .frame(height: 125)
+            .padding(.leading)
+        }
+    }
+    
+    private var highestRating: some View {
+        WithViewStore(store.stateless) { viewStore in
+            VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.black)
+                
+                ScrollView {
+                    LazyVStack {
+                        ForEachStore(
+                            store.scope(
+                                state: \.highestRatingMangaThumbnailStates,
+                                action: HomeAction.highestRatingMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(store: thumbnailStore)
+                                    .padding()
+                            }
+                    }
+                }
+            }
+            .navigationTitle("Highest Rating")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                toolbar { showHighestRating = false }
+            }
+            .onAppear {
+                viewStore.send(.userOpenedHighestRatingView)
+            }
+        }
+    }
+}
+
+// MARK: - Recebtly Added
+extension HomeView {
+    private var recentlyAddedNavLink: some View {
+        NavigationLink(isActive: $showRecentlyAdded) {
+            recentlyAdded
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.pink, .purple],
+                            startPoint: .bottomLeading,
+                            endPoint: .top
+                        ),
+                        lineWidth: 4
+                    )
+                    .zIndex(0)
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Recently")
+                    Text("Added")
+                }
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .font(.headline)
+                .padding(.bottom, 10)
+                .padding(.leading, 10)
+                .zIndex(1)
+            }
+            .frame(height: 125)
+            .padding(.trailing)
+        }
+    }
+    
+    private var recentlyAdded: some View {
+        WithViewStore(store.stateless) { viewStore in
+            VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.black)
+                
+                ScrollView {
+                    LazyVStack {
+                        ForEachStore(
+                            store.scope(
+                                state: \.recentlyAddedMangaThumbnailStates,
+                                action: HomeAction.recentlyAddedMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(store: thumbnailStore)
+                                    .padding()
+                            }
+                    }
+                }
+            }
+            .navigationTitle("Recently Added")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                toolbar { showRecentlyAdded = false }
+            }
+            .onAppear {
+                viewStore.send(.userOpenedRecentlyAdded)
+            }
+        }
+    }
+    
+    private func toolbar(_ action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                action()
+            } label: {
+                Image(systemName: "arrow.left")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                    .padding(.vertical)
             }
         }
     }

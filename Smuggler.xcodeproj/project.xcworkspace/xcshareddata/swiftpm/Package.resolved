@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
-        "revision" : "0ba3a562716efabb585ccb169450c5389107286b",
-        "version" : "0.6.0"
+        "revision" : "f7c8277f05f27a5bfb2f6ecccb0bad126ffcf472",
+        "version" : "0.7.0"
       }
     },
     {
@@ -24,7 +24,7 @@
       "location" : "https://github.com/onevcat/Kingfisher",
       "state" : {
         "branch" : "master",
-        "revision" : "0dd74ee5e64c510261033af676a90edeaf6d2163"
+        "revision" : "2231f92b5af71c78ad2c1450e583bf4a8713b951"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "b4a872984463070c71e2e97e5c02c73a07d0fe36",
-        "version" : "0.9.0"
+        "revision" : "a09839348486db8866f85a727b8550be1d671c50",
+        "version" : "0.9.1"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "b55977808fcc2ff75081b90f197f6e72a21214b4",
-        "version" : "0.38.1"
+        "revision" : "108e3a536fcebb16c4f247ef92c2d7326baf9fe3",
+        "version" : "0.39.0"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "f821dcbac7cb6913f8e0d1a80496d0ba0199fa81",
-        "version" : "0.3.0"
+        "revision" : "38bc9242e4388b80bd23ddfdf3071428859e3260",
+        "version" : "0.4.0"
       }
     }
   ],

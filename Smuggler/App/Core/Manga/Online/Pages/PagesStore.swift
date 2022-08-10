@@ -132,19 +132,21 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment>  = .combine
                 }
                 
             case .changePage(let newPageIndex):
-                if newPageIndex != state.currentPageIndex && newPageIndex >= 0 && newPageIndex < state.pagesCount {
-                    return .concatenate(
-                        .cancel(id: ChapterState.CancelChapterFetch()),
-                        Effect(value: PagesAction.changePageAfterEffectCancellation(newPageIndex: newPageIndex))
-                    )
+                guard newPageIndex != state.currentPageIndex, newPageIndex >= 0, newPageIndex < state.pagesCount else {
+                    return .none
                 }
                 
-                return .none
+                return .concatenate(
+                    .cancel(id: ChapterState.CancelChapterFetch()),
+                    
+                    Effect(value: .changePageAfterEffectCancellation(newPageIndex: newPageIndex))
+                )
+
                 
             case .changePageAfterEffectCancellation(let newPageIndex):
                 state.lockPage = true
                 state.currentPageIndex = newPageIndex
-                return Effect(value: PagesAction.unlockPage)
+                return Effect(value: .unlockPage)
                     .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
                     .eraseToEffect()
                 

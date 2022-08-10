@@ -15,7 +15,7 @@ struct OnlineMangaView: View {
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
     @Namespace private var tabAnimationNamespace
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
     private var isViewScrolledDown: Bool {
@@ -90,6 +90,7 @@ extension OnlineMangaView {
             Text("All information on this page provided by ")
             
             Text("MANGADEX")
+                .fontWeight(.semibold)
                 .onTapGesture {
                     openURL(URL(string: "https://mangadex.org/")!)
                 }
@@ -123,62 +124,69 @@ extension OnlineMangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                KFImage.url(viewStore.mainCoverArtURL)
-                    .placeholder {
-                        KFImage.url(viewStore.coverArtURL256)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                    }
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                    .overlay(
-                        ZStack(alignment: .bottom) {
-                            LinearGradient(
-                                colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            
-                            VStack(alignment: .leading, spacing: 12) {
-                                backButton
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    Text("MANGA")
-                                        .font(.callout)
-                                        .foregroundColor(.gray)
-                                    
-                                    HStack(spacing: 5) {
-                                        Circle()
-                                            .fill(viewStore.manga.attributes.status.color)
-                                            .frame(width: 10, height: 10)
-                                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
-                                            .drawingGroup()
-                                        
-                                        Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                            .foregroundColor(.white)
-                                            .fontWeight(.semibold)
-                                    }
-                                    .font(.subheadline)
-                                }
-                                
-                                Text(viewStore.manga.title)
-                                    .font(.title.bold())
-                            }
-                            .padding(.horizontal)
-                            .padding(.top, 40)
-                            .padding(.bottom, 25)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .opacity(headerTextOpacity)
-                    )
-                    .cornerRadius(0)
-                    .offset(y: -minY)
+                // here used AsyncImage because using KFImage.url(...) or KFImage(url: ...)
+                // getting us 'Fatal error: attempting to create attribute with no subgraph: CachedView<KFImageRenderer, >'
+                AsyncImage(url: viewStore.mainCoverArtURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    // using this as placeholder makes sense because we already loaded this image with this resolution in thumbnail
+                    KFImage.url(viewStore.coverArtURL256)
+                        .resizable()
+                        .scaledToFill()
+                }
+                .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                .overlay(headerOverlay)
+                .cornerRadius(0)
+                .offset(y: -minY)
             }
             .frame(height: 350)
+        }
+    }
+    
+    private var headerOverlay: some View {
+        WithViewStore(store.actionless) { viewStore in
+            ZStack(alignment: .bottom) {
+                LinearGradient(
+                    colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    backButton
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Text("MANGA")
+                            .font(.callout)
+                            .foregroundColor(.gray)
+                        
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(viewStore.manga.attributes.status.color)
+                                .frame(width: 10, height: 10)
+                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                                .drawingGroup()
+                            
+                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                                .foregroundColor(.white)
+                                .fontWeight(.semibold)
+                        }
+                        .font(.subheadline)
+                    }
+                    
+                    Text(viewStore.manga.title)
+                        .font(.title.bold())
+                }
+                .padding(.horizontal)
+                .padding(.top, 40)
+                .padding(.bottom, 25)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .opacity(headerTextOpacity)
         }
     }
 
@@ -200,7 +208,8 @@ extension OnlineMangaView {
                 case .chapters:
                     PagesView(
                         store: store.scope(
-                            state: \.pagesState, action: OnlineMangaViewAction.pagesAction
+                            state: \.pagesState,
+                            action: OnlineMangaViewAction.pagesAction
                         )
                     )
                 case .coverArt:
@@ -281,15 +290,17 @@ extension OnlineMangaView {
                     }
                 }
                 
-                VStack(alignment: .leading) {
-                    Text("Description")
-                        .font(.headline)
-                        .fontWeight(.black)
-                    
-                    Divider()
-                    
-                    Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                        .padding(.horizontal, 10)
+                if let description = viewStore.manga.description {
+                    VStack(alignment: .leading) {
+                        Text("Description")
+                            .font(.headline)
+                            .fontWeight(.black)
+                        
+                        Divider()
+                        
+                        Text(LocalizedStringKey(description))
+                            .padding(.horizontal, 10)
+                    }
                 }
                 
                 tags
@@ -344,7 +355,7 @@ extension OnlineMangaView {
      
     private var backButton: some View {
         Button {
-            presentationMode.wrappedValue.dismiss()
+            self.dismiss()
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)

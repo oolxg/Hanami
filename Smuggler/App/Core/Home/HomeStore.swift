@@ -14,6 +14,8 @@ struct HomeState: Equatable {
     var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var awardWinningMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var recentlyAddedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var highestRatingMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
 }
 
 enum HomeAction {
@@ -30,11 +32,15 @@ enum HomeAction {
     
     case userOpenedAwardWinningView
     case userOpenedMostFollowedView
+    case userOpenedHighestRatingView
+    case userOpenedRecentlyAdded
     
     case mangaThumbnailAction(UUID, MangaThumbnailAction)
     case seasonalMangaThumbnailAction(UUID, MangaThumbnailAction)
     case awardWinningMangaThumbnailAction(UUID, MangaThumbnailAction)
     case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailAction)
+    case highestRatingMangaThumbnailAction(UUID, MangaThumbnailAction)
+    case recentlyAddedMangaThumbnailAction(UUID, MangaThumbnailAction)
 }
 
 struct HomeEnvironment {
@@ -93,6 +99,30 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 )
             }
         ),
+    mangaThumbnailReducer
+        .forEach(
+            state: \.highestRatingMangaThumbnailStates,
+            action: /HomeAction.highestRatingMangaThumbnailAction,
+            environment: {
+                .init(
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
+                )
+            }
+        ),
+    mangaThumbnailReducer
+        .forEach(
+            state: \.recentlyAddedMangaThumbnailStates,
+            action: /HomeAction.recentlyAddedMangaThumbnailAction,
+            environment: {
+                .init(
+                    databaseClient: $0.databaseClient,
+                    mangaClient: $0.mangaClient,
+                    cacheClient: $0.cacheClient
+                )
+            }
+        ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
@@ -118,9 +148,23 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             case .userOpenedMostFollowedView:
                 guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
                 
-                return env.homeClient.fetchMostFollewManga()
+                return env.homeClient.fetchMostFollowedManga()
                     .receive(on: DispatchQueue.main)
                     .catchToEffect { HomeAction.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
+                
+            case .userOpenedHighestRatingView:
+                guard state.highestRatingMangaThumbnailStates.isEmpty else { return .none }
+                
+                return env.homeClient.fetchHighestRatingManga()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { HomeAction.mangaListFetched($0, \.highestRatingMangaThumbnailStates) }
+                
+            case .userOpenedRecentlyAdded:
+                guard state.recentlyAddedMangaThumbnailStates.isEmpty else { return .none }
+                
+                return env.homeClient.fetchRecentlyAddedManga()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { HomeAction.mangaListFetched($0, \.recentlyAddedMangaThumbnailStates) }
                 
             case .mangaListFetched(let result, let keyPath):
                 switch result {
@@ -173,6 +217,12 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 return .none
                 
             case .awardWinningMangaThumbnailAction:
+                return .none
+                
+            case .highestRatingMangaThumbnailAction:
+                return .none
+                
+            case .recentlyAddedMangaThumbnailAction:
                 return .none
                 
             case .mostFollowedMangaThumbnailAction:

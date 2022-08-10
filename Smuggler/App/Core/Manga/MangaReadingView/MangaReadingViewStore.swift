@@ -73,9 +73,9 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
             
         case .userChangedPage(let newPageIndex):
             if newPageIndex == -1 {
-                return Effect(value: MangaReadingViewAction.userHitTheMostFirstPage)
+                return Effect(value: .userHitTheMostFirstPage)
             } else if newPageIndex == state.pagesInfo?.dataSaverURLs.count {
-                return Effect(value: MangaReadingViewAction.userHitLastPage)
+                return Effect(value: .userHitLastPage)
             }
 
             return .none

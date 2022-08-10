@@ -13,7 +13,7 @@ struct OfflineMangaView: View {
     let store: Store<OfflineMangaViewState, OfflineMangaViewAction>
     @State private var headerOffset: CGFloat = 0
     @Namespace private var tabAnimationNamespace
-    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.dismiss) private var dismiss
     
     private var isViewScrolledDown: Bool {
         headerOffset < -320
@@ -273,7 +273,7 @@ extension OfflineMangaView {
     
     private var backButton: some View {
         Button {
-            self.presentationMode.wrappedValue.dismiss()
+            self.dismiss()
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)

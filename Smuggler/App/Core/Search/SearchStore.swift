@@ -94,27 +94,33 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 return .merge(
                     .cancel(id: CancelSearch()),
                     
-                    Effect(value: SearchAction.searchForManga)
+                    Effect(value: .searchForManga)
                         .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
                         .eraseToEffect()
                     )
                 
                 
             case .searchForManga:
+                state.mangaThumbnailStates.removeAll()
+
                 let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
                 let selectedPublicationDemographic = state.filtersState.publicationDemographics
                     .filter { $0.state != .notSelected }
                 let selectedContentRatings = state.filtersState.contentRatings.filter { $0.state != .notSelected }
                 let selectedMangaStatuses = state.filtersState.mangaStatuses.filter { $0.state != .notSelected }
+                
+                let isAnySearchParamApplied = !selectedPublicationDemographic.isEmpty ||
+                        !selectedContentRatings.isEmpty || !selectedTags.isEmpty ||
+                        !selectedMangaStatuses.isEmpty || !state.searchText.isEmpty
+                
                 // if user clears the search string, we should delete all, what we've found for previous search request
                 // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
                 // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
-                guard !state.searchText.isEmpty || !selectedTags.isEmpty || !selectedContentRatings.isEmpty ||
-                        !selectedPublicationDemographic.isEmpty || !selectedMangaStatuses.isEmpty else {
+                guard isAnySearchParamApplied else {
                     state.areSearchResultsDownloaded = true
-                    let mangaIDs = state.mangaThumbnailStates.map(\.id)
-                    state.mangaThumbnailStates.removeAll()
                     state.lastSuccessfulRequestParams = nil
+
+                    let mangaIDs = state.mangaThumbnailStates.map(\.id)
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
                         ids: mangaIDs.map { OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0) }
@@ -189,7 +195,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 }
                 
             case .binding:
-                return Effect(value: SearchAction.searchForManga)
+                return Effect(value: .searchForManga)
                 
             case .filterAction:
                 return .none

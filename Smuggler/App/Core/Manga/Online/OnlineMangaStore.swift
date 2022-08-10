@@ -157,7 +157,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             case .sameScanlationGroupChaptersFetched(let result):
                 switch result {
                     case .success(let response):
-                        state.sameScanlationGroupChapters = response.volumes.flatMap(\.chapters)
+                        state.sameScanlationGroupChapters = response.volumes.flatMap(\.chapters).reversed()
                                             
                         return .none
                         
@@ -202,7 +202,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
                     state.hudInfo.message = "🙁 You've read the last chapter from this scanlation group."
-                    return .none
+                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
                 }
                 
                 state.mangaReadingViewState = MangaReadingViewState(
@@ -213,7 +213,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     nextChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: OnlineMangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
                 
                 return .none
@@ -228,7 +228,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                     state.isUserOnReadingView = false
                     state.hudInfo.show = true
                     state.hudInfo.message = "🤔 You've read the first chapter from this scanlation group."
-                    return .none
+                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
                 }
                 
                 state.mangaReadingViewState = MangaReadingViewState(
@@ -240,7 +240,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     previousChapter.chapterIndex, state.pagesState.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: OnlineMangaViewAction.pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
                 }
                 
                 return .none
