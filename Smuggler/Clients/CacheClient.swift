@@ -5,38 +5,82 @@
 //  Created by mk.pwnz on 24/07/2022.
 //
 
-import Foundation
 import Cache
-
+import ComposableArchitecture
+import Combine
+import class SwiftUI.UIImage
 
 struct CacheClient {
-    private static var storage: Storage<String, String> {
-        let diskConfig = DiskConfig(name: "Smuggler_Cache")
+    private static let dataStorage: Storage<String, Data> = {
+        let diskConfig = DiskConfig(
+            name: "Kamakura_Storage",
+            expiry: .never,
+            // swiftlint:disable:next force_try
+            directory: try! FileManager.default.url(
+                for: .documentDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            .appendingPathComponent("images")
+        )
+        
         let memoryConfig = MemoryConfig(expiry: .never)
         
         // swiftlint:disable:next force_try
         return try! Storage(
             diskConfig: diskConfig,
             memoryConfig: memoryConfig,
-            transformer: TransformerFactory.forCodable(ofType: String.self)
+            transformer: TransformerFactory.forCodable(ofType: Data.self)
         )
-    }
+    }()
     
-    private static var coverArtStorage: Storage<String, CoverArtInfo> {
-        storage.transformCodable(ofType: CoverArtInfo.self)
-    }
+    private static let imageStorage = dataStorage.transformImage()
     
-    let cacheCoverArtInfo: (CoverArtInfo) -> Void
-    let fetchCoverArtInfo: (UUID) -> CoverArtInfo?
+    let cacheImage: (UIImage, String) -> Effect<Never, Never>
+    let retrieveImage: (String) -> Effect<Swift.Result<UIImage, Error>, Never>
+    let removeImage: (String) -> Effect<Never, Never>
 }
 
 extension CacheClient {
     static let live = CacheClient(
-        cacheCoverArtInfo: { coverArtInfo in
-            try? coverArtStorage.setObject(coverArtInfo, forKey: coverArtInfo.id.uuidString.lowercased())
+        cacheImage: { image, imageName in
+            .fireAndForget {
+                imageStorage.async.setObject(image, forKey: imageName) { result in
+                    switch result {
+                        case .value:
+                            break
+                        case .error(let err):
+                            print("[CacheClient] - Error on caching image:", err.localizedDescription)
+                    }
+                }
+            }
         },
-        fetchCoverArtInfo: { coverArtID in
-            try? coverArtStorage.object(forKey: coverArtID.uuidString.lowercased())
+        retrieveImage: { imageName in
+            Future { promise in
+                imageStorage.async.object(forKey: imageName) { result in
+                    switch result {
+                        case .value(let image):
+                            promise(.success(image))
+                        case .error(let error):
+                            promise(.failure(error))
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
+            .catchToEffect()
+        },
+        removeImage: { imageName in
+                .fireAndForget {
+                    imageStorage.async.removeObject(forKey: imageName) { result in
+                        switch result {
+                            case .value:
+                                break
+                            case .error(let err):
+                                print("[CacheClient] - Error on removing image:", err.localizedDescription)
+                        }
+                    }
+                }
         }
     )
 }

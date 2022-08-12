@@ -36,12 +36,12 @@ extension AppError: Equatable {
     
     var description: String {
         switch self {
-            case .downloadError(let err):
-                return err.localizedDescription
-            case .decodingError(let err):
-                return err.localizedDescription
+            case .downloadError:
+                return "Failed to fetch data. Check your internet connection or try again later."
+            case .decodingError:
+                return "Internal error on data decoding."
             case .unknownError(let err):
-                return err.localizedDescription
+                return "Something strange happened \n\(err.localizedDescription)"
             case .databaseError(let errorStr):
                 return errorStr
         }

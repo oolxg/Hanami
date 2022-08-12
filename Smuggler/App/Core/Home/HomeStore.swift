@@ -48,6 +48,8 @@ struct HomeEnvironment {
     let mangaClient: MangaClient
     let homeClient: HomeClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
@@ -59,7 +61,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -71,7 +75,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -83,7 +89,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -95,7 +103,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -107,7 +117,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -119,7 +131,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -178,6 +192,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                             .catchToEffect { HomeAction.statisticsFetched($0, keyPath) }
                         
                     case .failure(let error):
+                        env.hudClient.show(message: error.description)
                         print("error: \(error)")
                         return .none
                 }

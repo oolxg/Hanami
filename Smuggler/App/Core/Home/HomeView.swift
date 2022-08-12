@@ -35,7 +35,7 @@ struct HomeView: View {
                         .transition(.opacity)
                     }
                 }
-                .navigationTitle("Kamakura")
+                .navigationTitle("Home")
                 .navigationBarTitleDisplayMode(.large)
                 .navigationBarBackButtonHidden(true)
                 .onAppear {
@@ -56,7 +56,9 @@ struct HomeView_Previews: PreviewProvider {
                     databaseClient: .live,
                     mangaClient: .live,
                     homeClient: .live,
-                    cacheClient: .live
+                    cacheClient: .live,
+                    imageClient: .live,
+                    hudClient: .live
                 )
             )
         )

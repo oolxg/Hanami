@@ -9,13 +9,12 @@ import Foundation
 import SwiftUI
 
 struct HUD: View {
-    let backgroundColor: Color
-    let opacity: Double = 0.8
-    let iconName: String?
-    let text: String
+    private let backgroundColor: Color
+    private let iconName: String?
+    private let message: String
     
-    init(text: String, iconName: String? = nil, backgroundColor: Color) {
-        self.text = text
+    init(message: String, iconName: String? = nil, backgroundColor: Color) {
+        self.message = message
         self.iconName = iconName
         self.backgroundColor = backgroundColor
     }
@@ -26,7 +25,7 @@ struct HUD: View {
                 Image(systemName: iconName)
             }
             
-            Text(text)
+            Text(message)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 12)
@@ -34,15 +33,8 @@ struct HUD: View {
         .background(
             RoundedRectangle(cornerRadius: 25)
                 .fill(backgroundColor)
-                .opacity(opacity)
+                .opacity(0.8)
                 .shadow(color: .black.opacity(0.25), radius: 35, x: 0, y: 5)
         )
     }
-}
-
-struct HUDInfo: Equatable {
-    var show = false
-    var message = ""
-    var iconName: String?
-    var backgroundColor = Color.theme.red
 }

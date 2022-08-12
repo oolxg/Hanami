@@ -160,6 +160,7 @@ extension DatabaseClient {
             commitChanges: commitChanges
         )
     }
+    
     private func fetchOrCreate<MO: IdentifiableMO>(entityType: MO.Type, id: UUID) -> MO {
         fetchOrCreate(
             entityType: entityType,
@@ -167,6 +168,7 @@ extension DatabaseClient {
             commitChanges: { $0?.id = id }
         )
     }
+    
     private func update<MO: IdentifiableMO>(
         entityType: MO.Type,
         id: UUID,
@@ -237,7 +239,7 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func saveChapterDetails(_ chapterDetails: ChapterDetails, fromManga manga: Manga) -> Effect<Never, Never> {
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, fromManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 var mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
@@ -250,17 +252,20 @@ extension DatabaseClient {
                     mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
                 }
                 
-                let chapterDetailsMO = fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) { chapterDetailsManagedObject in
+                var chapterDetailsMO = fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) { chapterDetailsManagedObject in
                     chapterDetailsManagedObject?.id = chapterDetails.id
+                    chapterDetailsManagedObject?.pagesCount = pagesCount
                     chapterDetailsManagedObject?.relationships = chapterDetails.relationships.toData()!
                     chapterDetailsManagedObject?.attributes = chapterDetails.attributes.toData()!
                     chapterDetailsManagedObject?.fromManga = mangaMO!
                 }
                 
                 if chapterDetailsMO == nil {
-                    chapterDetails.toManagedObject(
+                    chapterDetailsMO = chapterDetails.toManagedObject(
                         in: PersistenceController.shared.container.viewContext, withRelationships: mangaMO
                     )
+                    
+                    chapterDetailsMO!.pagesCount = pagesCount
                 }
                 
                 saveContext()
@@ -280,19 +285,25 @@ extension DatabaseClient {
         fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.toEntity()
     }
     
+    func fetchChapterPagesCount(chapterID: UUID) -> Int? {
+        fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.pagesCount
+    }
+    
     func fetchAllChapters() -> [ChapterDetails] {
         batchFetch(entityType: ChapterDetailsMO.self).map { $0.toEntity() }
     }
     
-    func deleteChapter(id: UUID) -> Effect<Never, Never> {
+    func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
-                guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: id) else {
+                guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
                     return
                 }
 
-                let leftChapters = chapterMO.fromManga.chapterDetailsSet.filter { $0.id != id }
+                let leftChapters = chapterMO.fromManga.chapterDetailsSet.filter { $0.id != chapterID }
                 let parentMangaID = chapterMO.fromManga.id
+                
+                remove(entityType: ChapterDetailsMO.self, id: chapterID)
                 
                 saveContext()
                 

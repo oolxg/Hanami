@@ -11,6 +11,7 @@ disabled_rules:
   - unused_capture_list
   - switch_case_alignment
   - nesting
+  - file_length
 
 opt_in_rules:
   - array_init

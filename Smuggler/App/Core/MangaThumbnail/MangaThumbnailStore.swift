@@ -50,6 +50,8 @@ struct MangaThumbnailEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let mangaThumbnailReducer = Reducer.combine(
@@ -65,7 +67,10 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
         action: /MangaThumbnailAction.offlineMangaAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
-            mangaClient: $0.mangaClient
+            mangaClient: $0.mangaClient,
+            imageClient: $0.imageClient,
+            cacheClient: $0.cacheClient,
+            hudClient: $0.hudClient
         ) }
     ),
     Reducer { state, action, env in
@@ -84,7 +89,10 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         action: /MangaThumbnailAction.onlineMangaAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
-            mangaClient: $0.mangaClient
+            mangaClient: $0.mangaClient,
+            imageClient: $0.imageClient,
+            cacheClient: $0.cacheClient,
+            hudClient: $0.hudClient
         ) }
     ),
     Reducer { state, action, env in
@@ -110,7 +118,6 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
-                    print("fetch")
                     return env.mangaClient.fetchCoverArtInfo(coverArtID)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)

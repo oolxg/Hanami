@@ -18,7 +18,9 @@ struct SmugglerApp: App {
             mangaClient: .live,
             homeClient: .live,
             searchClient: .live,
-            cacheClient: .live
+            cacheClient: .live,
+            imageClient: .live,
+            hudClient: .live
         )
     )
     

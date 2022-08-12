@@ -25,6 +25,8 @@ struct DownloadsEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(
@@ -36,7 +38,9 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

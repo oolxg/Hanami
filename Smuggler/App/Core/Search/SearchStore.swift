@@ -60,6 +60,8 @@ struct SearchEnvironment {
     let mangaClient: MangaClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
@@ -71,7 +73,9 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

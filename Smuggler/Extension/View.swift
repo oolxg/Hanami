@@ -12,7 +12,9 @@ extension View {
     func redacted(if condition: @autoclosure () -> Bool) -> some View {
         redacted(reason: condition() ? .placeholder : [])
     }
-    
+}
+
+extension View {
     func hud(
         isPresented: Binding<Bool>,
         message: String,
@@ -24,7 +26,7 @@ extension View {
             self
             
             if isPresented.wrappedValue {
-                HUD(text: message, iconName: iconName, backgroundColor: backgroundColor)
+                HUD(message: message, iconName: iconName, backgroundColor: backgroundColor)
                     .zIndex(1)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.horizontal)

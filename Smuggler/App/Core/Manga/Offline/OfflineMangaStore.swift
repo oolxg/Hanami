@@ -26,8 +26,6 @@ struct OfflineMangaViewState: Equatable {
         var id: String { rawValue }
     }
     
-    @BindableState var hudInfo = HUDInfo()
-    
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
     // it's better not to set value of 'mangaReadingViewState' to nil
@@ -73,13 +71,14 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
             databaseClient: $0.databaseClient
         ) }
     ),
-    mangaReadingViewReducer.optional().pullback(
-        state: \.mangaReadingViewState,
-        action: /OfflineMangaViewAction.mangaReadingViewAction,
-        environment: { .init(
-            mangaClient: $0.mangaClient
-        ) }
-    ),
+//    mangaReadingViewReducer.optional().pullback(
+//        state: \.mangaReadingViewState,
+//        action: /OfflineMangaViewAction.mangaReadingViewAction,
+//        environment: { .init(
+//            mangaClient: $0.mangaClient,
+//            imageClient: $0.imageClient
+//        ) }
+//    ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:

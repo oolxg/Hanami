@@ -10,42 +10,42 @@ import Foundation
 // MARK: - Chapter
 struct ChapterPagesInfo: Codable {
     let baseURL: String
-    let chapter: ChapterInfo
+    let pagesInfo: PagesInfo
 
-    // MARK: - ChapterInfo
-    struct ChapterInfo: Codable, Equatable {
+    // MARK: - PagesInfo
+    struct PagesInfo: Codable, Equatable {
         let hash: String
         let data, dataSaver: [String]
     }
     
     enum CodingKeys: String, CodingKey {
         case baseURL = "baseUrl"
-        case chapter
+        case pagesInfo = "chapter"
     }
 }
 
 extension ChapterPagesInfo: Equatable {
     static func == (lhs: ChapterPagesInfo, rhs: ChapterPagesInfo) -> Bool {
-        lhs.chapter.hash == rhs.chapter.hash
+        lhs.pagesInfo.hash == rhs.pagesInfo.hash
     }
 }
 
 extension ChapterPagesInfo: Identifiable {
     var id: String {
-        chapter.hash
+        pagesInfo.hash
     }
 }
 
 extension ChapterPagesInfo {
     var dataSaverURLs: [URL] {
-        chapter.dataSaver.compactMap { fileName in
-            URL(string: "\(baseURL)/data-saver/\(chapter.hash)/\(fileName)")
+        pagesInfo.dataSaver.compactMap { fileName in
+            URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(fileName)")
         }
     }
     
     var dataURLs: [URL] {
-        chapter.data.compactMap { fileName in
-            URL(string: "\(baseURL)/data/\(chapter.hash)/\(fileName)")
+        pagesInfo.data.compactMap { fileName in
+            URL(string: "\(baseURL)/data/\(pagesInfo.hash)/\(fileName)")
         }
     }
 }

@@ -33,6 +33,8 @@ struct RootEnvironment {
     let homeClient: HomeClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
@@ -45,7 +47,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
                     homeClient: $0.homeClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -58,7 +62,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
                     searchClient: $0.searchClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -70,7 +76,9 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                 .init(
                     databaseClient: $0.databaseClient,
                     mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

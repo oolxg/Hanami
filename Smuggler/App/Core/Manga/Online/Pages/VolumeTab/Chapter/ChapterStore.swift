@@ -40,7 +40,7 @@ enum ChapterAction: BindableAction, Equatable {
     case downloadChapterForOfflineReading(chapter: ChapterDetails)
     
     case userWantsToDeleteChapter(chapter: ChapterDetails)
-    case userConfirmedChapterDelete(chapter: ChapterDetails)
+    case userConfirmedChapterDeletion(chapter: ChapterDetails)
     case cancelTapped
 
     case binding(BindingAction<ChapterState>)
@@ -99,13 +99,13 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 title: TextState("Delete this chapter from device?"),
                 message: TextState("Delete this chapter from device?"),
                 buttons: [
-                    .destructive(TextState("Delete"), action: .send(.userConfirmedChapterDelete(chapter: chapter))),
+                    .destructive(TextState("Delete"), action: .send(.userConfirmedChapterDeletion(chapter: chapter))),
                     .cancel(TextState("Cancel"), action: .send(.cancelTapped))
                 ]
             )
             return .none
             
-        case .userConfirmedChapterDelete(let chapter):
+        case .userConfirmedChapterDeletion(let chapter):
             state.cachedChaptersIDs.remove(chapter.id)
             state.confirmationDialog = nil
             return .none

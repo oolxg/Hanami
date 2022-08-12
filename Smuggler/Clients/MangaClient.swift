@@ -7,9 +7,11 @@
 
 import Foundation
 import ComposableArchitecture
+import class SwiftUI.UIImage
 
 struct MangaClient {
     // swiftlint:disable line_length
+    // MARK: - Networking
     let fetchMangaChapters: (_ mangaID: UUID, _ scanlationGroupID: UUID?, _ translatedLang: String?) -> Effect<VolumesContainer, AppError>
     let fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
     let fetchAllCoverArtsForManga: (_ mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
@@ -17,10 +19,19 @@ struct MangaClient {
     let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError>
     let fetchPagesInfo: (_ chapterID: UUID) -> Effect<ChapterPagesInfo, AppError>
     let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
+    
+    // MARK: - Actions inside App
     let getMangaPaginationPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabState]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let getReadChapterOnPaginationPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
+    
+    // MARK: - Manage info for offline reading
+    let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    let retrieveCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
+    let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    let retrieveAllChapterPages: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
+    let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
     // swiftlint:enable line_length
 }
 
@@ -191,7 +202,8 @@ extension MangaClient {
                     return AppError.unknownError(err)
                 }
                 .eraseToEffect()
-        }, getMangaPaginationPageForReadingChapter: { chapterIndex, pages in
+        },
+        getMangaPaginationPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter
             // we find it among all chapters and send user to this page
             guard let chapterIndex = chapterIndex else {
@@ -207,20 +219,23 @@ extension MangaClient {
             }
             
             return nil
-        }, computeNextChapterIndex: { currentChapterIndex, chapters in
+        },
+        computeNextChapterIndex: { currentChapterIndex, chapters in
             guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == currentChapterIndex }) else {
                 return nil
             }
             
             return chapterIndex + 1 < chapters!.count ? chapterIndex + 1 : nil
-        }, computePreviousChapterIndex: { currentChapterIndex, chapters in
+        },
+        computePreviousChapterIndex: { currentChapterIndex, chapters in
             // 'currentChapterIndex' - is index(Double) and may not match with index in 'chapters'
             guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == currentChapterIndex }) else {
                 return nil
             }
             
             return chapterIndex > 0 ? chapterIndex - 1 : nil
-        }, getReadChapterOnPaginationPage: { chapterIndex, volumes in
+        },
+        getReadChapterOnPaginationPage: { chapterIndex, volumes in
             for volumeStateID in volumes.ids {
                 for chapterStateID in volumes[id: volumeStateID]!.chapterStates.ids {
                     let chapterState = volumes[id: volumeStateID]!.chapterStates[id: chapterStateID]!
@@ -232,6 +247,37 @@ extension MangaClient {
             }
             
             return nil
+        },
+        saveCoverArt: { coverArt, mangaID, cacheClient in
+            let imageName = "coverArt-\(mangaID.uuidString.lowercased())"
+            
+            return cacheClient.cacheImage(coverArt, imageName).fireAndForget()
+        },
+        retrieveCoverArt: { mangaID, cacheClient in
+            let imageName = "coverArt-\(mangaID.uuidString.lowercased())"
+            
+            return cacheClient.retrieveImage(imageName)
+        },
+        saveChapterPage: { chapterPage, pageIndex, chapterID, cacheClient in
+            let imageName = "\(chapterID.uuidString.lowercased())-\(pageIndex)"
+            
+            return cacheClient.cacheImage(chapterPage, imageName).fireAndForget()
+        },
+        retrieveAllChapterPages: { chapterID, pagesCount, cacheClient in
+            .merge(
+                (0..<pagesCount).indices.map { pageIndex in
+                    let imageName = "\(chapterID.uuidString.lowercased())-\(pageIndex)"
+                    return cacheClient.retrieveImage(imageName)
+                }
+            )
+        },
+        removeCachedPagesForChapter: { chapterID, pagesCount, cacheClient in
+            .merge(
+                (0..<pagesCount).indices.map { pageIndex in
+                    let imageName = "\(chapterID.uuidString.lowercased())-\(pageIndex)"
+                    return cacheClient.removeImage(imageName)
+                }
+            )
         }
     )
 }

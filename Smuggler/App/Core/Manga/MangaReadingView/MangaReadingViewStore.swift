@@ -39,7 +39,8 @@ enum MangaReadingViewAction {
 }
 
 struct MangaReadingViewEnvironment {
-    var mangaClient: MangaClient
+    let mangaClient: MangaClient
+    let imageClient: ImageClient
 }
 
 // swiftlint:disable:next line_length
@@ -59,12 +60,9 @@ let mangaReadingViewReducer = Reducer<MangaReadingViewState, MangaReadingViewAct
                 case .success(let chapterPagesInfo):
                     state.pagesInfo = chapterPagesInfo
                     
-                    ImagePrefetcher(
-                        urls: chapterPagesInfo.dataSaverURLs,
-                        options: [.memoryCacheExpiration(.days(1))]
-                    ).start()
-                    
-                    return .none
+                    return env.imageClient
+                        .prefetchImages(chapterPagesInfo.dataSaverURLs)
+                        .fireAndForget()
 
                 case .failure(let error):
                     print("error on fetching chapterPagesInfo: \(error)")

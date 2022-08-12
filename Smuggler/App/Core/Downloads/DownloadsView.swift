@@ -47,7 +47,9 @@ struct DownloadsView_Previews: PreviewProvider {
                 environment: .init(
                     databaseClient: .live,
                     mangaClient: .live,
-                    cacheClient: .live
+                    cacheClient: .live,
+                    imageClient: .live,
+                    hudClient: .live
                 )
             )
         )

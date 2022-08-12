@@ -49,7 +49,9 @@ struct SearchView_Previews: PreviewProvider {
                     databaseClient: .live,
                     mangaClient: .live,
                     searchClient: .live,
-                    cacheClient: .live
+                    cacheClient: .live,
+                    imageClient: .live,
+                    hudClient: .live
                 )
             )
         )

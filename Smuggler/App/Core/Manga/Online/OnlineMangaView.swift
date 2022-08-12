@@ -5,7 +5,6 @@
 //  Created by mk.pwnz on 16/05/2022.
 //
 
-// swiftlint:disable file_length
 import SwiftUI
 import ComposableArchitecture
 import Kingfisher
@@ -65,13 +64,6 @@ struct OnlineMangaView: View {
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: { mangaReadingView })
             .accentColor(.theme.accent)
-            .hud(
-                isPresented: viewStore.binding(\.$hudInfo.show),
-                message: viewStore.hudInfo.message,
-                iconName: viewStore.hudInfo.iconName,
-                hideAfter: 2.5,
-                backgroundColor: viewStore.hudInfo.backgroundColor
-            )
         }
     }
 }
@@ -186,12 +178,12 @@ extension OnlineMangaView {
                 .padding(.bottom, 25)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .opacity(headerTextOpacity)
+            .opacity(headerOverlayOpacity)
         }
     }
 
     // when user scrolls up, we make all text and gradient on header slowly disappear
-    private var headerTextOpacity: Double {
+    private var headerOverlayOpacity: Double {
         if headerOffset < 0 { return 1 }
         
         let opacity = 1 - headerOffset * 0.01

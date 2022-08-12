@@ -23,6 +23,8 @@ struct AppEnvironment {
     let homeClient: HomeClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let hudClient: HUDClient
 }
 
 let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
@@ -36,7 +38,9 @@ let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
                     mangaClient: $0.mangaClient,
                     homeClient: $0.homeClient,
                     searchClient: $0.searchClient,
-                    cacheClient: $0.cacheClient
+                    cacheClient: $0.cacheClient,
+                    imageClient: $0.imageClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct RootView: View {
     let store: Store<RootState, RootAction>
+    @StateObject private var hudState = HUDClient.live
     
     var body: some View {
         WithViewStore(store) { viewStore in
@@ -51,6 +52,13 @@ struct RootView: View {
                 .tag(RootState.Tab.search)
             }
         }
+        .hud(
+            isPresented: $hudState.isPresented,
+            message: hudState.message,
+            iconName: hudState.iconName,
+            hideAfter: hudState.hideAfter,
+            backgroundColor: hudState.backgroundColor
+        )
         .accentColor(.theme.accent)
         .navigationViewStyle(StackNavigationViewStyle())
     }
