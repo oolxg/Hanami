@@ -12,7 +12,7 @@ import class SwiftUI.UIImage
 
 struct ImageClient {
     let prefetchImages: ([URL]) -> Effect<Never, Never>
-    let downloadImage: (URL) -> Effect<Result<UIImage, Error>, Never>
+    let downloadImage: (URL, KingfisherOptionsInfo?) -> Effect<Result<UIImage, Error>, Never>
 }
 
 extension ImageClient {
@@ -22,9 +22,9 @@ extension ImageClient {
                 ImagePrefetcher(urls: urls).start()
             }
         },
-        downloadImage: { url in
+        downloadImage: { url, options in
             Future { promise in
-                KingfisherManager.shared.downloader.downloadImage(with: url) { result in
+                KingfisherManager.shared.downloader.downloadImage(with: url, options: options) { result in
                     switch result {
                         case .success(let result):
                             promise(.success(result.image))

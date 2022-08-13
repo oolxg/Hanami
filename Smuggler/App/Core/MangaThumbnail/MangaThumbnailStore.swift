@@ -37,6 +37,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
 
 enum MangaThumbnailAction {
     case onAppear
+    case coverArtRetrieved(Result<UIImage, Error>)
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case userOpenedMangaView
@@ -74,11 +75,31 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
         ) }
     ),
     Reducer { state, action, env in
-        if state.isOnline {
+        guard !state.isOnline else {
             return .none
         }
         
-        return .none
+        switch action {
+            case .onAppear:
+                return env.mangaClient.retrieveCoverArt(state.manga.id, env.cacheClient)
+                    .receive(on: DispatchQueue.main)
+                    .eraseToEffect(MangaThumbnailAction.coverArtRetrieved)
+                
+            case .coverArtRetrieved(let result):
+                switch result {
+                    case .success(let coverArt):
+                        state.offlineMangaState!.coverArt = coverArt
+                        
+                        return .none
+                        
+                    case .failure(let error):
+                        print("error on retrieving coverArt: \(error)")
+                        return .none
+                }
+                
+            default:
+                return .none
+        }
     }
 )
 
@@ -96,7 +117,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         ) }
     ),
     Reducer { state, action, env in
-        if !state.isOnline {
+        guard state.isOnline else {
             return .none
         }
         
@@ -113,7 +134,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                     )
                     
                     state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
-                    state.onlineMangaState!.coverArtURL256 = state.coverArtInfo?.coverArtURL256
+                    state.onlineMangaState!.coverArtURL256 = state.coverArtInfo!.coverArtURL256
                 }
                 
                 if state.coverArtInfo == nil,
@@ -141,8 +162,8 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 switch result {
                     case .success(let response):
                         state.coverArtInfo = response.data
-                        state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo?.coverArtURL
-                        state.onlineMangaState!.coverArtURL256 = state.coverArtInfo?.coverArtURL256
+                        state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
+                        state.onlineMangaState!.coverArtURL256 = state.coverArtInfo!.coverArtURL256
                         return .none
                         
                     case .failure(let error):
@@ -167,6 +188,9 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 return .none
                 
             case .onlineMangaAction:
+                return .none
+                
+            case .coverArtRetrieved:
                 return .none
                 
             case .offlineMangaAction:

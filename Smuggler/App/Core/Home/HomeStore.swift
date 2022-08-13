@@ -140,7 +140,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if !state.lastUpdatedMangaThumbnailStates.isEmpty { return .none }
+                guard state.lastUpdatedMangaThumbnailStates.isEmpty else { return .none }
                 
                 return .merge(
                     env.homeClient.fetchLastUpdates()

@@ -11,6 +11,7 @@ enum AppError: Error {
     case downloadError(URLError)
     case decodingError(DecodingError)
     case unknownError(Error)
+    case notFound
     case databaseError(String)
 }
 
@@ -18,6 +19,9 @@ extension AppError: Equatable {
     static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
             case (.downloadError, .downloadError):
+                return true
+                
+            case (.notFound, .notFound):
                 return true
                 
             case (.decodingError, .decodingError):
@@ -42,6 +46,8 @@ extension AppError: Equatable {
                 return "Internal error on data decoding."
             case .unknownError(let err):
                 return "Something strange happened \n\(err.localizedDescription)"
+            case .notFound:
+                return "Requested item was not found"
             case .databaseError(let errorStr):
                 return errorStr
         }

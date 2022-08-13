@@ -199,33 +199,13 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func saveManga(_ manga: Manga) -> Effect<Never, Never> {
-        .fireAndForget {
-            DispatchQueue.main.async {
-                let storedMO = fetch(entityType: MangaMO.self, id: manga.id) { managedObject in
-                    managedObject?.id = manga.id
-                    managedObject?.relationships = manga.relationships.toData()!
-                    managedObject?.attributes = manga.attributes.toData()!
-                }
-                
-                if storedMO == nil {
-                    manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
-                }
-                
-                saveContext()
-            }
-        }
-    }
-    
     func fetchManga(id: UUID) -> Manga? {
         fetch(entityType: MangaMO.self, id: id)?.toEntity()
     }
 
     func fetchAllCachedMangas() -> Effect<[Manga], Never> {
         Future { promise in
-            DispatchQueue.main.async {
-                promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
-            }
+            promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
         }
         .receive(on: DispatchQueue.main)
         .eraseToEffect()
@@ -273,12 +253,19 @@ extension DatabaseClient {
         }
     }
     
-    func fetchChaptersForManga(mangaID: UUID) -> [ChapterDetails] {
-        guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
-            return []
+    func fetchChaptersForManga(mangaID: UUID) -> Effect<[ChapterDetails], AppError> {
+        Future { promise in
+            DispatchQueue.main.async {
+                guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
+                    promise(.failure(.notFound))
+                    return
+                }
+                
+                return promise(.success(manga.chapterDetailsList))
+            }
         }
-        
-        return manga.chapterDetailsList
+        .receive(on: DispatchQueue.main)
+        .eraseToEffect()
     }
     
     func fetchChapter(chapterID: UUID) -> ChapterDetails? {
@@ -287,10 +274,6 @@ extension DatabaseClient {
     
     func fetchChapterPagesCount(chapterID: UUID) -> Int? {
         fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.pagesCount
-    }
-    
-    func fetchAllChapters() -> [ChapterDetails] {
-        batchFetch(entityType: ChapterDetailsMO.self).map { $0.toEntity() }
     }
     
     func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {

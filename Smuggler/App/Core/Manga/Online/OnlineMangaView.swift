@@ -41,7 +41,7 @@ struct OnlineMangaView: View {
                             footer
                         }
                     }
-                    .onChange(of: viewStore.pagesState.currentPageIndex) { _ in
+                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
                         scrollToHeader(proxy: proxy)
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
@@ -50,7 +50,7 @@ struct OnlineMangaView: View {
                 }
             }
             .animation(.linear, value: isViewScrolledDown)
-            .animation(.default, value: viewStore.pagesState.currentPageIndex)
+            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -125,6 +125,7 @@ extension OnlineMangaView {
                 } placeholder: {
                     // using this as placeholder makes sense because we already loaded this image with this resolution in thumbnail
                     KFImage.url(viewStore.coverArtURL256)
+                        .onlyFromCache()
                         .resizable()
                         .scaledToFill()
                 }
@@ -198,11 +199,13 @@ extension OnlineMangaView {
                 case .info:
                     aboutTab
                 case .chapters:
-                    PagesView(
-                        store: store.scope(
+                    IfLetStore(
+                        store.scope(
                             state: \.pagesState,
                             action: OnlineMangaViewAction.pagesAction
-                        )
+                        ),
+                        then: PagesView.init,
+                        else: { pagesPlaceholder }
                     )
                 case .coverArt:
                     coverArtTab
@@ -211,6 +214,27 @@ extension OnlineMangaView {
         .transition(.opacity)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
+    }
+    
+    private var pagesPlaceholder: some View {
+        WithViewStore(store) { viewStore in
+            if viewStore.shouldShowEmptyMangaMessage {
+                VStack(spacing: 0) {
+                    Text("Ooops, there's nothing to read")
+                        .font(.title2)
+                        .fontWeight(.black)
+                    
+                    Text("😢")
+                        .font(.title2)
+                        .fontWeight(.black)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
+            } else {
+                ProgressView()
+                    .padding(.top, 50)
+            }
+        }
     }
 
     private var coverArtTab: some View {
@@ -363,7 +387,7 @@ extension OnlineMangaView {
                     .opacity(isHeaderBackButtonVisible ? 0 : 1)
                 
                 ForEach(OnlineMangaViewState.Tab.allCases, content: makeTabLabel)
-                    .offset(x: isHeaderBackButtonVisible ? -50 : 0)
+                    .offset(x: isHeaderBackButtonVisible ? -40 : 0)
             }
             .padding(.horizontal)
             .padding(.top, 20)
@@ -371,7 +395,7 @@ extension OnlineMangaView {
         }
         .animation(.linear, value: isHeaderBackButtonVisible)
         .background(Color.black)
-        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
+        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(MangaViewOffsetModifier(offset: $headerOffset))
     }
     

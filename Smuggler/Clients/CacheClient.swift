@@ -40,6 +40,7 @@ struct CacheClient {
     let cacheImage: (UIImage, String) -> Effect<Never, Never>
     let retrieveImage: (String) -> Effect<Swift.Result<UIImage, Error>, Never>
     let removeImage: (String) -> Effect<Never, Never>
+    let isCached: (String) -> Bool
 }
 
 extension CacheClient {
@@ -51,7 +52,7 @@ extension CacheClient {
                         case .value:
                             break
                         case .error(let err):
-                            print("[CacheClient] - Error on caching image:", err.localizedDescription)
+                            print("[CacheClient] - Error on caching image:", err.localizedDescription, err)
                     }
                 }
             }
@@ -71,16 +72,22 @@ extension CacheClient {
             .catchToEffect()
         },
         removeImage: { imageName in
-                .fireAndForget {
-                    imageStorage.async.removeObject(forKey: imageName) { result in
-                        switch result {
-                            case .value:
-                                break
-                            case .error(let err):
-                                print("[CacheClient] - Error on removing image:", err.localizedDescription)
-                        }
+            .fireAndForget {
+                imageStorage.async.removeObject(forKey: imageName) { result in
+                    switch result {
+                        case .value:
+                            break
+                        case .error(let err):
+                            print("[CacheClient] - Error on removing image:", err.localizedDescription, err)
                     }
                 }
+            }
+        },
+        isCached: { imageName in
+            // force try can be used, because the function 'existsObject(forKey: )' is only marked as throws,
+            // but it does no throw 
+            // swiftlint:disable:next force_try
+            try! imageStorage.existsObject(forKey: imageName)
         }
     )
 }

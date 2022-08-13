@@ -31,7 +31,7 @@ struct SmugglerApp: App {
         viewStore.send(.initApp)
         
         let appearance = UITabBarAppearance()
-        appearance.backgroundEffect = UIBlurEffect(style: .systemThinMaterialDark)
+        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
         appearance.backgroundColor = UIColor(Color.black.opacity(0.1))
         
         // Use this appearance when scrolling behind the TabView:

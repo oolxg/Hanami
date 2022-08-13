@@ -32,6 +32,7 @@ struct MangaClient {
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let retrieveAllChapterPages: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
     let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    let isCoverArtCached: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
     // swiftlint:enable line_length
 }
 
@@ -278,6 +279,11 @@ extension MangaClient {
                     return cacheClient.removeImage(imageName)
                 }
             )
+        },
+        isCoverArtCached: { mangaID, cacheClient in
+            let imageName = "coverArt-\(mangaID.uuidString.lowercased())"
+            
+            return cacheClient.isCached(imageName)
         }
     )
 }

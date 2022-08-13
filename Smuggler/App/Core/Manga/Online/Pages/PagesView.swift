@@ -19,27 +19,11 @@ struct PagesView: View {
     
     var body: some View {
         LazyVStack {
-            if viewStore.shouldShowNothingToReadMessage {
-                emptyMangaMessageView
-            } else {
-                if viewStore.volumeTabStatesOnCurrentPage.isEmpty {
-                    ProgressView()
-                        .frame(width: 140, height: 140, alignment: .center)
-                        .padding(.top, 100)
-                        .transition(.opacity)
-                } else {
-                    pages
-                    
-                    footer.transition(.identity)
-                }
-            }
+            pages
+
+            footer.transition(.identity)
         }
         .animation(.linear, value: viewStore.currentPageIndex)
-        .animation(.linear, value: viewStore.shouldShowNothingToReadMessage)
-        .animation(.linear, value: viewStore.areVolumesLoaded)
-        .onAppear {
-            viewStore.send(.onAppear)
-        }
     }
 }
 
@@ -47,7 +31,7 @@ struct PagesView_Previews: PreviewProvider {
     static var previews: some View {
         PagesView(
             store: .init(
-                initialState: .init(manga: dev.manga, chaptersPerPage: 10),
+                initialState: .init(mangaVolumes: [], chaptersPerPage: 1),
                 reducer: pagesReducer,
                 environment: .init(
                     mangaClient: .live,
@@ -66,21 +50,7 @@ extension PagesView {
         )
         .disabled(viewStore.lockPage)
     }
-    
-    private var emptyMangaMessageView: some View {
-        VStack(spacing: 0) {
-            Text("Ooops, there's nothing to read")
-                .font(.title2)
-                .fontWeight(.black)
-            
-            Text("😢")
-                .font(.title2)
-                .fontWeight(.black)
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding()
-    }
-    
+
     private var footer: some View {
         HStack {
             Button {

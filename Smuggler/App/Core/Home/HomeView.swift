@@ -81,6 +81,7 @@ extension HomeView {
                 .padding()
             }
             .frame(height: 170)
+            .padding(.bottom)
         } header: {
             makeSectionHeader(title: "Seasonal")
         }
@@ -212,7 +213,7 @@ extension HomeView {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
                         LinearGradient(
-                            colors: [.pink, .mint],
+                            colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
                         ),
@@ -280,7 +281,7 @@ extension HomeView {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
                         LinearGradient(
-                            colors: [.pink, .cyan],
+                            colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
                         ),
@@ -348,7 +349,7 @@ extension HomeView {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(
                         LinearGradient(
-                            colors: [.pink, .purple],
+                            colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
                         ),

@@ -16,11 +16,11 @@ struct OfflineMangaView: View {
     @Environment(\.dismiss) private var dismiss
     
     private var isViewScrolledDown: Bool {
-        headerOffset < -320
+        headerOffset < -350
     }
     
     private var isHeaderBackButtonVisible: Bool {
-        headerOffset > -240
+        headerOffset > -270
     }
     
     var body: some View {
@@ -35,9 +35,11 @@ struct OfflineMangaView: View {
                             mangaBodyView
                         } header: {
                             pinnedNavigation
+                        } footer: {
+                            footer
                         }
                     }
-                    .onChange(of: viewStore.pagesState.currentPageIndex) { _ in
+                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
                         scrollToHeader(proxy: proxy)
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
@@ -46,7 +48,8 @@ struct OfflineMangaView: View {
                 }
             }
             .animation(.linear, value: isViewScrolledDown)
-            .animation(.default, value: viewStore.pagesState.currentPageIndex)
+            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
+            .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
                     .fill(.black)
@@ -58,6 +61,7 @@ struct OfflineMangaView: View {
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
+            .accentColor(.theme.accent)
         }
     }
 }
@@ -79,6 +83,19 @@ extension OfflineMangaView {
         )
     }
     
+    private var footer: some View {
+        HStack(spacing: 0) {
+            Text("All information on this page provided by ")
+            
+            Text("MANGADEX")
+                .fontWeight(.semibold)
+        }
+        .font(.caption2)
+        .foregroundColor(.gray)
+        .padding(.horizontal)
+        .padding(.bottom, 5)
+    }
+    
     private func scrollToHeader(proxy: ScrollViewProxy) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             withAnimation(.linear) {
@@ -93,68 +110,67 @@ extension OfflineMangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
+                if let coverArt = viewStore.coverArt {
+                    Image(uiImage: coverArt)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                        .overlay(headerOverlay)
+                        .cornerRadius(0)
+                        .offset(y: -minY)
+                }
                 
-//                KFImage.url(viewStore.mainCoverArtURL)
-//                    .placeholder {
-//                        KFImage.url(viewStore.coverArtURL512)
-//                            .resizable()
-//                            .scaledToFill()
-//                            .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-//                    }
-                Image(systemName: "2.circle")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                    .overlay(
-                        ZStack(alignment: .bottom) {
-                            LinearGradient(
-                                colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            
-                            VStack(alignment: .leading, spacing: 12) {
-                                backButton
-                                
-                                Spacer()
-                                
-                                HStack {
-                                    Text("MANGA")
-                                        .font(.callout)
-                                        .foregroundColor(.gray)
-                                    
-                                    HStack(spacing: 5) {
-                                        Circle()
-                                            .fill(viewStore.manga.attributes.status.color)
-                                            .frame(width: 10, height: 10)
-                                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
-                                            .drawingGroup()
-                                        
-                                        Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                            .foregroundColor(.white)
-                                            .fontWeight(.semibold)
-                                    }
-                                    .font(.subheadline)
-                                }
-                                
-                                Text(viewStore.manga.title)
-                                    .font(.title.bold())
-                            }
-                            .padding(.horizontal)
-                            .padding(.top, 40)
-                            .padding(.bottom, 25)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                            .opacity(headerTextOpacity)
-                    )
-                    .cornerRadius(0)
-                    .offset(y: -minY)
             }
-            .frame(height: 320)
+            .frame(height: 350)
         }
     }
     
-        // when user scrolls up, we make all text and gradient on header slowly disappear
+    private var headerOverlay: some View {
+        WithViewStore(store.actionless) { viewStore in
+            ZStack(alignment: .bottom) {
+                LinearGradient(
+                    colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    backButton
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Text("MANGA")
+                            .font(.callout)
+                            .foregroundColor(.gray)
+                        
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(viewStore.manga.attributes.status.color)
+                                .frame(width: 10, height: 10)
+                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                                .drawingGroup()
+                            
+                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                                .foregroundColor(.white)
+                                .fontWeight(.semibold)
+                        }
+                        .font(.subheadline)
+                    }
+                    
+                    Text(viewStore.manga.title)
+                        .font(.title.bold())
+                }
+                .padding(.horizontal)
+                .padding(.top, 40)
+                .padding(.bottom, 25)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .opacity(headerTextOpacity)
+        }
+    }
+    
+    // when user scrolls up, we make all text and gradient on header slowly disappear
     private var headerTextOpacity: Double {
         if headerOffset < 0 { return 1 }
         
@@ -170,10 +186,12 @@ extension OfflineMangaView {
                 case .info:
                     aboutTab
                 case .chapters:
-                    PagesView(
-                        store: store.scope(
-                            state: \.pagesState, action: OfflineMangaViewAction.pagesAction
-                        )
+                    IfLetStore(
+                        store.scope(
+                            state: \.pagesState,
+                            action: OfflineMangaViewAction.pagesAction
+                        ),
+                        then: PagesView.init
                     )
             }
         }
@@ -203,15 +221,17 @@ extension OfflineMangaView {
                     }
                 }
                 
-                VStack(alignment: .leading) {
-                    Text("Description")
-                        .font(.headline)
-                        .fontWeight(.black)
-                    
-                    Divider()
-                    
-                    Text(LocalizedStringKey(viewStore.manga.description ?? "No description"))
-                        .padding(.horizontal, 10)
+                if let description = viewStore.manga.description {
+                    VStack(alignment: .leading) {
+                        Text("Description")
+                            .font(.headline)
+                            .fontWeight(.black)
+                        
+                        Divider()
+                        
+                        Text(LocalizedStringKey(description))
+                            .padding(.horizontal, 10)
+                    }
                 }
                 
                 tags
@@ -282,7 +302,7 @@ extension OfflineMangaView {
                     .opacity(isHeaderBackButtonVisible ? 0 : 1)
                 
                 ForEach(OfflineMangaViewState.Tab.allCases, content: makeTabLabel)
-                    .offset(x: isHeaderBackButtonVisible ? -50 : 0)
+                    .offset(x: isHeaderBackButtonVisible ? -40 : 0)
             }
             .padding(.horizontal)
             .padding(.top, 20)
@@ -290,7 +310,7 @@ extension OfflineMangaView {
         }
         .animation(.linear, value: isHeaderBackButtonVisible)
         .background(Color.black)
-        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
+        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(
             MangaViewOffsetModifier(
                 offset: $headerOffset

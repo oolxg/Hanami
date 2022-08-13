@@ -38,20 +38,37 @@ struct MangaThumbnailView: View {
     
     private var coverArt: some View {
         WithViewStore(store.actionless) { viewStore in
-            KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
-                .placeholder {
-                    Color.black
-                        .opacity(0.45)
-                        .redacted(reason: .placeholder)
+            if viewStore.isOnline {
+                KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
+                    .placeholder {
+                        Color.black
+                            .opacity(0.45)
+                            .redacted(reason: .placeholder)
+                    }
+                    .backgroundDecode()
+                    .fade(duration: 0.5)
+                    .cacheMemoryOnly()
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 150)
+                    .clipped()
+                    .cornerRadius(10)
+            } else {
+                ZStack {
+                    if let coverArt = viewStore.offlineMangaState?.coverArt {
+                        Image(uiImage: coverArt)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Color.black
+                            .opacity(0.45)
+                            .redacted(reason: .placeholder)
+                    }
                 }
-                .backgroundDecode()
-                .fade(duration: 0.5)
-                .cacheMemoryOnly()
-                .resizable()
-                .scaledToFill()
                 .frame(width: 100, height: 150)
                 .clipped()
                 .cornerRadius(10)
+            }
         }
     }
     

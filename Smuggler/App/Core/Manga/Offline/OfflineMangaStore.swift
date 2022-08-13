@@ -7,16 +7,17 @@
 
 import Foundation
 import ComposableArchitecture
+import class SwiftUI.UIImage
 
 struct OfflineMangaViewState: Equatable {
     let manga: Manga
+    var coverArt: UIImage?
     
     init(manga: Manga) {
         self.manga = manga
-        pagesState = PagesState(manga: manga, chaptersPerPage: 10)
     }
     
-    var pagesState: PagesState
+    var pagesState: PagesState?
     
     var selectedTab: Tab = .chapters
     enum Tab: String, CaseIterable, Identifiable {
@@ -53,6 +54,7 @@ struct OfflineMangaViewState: Equatable {
 
 enum OfflineMangaViewAction: BindableAction {
     case onAppear
+    case cachedChaptersRetrieved(Result<[ChapterDetails], AppError>)
     case mangaTabChanged(OfflineMangaViewState.Tab)
     
     case mangaReadingViewAction(MangaReadingViewAction)
@@ -63,7 +65,7 @@ enum OfflineMangaViewAction: BindableAction {
 
 
 let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewAction, MangaViewEnvironment> = .combine(
-    pagesReducer.pullback(
+    pagesReducer.optional().pullback(
         state: \.pagesState,
         action: /OfflineMangaViewAction.pagesAction,
         environment: { .init(
@@ -71,19 +73,32 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
             databaseClient: $0.databaseClient
         ) }
     ),
-//    mangaReadingViewReducer.optional().pullback(
-//        state: \.mangaReadingViewState,
-//        action: /OfflineMangaViewAction.mangaReadingViewAction,
-//        environment: { .init(
-//            mangaClient: $0.mangaClient,
-//            imageClient: $0.imageClient
-//        ) }
-//    ),
+    mangaReadingViewReducer.optional().pullback(
+        state: \.mangaReadingViewState,
+        action: /OfflineMangaViewAction.mangaReadingViewAction,
+        environment: { .init(
+            mangaClient: $0.mangaClient,
+            imageClient: $0.imageClient
+        ) }
+    ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                return .none
+                return env.databaseClient.fetchChaptersForManga(mangaID: state.manga.id)
+                    .catchToEffect(OfflineMangaViewAction.cachedChaptersRetrieved)
                 
+            case .cachedChaptersRetrieved(let result):
+                switch result {
+                    case .success(let chapters):
+                        
+                        return .none
+
+                    case .failure(let error):
+                        print("Error on retrieving chapters:", error)
+                        return .none
+
+                }
+
             case .mangaTabChanged(let tab):
                 state.selectedTab = tab
                 return .none

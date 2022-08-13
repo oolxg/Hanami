@@ -49,6 +49,29 @@ struct Relationship: Codable {
         }
     }
     
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(type, forKey: .type)
+        try container.encode(related, forKey: .related)
+        switch attributes {
+            case .coverArt(let coverArt):
+                try container.encode(coverArt, forKey: .attributes)
+
+            case .manga(let manga):
+                try container.encode(manga, forKey: .attributes)
+
+            case .scanlationGroup(let scanlationGroup):
+                try container.encode(scanlationGroup, forKey: .attributes)
+
+            case .author(let author):
+                try container.encode(author, forKey: .attributes)
+                
+            case .none:
+                break
+        }
+    }
+    
     // MARK: - RelationshipAttributes
     enum RelationshipAttributes: Codable {
         case coverArt(CoverArtInfo.Attributes)
