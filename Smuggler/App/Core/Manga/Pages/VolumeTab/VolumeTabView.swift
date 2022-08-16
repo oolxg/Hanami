@@ -47,7 +47,7 @@ struct VolumeTabView_Previews: PreviewProvider {
         VolumeTabView(
             store: .init(
                 initialState: .init(
-                    volume: .init(chapters: [], count: 0, volumeIndex: nil)
+                    volume: .init(chapters: [], volumeIndex: 99999), isOnline: false
                 ),
                 reducer: volumeTabReducer,
                 environment: .init(

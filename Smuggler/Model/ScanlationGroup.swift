@@ -12,7 +12,7 @@ import Foundation
 struct ScanlationGroup: Codable {
     let id: UUID
     let attributes: Attributes
-    let relationships: [ScanlationGroupRelationship]
+    let relationships: [Relationship]
     
     // MARK: - Attributes
     struct Attributes: Codable {
@@ -38,15 +38,6 @@ struct ScanlationGroup: Codable {
             case isVerified = "verified"
             case isInactive = "inactive"
             case createdAt, updatedAt, version
-        }
-    }
-    
-    struct ScanlationGroupRelationship: Codable {
-        let id: UUID
-        let type: ScanlationGroupRelationshipType
-        
-        enum ScanlationGroupRelationshipType: String, Codable {
-            case member, leader
         }
     }
 }

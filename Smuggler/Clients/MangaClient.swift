@@ -121,7 +121,7 @@ extension MangaClient {
                 .eraseToEffect()
         },
         fetchChapterDetails: { chapterID in
-            guard let url = URL(string: "https://api.mangadex.org/chapter/\(chapterID.uuidString.lowercased())") else {
+            guard let url = URL(string: "https://api.mangadex.org/chapter/\(chapterID.uuidString.lowercased())?includes[]=scanlation_group") else {
                 return .none
             }
             

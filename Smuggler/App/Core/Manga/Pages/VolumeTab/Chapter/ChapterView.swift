@@ -84,30 +84,20 @@ extension ChapterView {
     
     private var disclosureGroupBody: some View {
         WithViewStore(store) { viewStore in
-            if viewStore.chapterDetails.isEmpty {
+            if viewStore.chapterDetailsList.isEmpty {
                 ProgressView()
                     .frame(width: 40, height: 40)
                     .padding()
                     .transition(.opacity)
             } else {
                 LazyVStack {
-                    ForEach(viewStore.chapterDetails) { chapter in
-                        makeChapterDetailsView(for: chapter)
-                            .onTapGesture {
-                                // if manga has externalURL, means we can only read it on some other website, not in app
-                                if let url = chapter.attributes.externalURL {
-                                    openURL(url)
-                                } else {
-                                    viewStore.send(
-                                        .userTappedOnChapterDetails(chapter: chapter)
-                                    )
-                                }
-                            }
-                    }
+                    ForEach(
+                        viewStore.chapterDetailsList,
+                        content: makeChapterDetailsView
+                    )
                     .transition(.opacity)
                 }
-                .animation(.linear, value: viewStore.chapterDetails)
-                .animation(.linear, value: viewStore.chapterDetails.isEmpty)
+                .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -132,14 +122,14 @@ extension ChapterView {
                     } else {
                         if viewStore.cachedChaptersIDs.contains(chapter.id) {
                             Button {
-                                viewStore.send(.userWantsToDeleteChapter(chapter: chapter))
+                                viewStore.send(.deleteChapter(chapter: chapter))
                             } label: {
                                 Image(systemName: "checkmark.seal.fill")
                                     .font(.callout)
                                     .foregroundColor(.green)
                                     .padding(5)
                             }
-                        } else {
+                        } else if viewStore.isOnline {
                             Button {
                                 viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
                             } label: {
@@ -158,8 +148,18 @@ extension ChapterView {
                     .fill(.white)
                     .frame(height: 1.5)
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                    // if manga has externalURL, means we can only read it on some other website, not in app
+                if let url = chapter.attributes.externalURL {
+                    openURL(url)
+                } else {
+                    viewStore.send(
+                        .userTappedOnChapterDetails(chapter: chapter)
+                    )
+                }
+            }
         }
-        .contentShape(Rectangle())
     }
     
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
@@ -169,7 +169,7 @@ extension ChapterView {
                     Text("Translated by:")
                         .fontWeight(.light)
                     
-                    if viewStore.chapterDetails[id: chapter.id]?.scanlationGroupID != nil {
+                    if viewStore.chapterDetailsList[id: chapter.id]?.scanlationGroupID != nil {
                         Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
                             .fontWeight(.bold)
                             .lineLimit(1)

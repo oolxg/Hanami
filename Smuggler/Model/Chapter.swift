@@ -11,7 +11,6 @@ struct Chapter: Codable {
     // sometimes chapters can have number as double, e.g. 77.6 (for extras or oneshots),
     // if chapters has no index(returns 'none'), 'chapterIndex' will be set to -1
     let chapterIndex: Double?
-    let count: Int
     let id: UUID
     let others: [UUID]
     
@@ -19,14 +18,13 @@ struct Chapter: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         chapterIndex = Double(try container.decode(String.self, forKey: .chapterIndex))
-        count = try container.decode(Int.self, forKey: .count)
         id = try container.decode(UUID.self, forKey: .id)
         others = try container.decode([UUID].self, forKey: .others)
     }
     
     enum CodingKeys: String, CodingKey {
         case chapterIndex = "chapter"
-        case count, id, others
+        case id, others
     }
 }
 
@@ -40,14 +38,13 @@ extension Chapter: Identifiable { }
 
 extension Chapter: Comparable {
     static func < (lhs: Chapter, rhs: Chapter) -> Bool {
-        (lhs.chapterIndex ?? 99999) < (rhs.chapterIndex ?? 99999)
+        (lhs.chapterIndex ?? -1) > (rhs.chapterIndex ?? -1)
     }
 }
 
 extension Chapter {
-    init(chapterIndex: Double, count: Int, id: UUID, others: [UUID]) {
+    init(chapterIndex: Double?, id: UUID, others: [UUID]) {
         self.chapterIndex = chapterIndex
-        self.count = count
         self.id = id
         self.others = others
     }

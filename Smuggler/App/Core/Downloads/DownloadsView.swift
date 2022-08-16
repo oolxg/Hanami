@@ -18,20 +18,29 @@ struct DownloadsView: View {
                     .font(.caption2)
                     .frame(height: 0)
                     .foregroundColor(.black)
-                
-                
-                ScrollView {
-                    ForEachStore(
-                        store.scope(
-                            state: \.cachedMangaThumbnailStates,
-                            action: DownloadsAction.cachedMangaThumbnailAction
-                        )
-                    ) { thumbnailViewStore in
-                        MangaThumbnailView(store: thumbnailViewStore)
+
+                WithViewStore(store.actionless) { viewStore in
+                    if viewStore.cachedMangaThumbnailStates.isEmpty {
+                        Text("Wow, such empty here...")
+                            .font(.title2)
+                            .fontWeight(.black)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding()
+                    } else {
+                        ScrollView {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.cachedMangaThumbnailStates,
+                                    action: DownloadsAction.cachedMangaThumbnailAction
+                                )
+                            ) { thumbnailViewStore in
+                                MangaThumbnailView(store: thumbnailViewStore)
+                                    .padding()
+                            }
+                        }
+                        .transition(.opacity)
                     }
                 }
-                .transition(.opacity)
             }
             .navigationTitle("Downloads")
         }

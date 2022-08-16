@@ -120,7 +120,9 @@ struct VolumesContainer: Codable {
 
 struct MangaVolume: Codable {
     let chapters: [Chapter]
-    let count: Int
+    var count: Int {
+        chapters.count
+    }
     // sometimes volumes can have number as double, e.g. 77.6 (for extras or oneshots),
     // if volume has no index(returns 'none'), 'volumeIndex' will be set to nil
     let volumeIndex: Double?
@@ -130,7 +132,6 @@ struct MangaVolume: Codable {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
         
         var tempDecodedChapters: [Chapter] = []
-        var tempCount = 0
         var tempVolume: String = "none"
         
         for key in container.allKeys {
@@ -147,15 +148,12 @@ struct MangaVolume: Codable {
                         forKey: DynamicCodingKeys(stringValue: key.stringValue)!
                     )
                 }
-            } else if key.stringValue == "count" {
-                tempCount = try container.decode(Int.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             } else if key.stringValue == "volume" {
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
         id = UUID()
         chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? 99999) > ($1.chapterIndex ?? 99999) }
-        count = tempCount
         volumeIndex = Double(tempVolume)
     }
     
@@ -193,9 +191,8 @@ extension MangaVolume {
 }
 
 extension MangaVolume {
-    init(chapters: [Chapter], count: Int, volumeIndex: Double?) {
+    init(chapters: [Chapter], volumeIndex: Double?) {
         self.chapters = chapters
-        self.count = count
         self.volumeIndex = volumeIndex
         id = UUID()
     }

@@ -9,10 +9,10 @@ import Foundation
 import ComposableArchitecture
 
 struct VolumeTabState: Equatable {
-    init(volume: MangaVolume) {
+    init(volume: MangaVolume, isOnline: Bool) {
         self.volume = volume
         chapterStates = .init(
-            uniqueElements: volume.chapters.map { ChapterState(chapter: $0) }
+            uniqueElements: volume.chapters.map { ChapterState(chapter: $0, isOnline: isOnline) }
         )
     }
     

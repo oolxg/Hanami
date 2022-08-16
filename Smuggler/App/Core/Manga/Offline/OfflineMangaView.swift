@@ -119,7 +119,6 @@ extension OfflineMangaView {
                         .cornerRadius(0)
                         .offset(y: -minY)
                 }
-                
             }
             .frame(height: 350)
         }
@@ -193,6 +192,7 @@ extension OfflineMangaView {
                         ),
                         then: PagesView.init
                     )
+                    .animation(.linear, value: viewStore.pagesState?.volumeTabStatesOnCurrentPage)
             }
         }
         .transition(.opacity)

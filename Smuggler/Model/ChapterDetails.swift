@@ -66,7 +66,7 @@ struct ChapterDetails: Codable {
         let externalURL: URL?
         let readableAt: Date?
         let title: String?
-        let volumeIndex: String?
+        let volumeIndex: Double?
         
         enum CodingKeys: String, CodingKey {
             case chapterIndex = "chapter"
@@ -117,7 +117,12 @@ extension ChapterDetails.Attributes {
         translatedLanguage = try container.decode(String.self, forKey: .translatedLanguage)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         version = try container.decode(Int.self, forKey: .version)
-        volumeIndex = try? container.decode(String?.self, forKey: .volumeIndex)
+        
+        if let volumeIndexString = try? container.decode(String.self, forKey: .volumeIndex) {
+            volumeIndex = Double(volumeIndexString)
+        } else {
+            volumeIndex = try? container.decode(Double.self, forKey: .volumeIndex)
+        }
     }
 }
 
@@ -164,7 +169,24 @@ extension ChapterDetails {
         }
     }
     
+    var asChapter: Chapter {
+        Chapter(chapterIndex: attributes.chapterIndex, id: id, others: [])
+    }
+    
     var scanlationGroupID: UUID? {
         relationships.first { $0.type == .scanlationGroup }?.id
+    }
+    
+    var scanlationGroup: ScanlationGroup? {
+        relationships
+            .filter { $0.type == .scanlationGroup && $0.attributes != nil }
+            .compactMap {
+                guard let attrs = $0.attributes!.get() as? ScanlationGroup.Attributes else {
+                    return nil
+                }
+                
+                return ScanlationGroup(id: $0.id, attributes: attrs, relationships: [])
+            }
+            .first
     }
 }

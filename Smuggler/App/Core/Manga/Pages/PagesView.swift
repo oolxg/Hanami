@@ -19,9 +19,23 @@ struct PagesView: View {
     
     var body: some View {
         LazyVStack {
-            pages
-
-            footer.transition(.identity)
+            if viewStore.splitIntoPagesVolumeTabStates.isEmpty {
+                VStack(spacing: 0) {
+                    Text("Ooops, there's nothing to read")
+                        .font(.title2)
+                        .fontWeight(.black)
+                    
+                    Text("😢")
+                        .font(.title2)
+                        .fontWeight(.black)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
+            } else {
+                pages
+                
+                footer.transition(.identity)
+            }
         }
         .animation(.linear, value: viewStore.currentPageIndex)
     }
@@ -31,7 +45,7 @@ struct PagesView_Previews: PreviewProvider {
     static var previews: some View {
         PagesView(
             store: .init(
-                initialState: .init(mangaVolumes: [], chaptersPerPage: 1),
+                initialState: .init(mangaVolumes: [], chaptersPerPage: 1, isOnline: true),
                 reducer: pagesReducer,
                 environment: .init(
                     mangaClient: .live,

@@ -143,7 +143,11 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 state.areVolumesLoaded = true
                 switch result {
                     case .success(let response):
-                        state.pagesState = PagesState(mangaVolumes: response.volumes, chaptersPerPage: 10)
+                        state.pagesState = PagesState(
+                            mangaVolumes: response.volumes,
+                            chaptersPerPage: 10,
+                            isOnline: true
+                        )
                         
                         return .none
                         
@@ -286,7 +290,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         return .none
                 }
                 
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userConfirmedChapterDeletion(let chapter)))):
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .chapterDeletionConfirmed(let chapter)))):
                 var effects: [Effect<OnlineMangaViewAction, Never>] = [
                     env.databaseClient
                         .deleteChapter(chapterID: chapter.id)
