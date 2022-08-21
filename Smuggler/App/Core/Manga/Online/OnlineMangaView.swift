@@ -98,7 +98,7 @@ extension OnlineMangaView {
             store.scope(
                 state: \.mangaReadingViewState, action: OnlineMangaViewAction.mangaReadingViewAction
             ),
-            then: MangaReadingView.init
+            then: MangaReadingViewEnum.init
         )
     }
     

@@ -32,7 +32,7 @@ struct OfflineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewState? {
+    var mangaReadingViewState: MangaReadingViewStateEnum? {
         willSet {
             isUserOnReadingView = newValue != nil
         }
@@ -45,7 +45,7 @@ enum OfflineMangaViewAction: BindableAction {
     case mangaTabChanged(OfflineMangaViewState.Tab)
     case deleteManga
     
-    case mangaReadingViewAction(MangaReadingViewAction)
+    case mangaReadingViewAction(MangaReadingViewActionEnum)
     case pagesAction(PagesAction)
     
     case binding(BindingAction<OfflineMangaViewState>)
@@ -61,17 +61,17 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
             databaseClient: $0.databaseClient
         ) }
     ),
-    mangaReadingViewReducer.optional().pullback(
-        state: \.mangaReadingViewState,
-        action: /OfflineMangaViewAction.mangaReadingViewAction,
-        environment: { .init(
-            mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient,
-            hudClient: $0.hudClient,
-            databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient
-        ) }
-    ),
+//    mangaReadingViewReducer.optional().pullback(
+//        state: \.mangaReadingViewState,
+//        action: /OfflineMangaViewAction.mangaReadingViewAction,
+//        environment: { .init(
+//            mangaClient: $0.mangaClient,
+//            imageClient: $0.imageClient,
+//            hudClient: $0.hudClient,
+//            databaseClient: $0.databaseClient,
+//            cacheClient: $0.cacheClient
+//        ) }
+//    ),
     Reducer { state, action, env in
         switch action {
             case .onAppear:
@@ -133,115 +133,115 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 return .none
         }
     }
-    .binding(),
+    .binding()
     // Handling actions from MangaReadingView
-    Reducer { state, action, env in
-        switch action {
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
-                guard let retrievedChapter = env.databaseClient.fetchChapter(chapterID: chapter.id) else {
-                    env.hudClient.show(message: "😢 Error on retrieving saved chapter")
-                    return .none
-                }
-                
-                let newMangaReadingViewState = MangaReadingViewState(
-                    chapterID: chapter.id,
-                    chapterIndex: chapter.attributes.chapterIndex,
-                    pagesCount: retrievedChapter.pagesCount,
-                    isOnline: false
-                )
-                
-                if state.mangaReadingViewState?.chapterID != newMangaReadingViewState.chapterID {
-                    state.mangaReadingViewState = newMangaReadingViewState
-                } else {
-                    state.isUserOnReadingView = true
-                }
-                
-                return Effect(value: .mangaReadingViewAction(.userStartedReadingChapter))
-                
-            case .mangaReadingViewAction(.userHitLastPage):
-//                let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
-//                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
-//                )
-//
-//                guard let nextChapterIndex = nextChapterIndex,
-//                      let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
-//                    state.isUserOnReadingView = false
-//                    env.hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
-//                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
+//    Reducer { state, action, env in
+//        switch action {
+//            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
+//                guard let retrievedChapter = env.databaseClient.fetchChapter(chapterID: chapter.id) else {
+//                    env.hudClient.show(message: "😢 Error on retrieving saved chapter")
+//                    return .none
 //                }
 //
-//                state.mangaReadingViewState = MangaReadingViewState(
-//                    chapterID: nextChapter.id,
-//                    chapterIndex: nextChapter.chapterIndex,
+//                let newMangaReadingViewState = OnlineMangaReadingViewState(
+//                    chapterID: chapter.id,
+//                    chapterIndex: chapter.attributes.chapterIndex,
+//                    pagesCount: retrievedChapter.pagesCount,
 //                    isOnline: false
 //                )
 //
-//                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-//                    nextChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
-//                ) {
-//                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+//                if state.mangaReadingViewState?.chapterID != newMangaReadingViewState.chapterID {
+//                    state.mangaReadingViewState = newMangaReadingViewState
+//                } else {
+//                    state.isUserOnReadingView = true
 //                }
-                
-                return .none
-                
-            case .mangaReadingViewAction(.userHitTheMostFirstPage):
-//                let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
-//                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
+//
+//                return Effect(value: .mangaReadingViewAction(.userStartedReadingChapter))
+//
+//            case .mangaReadingViewAction(.userHitLastPage):
+////                let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
+////                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
+////                )
+////
+////                guard let nextChapterIndex = nextChapterIndex,
+////                      let nextChapter = state.sameScanlationGroupChapters?[nextChapterIndex] else {
+////                    state.isUserOnReadingView = false
+////                    env.hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
+////                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
+////                }
+////
+////                state.mangaReadingViewState = MangaReadingViewState(
+////                    chapterID: nextChapter.id,
+////                    chapterIndex: nextChapter.chapterIndex,
+////                    isOnline: false
+////                )
+////
+////                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
+////                    nextChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+////                ) {
+////                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+////                }
+//
+//                return .none
+//
+//            case .mangaReadingViewAction(.userHitTheMostFirstPage):
+////                let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
+////                    state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
+////                )
+////
+////                guard let previousChapterIndex = previousChapterIndex,
+////                      let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
+////                    state.isUserOnReadingView = false
+////                    env.hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
+////                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
+////                }
+////
+////                state.mangaReadingViewState = MangaReadingViewState(
+////                    chapterID: previousChapter.id,
+////                    chapterIndex: previousChapter.chapterIndex,
+////                    shouldSendUserToTheLastPage: true,
+////                    isOnline: false
+////                )
+////
+////                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
+////                    previousChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+////                ) {
+////                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+////                }
+//
+//                return .none
+//
+//            case .mangaReadingViewAction(.userLeftMangaReadingView):
+//                defer { state.isUserOnReadingView = false }
+//
+//                let chapterIndex = state.mangaReadingViewState!.chapterIndex
+//                let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
+//
+//                guard let info = env.mangaClient.getDidReadChapterOnPaginationPage(chapterIndex, volumes) else {
+//                    return .none
+//                }
+//
+//                if state.pagesState!
+//                    .volumeTabStatesOnCurrentPage[id: info.volumeID]!
+//                    .chapterStates[id: info.chapterID]!
+//                    .areChaptersShown {
+//                    return .none
+//                }
+//
+//                return Effect(
+//                    value: .pagesAction(
+//                        .volumeTabAction(
+//                            volumeID: info.volumeID,
+//                            volumeAction: .chapterAction(
+//                                id: info.chapterID,
+//                                action: .fetchChapterDetailsIfNeeded
+//                            )
+//                        )
+//                    )
 //                )
 //
-//                guard let previousChapterIndex = previousChapterIndex,
-//                      let previousChapter = state.sameScanlationGroupChapters?[previousChapterIndex] else {
-//                    state.isUserOnReadingView = false
-//                    env.hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
-//                    return Effect(value: .mangaReadingViewAction(.userLeftMangaReadingView))
-//                }
-//
-//                state.mangaReadingViewState = MangaReadingViewState(
-//                    chapterID: previousChapter.id,
-//                    chapterIndex: previousChapter.chapterIndex,
-//                    shouldSendUserToTheLastPage: true,
-//                    isOnline: false
-//                )
-//
-//                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-//                    previousChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
-//                ) {
-//                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
-//                }
-                
-                return .none
-                
-            case .mangaReadingViewAction(.userLeftMangaReadingView):
-                defer { state.isUserOnReadingView = false }
-                
-                let chapterIndex = state.mangaReadingViewState!.chapterIndex
-                let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
-                
-                guard let info = env.mangaClient.getDidReadChapterOnPaginationPage(chapterIndex, volumes) else {
-                    return .none
-                }
-                
-                if state.pagesState!
-                    .volumeTabStatesOnCurrentPage[id: info.volumeID]!
-                    .chapterStates[id: info.chapterID]!
-                    .areChaptersShown {
-                    return .none
-                }
-                
-                return Effect(
-                    value: .pagesAction(
-                        .volumeTabAction(
-                            volumeID: info.volumeID,
-                            volumeAction: .chapterAction(
-                                id: info.chapterID,
-                                action: .fetchChapterDetailsIfNeeded
-                            )
-                        )
-                    )
-                )
-                
-            default:
-                return .none
-        }
-    }
+//            default:
+//                return .none
+//        }
+//    }
 )

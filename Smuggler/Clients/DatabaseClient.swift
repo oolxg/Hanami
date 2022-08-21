@@ -253,12 +253,17 @@ extension DatabaseClient {
         }
     }
     
-    func fetchChaptersForManga(mangaID: UUID) -> Effect<[ChapterDetails], AppError> {
+    func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[ChapterDetails], AppError> {
         Future { promise in
             DispatchQueue.main.async {
                 guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
                     promise(.failure(.notFound))
                     return
+                }
+                
+                if let scanlationGroupID = scanlationGroupID {
+                    let filtered = manga.chapterDetailsList.filter { $0.scanlationGroupID == scanlationGroupID }
+                    return promise(.success(filtered))
                 }
                 
                 return promise(.success(manga.chapterDetailsList))

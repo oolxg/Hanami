@@ -27,9 +27,9 @@ extension ImageClient {
                 KingfisherManager.shared.downloader.downloadImage(with: url, options: options) { result in
                     switch result {
                         case .success(let result):
-                            promise(.success(result.image))
+                            return promise(.success(result.image))
                         case .failure(let error):
-                            promise(.failure(error))
+                            return promise(.failure(error))
                     }
                 }
             }

@@ -62,9 +62,9 @@ extension CacheClient {
                 imageStorage.async.object(forKey: imageName) { result in
                     switch result {
                         case .value(let image):
-                            promise(.success(image))
+                            return promise(.success(image))
                         case .error(let error):
-                            promise(.failure(error))
+                            return promise(.failure(error))
                     }
                 }
             }

@@ -9,13 +9,33 @@ import SwiftUI
 import ComposableArchitecture
 import Kingfisher
 
-struct MangaReadingView: View {
-    private let store: Store<MangaReadingViewState, MangaReadingViewAction>
-    private let viewStore: ViewStore<MangaReadingViewState, MangaReadingViewAction>
+struct MangaReadingViewEnum: View {
+    let store: Store<MangaReadingViewStateEnum, MangaReadingViewActionEnum>
+    
+    var body: some View {
+        SwitchStore(store) {
+            CaseLet(
+                state: /MangaReadingViewStateEnum.online,
+                action: MangaReadingViewActionEnum.online,
+                then: OnlineMangaReadingView.init
+            )
+            
+            CaseLet(
+                state: /MangaReadingViewStateEnum.offline,
+                action: MangaReadingViewActionEnum.offline) { offlineStore in
+                Text("Hello offline")
+            }
+        }
+    }
+}
+
+struct OnlineMangaReadingView: View {
+    private let store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
+    private let viewStore: ViewStore<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
-    init(store: Store<MangaReadingViewState, MangaReadingViewAction>) {
+    init(store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -50,7 +70,7 @@ struct MangaReadingView: View {
     }
 }
 
-extension MangaReadingView {
+extension OnlineMangaReadingView {
     private var backButton: some View {
         Button {
             viewStore.send(.userLeftMangaReadingView)
@@ -63,14 +83,38 @@ extension MangaReadingView {
     }
 }
 
-extension MangaReadingView {
+extension OnlineMangaReadingView {
     private var readingContent: some View {
         ZStack {
             WithViewStore(store) { viewStore in
-                if viewStore.isOnline {
-                    onlineReadingContent
+                if let urls = viewStore.pagesInfo?.dataSaverURLs {
+                    TabView(selection: $currentPageIndex) {
+                        Color.clear
+                            .tag(-1)
+                        
+                        ForEach(urls.indices, id: \.self) { pageIndex in
+                            ZoomableScrollView {
+                                KFImage.url(
+                                    urls[pageIndex],
+                                    cacheKey: urls[pageIndex].absoluteString
+                                )
+                                .placeholder {
+                                    ProgressView()
+                                        .frame(width: 120)
+                                }
+                                .resizable()
+                                .scaledToFit()
+                            }
+                        }
+                        
+                        Color.clear
+                            .tag(urls.count)
+                    }
                 } else {
-                    offlineReadingContent
+                    TabView {
+                        ProgressView()
+                            .frame(width: 120)
+                    }
                 }
             }
         }
@@ -78,58 +122,25 @@ extension MangaReadingView {
         .transition(.opacity)
     }
     
-    private var onlineReadingContent: some View {
-        WithViewStore(store) { viewStore in
-            if let urls = viewStore.pagesInfo?.dataSaverURLs {
-                TabView(selection: $currentPageIndex) {
-                    Color.clear
-                        .tag(-1)
-                    
-                    ForEach(urls.indices, id: \.self) { pageIndex in
-                        ZoomableScrollView {
-                            KFImage.url(
-                                urls[pageIndex],
-                                cacheKey: urls[pageIndex].absoluteString
-                            )
-                            .placeholder {
-                                ProgressView()
-                                    .frame(width: 120)
-                            }
-                            .resizable()
-                            .scaledToFit()
-                        }
-                    }
-                    
-                    Color.clear
-                        .tag(urls.count)
-                }
-            } else {
-                TabView {
-                    ProgressView()
-                        .frame(width: 120)
-                }
-            }
-        }
-    }
-    
     private var offlineReadingContent: some View {
-        WithViewStore(store) { viewStore in
-            TabView(selection: $currentPageIndex) {
-                Color.clear
-                    .tag(-1)
-                
-                ForEach(viewStore.cachedPages.indices, id: \.self) { pageIndex in
-                    ZoomableScrollView {
-                        Image(uiImage: viewStore.cachedPages[pageIndex])
-                            .resizable()
-                            .scaledToFit()
-                    }
-                }
-                
-                Color.clear
-                    .tag(viewStore.pagesCount)
-            }
-        }
+        EmptyView()
+//        WithViewStore(store) { viewStore in
+//            TabView(selection: $currentPageIndex) {
+//                Color.clear
+//                    .tag(-1)
+//                
+//                ForEach(viewStore.cachedPages.indices, id: \.self) { pageIndex in
+//                    ZoomableScrollView {
+//                        Image(uiImage: viewStore.cachedPages[pageIndex])
+//                            .resizable()
+//                            .scaledToFit()
+//                    }
+//                }
+//                
+//                Color.clear
+//                    .tag(viewStore.pagesCount)
+//            }
+//        }
     }
     
     private var navigationBar: some View {
