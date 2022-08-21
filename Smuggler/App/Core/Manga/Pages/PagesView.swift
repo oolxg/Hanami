@@ -38,6 +38,7 @@ struct PagesView: View {
             }
         }
         .animation(.linear, value: viewStore.currentPageIndex)
+        .animation(.linear, value: viewStore.volumeTabStatesOnCurrentPage)
     }
 }
 

@@ -110,7 +110,8 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                     mangaClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live
+                    hudClient: .live,
+                    hapticClient: .live
                 )
             ),
             compact: true

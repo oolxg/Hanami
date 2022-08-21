@@ -17,7 +17,7 @@ struct HomeView: View {
 
     var body: some View {
         NavigationView {
-            WithViewStore(store.stateless) { viewStore in
+            WithViewStore(store) { viewStore in
                 VStack {
                     Text("by oolxg")
                         .font(.caption2)
@@ -41,6 +41,21 @@ struct HomeView: View {
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            viewStore.send(.refresh, animation: .linear(duration: 1.5))
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .foregroundColor(.white)
+                                .font(.title3)
+                                .rotationEffect(
+                                    Angle(degrees: viewStore.isRefreshActionInProgress ? 360 : 0),
+                                    anchor: .center
+                                )
+                        }
+                    }
+                }
             }
         }
     }
@@ -58,7 +73,8 @@ struct HomeView_Previews: PreviewProvider {
                     homeClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live
+                    hudClient: .live,
+                    hapticClient: .live
                 )
             )
         )

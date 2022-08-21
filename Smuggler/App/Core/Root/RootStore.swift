@@ -35,6 +35,7 @@ struct RootEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
@@ -49,7 +50,8 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                     homeClient: $0.homeClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -64,7 +66,8 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                     searchClient: $0.searchClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -78,7 +81,8 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),

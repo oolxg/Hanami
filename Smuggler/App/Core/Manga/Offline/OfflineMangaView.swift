@@ -12,6 +12,7 @@ import ComposableArchitecture
 struct OfflineMangaView: View {
     let store: Store<OfflineMangaViewState, OfflineMangaViewAction>
     @State private var headerOffset: CGFloat = 0
+    @State private var showMangaDeletionDialog = false
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     
@@ -134,7 +135,13 @@ extension OfflineMangaView {
                 )
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    backButton
+                    HStack {
+                        backButton
+                        
+                        Spacer()
+                        
+                        deleteButton
+                    }
                     
                     Spacer()
                     
@@ -179,6 +186,34 @@ extension OfflineMangaView {
     }
     
     
+    private var deleteButton: some View {
+        WithViewStore(store.stateless) { viewStore in
+            Button {
+                showMangaDeletionDialog = true
+            } label: {
+                Image(systemName: "trash")
+                    .foregroundColor(.white)
+                    .padding(.vertical)
+            }
+            .transition(.opacity)
+            .confirmationDialog(
+                "Are you sure you want delete this manga and all chapters?",
+                isPresented: $showMangaDeletionDialog
+            ) {
+                Button("Delete", role: .destructive) {
+                    self.dismiss()
+                    viewStore.send(.deleteManga)
+                }
+                
+                Button("Cancel", role: .cancel) {
+                    showMangaDeletionDialog = false
+                }
+            } message: {
+                Text("Are you sure you want delete this manga and all chapters?")
+            }
+        }
+    }
+    
     private var mangaBodyView: some View {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
@@ -192,10 +227,8 @@ extension OfflineMangaView {
                         ),
                         then: PagesView.init
                     )
-                    .animation(.linear, value: viewStore.pagesState?.volumeTabStatesOnCurrentPage)
             }
         }
-        .transition(.opacity)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
     }

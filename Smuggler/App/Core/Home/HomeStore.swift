@@ -16,11 +16,15 @@ struct HomeState: Equatable {
     var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var recentlyAddedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
     var highestRatingMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    
+    var isRefreshActionInProgress = false
+    var lastRefreshDate: Date?
 }
 
 enum HomeAction {
     case onAppear
-    
+    case refresh
+    case refreshDelayCompleted
     case statisticsFetched(
         Result<MangaStatisticsContainer, AppError>, WritableKeyPath<HomeState, IdentifiedArrayOf<MangaThumbnailState>>
     )
@@ -50,6 +54,7 @@ struct HomeEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
@@ -63,7 +68,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -77,7 +83,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -91,7 +98,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -105,7 +113,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -119,7 +128,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -133,7 +143,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -151,6 +162,44 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(HomeAction.seasonalMangaListFetched)
                     )
+                
+            case .refresh:
+                let now = Date()
+                
+                guard state.lastRefreshDate == nil || now - state.lastRefreshDate! > 10 else {
+                    env.hudClient.show(message: "Wait a little to refresh home page", backgroundColor: .yellow)
+                    return env.hapticClient
+                        .generateNotificationFeedback(.error)
+                        .fireAndForget()
+                }
+                
+                state.isRefreshActionInProgress = true
+                state.lastRefreshDate = now
+                
+                state.awardWinningMangaThumbnailStates.removeAll()
+                state.mostFollowedMangaThumbnailStates.removeAll()
+                state.highestRatingMangaThumbnailStates.removeAll()
+                state.recentlyAddedMangaThumbnailStates.removeAll()
+                
+                return .merge(
+                    env.hapticClient.generateNotificationFeedback(.success).fireAndForget(),
+                    
+                    env.homeClient.fetchLastUpdates()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect { HomeAction.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
+                    
+                    env.homeClient.fetchSeasonalTitlesList()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(HomeAction.seasonalMangaListFetched),
+                    
+                    Effect(value: .refreshDelayCompleted)
+                        .delay(for: .seconds(3), scheduler: DispatchQueue.main)
+                        .eraseToEffect()
+                )
+                
+            case .refreshDelayCompleted:
+                state.isRefreshActionInProgress = false
+                return .none
                 
             case .userOpenedAwardWinningView:
                 guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
@@ -183,6 +232,14 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             case .mangaListFetched(let result, let keyPath):
                 switch result {
                     case .success(let response):
+                        let mangaIDsList = state[keyPath: keyPath].map(\.id)
+                        let fetchedMangaIDsList = response.data.map(\.id)
+                        
+                        guard mangaIDsList != fetchedMangaIDsList else {
+                            env.hudClient.show(message: "Everything is up to date", backgroundColor: .green)
+                            return .none
+                        }
+                        
                         state[keyPath: keyPath] = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
@@ -194,7 +251,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     case .failure(let error):
                         env.hudClient.show(message: error.description)
                         print("error: \(error)")
-                        return .none
+                        return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
                 
             case .statisticsFetched(let result, let keyPath):

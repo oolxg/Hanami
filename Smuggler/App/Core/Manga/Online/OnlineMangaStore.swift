@@ -65,7 +65,7 @@ struct OnlineMangaViewState: Equatable {
         self.coverArtURL256 = coverArtURL256
     }
     
-    struct CancelClearCacheForManga: Hashable { let mangaID: UUID }
+    struct CancelClearCache: Hashable { let mangaID: UUID }
 }
 
 enum OnlineMangaViewAction: BindableAction {
@@ -97,6 +97,7 @@ struct MangaViewEnvironment {
     let imageClient: ImageClient
     let cacheClient: CacheClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction, MangaViewEnvironment> = .combine(
@@ -113,7 +114,10 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
         action: /OnlineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
             mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient
+            imageClient: $0.imageClient,
+            hudClient: $0.hudClient,
+            databaseClient: $0.databaseClient,
+            cacheClient: $0.cacheClient
         ) }
     ),
     Reducer { state, action, env in
@@ -297,7 +301,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         .fireAndForget()
                 ]
                 
-                if let pagesCount = env.databaseClient.fetchChapterPagesCount(chapterID: chapter.id) {
+                if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
                     effects.append(
                         env.mangaClient
                             .removeCachedPagesForChapter(chapter.id, pagesCount, env.cacheClient)
@@ -318,7 +322,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
                 let newMangaReadingViewState = MangaReadingViewState(
                     chapterID: chapter.id,
-                    chapterIndex: chapter.attributes.chapterIndex
+                    chapterIndex: chapter.attributes.chapterIndex,
+                    isOnline: true
                 )
                 
                 if state.mangaReadingViewState?.chapterID != newMangaReadingViewState.chapterID {
@@ -327,13 +332,17 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                     state.isUserOnReadingView = true
                 }
                 
-                return env.mangaClient.fetchMangaChapters(
-                    state.manga.id,
-                    chapter.scanlationGroupID,
-                    chapter.attributes.translatedLanguage
+                return .merge(
+                    env.mangaClient.fetchMangaChapters(
+                        state.manga.id,
+                        chapter.scanlationGroupID,
+                        chapter.attributes.translatedLanguage
+                    )
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(OnlineMangaViewAction.sameScanlationGroupChaptersFetched),
+                
+                    Effect(value: .mangaReadingViewAction(.userStartedReadingChapter))
                 )
-                .receive(on: DispatchQueue.main)
-                .catchToEffect(OnlineMangaViewAction.sameScanlationGroupChaptersFetched)
                 
             // here we're fetching all chapters from the same scanlation group, that translated current reading chapter
             case .sameScanlationGroupChaptersFetched(let result):
@@ -362,17 +371,22 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 
                 state.mangaReadingViewState = MangaReadingViewState(
                     chapterID: nextChapter.id,
-                    chapterIndex: nextChapter.chapterIndex
+                    chapterIndex: nextChapter.chapterIndex,
+                    isOnline: true
                 )
+                
+                var effects: [Effect<OnlineMangaViewAction, Never>] = [
+                    Effect(value: .mangaReadingViewAction(.userStartedReadingChapter))
+                ]
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     nextChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+                    effects.append(Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex))))
                 }
                 
-                return .none
-                
+                return .merge(effects)
+
             case .mangaReadingViewAction(.userHitTheMostFirstPage):
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
                     state.mangaReadingViewState?.chapterIndex, state.sameScanlationGroupChapters
@@ -388,16 +402,21 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 state.mangaReadingViewState = MangaReadingViewState(
                     chapterID: previousChapter.id,
                     chapterIndex: previousChapter.chapterIndex,
-                    shouldSendUserToTheLastPage: true
+                    shouldSendUserToTheLastPage: true,
+                    isOnline: true
                 )
+                
+                var effects: [Effect<OnlineMangaViewAction, Never>] = [
+                    Effect(value: .mangaReadingViewAction(.userStartedReadingChapter))
+                ]
                 
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     previousChapter.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+                    effects.append(Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex))))
                 }
                 
-                return .none
+                return .merge(effects)
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
                 defer { state.isUserOnReadingView = false }
@@ -405,7 +424,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
                 
-                guard let info = env.mangaClient.getReadChapterOnPaginationPage(chapterIndex, volumes) else {
+                guard let info = env.mangaClient.getDidReadChapterOnPaginationPage(chapterIndex, volumes) else {
                     return .none
                 }
                 

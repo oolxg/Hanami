@@ -39,6 +39,7 @@ struct DownloadsView: View {
                             }
                         }
                         .transition(.opacity)
+                        .animation(.linear, value: viewStore.cachedMangaThumbnailStates.count)
                     }
                 }
             }
@@ -58,7 +59,8 @@ struct DownloadsView_Previews: PreviewProvider {
                     mangaClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live
+                    hudClient: .live,
+                    hapticClient: .live
                 )
             )
         )

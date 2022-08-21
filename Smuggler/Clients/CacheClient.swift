@@ -68,7 +68,7 @@ extension CacheClient {
                     }
                 }
             }
-            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
             .catchToEffect()
         },
         removeImage: { imageName in

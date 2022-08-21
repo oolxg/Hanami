@@ -20,7 +20,8 @@ struct SmugglerApp: App {
             searchClient: .live,
             cacheClient: .live,
             imageClient: .live,
-            hudClient: .live
+            hudClient: .live,
+            hapticClient: .live
         )
     )
     
@@ -28,7 +29,6 @@ struct SmugglerApp: App {
     
     init() {
         viewStore = ViewStore(store)
-        viewStore.send(.initApp)
         
         let appearance = UITabBarAppearance()
         appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
@@ -50,6 +50,9 @@ struct SmugglerApp: App {
                     action: AppAction.rootAction
                 )
             )
+            .onAppear {
+                viewStore.send(.initApp)
+            }
         }
     }
 }

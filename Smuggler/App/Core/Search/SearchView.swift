@@ -51,7 +51,8 @@ struct SearchView_Previews: PreviewProvider {
                     searchClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live
+                    hudClient: .live,
+                    hapticClient: .live
                 )
             )
         )

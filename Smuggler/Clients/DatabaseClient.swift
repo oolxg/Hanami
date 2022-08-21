@@ -268,12 +268,13 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func fetchChapter(chapterID: UUID) -> ChapterDetails? {
-        fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.toEntity()
-    }
-    
-    func fetchChapterPagesCount(chapterID: UUID) -> Int? {
-        fetch(entityType: ChapterDetailsMO.self, id: chapterID)?.pagesCount
+    func fetchChapter(chapterID: UUID) -> (chapter: ChapterDetails, pagesCount: Int)? {
+        // swiftlint:disable:next identifier_name
+        guard let MO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
+            return nil
+        }
+        
+        return (chapter: MO.toEntity(), pagesCount: MO.pagesCount)
     }
     
     func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {

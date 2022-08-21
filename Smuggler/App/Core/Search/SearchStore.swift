@@ -62,6 +62,7 @@ struct SearchEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
@@ -75,7 +76,8 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -127,7 +129,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     let mangaIDs = state.mangaThumbnailStates.map(\.id)
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
-                        ids: mangaIDs.map { OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0) }
+                        ids: mangaIDs.map { OnlineMangaViewState.CancelClearCache(mangaID: $0) }
                     )
                 }
                 
@@ -151,7 +153,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 return .concatenate(
                     .cancel(
                         ids: state.mangaThumbnailStates.map {
-                            OnlineMangaViewState.CancelClearCacheForManga(mangaID: $0.id)
+                            OnlineMangaViewState.CancelClearCache(mangaID: $0.id)
                         }
                     ),
                     
@@ -181,7 +183,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         
                     case .failure(let error):
                         print("error on downloading search results \(error)")
-                        return .none
+                        return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
                 
             case .mangaStatisticsFetched(let result):

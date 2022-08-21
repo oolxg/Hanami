@@ -29,6 +29,8 @@
 		2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */; };
 		2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D6282ED6C200BBAC5D /* Relationship.swift */; };
 		2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D8282ED6FA00BBAC5D /* Tag.swift */; };
+		2225265D28B15ED3009F6FA3 /* HapticUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225265C28B15ED3009F6FA3 /* HapticUtil.swift */; };
+		2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225265E28B1627E009F6FA3 /* HapticClient.swift */; };
 		222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 222A033E2870F6E200D5B588 /* Model.xcdatamodeld */; };
 		222A0352287111D100D5B588 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A0351287111D100D5B588 /* Data.swift */; };
 		222A03642871AFC400D5B588 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03632871AFC400D5B588 /* PersistenceController.swift */; };
@@ -142,11 +144,13 @@
 		2220E15D283145290046F08A /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		2220E1612831B0300046F08A /* ResponseDataType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseDataType.swift; sourceTree = "<group>"; };
 		2220E1642832A8D60046F08A /* OnlineMangaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaStore.swift; sourceTree = "<group>"; };
-		2220E1662832A9280046F08A /* OnlineMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaView.swift; sourceTree = "<group>"; };
+		2220E1662832A9280046F08A /* OnlineMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaView.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		2220E16A2832B3910046F08A /* ChapterDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDetails.swift; sourceTree = "<group>"; };
 		2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterPagesInfo.swift; sourceTree = "<group>"; };
 		2224D3D6282ED6C200BBAC5D /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		2224D3D8282ED6FA00BBAC5D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		2225265C28B15ED3009F6FA3 /* HapticUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticUtil.swift; sourceTree = "<group>"; };
+		2225265E28B1627E009F6FA3 /* HapticClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticClient.swift; sourceTree = "<group>"; };
 		222A033F2870F6E200D5B588 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		222A0351287111D100D5B588 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		222A03632871AFC400D5B588 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
@@ -278,6 +282,7 @@
 			children = (
 				222A03692871BD7500D5B588 /* AppUtil.swift */,
 				2291EF5C2880E15B007FE0B0 /* NetworkMonitor.swift */,
+				2225265C28B15ED3009F6FA3 /* HapticUtil.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -462,6 +467,7 @@
 				228FA49C288DBB5500369529 /* CacheClient.swift */,
 				228DD04D28A4746600F70162 /* ImageClient.swift */,
 				228DD04F28A5278300F70162 /* HUDClient.swift */,
+				2225265E28B1627E009F6FA3 /* HapticClient.swift */,
 			);
 			path = Clients;
 			sourceTree = "<group>";
@@ -548,8 +554,8 @@
 		22F4A84C28AB29C9008C11A7 /* VolumeTab */ = {
 			isa = PBXGroup;
 			children = (
-				22F4A84D28AB29C9008C11A7 /* VolumeTabView.swift */,
 				22F4A84E28AB29C9008C11A7 /* Chapter */,
+				22F4A84D28AB29C9008C11A7 /* VolumeTabView.swift */,
 				22F4A85128AB29C9008C11A7 /* VolumeTabStore.swift */,
 			);
 			path = VolumeTab;
@@ -754,6 +760,7 @@
 				2245D4BB2840EC40005B1C83 /* Publisher.swift in Sources */,
 				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,
+				2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */,
 				2245D4C028413642005B1C83 /* SearchView.swift in Sources */,
 				22B9CA57285D43FD007EBE20 /* Int.swift in Sources */,
 				226EA988287840AD0077F928 /* Manga.Attributes.Status.swift in Sources */,
@@ -786,6 +793,7 @@
 				22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */,
 				2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */,
 				222A03722872006200D5B588 /* SmugglerAppStore.swift in Sources */,
+				2225265D28B15ED3009F6FA3 /* HapticUtil.swift in Sources */,
 				22655332287EFED400D61873 /* Array.swift in Sources */,
 				222A036C2871D93A00D5B588 /* Encodable.swift in Sources */,
 				222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */,

@@ -25,6 +25,7 @@ struct AppEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
@@ -40,7 +41,8 @@ let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
                     searchClient: $0.searchClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),

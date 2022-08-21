@@ -53,6 +53,7 @@ struct MangaThumbnailEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let mangaThumbnailReducer = Reducer.combine(
@@ -71,7 +72,8 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
             mangaClient: $0.mangaClient,
             imageClient: $0.imageClient,
             cacheClient: $0.cacheClient,
-            hudClient: $0.hudClient
+            hudClient: $0.hudClient,
+            hapticClient: $0.hapticClient
         ) }
     ),
     Reducer { state, action, env in
@@ -81,6 +83,10 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
         
         switch action {
             case .onAppear:
+                guard state.offlineMangaState!.coverArt == nil else {
+                    return .none
+                }
+                
                 return env.mangaClient.retrieveCoverArt(state.manga.id, env.cacheClient)
                     .receive(on: DispatchQueue.main)
                     .eraseToEffect(MangaThumbnailAction.coverArtRetrieved)
@@ -113,7 +119,8 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
             mangaClient: $0.mangaClient,
             imageClient: $0.imageClient,
             cacheClient: $0.cacheClient,
-            hudClient: $0.hudClient
+            hudClient: $0.hudClient,
+            hapticClient: $0.hapticClient
         ) }
     ),
     Reducer { state, action, env in
@@ -173,7 +180,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 
             case .userOpenedMangaView:
                 // when users enters the view, we must cancel clearing manga info
-                return .cancel(id: OnlineMangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
+                return .cancel(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
                 
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
@@ -181,7 +188,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 return Effect(value: .userLeftMangaViewDelayCompleted)
                     .delay(for: .seconds(60), scheduler: DispatchQueue.main)
                     .eraseToEffect()
-                    .cancellable(id: OnlineMangaViewState.CancelClearCacheForManga(mangaID: state.manga.id))
+                    .cancellable(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
                 
             case .userLeftMangaViewDelayCompleted:
                 state.onlineMangaState!.reset()

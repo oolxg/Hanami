@@ -18,7 +18,6 @@ struct MangaReadingView: View {
     init(store: Store<MangaReadingViewState, MangaReadingViewAction>) {
         self.store = store
         viewStore = ViewStore(store)
-        viewStore.send(.userStartedReadingChapter)
     }
     
     var body: some View {
@@ -39,8 +38,8 @@ struct MangaReadingView: View {
         .gesture(tapGesture)
         .gesture(swipeGesture)
         .onChange(of: viewStore.pagesInfo) { _ in
-            if viewStore.shouldSendUserToTheLastPage {
-                currentPageIndex = viewStore.pagesCount - 1
+            if viewStore.shouldSendUserToTheLastPage && viewStore.pagesCount != nil {
+                currentPageIndex = viewStore.pagesCount! - 1
             } else {
                 currentPageIndex = 0
             }
@@ -67,6 +66,20 @@ extension MangaReadingView {
 extension MangaReadingView {
     private var readingContent: some View {
         ZStack {
+            WithViewStore(store) { viewStore in
+                if viewStore.isOnline {
+                    onlineReadingContent
+                } else {
+                    offlineReadingContent
+                }
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .transition(.opacity)
+    }
+    
+    private var onlineReadingContent: some View {
+        WithViewStore(store) { viewStore in
             if let urls = viewStore.pagesInfo?.dataSaverURLs {
                 TabView(selection: $currentPageIndex) {
                     Color.clear
@@ -97,8 +110,26 @@ extension MangaReadingView {
                 }
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .transition(.opacity)
+    }
+    
+    private var offlineReadingContent: some View {
+        WithViewStore(store) { viewStore in
+            TabView(selection: $currentPageIndex) {
+                Color.clear
+                    .tag(-1)
+                
+                ForEach(viewStore.cachedPages.indices, id: \.self) { pageIndex in
+                    ZoomableScrollView {
+                        Image(uiImage: viewStore.cachedPages[pageIndex])
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+                
+                Color.clear
+                    .tag(viewStore.pagesCount)
+            }
+        }
     }
     
     private var navigationBar: some View {
@@ -117,8 +148,8 @@ extension MangaReadingView {
                         Text("Chapter \(chapterIndex.clean())")
                     }
                     
-                    if currentPageIndex < viewStore.pagesCount && currentPageIndex + 1 > 0 {
-                        Text("\(currentPageIndex + 1)/\(viewStore.pagesCount)")
+                    if let pagesCount = viewStore.pagesCount, currentPageIndex < pagesCount, currentPageIndex + 1 > 0 {
+                        Text("\(currentPageIndex + 1)/\(pagesCount)")
                     }
                 }
                 .font(.callout)

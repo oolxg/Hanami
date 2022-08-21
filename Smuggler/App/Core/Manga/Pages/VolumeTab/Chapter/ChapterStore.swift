@@ -79,7 +79,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             // попробовать тыкнуть сюды databaseClient.fetchChaptersForManga
             // или в PagesStore потыкать....
             for chapterID in allChapterIDs where state.chapterDetailsList[id: chapterID] == nil {
-                if let cachedChapterDetails = env.databaseClient.fetchChapter(chapterID: chapterID) {
+                if let cachedChapterDetails = env.databaseClient.fetchChapter(chapterID: chapterID)?.chapter {
                     state._chapterDetailsList.append(cachedChapterDetails)
                     state.cachedChaptersIDs.insert(cachedChapterDetails.id)
                     

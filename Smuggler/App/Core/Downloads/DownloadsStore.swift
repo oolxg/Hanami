@@ -27,6 +27,7 @@ struct DownloadsEnvironment {
     let cacheClient: CacheClient
     let imageClient: ImageClient
     let hudClient: HUDClient
+    let hapticClient: HapticClient
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(
@@ -40,7 +41,8 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                     mangaClient: $0.mangaClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient
+                    hudClient: $0.hudClient,
+                    hapticClient: $0.hapticClient
                 )
             }
         ),
@@ -73,6 +75,11 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                     case .failure:
                         return .none
                 }
+                
+            case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
+                return env.databaseClient.fetchAllCachedMangas()
+                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .catchToEffect(DownloadsAction.cachedMangaFetched)
                 
             case .cachedMangaThumbnailAction:
                 return .none
