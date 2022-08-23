@@ -47,7 +47,6 @@ struct MangaThumbnailView: View {
                     }
                     .backgroundDecode()
                     .fade(duration: 0.5)
-                    .cacheMemoryOnly()
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 150)

@@ -37,7 +37,7 @@ struct OnlineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewStateEnum? {
+    var mangaReadingViewState: MangaReadingViewState? {
         willSet {
             isUserOnReadingView = newValue != nil
         }
@@ -80,7 +80,7 @@ enum OnlineMangaViewAction: BindableAction {
     case coverArtFetched(Result<UIImage, Error>)
     
     // MARK: - Substate actions
-    case mangaReadingViewAction(MangaReadingViewActionEnum)
+    case mangaReadingViewAction(MangaReadingViewAction)
     case pagesAction(PagesAction)
     
     // MARK: - Binding

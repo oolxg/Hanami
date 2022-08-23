@@ -284,6 +284,7 @@ extension MangaClient {
                     return cacheClient.removeImage(imageName)
                 }
             )
+            .fireAndForget()
         },
         isCoverArtCached: { mangaID, cacheClient in
             let imageName = getCoverArtName(mangaID)

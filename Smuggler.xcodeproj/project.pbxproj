@@ -31,6 +31,10 @@
 		2224D3D9282ED6FA00BBAC5D /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2224D3D8282ED6FA00BBAC5D /* Tag.swift */; };
 		2225265D28B15ED3009F6FA3 /* HapticUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225265C28B15ED3009F6FA3 /* HapticUtil.swift */; };
 		2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225265E28B1627E009F6FA3 /* HapticClient.swift */; };
+		2225266128B4E966009F6FA3 /* OnlineMangaReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225266028B4E966009F6FA3 /* OnlineMangaReadingView.swift */; };
+		2225266328B4E9EF009F6FA3 /* OfflineMangaReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225266228B4E9EF009F6FA3 /* OfflineMangaReadingView.swift */; };
+		2225266728B4F189009F6FA3 /* OfflineMangaReadingViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225266628B4F189009F6FA3 /* OfflineMangaReadingViewStore.swift */; };
+		2225266928B4F18E009F6FA3 /* OnlineMangaReadingViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2225266828B4F18E009F6FA3 /* OnlineMangaReadingViewStore.swift */; };
 		222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 222A033E2870F6E200D5B588 /* Model.xcdatamodeld */; };
 		222A0352287111D100D5B588 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A0351287111D100D5B588 /* Data.swift */; };
 		222A03642871AFC400D5B588 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03632871AFC400D5B588 /* PersistenceController.swift */; };
@@ -151,6 +155,10 @@
 		2224D3D8282ED6FA00BBAC5D /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		2225265C28B15ED3009F6FA3 /* HapticUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticUtil.swift; sourceTree = "<group>"; };
 		2225265E28B1627E009F6FA3 /* HapticClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticClient.swift; sourceTree = "<group>"; };
+		2225266028B4E966009F6FA3 /* OnlineMangaReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaReadingView.swift; sourceTree = "<group>"; };
+		2225266228B4E9EF009F6FA3 /* OfflineMangaReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMangaReadingView.swift; sourceTree = "<group>"; };
+		2225266628B4F189009F6FA3 /* OfflineMangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMangaReadingViewStore.swift; sourceTree = "<group>"; };
+		2225266828B4F18E009F6FA3 /* OnlineMangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaReadingViewStore.swift; sourceTree = "<group>"; };
 		222A033F2870F6E200D5B588 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		222A0351287111D100D5B588 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		222A03632871AFC400D5B588 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
@@ -252,6 +260,8 @@
 		22104828285B663900CE8CED /* MangaReadingView */ = {
 			isa = PBXGroup;
 			children = (
+				2225266528B4EC22009F6FA3 /* Offline */,
+				2225266428B4EC1C009F6FA3 /* Online */,
 				2210482B285B666000CE8CED /* MangaReadingView.swift */,
 				22104829285B665700CE8CED /* MangaReadingViewStore.swift */,
 			);
@@ -341,6 +351,24 @@
 				2294E1E2288B55CB00829C48 /* Online */,
 			);
 			path = Manga;
+			sourceTree = "<group>";
+		};
+		2225266428B4EC1C009F6FA3 /* Online */ = {
+			isa = PBXGroup;
+			children = (
+				2225266028B4E966009F6FA3 /* OnlineMangaReadingView.swift */,
+				2225266828B4F18E009F6FA3 /* OnlineMangaReadingViewStore.swift */,
+			);
+			path = Online;
+			sourceTree = "<group>";
+		};
+		2225266528B4EC22009F6FA3 /* Offline */ = {
+			isa = PBXGroup;
+			children = (
+				2225266228B4E9EF009F6FA3 /* OfflineMangaReadingView.swift */,
+				2225266628B4F189009F6FA3 /* OfflineMangaReadingViewStore.swift */,
+			);
+			path = Offline;
 			sourceTree = "<group>";
 		};
 		222A03612871AF9900D5B588 /* Database */ = {
@@ -761,6 +789,7 @@
 				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,
 				2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */,
+				2225266328B4E9EF009F6FA3 /* OfflineMangaReadingView.swift in Sources */,
 				2245D4C028413642005B1C83 /* SearchView.swift in Sources */,
 				22B9CA57285D43FD007EBE20 /* Int.swift in Sources */,
 				226EA988287840AD0077F928 /* Manga.Attributes.Status.swift in Sources */,
@@ -768,12 +797,15 @@
 				22A7BF2F283AB730008EDD52 /* Chapter.swift in Sources */,
 				22F4A85828AB29C9008C11A7 /* PagesStore.swift in Sources */,
 				221F59EC284530AC00B11D5D /* GridChipsView.swift in Sources */,
+				2225266128B4E966009F6FA3 /* OnlineMangaReadingView.swift in Sources */,
 				228D8D55287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift in Sources */,
 				229F8D93282DB9D200761054 /* HomeView.swift in Sources */,
 				2215CA5828482B3C00986F71 /* FiltersView.swift in Sources */,
+				2225266728B4F189009F6FA3 /* OfflineMangaReadingViewStore.swift in Sources */,
 				222A03662871B9D800D5B588 /* DatabaseClient.swift in Sources */,
 				22C49A7C288B57B1000A96B9 /* OfflineMangaView.swift in Sources */,
 				2291EF5D2880E15B007FE0B0 /* NetworkMonitor.swift in Sources */,
+				2225266928B4F18E009F6FA3 /* OnlineMangaReadingViewStore.swift in Sources */,
 				225AA5A8284D16D300B406DA /* LazyView.swift in Sources */,
 				2274193F2886EC6900ACAA24 /* DownloadsView.swift in Sources */,
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,
