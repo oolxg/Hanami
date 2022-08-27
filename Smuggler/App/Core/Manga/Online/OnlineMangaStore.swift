@@ -102,7 +102,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
         action: /OnlineMangaViewAction.pagesAction,
         environment: { .init(
             mangaClient: $0.mangaClient,
-            databaseClient: $0.databaseClient
+            databaseClient: $0.databaseClient,
+            cacheClient: $0.cacheClient
         ) }
     ),
     mangaReadingViewReducer.optional().pullback(
@@ -237,7 +238,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 switch result {
                     case .success(let pagesInfo):
                         var effects = pagesInfo
-                            .dataURLs
+                            .dataSaverURLs
                             .enumerated()
                             .map { i, url in
                                 env.imageClient.downloadImage(url, nil)
@@ -250,7 +251,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                             env.databaseClient
                                 .saveChapterDetails(
                                     chapter,
-                                    pagesCount: pagesInfo.dataURLs.count,
+                                    pagesCount: pagesInfo.dataSaverURLs.count,
                                     fromManga: state.manga
                                 )
                                 .fireAndForget()
@@ -283,26 +284,12 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                             .fireAndForget()
                         
                     case .failure(let error):
+                        env.hudClient.show(
+                            message: "Failed to fetch page \(pageIndex) for chapter \(chapter.chapterName)"
+                        )
                         print("Error on fetching chapterPage(image) for caching: \(error.localizedDescription)")
                         return .none
                 }
-                
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .chapterDeletionConfirmed(let chapter)))):
-                var effects: [Effect<OnlineMangaViewAction, Never>] = [
-                    env.databaseClient
-                        .deleteChapter(chapterID: chapter.id)
-                        .fireAndForget()
-                ]
-                
-                if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
-                    effects.append(
-                        env.mangaClient
-                            .removeCachedPagesForChapter(chapter.id, pagesCount, env.cacheClient)
-                            .fireAndForget()
-                    )
-                }
-                
-                return .merge(effects)
                 
             default:
                 return .none

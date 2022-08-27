@@ -16,25 +16,34 @@ struct SearchView: View {
         NavigationView {
             WithViewStore(store) { viewStore in
                 VStack {
-                    HStack {
-                        SearchBarView(
-                            searchText: viewStore.binding(
-                                get: \.searchText,
-                                send: SearchAction.searchStringChanged
-                            )
-                        )
-                        .padding(.horizontal)
-                        
-                        filtersButton
-                    }
-                    // TODO: прятать HStack при скролле
                     searchOptions
                         .padding(.horizontal, 15)
                     
                     searchResults
                 }
+                .navigationTitle("Search")
+                .sheet(isPresented: $showFilters, onDismiss: {
+                    viewStore.send(.searchForManga)
+                }, content: {
+                    FiltersView(
+                        store: store.scope(
+                            state: \.filtersState,
+                            action: SearchAction.filterAction
+                        )
+                    )
+                })
+                .searchable(text: viewStore.binding(\.$searchText), placement: .navigationBarDrawer)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showFilters.toggle()
+                        } label: {
+                            Image(systemName: "slider.horizontal.3")
+                        }
+                        .tint(.white)
+                    }
+                }
             }
-            .navigationTitle("Search")
         }
     }
 }
@@ -130,25 +139,6 @@ extension SearchView {
         Spacer()
     }
     
-    private var filtersButton: some View {
-        WithViewStore(store.stateless) { viewStore in
-            CircleButtonView(iconName: "slider.horizontal.3") {
-                showFilters.toggle()
-                UIApplication.shared.endEditing()
-            }
-            .padding(.trailing)
-            .padding(.vertical)
-            .sheet(isPresented: $showFilters, onDismiss: {
-                viewStore.send(.searchForManga)
-            }, content: {
-                FiltersView(store: store.scope(
-                    state: \.filtersState,
-                    action: SearchAction.filterAction)
-                )
-            })
-        }
-    }
-    
     private struct ResultsCountPicker: View {
         @Binding var count: Int
         
@@ -171,6 +161,7 @@ extension SearchView {
                     Text("\(count)")
                         .fontWeight(.heavy)
                 }
+                .lineLimit(1)
                 .font(.callout)
             }
             .accentColor(.white)

@@ -130,7 +130,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         
         switch action {
             case .onAppear:
-                    // in some cases we can have coverArt included with manga as relationship
+                // in some cases we can have coverArt included with manga as relationship
                 if let coverArtInfo = state.manga.relationships.first(
                     where: { $0.attributes != nil && $0.type == .coverArt }
                 ), let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {

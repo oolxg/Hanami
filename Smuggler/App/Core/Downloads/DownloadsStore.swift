@@ -11,14 +11,17 @@ import ComposableArchitecture
 
 struct DownloadsState: Equatable {
     var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    @BindableState var searchQuery = ""
 }
 
-enum DownloadsAction {
+enum DownloadsAction: BindableAction {
     case fetchCachedManga
     
     case cachedMangaFetched(Result<[Manga], Never>)
     
     case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
+    
+    case binding(BindingAction<DownloadsState>)
 }
 
 struct DownloadsEnvironment {
@@ -54,15 +57,15 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 
             case .cachedMangaFetched(let result):
                 switch result {
-                    case .success(let cachedManga):
+                    case .success(let retrievedMangas):
                         let chapterStateIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
-                        let mangaIDs = Set(cachedManga.map(\.id))
+                        let mangaIDs = Set(retrievedMangas.map(\.id))
                         let stateIDsToLeave = chapterStateIDsSet.intersection(mangaIDs)
                         let newMangaIDs = mangaIDs.subtracting(stateIDsToLeave)
                         
                         state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
                         
-                        for manga in cachedManga {
+                        for manga in retrievedMangas {
                             if newMangaIDs.contains(manga.id) {
                                 state.cachedMangaThumbnailStates.append(
                                     MangaThumbnailState(manga: manga, isOnline: false)
@@ -77,12 +80,20 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 }
                 
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
-                return env.databaseClient.fetchAllCachedMangas()
+                return Effect(value: .fetchCachedManga)
                     .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
-                    .catchToEffect(DownloadsAction.cachedMangaFetched)
+                    .eraseToEffect()
                 
             case .cachedMangaThumbnailAction:
                 return .none
+                
+            case .binding(\.$searchQuery):
+                
+                return .none
+                
+            case .binding:
+                return .none
         }
     }
+    .binding()
 )

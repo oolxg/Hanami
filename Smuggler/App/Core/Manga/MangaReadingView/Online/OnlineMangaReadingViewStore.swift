@@ -123,7 +123,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                         state.pagesInfo = chapterPagesInfo
                         
                         return env.imageClient
-                            .prefetchImages(chapterPagesInfo.dataSaverURLs)
+                            .prefetchImages(chapterPagesInfo.dataSaverURLs, nil)
                             .fireAndForget()
                         
                     case .failure(let error):

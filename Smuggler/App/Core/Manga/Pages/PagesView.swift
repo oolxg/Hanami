@@ -50,7 +50,8 @@ struct PagesView_Previews: PreviewProvider {
                 reducer: pagesReducer,
                 environment: .init(
                     mangaClient: .live,
-                    databaseClient: .live
+                    databaseClient: .live,
+                    cacheClient: .live
                 )
             )
         )

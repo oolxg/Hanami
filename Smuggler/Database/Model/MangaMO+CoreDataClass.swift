@@ -39,9 +39,9 @@ extension Manga: ManagedObjectConvertible {
 }
 
 extension MangaMO {
-    var chapterDetailsList: [ChapterDetails] {
-        chapterDetailsSet.map { $0.toEntity() }.sorted {
-            ($0.attributes.chapterIndex ?? -1) > ($1.attributes.chapterIndex ?? -1)
+    var chapterDetailsList: [(chapter: ChapterDetails, pagesCount: Int)] {
+        chapterDetailsSet.map { (chapter: $0.toEntity(), pagesCount: $0.pagesCount) }.sorted {
+            ($0.chapter.attributes.chapterIndex ?? -1) > ($1.chapter.attributes.chapterIndex ?? -1)
         }
     }
 }

@@ -244,10 +244,17 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         
-                        return env.homeClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect { HomeAction.statisticsFetched($0, keyPath) }
+                        let coverArtURLs = state[keyPath: keyPath].compactMap(\.coverArtInfo?.coverArtURL256)
                         
+                        return .merge(
+                            env.homeClient.fetchStatistics(response.data.map(\.id))
+                                .receive(on: DispatchQueue.main)
+                                .catchToEffect { HomeAction.statisticsFetched($0, keyPath) },
+                            
+                            env.imageClient.prefetchImages(coverArtURLs, [.alsoPrefetchToMemory, .backgroundDecode])
+                                .fireAndForget()
+                        )
+                            
                     case .failure(let error):
                         env.hudClient.show(message: error.description)
                         print("error: \(error)")

@@ -39,7 +39,8 @@ struct ChapterView_Previews: PreviewProvider {
                 reducer: chapterReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live
+                    mangaClient: .live,
+                    cacheClient: .live
                 )
             )
         )

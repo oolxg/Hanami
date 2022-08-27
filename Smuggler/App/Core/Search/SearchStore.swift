@@ -23,7 +23,7 @@ struct SearchState: Equatable {
     @BindableState var searchSortOptionOrder: QuerySortOption.Order = .desc
     @BindableState var resultsCount = 10
 
-    var searchText: String = ""
+    @BindableState var searchText: String = ""
     
     // need this struct because of two things
     // 1) pass in search function one object, not bunch of arrays, string, enums, etc.
@@ -47,7 +47,6 @@ enum SearchAction: BindableAction {
     case searchForManga
     case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchState.SearchParams)
     case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
-    case searchStringChanged(String)
 
     case mangaThumbnailAction(UUID, MangaThumbnailAction)
     case filterAction(FiltersAction)
@@ -92,20 +91,6 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
     Reducer { state, action, env in
         struct CancelSearch: Hashable { }
         switch action {
-            case .searchStringChanged(let query):
-                struct DebounceForSearch: Hashable { }
-
-                state.areSearchResultsDownloaded = false
-                state.searchText = query
-                return .merge(
-                    .cancel(id: CancelSearch()),
-                    
-                    Effect(value: .searchForManga)
-                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                    )
-                
-                
             case .searchForManga:
                 state.mangaThumbnailStates.removeAll()
 
@@ -199,6 +184,19 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         print("error on downloading home page: \(error)")
                         return .none
                 }
+                
+            case .binding(\.$searchText):
+                struct DebounceForSearch: Hashable { }
+                
+                state.areSearchResultsDownloaded = false
+
+                return .merge(
+                    .cancel(id: CancelSearch()),
+                    
+                    Effect(value: .searchForManga)
+                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
+                        .eraseToEffect()
+                )
                 
             case .binding:
                 return Effect(value: .searchForManga)

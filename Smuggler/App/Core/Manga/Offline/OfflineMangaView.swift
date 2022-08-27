@@ -80,7 +80,7 @@ extension OfflineMangaView {
             store.scope(
                 state: \.mangaReadingViewState, action: OfflineMangaViewAction.mangaReadingViewAction
             ),
-            then: MangaReadingViewEnum.init
+            then: MangaReadingView.init
         )
     }
     

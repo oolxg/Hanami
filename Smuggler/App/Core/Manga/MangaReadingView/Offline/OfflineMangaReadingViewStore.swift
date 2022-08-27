@@ -35,11 +35,11 @@ enum OfflineMangaReadingViewAction {
     case userLeftMangaReadingView
     
     case cachedChapterPageRetrieved(result: Result<UIImage, Error>, pageIndex: Int)
-    case sameScanlationGroupChaptersFetched(Result<[ChapterDetails], AppError>)
+    case sameScanlationGroupChaptersRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
 }
 
 
-    // swiftlint:disable:next line_length
+// swiftlint:disable:next line_length
 let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, OfflineMangaReadingViewAction, MangaReadingViewEnvironment> = .combine(
     Reducer { state, action, env in
         switch action {
@@ -62,18 +62,18 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                     }
                 
                 effects.append(
-                    env.databaseClient.fetchChaptersForManga(
+                    env.databaseClient.retrieveChaptersForManga(
                         mangaID: state.mangaID, scanlationGroupID: state.chapter.scanlationGroupID
                     )
-                    .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersFetched)
+                    .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersRetrieved)
                 )
                 
                 return .merge(effects)
                 
-            case .sameScanlationGroupChaptersFetched(let result):
+            case .sameScanlationGroupChaptersRetrieved(let result):
                 switch result {
                     case .success(let chapters):
-                        state.sameScanlationGroupChapters = chapters.sorted {
+                        state.sameScanlationGroupChapters = chapters.map(\.chapter).sorted {
                             ($0.attributes.chapterIndex ?? -1) < ($1.attributes.chapterIndex ?? -1)
                         }
                         return .none

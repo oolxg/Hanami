@@ -211,10 +211,16 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func deleteManga(mangaID: UUID) {
+    private func _deleteManga(mangaID: UUID) {
         remove(entityType: MangaMO.self, id: mangaID)
         
         saveContext()
+    }
+    
+    func deleteManga(mangaID: UUID) -> Effect<Never, Never> {
+        .fireAndForget {
+            _deleteManga(mangaID: mangaID)
+        }
     }
 }
 
@@ -253,7 +259,7 @@ extension DatabaseClient {
         }
     }
     
-    func fetchChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[ChapterDetails], AppError> {
+    func retrieveChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[(chapter: ChapterDetails, pagesCount: Int)], AppError> {
         Future { promise in
             DispatchQueue.main.async {
                 guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
@@ -262,7 +268,7 @@ extension DatabaseClient {
                 }
                 
                 if let scanlationGroupID = scanlationGroupID {
-                    let filtered = manga.chapterDetailsList.filter { $0.scanlationGroupID == scanlationGroupID }
+                    let filtered = manga.chapterDetailsList.filter { $0.chapter.scanlationGroupID == scanlationGroupID }
                     return promise(.success(filtered))
                 }
                 
@@ -297,7 +303,7 @@ extension DatabaseClient {
                 saveContext()
                 
                 if leftChapters.isEmpty {
-                    deleteManga(mangaID: parentMangaID)
+                    _deleteManga(mangaID: parentMangaID)
                 }
             }
         }

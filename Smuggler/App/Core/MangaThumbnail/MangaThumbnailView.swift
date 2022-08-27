@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import Kingfisher
+import NukeUI
 
 struct MangaThumbnailView: View {
     init(store: Store<MangaThumbnailState, MangaThumbnailAction>, compact: Bool = false) {
@@ -73,24 +74,22 @@ struct MangaThumbnailView: View {
     
     private var mangaView: some View {
         WithViewStore(store.actionless) { viewStore in
-            ZStack {
-                if viewStore.isOnline {
-                    IfLetStore(
-                        store.scope(
-                            state: \.onlineMangaState,
-                            action: MangaThumbnailAction.onlineMangaAction
-                        ),
-                        then: OnlineMangaView.init
-                    )
-                } else {
-                    IfLetStore(
-                        store.scope(
-                            state: \.offlineMangaState,
-                            action: MangaThumbnailAction.offlineMangaAction
-                        ),
-                        then: OfflineMangaView.init
-                    )
-                }
+            if viewStore.isOnline {
+                IfLetStore(
+                    store.scope(
+                        state: \.onlineMangaState,
+                        action: MangaThumbnailAction.onlineMangaAction
+                    ),
+                    then: OnlineMangaView.init
+                )
+            } else {
+                IfLetStore(
+                    store.scope(
+                        state: \.offlineMangaState,
+                        action: MangaThumbnailAction.offlineMangaAction
+                    ),
+                    then: OfflineMangaView.init
+                )
             }
         }
     }

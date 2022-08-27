@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import Kingfisher
 
-struct MangaReadingViewEnum: View {
+struct MangaReadingView: View {
     let store: Store<MangaReadingViewState, MangaReadingViewAction>
     
     var body: some View {

@@ -19,7 +19,7 @@ struct DownloadsView: View {
                     .frame(height: 0)
                     .foregroundColor(.black)
 
-                WithViewStore(store.actionless) { viewStore in
+                WithViewStore(store) { viewStore in
                     if viewStore.cachedMangaThumbnailStates.isEmpty {
                         Text("Wow, such empty here...")
                             .font(.title2)
@@ -40,6 +40,7 @@ struct DownloadsView: View {
                         }
                         .transition(.opacity)
                         .animation(.linear, value: viewStore.cachedMangaThumbnailStates.count)
+                        .searchable(text: viewStore.binding(\.$searchQuery))
                     }
                 }
             }

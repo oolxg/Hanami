@@ -41,9 +41,10 @@ struct OfflineMangaViewState: Equatable {
 
 enum OfflineMangaViewAction: BindableAction {
     case onAppear
-    case cachedChaptersRetrieved(Result<[ChapterDetails], AppError>)
+    case cachedChaptersRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
     case mangaTabChanged(OfflineMangaViewState.Tab)
     case deleteManga
+    case chaptersForMangaDeletionRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
     
     case mangaReadingViewAction(MangaReadingViewAction)
     case pagesAction(PagesAction)
@@ -58,7 +59,8 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
         action: /OfflineMangaViewAction.pagesAction,
         environment: { .init(
             mangaClient: $0.mangaClient,
-            databaseClient: $0.databaseClient
+            databaseClient: $0.databaseClient,
+            cacheClient: $0.cacheClient
         ) }
     ),
     mangaReadingViewReducer.optional().pullback(
@@ -76,7 +78,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
         switch action {
             case .onAppear:
                 return env.databaseClient
-                    .fetchChaptersForManga(mangaID: state.manga.id)
+                    .retrieveChaptersForManga(mangaID: state.manga.id)
                     .catchToEffect(OfflineMangaViewAction.cachedChaptersRetrieved)
                 
             case .cachedChaptersRetrieved(let result):
@@ -84,13 +86,16 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                     case .success(let chapters):
                         // here we're checking if chapters, we've fetched, and chapters, we've fetched before are same
                         // if yes, we should do nothing
-                        let chaptersIDsSet = Set(chapters.map(\.id))
+                        let chaptersIDsSet = Set(chapters.map(\.chapter.id))
                         guard state.lastRetrievedChapterIDs != chaptersIDsSet else {
                             return .none
                         }
 
                         state.lastRetrievedChapterIDs = chaptersIDsSet
-                        state.pagesState = PagesState(chaptersDetailsList: chapters, chaptersPerPages: 10)
+                        state.pagesState = PagesState(
+                            chaptersDetailsList: chapters.map(\.chapter),
+                            chaptersPerPages: 10
+                        )
                         return .none
 
                     case .failure(let error):
@@ -102,26 +107,31 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 state.selectedTab = tab
                 return .none
                 
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .chapterDeletionConfirmed(let chapter)))):
-                var effects: [Effect<OfflineMangaViewAction, Never>] = [
-                    env.databaseClient
-                        .deleteChapter(chapterID: chapter.id)
-                        .fireAndForget()
-                ]
-                
-                if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
-                    effects.append(
-                        env.mangaClient
-                            .removeCachedPagesForChapter(chapter.id, pagesCount, env.cacheClient)
-                            .fireAndForget()
-                    )
-                }
-                
-                return .merge(effects)
-                
             case .deleteManga:
-                env.databaseClient.deleteManga(mangaID: state.manga.id)
-                return env.hapticClient.generateFeedback(.light).fireAndForget()
+                return env.databaseClient.retrieveChaptersForManga(mangaID: state.manga.id)
+                    .catchToEffect(OfflineMangaViewAction.chaptersForMangaDeletionRetrieved)
+                
+            case .chaptersForMangaDeletionRetrieved(let result):
+                switch result {
+                    case .success(let chapters):
+                        return .concatenate(
+                            env.databaseClient.deleteManga(mangaID: state.manga.id)
+                                .fireAndForget(),
+                            
+                            .merge(
+                                chapters.map { chapterEntity in
+                                    env.mangaClient
+                                        .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, env.cacheClient)
+                                        .fireAndForget()
+                                }
+                            )
+                        )
+                        
+                    case .failure(let error):
+                        print("Error on retrieving chapters:", error)
+                        return .none
+                }
+
                 
             case .pagesAction:
                 return .none
@@ -153,6 +163,15 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 )
                 
                 return Effect(value: .mangaReadingViewAction(.offline(.userStartedReadingChapter)))
+                
+            case .mangaReadingViewAction(.offline(.userStartedReadingChapter)):
+                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
+                    state.mangaReadingViewState?.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+                ) {
+                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+                }
+                
+                return .none
 
             case .mangaReadingViewAction(.offline(.userLeftMangaReadingView)):
                 defer { state.isUserOnReadingView = false }

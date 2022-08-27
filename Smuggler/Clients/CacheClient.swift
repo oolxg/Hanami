@@ -41,6 +41,7 @@ struct CacheClient {
     let retrieveImage: (String) -> Effect<Swift.Result<UIImage, Error>, Never>
     let removeImage: (String) -> Effect<Never, Never>
     let isCached: (String) -> Bool
+    let clearCache: () -> Effect<Never, Never>
 }
 
 extension CacheClient {
@@ -88,6 +89,19 @@ extension CacheClient {
             // but it does no throw 
             // swiftlint:disable:next force_try
             try! imageStorage.existsObject(forKey: imageName)
+        },
+        clearCache: {
+            .fireAndForget {
+                dataStorage.async.removeAll { result in
+                    switch result {
+                        case .value:
+                            break
+                            
+                        case .error(let error):
+                            print("Error on clearing cache:", error)
+                    }
+                }
+            }
         }
     )
 }

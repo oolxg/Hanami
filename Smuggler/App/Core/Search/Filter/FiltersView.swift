@@ -54,14 +54,9 @@ extension FiltersView {
                     Button {
                         viewStore.send(.resetFilters)
                     } label: {
-                        Text("Reset filters")
+                        Image(systemName: "trash")
                             .foregroundColor(.white)
-                            .fontWeight(.semibold)
                             .padding(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white, lineWidth: 1)
-                            )
                     }
                 }
             }

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		220237B528440D04009C1A7D /* CircleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220237B428440D04009C1A7D /* CircleButtonView.swift */; };
 		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
 		22048EB4286D0B3500FE6A54 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EB3286D0B3500FE6A54 /* Kingfisher */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
@@ -87,7 +86,6 @@
 		22D74BFA287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */; };
 		22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */; };
 		22DA241F2839752800150C23 /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DA241E2839752800150C23 /* Double.swift */; };
-		22E057DF2843F1F4004CD4C3 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */; };
 		22E057E12843F201004CD4C3 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057E02843F201004CD4C3 /* UIApplication.swift */; };
 		22E057E32843F28C004CD4C3 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E057E22843F28C004CD4C3 /* Color.swift */; };
 		22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E385922857D5BE00F034BA /* ScanlationGroup.swift */; };
@@ -133,7 +131,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		220237B428440D04009C1A7D /* CircleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleButtonView.swift; sourceTree = "<group>"; };
 		2205CB9D28569DDE00421888 /* MangaStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaStatistics.swift; sourceTree = "<group>"; };
 		2205CB9F2856A91900421888 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		22104829285B665700CE8CED /* MangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingViewStore.swift; sourceTree = "<group>"; };
@@ -214,7 +211,6 @@
 		22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterDetailsMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		22DA241E2839752800150C23 /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
-		22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		22E057E02843F201004CD4C3 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		22E057E22843F28C004CD4C3 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		22E385922857D5BE00F034BA /* ScanlationGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanlationGroup.swift; sourceTree = "<group>"; };
@@ -300,8 +296,6 @@
 		2220E15228312D060046F08A /* Component */ = {
 			isa = PBXGroup;
 			children = (
-				22E057DE2843F1F4004CD4C3 /* SearchBarView.swift */,
-				220237B428440D04009C1A7D /* CircleButtonView.swift */,
 				221F59EB284530AC00B11D5D /* GridChipsView.swift */,
 				225AA5A7284D16D300B406DA /* LazyView.swift */,
 				226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */,
@@ -770,7 +764,6 @@
 				222A0352287111D100D5B588 /* Data.swift in Sources */,
 				22A7BF2A283A74E4008EDD52 /* MangaVolume.swift in Sources */,
 				226DF7972865C08D007CF96A /* String.swift in Sources */,
-				22E057DF2843F1F4004CD4C3 /* SearchBarView.swift in Sources */,
 				229F8D8B282DB34C00761054 /* RootView.swift in Sources */,
 				22E057E32843F28C004CD4C3 /* Color.swift in Sources */,
 				228DD04E28A4746600F70162 /* ImageClient.swift in Sources */,
@@ -829,7 +822,6 @@
 				22655332287EFED400D61873 /* Array.swift in Sources */,
 				222A036C2871D93A00D5B588 /* Encodable.swift in Sources */,
 				222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */,
-				220237B528440D04009C1A7D /* CircleButtonView.swift in Sources */,
 				224E6714282E9781001D214C /* Manga.swift in Sources */,
 				22FDCE63284B865F0059FD6E /* FilterModels.swift in Sources */,
 				22F4A85728AB29C9008C11A7 /* VolumeTabStore.swift in Sources */,

@@ -11,29 +11,28 @@ import Kingfisher
 import class SwiftUI.UIImage
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> Effect<Never, Never>
+    let prefetchImages: ([URL], KingfisherOptionsInfo?) -> Effect<Never, Never>
     let downloadImage: (URL, KingfisherOptionsInfo?) -> Effect<Result<UIImage, Error>, Never>
 }
 
 extension ImageClient {
     static var live = ImageClient(
-        prefetchImages: { urls in
+        prefetchImages: { urls, options in
             .fireAndForget {
-                ImagePrefetcher(urls: urls).start()
+                ImagePrefetcher(urls: urls, options: options).start()
             }
         },
         downloadImage: { url, options in
             Future { promise in
                 KingfisherManager.shared.downloader.downloadImage(with: url, options: options) { result in
                     switch result {
-                        case .success(let result):
-                            return promise(.success(result.image))
+                        case .success(let response):
+                            return promise(.success(response.image))
                         case .failure(let error):
                             return promise(.failure(error))
                     }
                 }
             }
-            .eraseToAnyPublisher()
             .catchToEffect()
         }
     )

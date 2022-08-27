@@ -52,7 +52,8 @@ struct VolumeTabView_Previews: PreviewProvider {
                 reducer: volumeTabReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live
+                    mangaClient: .live,
+                    cacheClient: .live
                 )
             )
         )

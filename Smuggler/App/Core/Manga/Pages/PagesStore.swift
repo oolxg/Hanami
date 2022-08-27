@@ -174,6 +174,7 @@ enum PagesAction {
 struct PagesEnvironment {
     let mangaClient: MangaClient
     let databaseClient: DatabaseClient
+    let cacheClient: CacheClient
 }
 
 let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
@@ -182,7 +183,8 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
         action: /PagesAction.volumeTabAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
-            mangaClient: $0.mangaClient
+            mangaClient: $0.mangaClient,
+            cacheClient: $0.cacheClient
         ) }
     ),
     Reducer { state, action, _ in

@@ -33,6 +33,7 @@ enum VolumeTabAction {
 struct VolumeTabEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
+    let cacheClient: CacheClient
 }
 
 // this reducer is only to store chapters more conveniently
@@ -42,7 +43,8 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, VolumeTabEnvironm
         action: /VolumeTabAction.chapterAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
-            mangaClient: $0.mangaClient
+            mangaClient: $0.mangaClient,
+            cacheClient: $0.cacheClient
         ) }
     )
 )

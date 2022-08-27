@@ -67,6 +67,7 @@ enum ChapterAction: BindableAction, Equatable {
 struct ChapterEnvironment {
     let databaseClient: DatabaseClient
     let mangaClient: MangaClient
+    let cacheClient: CacheClient
 }
 
 let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { state, action, env in
@@ -135,7 +136,22 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
         case .chapterDeletionConfirmed(let chapter):
             state.cachedChaptersIDs.remove(chapter.id)
             state.confirmationDialog = nil
-            return .none
+            
+            var effects: [Effect<ChapterAction, Never>] = [
+                env.databaseClient
+                    .deleteChapter(chapterID: chapter.id)
+                    .fireAndForget()
+            ]
+            
+            if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
+                effects.append(
+                    env.mangaClient
+                        .removeCachedPagesForChapter(chapter.id, pagesCount, env.cacheClient)
+                        .fireAndForget()
+                )
+            }
+            
+            return .merge(effects)
             
         case .cancelTapped:
             state.confirmationDialog = nil
