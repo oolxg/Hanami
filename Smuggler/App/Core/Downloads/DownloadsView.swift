@@ -40,7 +40,6 @@ struct DownloadsView: View {
                         }
                         .transition(.opacity)
                         .animation(.linear, value: viewStore.cachedMangaThumbnailStates.count)
-                        .searchable(text: viewStore.binding(\.$searchQuery))
                     }
                 }
             }

@@ -192,7 +192,7 @@ extension FiltersView {
                 .padding()
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.theme.accent, lineWidth: 1.5)
+                        .stroke(Color.white, lineWidth: 1.5)
                 )
             }
             .frame(height: 20, alignment: .leading)

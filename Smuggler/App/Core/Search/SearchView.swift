@@ -11,38 +11,56 @@ import ComposableArchitecture
 struct SearchView: View {
     let store: Store<SearchState, SearchAction>
     @State private var showFilters = false
+    @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
         NavigationView {
             WithViewStore(store) { viewStore in
                 VStack {
+                    HStack {
+                        SearchBarView(searchText: viewStore.binding(\.$searchText), showDismisButton: false)
+                            .focused($isSearchFieldFocused)
+                        
+                        if isSearchFieldFocused || !viewStore.searchText.isEmpty {
+                            Button("Cancel") {
+                                viewStore.send(.resetSearchQuery)
+                                UIApplication.shared.endEditing()
+                            }
+                            .foregroundColor(.white)
+                            .padding(.leading, 10)
+                            .transition(.move(edge: .trailing))
+                        }
+                    }
+                    .animation(.easeInOut, value: isSearchFieldFocused || !viewStore.searchText.isEmpty)
+                    .padding(.horizontal)
+                    .padding(.top)
+                    .padding(.bottom, 10)
+
                     searchOptions
                         .padding(.horizontal, 15)
                     
                     searchResults
                 }
                 .navigationTitle("Search")
-                .sheet(isPresented: $showFilters, onDismiss: {
-                    viewStore.send(.searchForManga)
-                }, content: {
-                    FiltersView(
-                        store: store.scope(
-                            state: \.filtersState,
-                            action: SearchAction.filterAction
-                        )
-                    )
-                })
-                .searchable(text: viewStore.binding(\.$searchText), placement: .navigationBarDrawer)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
                             showFilters.toggle()
+                            UIApplication.shared.endEditing()
                         } label: {
                             Image(systemName: "slider.horizontal.3")
+                                .foregroundColor(.white)
                         }
-                        .tint(.white)
                     }
                 }
+                .sheet(isPresented: $showFilters, onDismiss: {
+                    viewStore.send(.searchForManga)
+                }, content: {
+                    FiltersView(store: store.scope(
+                        state: \.filtersState,
+                        action: SearchAction.filterAction)
+                    )
+                })
             }
         }
     }
@@ -161,7 +179,6 @@ extension SearchView {
                     Text("\(count)")
                         .fontWeight(.heavy)
                 }
-                .lineLimit(1)
                 .font(.callout)
             }
             .accentColor(.white)
@@ -267,7 +284,7 @@ extension SearchView {
             }
         }
         
-        // swiftlint:disable:next cyclomatic_complexity
+            // swiftlint:disable:next cyclomatic_complexity
         private func getSortTypeName(sortOption: QuerySortOption, order: QuerySortOption.Order) -> String {
             switch sortOption {
                 case .relevance:

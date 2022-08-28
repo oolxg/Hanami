@@ -11,18 +11,25 @@ import Combine
 import class SwiftUI.UIImage
 
 struct CacheClient {
-    private static let dataStorage: Storage<String, Data> = {
-        let diskConfig = DiskConfig(
-            name: "Kamakura_Storage",
-            expiry: .never,
+    private enum CacheFolderPathes {
+        private static let storagePathURL: URL = {
             // swiftlint:disable:next force_try
-            directory: try! FileManager.default.url(
+            try! FileManager.default.url(
                 for: .documentDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: true
             )
-            .appendingPathComponent("images")
+        }()
+        
+        static let imagesCachePath = storagePathURL.appendingPathComponent("images")
+    }
+    
+    private static let dataStorage: Storage<String, Data> = {
+        let diskConfig = DiskConfig(
+            name: "Kamakura_Storage",
+            expiry: .never,
+            directory: CacheFolderPathes.imagesCachePath
         )
         
         let memoryConfig = MemoryConfig(expiry: .never)
@@ -42,6 +49,7 @@ struct CacheClient {
     let removeImage: (String) -> Effect<Never, Never>
     let isCached: (String) -> Bool
     let clearCache: () -> Effect<Never, Never>
+    let computeCacheSize: () -> Effect<Swift.Result<Double, AppError>, Never>
 }
 
 extension CacheClient {
@@ -102,6 +110,19 @@ extension CacheClient {
                     }
                 }
             }
+        }, computeCacheSize: {
+            Future { promise in
+                DispatchQueue.main.async {
+                    guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {
+                        promise(.failure(.databaseError("Can't compute cache size")))
+                        return
+                    }
+                    print(size)
+                    promise(.success(size))
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .catchToEffect()
         }
     )
 }

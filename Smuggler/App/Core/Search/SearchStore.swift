@@ -45,6 +45,7 @@ struct SearchState: Equatable {
 
 enum SearchAction: BindableAction {
     case searchForManga
+    case resetSearchQuery
     case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchState.SearchParams)
     case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
 
@@ -91,9 +92,14 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
     Reducer { state, action, env in
         struct CancelSearch: Hashable { }
         switch action {
-            case .searchForManga:
+            case .resetSearchQuery:
+                state.searchText = ""
                 state.mangaThumbnailStates.removeAll()
-
+                state.areSearchResultsDownloaded = false
+                state.lastSuccessfulRequestParams = nil
+                return .none
+                
+            case .searchForManga:
                 let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
                 let selectedPublicationDemographic = state.filtersState.publicationDemographics
                     .filter { $0.state != .notSelected }
@@ -134,6 +140,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 }
                                 
                 state.areSearchResultsDownloaded = false
+                state.mangaThumbnailStates.removeAll()
 
                 return .concatenate(
                     .cancel(

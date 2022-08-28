@@ -11,17 +11,14 @@ import ComposableArchitecture
 
 struct DownloadsState: Equatable {
     var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
-    @BindableState var searchQuery = ""
 }
 
-enum DownloadsAction: BindableAction {
+enum DownloadsAction {
     case fetchCachedManga
     
     case cachedMangaFetched(Result<[Manga], Never>)
     
     case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
-    
-    case binding(BindingAction<DownloadsState>)
 }
 
 struct DownloadsEnvironment {
@@ -86,14 +83,6 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 
             case .cachedMangaThumbnailAction:
                 return .none
-                
-            case .binding(\.$searchQuery):
-                
-                return .none
-                
-            case .binding:
-                return .none
         }
     }
-    .binding()
 )
