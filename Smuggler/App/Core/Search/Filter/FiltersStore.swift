@@ -33,7 +33,7 @@ struct FiltersState: Equatable {
         .init(tag: .erotica), .init(tag: .pornographic), .init(tag: .safe), .init(tag: .suggestive)
     ])
     var mangaStatuses: IdentifiedArrayOf<FilterMangaStatus> = .init(uniqueElements: [
-        .init(tag: .cancelled), .init(tag: .completed), .init(tag: .ongoing), .init(tag: .hiatus)
+        .init(tag: .cancelled), .init(tag: .completed), .init(tag: .hiatus), .init(tag: .ongoing)
     ])
     
     var isAnyFilterApplied: Bool {
@@ -102,6 +102,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             for tagID in state.contentRatings.map(\.id) {
                 state.contentRatings[id: tagID]!.state = .notSelected
             }
+            
             return .none
             
         case .mangaStatusButtonTapped(let tag):
@@ -119,6 +120,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             } else {
                 state.contentRatings[id: tag.id]!.state = .selected
             }
+            
             return .none
             
         case .publicationDemographicButtonTapped(let tag):
@@ -127,6 +129,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             } else {
                 state.publicationDemographics[id: tag.id]!.state = .selected
             }
+            
             return .none
     }
 }

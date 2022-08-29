@@ -100,15 +100,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 return .none
                 
             case .searchForManga:
-                let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
-                let selectedPublicationDemographic = state.filtersState.publicationDemographics
-                    .filter { $0.state != .notSelected }
-                let selectedContentRatings = state.filtersState.contentRatings.filter { $0.state != .notSelected }
-                let selectedMangaStatuses = state.filtersState.mangaStatuses.filter { $0.state != .notSelected }
-                
-                let isAnySearchParamApplied = !selectedPublicationDemographic.isEmpty ||
-                        !selectedContentRatings.isEmpty || !selectedTags.isEmpty ||
-                        !selectedMangaStatuses.isEmpty || !state.searchText.isEmpty
+                let isAnySearchParamApplied = state.filtersState.isAnyFilterApplied || !state.searchText.isEmpty
                 
                 // if user clears the search string, we should delete all, what we've found for previous search request
                 // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
@@ -123,6 +115,12 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         ids: mangaIDs.map { OnlineMangaViewState.CancelClearCache(mangaID: $0) }
                     )
                 }
+                
+                let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
+                let selectedPublicationDemographic = state.filtersState.publicationDemographics
+                    .filter { $0.state != .notSelected }
+                let selectedContentRatings = state.filtersState.contentRatings.filter { $0.state != .notSelected }
+                let selectedMangaStatuses = state.filtersState.mangaStatuses.filter { $0.state != .notSelected }
                 
                 let searchParams = SearchState.SearchParams(
                     searchQuery: state.searchText,

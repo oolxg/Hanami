@@ -193,11 +193,9 @@ extension OfflineMangaView {
             } label: {
                 Image(systemName: "trash")
                     .foregroundColor(.white)
-                    .padding(.vertical)
             }
-            .transition(.opacity)
             .confirmationDialog(
-                "Are you sure you want delete this manga and all chapters?",
+                "Are you sure you want delete this manga and all chapters from device?",
                 isPresented: $showMangaDeletionDialog
             ) {
                 Button("Delete", role: .destructive) {
@@ -209,7 +207,7 @@ extension OfflineMangaView {
                     showMangaDeletionDialog = false
                 }
             } message: {
-                Text("Are you sure you want delete this manga and all chapters?")
+                Text("Are you sure you want delete this manga and all chapters from device?")
             }
         }
     }

@@ -17,7 +17,7 @@ struct HomeView: View {
 
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store.stateless) { viewStore in
                 VStack {
                     Text("by oolxg")
                         .font(.caption2)
@@ -41,21 +41,7 @@ struct HomeView: View {
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            viewStore.send(.refresh, animation: .linear(duration: 1.5))
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundColor(.white)
-                                .font(.title3)
-                                .rotationEffect(
-                                    Angle(degrees: viewStore.isRefreshActionInProgress ? 360 : 0),
-                                    anchor: .center
-                                )
-                        }
-                    }
-                }
+                .toolbar { toolbar }
             }
         }
     }
@@ -82,6 +68,23 @@ struct HomeView_Previews: PreviewProvider {
 }
 
 extension HomeView {
+    private var toolbar: some ToolbarContent {
+        WithViewStore(store.scope(state: \.isRefreshActionInProgress)) { viewStore in
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    viewStore.send(.refresh, animation: .linear(duration: 1.5))
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.white)
+                        .font(.title3)
+                        .rotationEffect(
+                            Angle(degrees: viewStore.state ? 360 : 0),
+                            anchor: .center
+                        )
+                }
+            }
+        }
+    }
     private var seasonal: some View {
         Section {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -186,7 +189,7 @@ extension HomeView {
     }
     
     private var mostFollowed: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store.stateless) { viewStore in
             VStack {
                 Text("by oolxg")
                     .font(.caption2)

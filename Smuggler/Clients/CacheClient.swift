@@ -114,10 +114,9 @@ extension CacheClient {
             Future { promise in
                 DispatchQueue.main.async {
                     guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {
-                        promise(.failure(.databaseError("Can't compute cache size")))
+                        promise(.failure(.cacheError("Can't compute cache size")))
                         return
                     }
-                    print(size)
                     promise(.success(size))
                 }
             }

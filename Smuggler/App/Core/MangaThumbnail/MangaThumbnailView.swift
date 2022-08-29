@@ -8,7 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 import Kingfisher
-import NukeUI
 
 struct MangaThumbnailView: View {
     init(store: Store<MangaThumbnailState, MangaThumbnailAction>, compact: Bool = false) {

@@ -28,7 +28,7 @@ struct SearchView: View {
                             }
                             .foregroundColor(.white)
                             .padding(.leading, 10)
-                            .transition(.move(edge: .trailing))
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                     }
                     .animation(.easeInOut, value: isSearchFieldFocused || !viewStore.searchText.isEmpty)
@@ -148,7 +148,6 @@ extension SearchView {
         VStack {
             Text("Ehm, i found no manga")
                 .fontWeight(.medium)
-                .foregroundColor(.theme.accent)
                 .font(.title2)
             Text("👉👈")
         }

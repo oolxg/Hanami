@@ -13,6 +13,7 @@ enum AppError: Error {
     case unknownError(Error)
     case notFound
     case databaseError(String)
+    case cacheError(String)
 }
 
 extension AppError: Equatable {
@@ -33,6 +34,9 @@ extension AppError: Equatable {
             case (.databaseError, .databaseError):
                 return true
                 
+            case (.cacheError, .cacheError):
+                return true
+                
             default:
                 return false
         }
@@ -42,12 +46,19 @@ extension AppError: Equatable {
         switch self {
             case .downloadError:
                 return "Failed to fetch data. Check your internet connection or try again later."
+                
             case .decodingError:
                 return "Internal error on data decoding."
+                
             case .unknownError(let err):
                 return "Something strange happened \n\(err.localizedDescription)"
+                
             case .notFound:
                 return "Requested item was not found"
+                
+            case .cacheError(let errorStr):
+                return "Error occured while managing cache: \(errorStr)"
+                
             case .databaseError(let errorStr):
                 return errorStr
         }

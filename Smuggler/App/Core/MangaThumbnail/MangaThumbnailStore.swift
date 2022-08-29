@@ -19,6 +19,21 @@ struct MangaThumbnailState: Equatable, Identifiable {
         } else {
             offlineMangaState = OfflineMangaViewState(manga: manga)
         }
+        
+        // in some cases we can have coverArt included with manga as relationship
+        if let relationship = manga.relationships.first(where: { $0.attributes != nil && $0.type == .coverArt }),
+            let coverArtAttributes = relationship.attributes!.get() as? CoverArtInfo.Attributes {
+            coverArtInfo = CoverArtInfo(
+                id: relationship.id, attributes: coverArtAttributes, relationships: [
+                    Relationship(id: manga.id, type: .manga)
+                ]
+            )
+            
+            if isOnline {
+                onlineMangaState!.mainCoverArtURL = coverArtInfo!.coverArtURL
+                onlineMangaState!.coverArtURL256 = coverArtInfo!.coverArtURL256
+            }
+        }
     }
     
     var onlineMangaState: OnlineMangaViewState?
@@ -130,20 +145,6 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         
         switch action {
             case .onAppear:
-                // in some cases we can have coverArt included with manga as relationship
-                if let coverArtInfo = state.manga.relationships.first(
-                    where: { $0.attributes != nil && $0.type == .coverArt }
-                ), let coverArtAttr = coverArtInfo.attributes!.get() as? CoverArtInfo.Attributes {
-                    state.coverArtInfo = CoverArtInfo(
-                        id: coverArtInfo.id, attributes: coverArtAttr, relationships: [
-                            Relationship(id: state.manga.id, type: .manga)
-                        ]
-                    )
-                    
-                    state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
-                    state.onlineMangaState!.coverArtURL256 = state.coverArtInfo!.coverArtURL256
-                }
-                
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
                     return env.mangaClient.fetchCoverArtInfo(coverArtID)
