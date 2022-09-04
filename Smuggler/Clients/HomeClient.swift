@@ -41,22 +41,8 @@ extension HomeClient {
             guard let url = components.url else {
                 return .none
             }
-                        
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+                      
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchSeasonalTitlesList: {
             // admin user has 'Seasonal' manga list
@@ -74,21 +60,10 @@ extension HomeClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: adminUserListsURL)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<CustomMangaList>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(
+                to: adminUserListsURL,
+                decodeResponseAs: Response<CustomMangaList>.self
+            )
         },
         fetchMangaByIDs: { mangaIDs in
             guard !mangaIDs.isEmpty else { return .none }
@@ -110,22 +85,8 @@ extension HomeClient {
             guard let url = components.url else {
                 return .none
             }
-                        
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+                
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchAwardWinningManga: {
             var components = URLComponents()
@@ -149,21 +110,7 @@ extension HomeClient {
                 return .none
             }
 
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchMostFollowedManga: {
             var components = URLComponents()
@@ -185,21 +132,7 @@ extension HomeClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchHighestRatingManga: {
             var components = URLComponents()
@@ -221,21 +154,7 @@ extension HomeClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchRecentlyAddedManga: {
             var components = URLComponents()
@@ -257,21 +176,7 @@ extension HomeClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchStatistics: { mangaIDs in
             guard !mangaIDs.isEmpty else { return .none }
@@ -290,21 +195,7 @@ extension HomeClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: MangaStatisticsContainer.self)
         }
     )
 }

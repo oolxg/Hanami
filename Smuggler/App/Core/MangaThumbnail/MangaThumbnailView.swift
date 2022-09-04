@@ -37,43 +37,52 @@ struct MangaThumbnailView: View {
     }
     
     private var coverArt: some View {
-        WithViewStore(store.actionless) { viewStore in
-            if viewStore.isOnline {
-                KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
-                    .placeholder {
-                        Color.black
-                            .opacity(0.45)
-                            .redacted(reason: .placeholder)
-                    }
-                    .backgroundDecode()
-                    .fade(duration: 0.5)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 100, height: 150)
-                    .clipped()
-                    .cornerRadius(10)
+        WithViewStore(store.scope(state: \.isOnline)) { viewStore in
+            if viewStore.state {
+                onlineCoverArt
             } else {
-                ZStack {
-                    if let coverArt = viewStore.offlineMangaState?.coverArt {
-                        Image(uiImage: coverArt)
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        Color.black
-                            .opacity(0.45)
-                            .redacted(reason: .placeholder)
-                    }
-                }
-                .frame(width: 100, height: 150)
-                .clipped()
-                .cornerRadius(10)
+                offlineCoverArt
             }
         }
     }
     
+    private var onlineCoverArt: some View {
+        WithViewStore(store.scope(state: \.coverArtInfo)) { coverArtInfo in
+            KFImage.url(coverArtInfo.state?.coverArtURL256)
+                .placeholder {
+                    Color.black
+                        .opacity(0.45)
+                        .redacted(reason: .placeholder)
+                }
+                .fade(duration: 0.5)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 100, height: 150)
+                .clipped()
+                .cornerRadius(10)
+        }
+    }
+    
+    private var offlineCoverArt: some View {
+        WithViewStore(store.scope(state: \.offlineMangaState)) { offlineMangaState in
+            if let coverArt = offlineMangaState.state?.coverArt {
+                Image(uiImage: coverArt)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Color.black
+                    .opacity(0.45)
+                    .redacted(reason: .placeholder)
+            }
+        }
+        .frame(width: 100, height: 150)
+        .clipped()
+        .cornerRadius(10)
+    }
+    
     private var mangaView: some View {
-        WithViewStore(store.actionless) { viewStore in
-            if viewStore.isOnline {
+        WithViewStore(store.scope(state: \.isOnline)) { viewStore in
+            if viewStore.state {
                 IfLetStore(
                     store.scope(
                         state: \.onlineMangaState,
@@ -148,12 +157,8 @@ extension MangaThumbnailView {
                 .padding(10)
             }
             .frame(height: 150)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
-            .onTapGesture {
-                isNavigationLinkActive.toggle()
-            }
+            .onAppear { viewStore.send(.onAppear) }
+            .onTapGesture { isNavigationLinkActive.toggle() }
             .onChange(of: isNavigationLinkActive) { isNavLinkActive in
                 viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
             }
@@ -263,12 +268,8 @@ extension MangaThumbnailView {
                 .padding(10)
             }
             .frame(width: 250, height: 150)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
-            .onTapGesture {
-                isNavigationLinkActive.toggle()
-            }
+            .onAppear { viewStore.send(.onAppear) }
+            .onTapGesture { isNavigationLinkActive.toggle() }
             .onChange(of: isNavigationLinkActive) { isNavLinkActive in
                 viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
             }

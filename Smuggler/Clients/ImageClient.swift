@@ -33,6 +33,7 @@ extension ImageClient {
                     }
                 }
             }
+            .retry(3)
             .catchToEffect()
         }
     )

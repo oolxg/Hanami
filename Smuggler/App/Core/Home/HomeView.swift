@@ -85,6 +85,7 @@ extension HomeView {
             }
         }
     }
+    
     private var seasonal: some View {
         Section {
             ScrollView(.horizontal, showsIndicators: false) {

@@ -14,7 +14,7 @@ struct DownloadsState: Equatable {
 }
 
 enum DownloadsAction {
-    case fetchCachedManga
+    case retrieveCachedManga
     
     case cachedMangaFetched(Result<[Manga], Never>)
     
@@ -48,7 +48,7 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
         ),
     Reducer { state, action, env in
         switch action {
-            case .fetchCachedManga:
+            case .retrieveCachedManga:
                 return env.databaseClient.fetchAllCachedMangas()
                     .catchToEffect(DownloadsAction.cachedMangaFetched)
                 
@@ -77,7 +77,7 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 }
                 
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
-                return Effect(value: .fetchCachedManga)
+                return Effect(value: .retrieveCachedManga)
                     .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
                     .eraseToEffect()
                 

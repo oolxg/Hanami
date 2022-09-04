@@ -47,7 +47,7 @@ struct ChapterState: Equatable, Identifiable {
     
     var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
-    struct CancelChapterFetch: Hashable { }
+    struct CancelChapterFetch: Hashable { let id: UUID }
 }
 
 enum ChapterAction: BindableAction, Equatable {
@@ -76,40 +76,49 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             var effects: [Effect<ChapterAction, Never>] = []
             
             let allChapterIDs = [state.chapter.id] + state.chapter.others
-
-            // попробовать тыкнуть сюды databaseClient.fetchChaptersForManga
-            // или в PagesStore потыкать....
-            for chapterID in allChapterIDs where state.chapterDetailsList[id: chapterID] == nil {
-                if let cachedChapterDetails = env.databaseClient.fetchChapter(chapterID: chapterID)?.chapter {
-                    state._chapterDetailsList.append(cachedChapterDetails)
-                    state.cachedChaptersIDs.insert(cachedChapterDetails.id)
-                    
-                    if let scanlationGroup = cachedChapterDetails.scanlationGroup {
-                        state.scanlationGroups[cachedChapterDetails.id] = scanlationGroup
-                    } else if let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
-                        effects.append(
-                            env.mangaClient.fetchScanlationGroup(scanlationGroupID)
-                                .receive(on: DispatchQueue.main)
-                                .catchToEffect {
-                                    ChapterAction.scanlationGroupInfoFetched(
-                                        result: $0,
-                                        chapterID: cachedChapterDetails.id
+            
+            for chapterID in allChapterIDs {
+                let possiblyCachedChapterDetails = env.databaseClient.fetchChapter(chapterID: chapterID)
+                
+                if state.chapterDetailsList[id: chapterID] == nil {
+                    // if chapter is cached - no need to fetch it from API
+                    if let cachedChapterDetails = possiblyCachedChapterDetails?.chapter {
+                        state._chapterDetailsList.append(cachedChapterDetails)
+                        state.cachedChaptersIDs.insert(cachedChapterDetails.id)
+                        
+                        if let scanlationGroup = cachedChapterDetails.scanlationGroup {
+                            state.scanlationGroups[cachedChapterDetails.id] = scanlationGroup
+                        } else if let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
+                            effects.append(
+                                env.mangaClient.fetchScanlationGroup(scanlationGroupID)
+                                    .receive(on: DispatchQueue.main)
+                                    .catchToEffect {
+                                        ChapterAction.scanlationGroupInfoFetched(
+                                            result: $0,
+                                            chapterID: cachedChapterDetails.id
+                                        )
+                                    }
+                                    .cancellable(
+                                        id: ChapterState.CancelChapterFetch(id: chapterID),
+                                        cancelInFlight: true
                                     )
-                                }
-                                .cancellable(id: ChapterState.CancelChapterFetch())
                             )
+                        }
+                    } else {
+                        effects.append(
+                            env.mangaClient.fetchChapterDetails(chapterID)
+                                .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                                .receive(on: DispatchQueue.main)
+                                .catchToEffect(ChapterAction.chapterDetailsFetched)
+                                .animation(.linear)
+                                .cancellable(
+                                    id: ChapterState.CancelChapterFetch(id: chapterID),
+                                    cancelInFlight: true
+                                )
+                        )
                     }
-                } else {
+                } else if possiblyCachedChapterDetails == nil {
                     state.cachedChaptersIDs.remove(chapterID)
-                    
-                    effects.append(
-                        env.mangaClient.fetchChapterDetails(chapterID)
-                            .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect(ChapterAction.chapterDetailsFetched)
-                            .animation(.linear)
-                            .cancellable(id: ChapterState.CancelChapterFetch())
-                    )
                 }
             }
             
@@ -167,14 +176,16 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
         case .chapterDetailsFetched(let result):
             switch result {
                 case .success(let response):
-                    state._chapterDetailsList.append(response.data)
+                    let chapter = response.data
+                    
+                    state._chapterDetailsList.append(chapter)
                     
                     if let scanlationGroup = response.data.scanlationGroup {
-                        state.scanlationGroups[response.data.id] = scanlationGroup
+                        state.scanlationGroups[chapter.id] = scanlationGroup
                         return .none
                     }
                     
-                    guard let scanlationGroupID = response.data.scanlationGroupID else {
+                    guard let scanlationGroupID = chapter.scanlationGroupID else {
                         return .none
                     }
                     
@@ -183,10 +194,13 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .catchToEffect {
                             ChapterAction.scanlationGroupInfoFetched(
                                 result: $0,
-                                chapterID: response.data.id
+                                chapterID: chapter.id
                             )
                         }
-                        .cancellable(id: ChapterState.CancelChapterFetch())
+                        .cancellable(
+                            id: ChapterState.CancelChapterFetch(id: response.data.id),
+                            cancelInFlight: true
+                        )
                     
                 case .failure(let error):
                     print("error on downloading chapter details, \(error)")

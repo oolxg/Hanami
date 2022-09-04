@@ -12,9 +12,9 @@ struct Relationship: Codable {
     let id: UUID
     let type: ResponseDataType
     let related: RelatedType?
-    let attributes: RelationshipAttributes?
+    let attributes: Attributes?
     
-    init(id: UUID, type: ResponseDataType, related: RelatedType? = nil, attributes: RelationshipAttributes? = nil) {
+    init(id: UUID, type: ResponseDataType, related: RelatedType? = nil, attributes: Attributes? = nil) {
         self.id = id
         self.type = type
         self.related = related
@@ -31,10 +31,12 @@ struct Relationship: Codable {
             switch type {
                 case .coverArt:
                     attributes = .coverArt(try container.decode(CoverArtInfo.Attributes.self, forKey: .attributes))
+                    
                 case .scanlationGroup:
                     attributes = .scanlationGroup(
                         try container.decode(ScanlationGroup.Attributes.self, forKey: .attributes)
                     )
+                    
                 case .manga:
                     attributes = .manga(try container.decode(Manga.Attributes.self, forKey: .attributes))
                     
@@ -73,7 +75,7 @@ struct Relationship: Codable {
     }
     
     // MARK: - RelationshipAttributes
-    enum RelationshipAttributes: Codable {
+    enum Attributes: Codable {
         case coverArt(CoverArtInfo.Attributes)
         case manga(Manga.Attributes)
         case scanlationGroup(ScanlationGroup.Attributes)
@@ -118,7 +120,7 @@ struct Relationship: Codable {
     }
 }
 
-extension Relationship.RelationshipAttributes: Equatable {
+extension Relationship.Attributes: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
             case (.coverArt, .coverArt):
@@ -128,6 +130,9 @@ extension Relationship.RelationshipAttributes: Equatable {
                 return true
                 
             case (.scanlationGroup, .scanlationGroup):
+                return true
+                
+            case (.author, .author):
                 return true
                 
             default:

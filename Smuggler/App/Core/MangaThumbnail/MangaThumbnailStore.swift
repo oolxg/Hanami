@@ -19,19 +19,13 @@ struct MangaThumbnailState: Equatable, Identifiable {
         } else {
             offlineMangaState = OfflineMangaViewState(manga: manga)
         }
-        
         // in some cases we can have coverArt included with manga as relationship
-        if let relationship = manga.relationships.first(where: { $0.attributes != nil && $0.type == .coverArt }),
-            let coverArtAttributes = relationship.attributes!.get() as? CoverArtInfo.Attributes {
-            coverArtInfo = CoverArtInfo(
-                id: relationship.id, attributes: coverArtAttributes, relationships: [
-                    Relationship(id: manga.id, type: .manga)
-                ]
-            )
+        if let coverArtInfo = manga.coverArtInfo {
+            self.coverArtInfo = coverArtInfo
             
             if isOnline {
-                onlineMangaState!.mainCoverArtURL = coverArtInfo!.coverArtURL
-                onlineMangaState!.coverArtURL256 = coverArtInfo!.coverArtURL256
+                onlineMangaState!.mainCoverArtURL = coverArtInfo.coverArtURL
+                onlineMangaState!.coverArtURL256 = coverArtInfo.coverArtURL256
             }
         }
     }

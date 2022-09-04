@@ -10,35 +10,29 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
-    @State private var areChaptersShown = true
 
     var body: some View {
         WithViewStore(store.actionless) { viewStore in
-            DisclosureGroup(isExpanded: $areChaptersShown) {
-                VStack {
-                    ForEachStore(
-                        store.scope(state: \.chapterStates, action: VolumeTabAction.chapterAction),
-                        content: ChapterView.init
-                    )
-                }
-            } label: {
-                HStack {
-                    Text(viewStore.volume.volumeName)
-                        .font(.title2)
-                        .fontWeight(.medium)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation {
-                        areChaptersShown.toggle()
-                    }
-                }
+            VStack {
+                Text(viewStore.volume.volumeName)
+                    .font(.title2)
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Rectangle()
+                    .frame(height: 1.5)
             }
-            .buttonStyle(PlainButtonStyle())
-            .padding(10)
-            .animation(.linear, value: areChaptersShown)
+            
+            ForEachStore(
+                store.scope(
+                    state: \.chapterStates,
+                    action: VolumeTabAction.chapterAction
+                ),
+                content: ChapterView.init
+            )
+            .padding(.leading, 5)
         }
+        .padding(.leading, 10)
     }
 }
 

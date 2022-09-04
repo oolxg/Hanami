@@ -26,14 +26,6 @@ struct MangaClient {
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let getDidReadChapterOnPaginationPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
     
-    // MARK: - Manage info for offline reading
-    private static let getCoverArtName: (_ mangaID: UUID) -> String = { mangaID in
-        "coverArt-\(mangaID.uuidString.lowercased())"
-    }
-    private static let getChapterPageName: (_ chapterID: UUID, _ pageIndex: Int) -> String = { chapterID, pageIndex in
-        "\(chapterID.uuidString.lowercased())-\(pageIndex)"
-    }
-    
     let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let retrieveCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
@@ -42,6 +34,16 @@ struct MangaClient {
     let isCoverArtCached: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
     let isChapterCacheValid: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Bool
     // swiftlint:enable line_length
+}
+
+extension MangaClient {
+    // MARK: - Manage info for offline reading
+    private static func getCoverArtName(mangaID: UUID) -> String {
+        "coverArt-\(mangaID.uuidString.lowercased())"
+    }
+    private static func getChapterPageName(chapterID: UUID, pageIndex: Int) -> String {
+        "\(chapterID.uuidString.lowercased())-\(pageIndex)"
+    }
 }
 
 extension MangaClient {
@@ -70,147 +72,49 @@ extension MangaClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: VolumesContainer.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: VolumesContainer.self)
         },
         fetchMangaStatistics: { mangaID in
             guard let url = URL(string: "https://api.mangadex.org/statistics/manga/\(mangaID.uuidString.lowercased())") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: MangaStatisticsContainer.self)
         },
         fetchAllCoverArtsForManga: { mangaID in
             guard let url = URL(string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaID.uuidString.lowercased())&limit=100") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[CoverArtInfo]>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[CoverArtInfo]>.self)
         },
         fetchChapterDetails: { chapterID in
             guard let url = URL(string: "https://api.mangadex.org/chapter/\(chapterID.uuidString.lowercased())?includes[]=scanlation_group") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<ChapterDetails>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<ChapterDetails>.self)
         },
         fetchScanlationGroup: { scanlationGroupID in
             guard let url = URL(string: "https://api.mangadex.org/group/\(scanlationGroupID.uuidString.lowercased())") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<ScanlationGroup>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<ScanlationGroup>.self)
         },
         fetchPagesInfo: { chapterID in
             guard let url = URL(string: "https://api.mangadex.org/at-home/server/\(chapterID.uuidString.lowercased())") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: ChapterPagesInfo.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: ChapterPagesInfo.self)
         },
         fetchCoverArtInfo: { coverArtID in
             guard let url = URL(string: "https://api.mangadex.org/cover/\(coverArtID.uuidString.lowercased())") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<CoverArtInfo>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<CoverArtInfo>.self)
         },
         getMangaPaginationPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter
@@ -258,43 +162,43 @@ extension MangaClient {
             return nil
         },
         saveCoverArt: { coverArt, mangaID, cacheClient in
-            let imageName = getCoverArtName(mangaID)
+            let imageName = getCoverArtName(mangaID: mangaID)
             
             return cacheClient.cacheImage(coverArt, imageName).fireAndForget()
         },
         retrieveCoverArt: { mangaID, cacheClient in
-            let imageName = getCoverArtName(mangaID)
+            let imageName = getCoverArtName(mangaID: mangaID)
             
             return cacheClient.retrieveImage(imageName)
         },
         saveChapterPage: { chapterPage, pageIndex, chapterID, cacheClient in
-            let imageName = getChapterPageName(chapterID, pageIndex)
+            let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
             
             return cacheClient.cacheImage(chapterPage, imageName).fireAndForget()
         },
         retrieveChapterPage: { chapterID, pageIndex, cacheClient in
-            let imageName = getChapterPageName(chapterID, pageIndex)
+            let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
             
             return cacheClient.retrieveImage(imageName)
         },
         removeCachedPagesForChapter: { chapterID, pagesCount, cacheClient in
             .merge(
                 (0..<pagesCount).indices.map { pageIndex in
-                    let imageName = getChapterPageName(chapterID, pageIndex)
+                    let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
                     return cacheClient.removeImage(imageName)
                 }
             )
             .fireAndForget()
         },
         isCoverArtCached: { mangaID, cacheClient in
-            let imageName = getCoverArtName(mangaID)
+            let imageName = getCoverArtName(mangaID: mangaID)
             
             return cacheClient.isCached(imageName)
         },
         isChapterCacheValid: { chapterID, pagesCount, cacheClient in
             // checks whether all pages from chapter cached
             (0..<pagesCount).indices.map { pageIndex in
-                let imageName = getChapterPageName(chapterID, pageIndex)
+                let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
                 return cacheClient.isCached(imageName)
             }
             .allSatisfy { $0 }

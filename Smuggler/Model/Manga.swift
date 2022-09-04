@@ -121,15 +121,28 @@ extension Manga {
     
     var authors: [Author] {
         relationships
-            .filter { $0.type == .author && $0.attributes != nil }
+            .filter { $0.type == .author }
             .compactMap {
-                guard let attrs = $0.attributes!.get() as? Author.Attributes else {
+                guard let attrs = $0.attributes?.get() as? Author.Attributes else {
                     return nil
                 }
                 
                 return Author(id: $0.id, attributes: attrs, relationships: [
-                    .init(id: self.id, type: .manga)
+                    Relationship(id: self.id, type: .manga)
                 ])
             }
+    }
+    
+    var coverArtInfo: CoverArtInfo? {
+        if let relationship = relationships.first(where: { $0.type == .coverArt }),
+           let attributes = relationship.attributes?.get() as? CoverArtInfo.Attributes {
+            return CoverArtInfo(
+                id: relationship.id, attributes: attributes, relationships: [
+                    Relationship(id: self.id, type: .manga)
+                ]
+            )
+        }
+        
+        return nil
     }
 }

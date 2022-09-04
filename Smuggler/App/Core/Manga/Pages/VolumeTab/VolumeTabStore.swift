@@ -18,6 +18,10 @@ struct VolumeTabState: Equatable {
     
     let volume: MangaVolume
     var chapterStates: IdentifiedArrayOf<ChapterState> = []
+    
+    var childerChapterIDs: [UUID] {
+        chapterStates.flatMap { $0.chapterDetailsList.map(\.id) }
+    }
 }
 
 extension VolumeTabState: Identifiable {

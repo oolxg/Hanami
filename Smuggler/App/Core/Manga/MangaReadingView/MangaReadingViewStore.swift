@@ -23,6 +23,16 @@ enum MangaReadingViewState: Equatable {
                 return offlineMangaReadingViewState.chapter.attributes.chapterIndex
         }
     }
+    
+    var chapterID: UUID {
+        switch self {
+            case .online(let onlineMangaReadingViewState):
+                return onlineMangaReadingViewState.chapterID
+                
+            case .offline(let offlineMangaReadingViewState):
+                return offlineMangaReadingViewState.chapter.id
+        }
+    }
 }
 
 

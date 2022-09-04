@@ -66,21 +66,7 @@ extension SearchClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Manga]>.self, decoder: AppUtil.decoder)
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchStatistics: { mangaIDs in
             guard !mangaIDs.isEmpty else { return .none }
@@ -97,42 +83,14 @@ extension SearchClient {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: MangaStatisticsContainer.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: MangaStatisticsContainer.self)
         },
         fetchTags: {
             guard let url = URL(string: "https://api.mangadex.org/manga/tag") else {
                 return .none
             }
             
-            return URLSession.shared.dataTaskPublisher(for: url)
-                .validateResponseCode()
-                .retry(3)
-                .map(\.data)
-                .decode(type: Response<[Tag]>.self, decoder: JSONDecoder())
-                .mapError { err -> AppError in
-                    if let err = err as? URLError {
-                        return AppError.downloadError(err)
-                    } else if let err = err as? DecodingError {
-                        return AppError.decodingError(err)
-                    }
-                    
-                    return AppError.unknownError(err)
-                }
-                .eraseToEffect()
+            return URLSession.shared.makeRequest(to: url, decodeResponseAs: Response<[Tag]>.self)
         }
     )
 }

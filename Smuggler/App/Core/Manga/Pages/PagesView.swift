@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PagesView: View {
-    let store: Store<PagesState, PagesAction>
+    private let store: Store<PagesState, PagesAction>
     private let viewStore: ViewStore<PagesState, PagesAction>
     
     init(store: Store<PagesState, PagesAction>) {
@@ -18,27 +18,31 @@ struct PagesView: View {
     }
     
     var body: some View {
-        LazyVStack {
-            if viewStore.splitIntoPagesVolumeTabStates.isEmpty {
-                VStack(spacing: 0) {
-                    Text("Ooops, there's nothing to read")
-                        .font(.title2)
-                        .fontWeight(.black)
-                    
-                    Text("😢")
-                        .font(.title2)
-                        .fontWeight(.black)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            } else {
-                pages
+        if viewStore.splitIntoPagesVolumeTabStates.isEmpty {
+            VStack(spacing: 0) {
+                Text("Ooops, there's nothing to read")
+                    .font(.title2)
+                    .fontWeight(.black)
                 
-                footer.transition(.identity)
+                Text("😢")
+                    .font(.title2)
+                    .fontWeight(.black)
             }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding()
+        } else {
+            ForEachStore(
+                store.scope(
+                    state: \.volumeTabStatesOnCurrentPage,
+                    action: PagesAction.volumeTabAction
+                ),
+                content: VolumeTabView.init
+            )
+            .disabled(viewStore.lockPage)
+
+            footer
+                .transition(.identity)
         }
-        .animation(.linear, value: viewStore.currentPageIndex)
-        .animation(.linear, value: viewStore.volumeTabStatesOnCurrentPage)
     }
 }
 
@@ -59,14 +63,6 @@ struct PagesView_Previews: PreviewProvider {
 }
 
 extension PagesView {
-    private var pages: some View {
-        ForEachStore(
-            store.scope(state: \.volumeTabStatesOnCurrentPage, action: PagesAction.volumeTabAction),
-            content: VolumeTabView.init
-        )
-        .disabled(viewStore.lockPage)
-    }
-
     private var footer: some View {
         HStack {
             Button {
@@ -111,6 +107,7 @@ extension PagesView {
             .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
         }
         .padding(.bottom, 5)
+        .animation(.linear, value: viewStore.currentPageIndex)
     }
     
     private var pagesPicker: some View {

@@ -37,11 +37,7 @@ struct OnlineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewState? {
-        willSet {
-            isUserOnReadingView = newValue != nil
-        }
-    }
+    var mangaReadingViewState: MangaReadingViewState?
      
     var mainCoverArtURL: URL?
     var coverArtURL256: URL?
@@ -309,6 +305,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
                 )
+                
+                state.isUserOnReadingView = true
 
                 return Effect(value: .mangaReadingViewAction(.online(.userStartedReadingChapter)))
                 

@@ -194,8 +194,10 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
                     return .none
                 }
                 
+                let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childerChapterIDs)
+                
                 return .concatenate(
-                    .cancel(id: ChapterState.CancelChapterFetch()),
+                    .cancel(ids: chapterIDs.map { ChapterState.CancelChapterFetch(id: $0) }),
                     
                     Effect(value: .changePageAfterEffectCancellation(newPageIndex: newPageIndex))
                 )

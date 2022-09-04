@@ -157,9 +157,7 @@ extension ChapterDetails {
     
     var chapterName: String {
         if let title = attributes.title {
-            return attributes.chapterIndex?.clean() == nil ?
-            "\(languageFlag) \(title)" :
-            "\(languageFlag) Ch. \(attributes.chapterIndex!.clean()) - \(title)"
+            return "\(languageFlag) \(title)"
         } else if let index = attributes.chapterIndex?.clean() {
             return "\(languageFlag) Ch. \(index)"
         } else if attributes.pagesCount == 1 {

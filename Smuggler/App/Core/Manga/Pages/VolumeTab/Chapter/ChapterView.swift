@@ -20,6 +20,7 @@ struct ChapterView: View {
                 disclosureGroupLabel
             }
             .buttonStyle(PlainButtonStyle())
+            .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             .padding(5)
             .confirmationDialog(
                 store.scope(state: \.confirmationDialog),
@@ -98,7 +99,6 @@ extension ChapterView {
                     )
                     .transition(.opacity)
                 }
-                .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)

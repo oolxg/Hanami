@@ -45,7 +45,7 @@ struct OnlineMangaView: View {
                         scrollToHeader(proxy: proxy)
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
-                        scrollToHeader(proxy: proxy)
+                        scrollToHeader(proxy: proxy, withDelay: false)
                     }
                 }
             }
@@ -102,8 +102,9 @@ extension OnlineMangaView {
         )
     }
     
-    private func scrollToHeader(proxy: ScrollViewProxy) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+    private func scrollToHeader(proxy: ScrollViewProxy, withDelay: Bool = true) {
+        let delay = withDelay ? 0.2 : 0.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             withAnimation(.linear) {
                 proxy.scrollTo("header")
             }
@@ -205,38 +206,19 @@ extension OnlineMangaView {
                             action: OnlineMangaViewAction.pagesAction
                         ),
                         then: PagesView.init,
-                        else: { pagesPlaceholder }
+                        else: {
+                            ProgressView()
+                                .padding(.top, 50)
+                                .padding(.bottom, 20)
+                        }
                     )
                 case .coverArt:
                     coverArtTab
             }
         }
-        .transition(.opacity)
-        .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
     }
     
-    private var pagesPlaceholder: some View {
-        WithViewStore(store) { viewStore in
-            if viewStore.shouldShowEmptyMangaMessage {
-                VStack(spacing: 0) {
-                    Text("Ooops, there's nothing to read")
-                        .font(.title2)
-                        .fontWeight(.black)
-                    
-                    Text("😢")
-                        .font(.title2)
-                        .fontWeight(.black)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            } else {
-                ProgressView()
-                    .padding(.top, 50)
-            }
-        }
-    }
-
     private var coverArtTab: some View {
         WithViewStore(store.actionless) { viewStore in
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
@@ -393,7 +375,7 @@ extension OnlineMangaView {
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
-        .animation(.linear, value: isHeaderBackButtonVisible)
+        .animation(.linear(duration: 0.2), value: isHeaderBackButtonVisible)
         .background(Color.black)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(MangaViewOffsetModifier(offset: $headerOffset))

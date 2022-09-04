@@ -32,11 +32,7 @@ struct OfflineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewState? {
-        willSet {
-            isUserOnReadingView = newValue != nil
-        }
-    }
+    var mangaReadingViewState: MangaReadingViewState?
 }
 
 enum OfflineMangaViewAction: BindableAction {
@@ -162,6 +158,8 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                     )
                 )
                 
+                state.isUserOnReadingView = true
+
                 return Effect(value: .mangaReadingViewAction(.offline(.userStartedReadingChapter)))
                 
             case .mangaReadingViewAction(.offline(.userStartedReadingChapter)):

@@ -217,6 +217,7 @@ extension OfflineMangaView {
             switch viewStore.selectedTab {
                 case .info:
                     aboutTab
+                    
                 case .chapters:
                     IfLetStore(
                         store.scope(
@@ -227,7 +228,6 @@ extension OfflineMangaView {
                     )
             }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 5)
     }
     
@@ -339,7 +339,7 @@ extension OfflineMangaView {
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
-        .animation(.linear, value: isHeaderBackButtonVisible)
+        .animation(.linear(duration: 0.2), value: isHeaderBackButtonVisible)
         .background(Color.black)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(
