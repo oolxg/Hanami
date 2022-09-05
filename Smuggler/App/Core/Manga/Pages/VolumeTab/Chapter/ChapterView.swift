@@ -123,7 +123,7 @@ extension ChapterView {
                     } else {
                         if viewStore.cachedChaptersIDs.contains(chapter.id) {
                             Button {
-                                viewStore.send(.deleteChapter(chapter: chapter))
+                                viewStore.send(.deleteChapter(chapterID: chapter.id))
                             } label: {
                                 Image(systemName: "checkmark.seal.fill")
                                     .font(.callout)

@@ -54,6 +54,7 @@ struct MangaThumbnailView: View {
                         .opacity(0.45)
                         .redacted(reason: .placeholder)
                 }
+                .retry(maxCount: 3)
                 .fade(duration: 0.5)
                 .resizable()
                 .scaledToFill()

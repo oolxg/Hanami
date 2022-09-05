@@ -76,6 +76,7 @@ extension OnlineMangaReadingView {
                                     urls[pageIndex],
                                     cacheKey: urls[pageIndex].absoluteString
                                 )
+                                .retry(maxCount: 3)
                                 .placeholder {
                                     ProgressView()
                                         .frame(width: 120)

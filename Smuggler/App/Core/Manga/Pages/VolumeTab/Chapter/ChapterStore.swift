@@ -21,16 +21,23 @@ struct ChapterState: Equatable, Identifiable {
     
     // we can have many 'chapterDetailsList' in one ChapterState because one chapter can be translated by different scanlation groups
     var chapterDetailsList: IdentifiedArrayOf<ChapterDetails> = []
-    // '_chapterDetails' is only to accumulate all ChapterDetails and then show it at once
+    // '_chapterDetails' is only to accumulate all ChapterDetails and then show it at all once
     // swiftlint:disable:next identifier_name
     var _chapterDetailsList: [ChapterDetails] = [] {
         didSet {
             // if all chapters fetched, this container is no longer needed
             // so we put all chapterDetails in 'chapterDetailsList' and clear this one
             if _chapterDetailsList.count == chaptersCount {
-                chapterDetailsList = .init(uniqueElements: _chapterDetailsList.sorted {
-                    $0.attributes.translatedLanguage < $1.attributes.translatedLanguage
+                chapterDetailsList = .init(uniqueElements: _chapterDetailsList.sorted { lhs, rhs in
+                    // sort by lang and by ScanlationGroup's name
+                    if lhs.attributes.translatedLanguage == rhs.attributes.translatedLanguage,
+                       let lhsScanlationGroup = lhs.scanlationGroup, let rhsScanlationGroup = rhs.scanlationGroup {
+                        return lhsScanlationGroup.name < rhsScanlationGroup.name
+                    }
+                    
+                    return lhs.attributes.translatedLanguage < rhs.attributes.translatedLanguage
                 })
+                
                 _chapterDetailsList = []
             }
         }
@@ -57,8 +64,8 @@ enum ChapterAction: BindableAction, Equatable {
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
     case downloadChapterForOfflineReading(chapter: ChapterDetails)
     
-    case deleteChapter(chapter: ChapterDetails)
-    case chapterDeletionConfirmed(chapter: ChapterDetails)
+    case deleteChapter(chapterID: UUID)
+    case chapterDeletionConfirmed(chapterID: UUID)
     case cancelTapped
 
     case binding(BindingAction<ChapterState>)
@@ -131,31 +138,31 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return effects.isEmpty ? .none : .merge(effects)
             
-        case .deleteChapter(let chapter):
+        case .deleteChapter(let chapterID):
             state.confirmationDialog = ConfirmationDialogState(
                 title: TextState("Delete this chapter from device?"),
                 message: TextState("Delete this chapter from device?"),
                 buttons: [
-                    .destructive(TextState("Delete"), action: .send(.chapterDeletionConfirmed(chapter: chapter))),
+                    .destructive(TextState("Delete"), action: .send(.chapterDeletionConfirmed(chapterID: chapterID))),
                     .cancel(TextState("Cancel"), action: .send(.cancelTapped))
                 ]
             )
             return .none
             
-        case .chapterDeletionConfirmed(let chapter):
-            state.cachedChaptersIDs.remove(chapter.id)
+        case .chapterDeletionConfirmed(let chapterID):
+            state.cachedChaptersIDs.remove(chapterID)
             state.confirmationDialog = nil
             
             var effects: [Effect<ChapterAction, Never>] = [
                 env.databaseClient
-                    .deleteChapter(chapterID: chapter.id)
+                    .deleteChapter(chapterID: chapterID)
                     .fireAndForget()
             ]
             
-            if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
+            if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapterID)?.pagesCount {
                 effects.append(
                     env.mangaClient
-                        .removeCachedPagesForChapter(chapter.id, pagesCount, env.cacheClient)
+                        .removeCachedPagesForChapter(chapterID, pagesCount, env.cacheClient)
                         .fireAndForget()
                 )
             }
@@ -212,6 +219,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 case .success(let response):
                     state.scanlationGroups[chapterID] = response.data
                     return .none
+                    
                 case .failure(let error):
                     print("Error on fetching scanlation group \(error)")
                     return .none

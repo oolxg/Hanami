@@ -45,7 +45,7 @@ struct OnlineMangaView: View {
                         scrollToHeader(proxy: proxy)
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
-                        scrollToHeader(proxy: proxy, withDelay: false)
+                        scrollToHeader(proxy: proxy)
                     }
                 }
             }
@@ -102,9 +102,8 @@ extension OnlineMangaView {
         )
     }
     
-    private func scrollToHeader(proxy: ScrollViewProxy, withDelay: Bool = true) {
-        let delay = withDelay ? 0.2 : 0.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+    private func scrollToHeader(proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             withAnimation(.linear) {
                 proxy.scrollTo("header")
             }
@@ -117,23 +116,20 @@ extension OnlineMangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                // here used AsyncImage because using KFImage.url(...) or KFImage(url: ...)
-                // getting us 'Fatal error: attempting to create attribute with no subgraph: CachedView<KFImageRenderer, >'
-                AsyncImage(url: viewStore.mainCoverArtURL) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    // using this as placeholder makes sense because we already loaded this image with this resolution in thumbnail
-                    KFImage.url(viewStore.coverArtURL256)
-                        .onlyFromCache()
-                        .resizable()
-                        .scaledToFill()
-                }
-                .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                .overlay(headerOverlay)
-                .cornerRadius(0)
-                .offset(y: -minY)
+                KFImage.url(viewStore.mainCoverArtURL)
+                    .placeholder {
+                        KFImage.url(viewStore.coverArtURL256)
+                            .onlyFromCache()
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .retry(maxCount: 3)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                    .overlay(headerOverlay)
+                    .cornerRadius(0)
+                    .offset(y: -minY)
             }
             .frame(height: 350)
         }
@@ -224,6 +220,7 @@ extension OnlineMangaView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
                 ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
                     KFImage.url(viewStore.croppedCoverArtURLs[coverArtIndex])
+                        .retry(maxCount: 3)
                         .fade(duration: 0.3)
                         .resizable()
                         .scaledToFit()
