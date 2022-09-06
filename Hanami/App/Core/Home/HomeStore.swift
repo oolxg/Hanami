@@ -1,8 +1,8 @@
 //
 //  HomeFeature.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 13/05/2022.
+//  Created by Oleg on 13/05/2022.
 //
 
 import Foundation
@@ -59,11 +59,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient,
+                    hapticClient: $0.hapticClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    cacheClient: $0.cacheClient,
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -74,11 +74,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient,
+                    hapticClient: $0.hapticClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    cacheClient: $0.cacheClient,
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -89,11 +89,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient,
+                    hapticClient: $0.hapticClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    cacheClient: $0.cacheClient,
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -104,11 +104,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient,
+                    hapticClient: $0.hapticClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    cacheClient: $0.cacheClient,
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

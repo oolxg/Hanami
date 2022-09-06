@@ -1,6 +1,6 @@
 //
 //  HapticClient.swift
-//  Smuggler
+//  Hanami
 //
 //  Created by tatsuz0u
 //  https://github.com/EhPanda-Team/EhPanda/blob/main/EhPanda/App/Tools/Clients/HapticClient.swift

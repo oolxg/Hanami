@@ -1,8 +1,8 @@
 //
 //  OnlineMangaReadingView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 23/08/2022.
+//  Created by Oleg on 23/08/2022.
 //
 
 import SwiftUI
@@ -168,11 +168,11 @@ struct OnlineMangaReadingView_Previews: PreviewProvider {
                 ),
                 reducer: onlineMangaReadingViewReducer,
                 environment: .init(
-                    mangaClient: .live,
-                    imageClient: .live,
-                    hudClient: .live,
                     databaseClient: .live,
-                    cacheClient: .live
+                    cacheClient: .live,
+                    imageClient: .live,
+                    mangaClient: .live,
+                    hudClient: .live
                 )
             )
         )

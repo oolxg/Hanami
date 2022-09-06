@@ -1,8 +1,8 @@
 //
 //  VolumeTabView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 26/05/2022.
+//  Created by Oleg on 26/05/2022.
 //
 
 import SwiftUI

@@ -1,8 +1,8 @@
 //
 //  LocalizedString.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 15/05/2022.
+//  Created by Oleg on 15/05/2022.
 //
 
 import Foundation

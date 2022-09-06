@@ -1,8 +1,8 @@
 //
 //  Int.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 18/06/2022.
+//  Created by Oleg on 18/06/2022.
 //
 
 import Foundation

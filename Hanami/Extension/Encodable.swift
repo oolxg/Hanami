@@ -1,8 +1,8 @@
 //
 //  Encodable.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 03/07/2022.
+//  Created by Oleg on 03/07/2022.
 //
 
 import Foundation

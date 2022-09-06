@@ -1,6 +1,6 @@
 //
 //  UITabBar.swift
-//  Smuggler
+//  Hanami
 //
 //  Created by AliMert
 //  https://github.com/AliMert/HidableTabView-SwiftUI

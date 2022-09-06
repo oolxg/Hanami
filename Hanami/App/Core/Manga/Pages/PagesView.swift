@@ -1,8 +1,8 @@
 //
 //  PagesView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 13/07/2022.
+//  Created by Oleg on 13/07/2022.
 //
 
 import SwiftUI
@@ -53,8 +53,8 @@ struct PagesView_Previews: PreviewProvider {
                 initialState: .init(mangaVolumes: [], chaptersPerPage: 1, isOnline: true),
                 reducer: pagesReducer,
                 environment: .init(
-                    mangaClient: .live,
                     databaseClient: .live,
+                    mangaClient: .live,
                     cacheClient: .live
                 )
             )

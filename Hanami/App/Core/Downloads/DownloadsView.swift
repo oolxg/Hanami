@@ -1,8 +1,8 @@
 //
 //  DownloadsView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 19/07/2022.
+//  Created by Oleg on 19/07/2022.
 //
 
 import SwiftUI

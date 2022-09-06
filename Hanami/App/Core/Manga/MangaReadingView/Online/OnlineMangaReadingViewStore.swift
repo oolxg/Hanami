@@ -1,8 +1,8 @@
 //
 //  OnlineMangaReadingViewStore.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 23/08/2022.
+//  Created by Oleg on 23/08/2022.
 //
 
 import Foundation
@@ -55,11 +55,11 @@ enum OnlineMangaReadingViewAction {
 }
 
 struct MangaReadingViewEnvironment {
-    let mangaClient: MangaClient
-    let imageClient: ImageClient
-    let hudClient: HUDClient
     let databaseClient: DatabaseClient
     let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let hudClient: HUDClient
 }
 
     // swiftlint:disable:next line_length
@@ -68,22 +68,22 @@ let mangaReadingViewReducer: Reducer<MangaReadingViewState, MangaReadingViewActi
         state: /MangaReadingViewState.online,
         action: /MangaReadingViewAction.online,
         environment: { .init(
-            mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient,
-            hudClient: $0.hudClient,
             databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient
+            cacheClient: $0.cacheClient,
+            imageClient: $0.imageClient,
+            mangaClient: $0.mangaClient,
+            hudClient: $0.hudClient
         ) }
     ),
     offlineMangaReadingViewReducer.pullback(
         state: /MangaReadingViewState.offline,
         action: /MangaReadingViewAction.offline,
         environment: { .init(
-            mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient,
-            hudClient: $0.hudClient,
             databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient
+            cacheClient: $0.cacheClient,
+            imageClient: $0.imageClient,
+            mangaClient: $0.mangaClient,
+            hudClient: $0.hudClient
         ) }
     )
 )

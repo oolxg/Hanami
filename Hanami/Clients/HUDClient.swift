@@ -1,8 +1,8 @@
 //
 //  HUDClient.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 11/08/2022.
+//  Created by Oleg on 11/08/2022.
 //
 
 import Foundation

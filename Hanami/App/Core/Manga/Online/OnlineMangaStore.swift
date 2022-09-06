@@ -1,8 +1,8 @@
 //
 //  MangaFeature.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 16/05/2022.
+//  Created by Oleg on 16/05/2022.
 //
 
 import Foundation
@@ -85,11 +85,11 @@ enum OnlineMangaViewAction: BindableAction {
 
 struct MangaViewEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
-    let imageClient: ImageClient
-    let cacheClient: CacheClient
-    let hudClient: HUDClient
     let hapticClient: HapticClient
+    let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let hudClient: HUDClient
 }
 
 let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction, MangaViewEnvironment> = .combine(
@@ -97,8 +97,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
         state: \.pagesState,
         action: /OnlineMangaViewAction.pagesAction,
         environment: { .init(
-            mangaClient: $0.mangaClient,
             databaseClient: $0.databaseClient,
+            mangaClient: $0.mangaClient,
             cacheClient: $0.cacheClient
         ) }
     ),
@@ -106,11 +106,11 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
         state: \.mangaReadingViewState,
         action: /OnlineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
-            mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient,
-            hudClient: $0.hudClient,
             databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient
+            cacheClient: $0.cacheClient,
+            imageClient: $0.imageClient,
+            mangaClient: $0.mangaClient,
+            hudClient: $0.hudClient
         ) }
     ),
     Reducer { state, action, env in

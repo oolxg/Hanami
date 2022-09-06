@@ -1,8 +1,8 @@
 //
 //  MangaThumbnailView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 15/05/2022.
+//  Created by Oleg on 15/05/2022.
 //
 
 import SwiftUI
@@ -114,11 +114,11 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                 reducer: mangaThumbnailReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live,
-                    cacheClient: .live,
+                    hapticClient: .live,
                     imageClient: .live,
-                    hudClient: .live,
-                    hapticClient: .live
+                    cacheClient: .live,
+                    mangaClient: .live,
+                    hudClient: .live
                 )
             ),
             compact: true

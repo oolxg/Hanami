@@ -1,8 +1,8 @@
 //
 //  AppFeature.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 03/07/2022.
+//  Created by Oleg on 03/07/2022.
 //
 
 import Foundation
@@ -19,13 +19,13 @@ enum AppAction {
 
 struct AppEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
+    let hapticClient: HapticClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
     let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
     let hudClient: HUDClient
-    let hapticClient: HapticClient
 }
 
 let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
@@ -36,13 +36,13 @@ let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    homeClient: $0.homeClient,
+                    hapticClient: $0.hapticClient,
                     searchClient: $0.searchClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    mangaClient: $0.mangaClient,
+                    homeClient: $0.homeClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

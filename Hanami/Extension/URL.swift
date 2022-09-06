@@ -1,6 +1,6 @@
 //
 //  URL.swift
-//  Smuggler
+//  Hanami
 //
 //  https://stackoverflow.com/a/32814710/11090054
 //  Created by Leo Dabus

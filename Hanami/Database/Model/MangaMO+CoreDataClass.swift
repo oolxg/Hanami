@@ -1,8 +1,8 @@
 //
 //  MangaMO+CoreDataClass.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 10/07/2022.
+//  Created by Oleg on 10/07/2022.
 //
 //
 

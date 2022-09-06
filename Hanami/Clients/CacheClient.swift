@@ -1,8 +1,8 @@
 //
 //  CacheClient.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 24/07/2022.
+//  Created by Oleg on 24/07/2022.
 //
 
 import Cache

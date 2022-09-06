@@ -1,6 +1,6 @@
 //
 //  ZoomableScrollView.swift
-//  Smuggler
+//  Hanami
 //
 //  Created by jtbandes
 //  https://stackoverflow.com/a/64110231/11090054

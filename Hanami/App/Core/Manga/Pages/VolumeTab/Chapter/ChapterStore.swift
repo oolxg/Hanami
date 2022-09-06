@@ -1,8 +1,8 @@
 //
 //  ChapterFeature.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 22/05/2022.
+//  Created by Oleg on 22/05/2022.
 //
 
 import Foundation

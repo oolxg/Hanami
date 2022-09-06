@@ -1,8 +1,8 @@
 //
 //  RandomAccessCollection.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 13/07/2022.
+//  Created by Oleg on 13/07/2022.
 //
 
 import Foundation

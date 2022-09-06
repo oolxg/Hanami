@@ -1,8 +1,8 @@
 //
 //  HomeView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 12/05/2022.
+//  Created by Oleg on 12/05/2022.
 //
 
 import SwiftUI

@@ -1,8 +1,8 @@
 //
 //  Manga.Attributes.Status.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 08/07/2022.
+//  Created by Oleg on 08/07/2022.
 //
 
 import Foundation

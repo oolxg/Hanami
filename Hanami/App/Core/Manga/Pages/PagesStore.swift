@@ -1,8 +1,8 @@
 //
 //  PageStore.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 13/07/2022.
+//  Created by Oleg on 13/07/2022.
 //
 
 import Foundation
@@ -172,8 +172,8 @@ enum PagesAction {
 }
 
 struct PagesEnvironment {
-    let mangaClient: MangaClient
     let databaseClient: DatabaseClient
+    let mangaClient: MangaClient
     let cacheClient: CacheClient
 }
 

@@ -1,6 +1,6 @@
 //
 //  LazyView.swift
-//  Smuggler
+//  Hanami
 //
 //  Created by chriseidhof
 //  https://gist.github.com/chriseidhof/d2fcafb53843df343fe07f3c0dac41d5

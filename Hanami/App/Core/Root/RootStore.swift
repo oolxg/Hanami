@@ -1,8 +1,8 @@
 //
 //  RootFeature.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 12/05/2022.
+//  Created by Oleg on 12/05/2022.
 //
 
 import Foundation
@@ -29,13 +29,13 @@ enum RootAction {
 
 struct RootEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
+    let hapticClient: HapticClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
     let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
     let hudClient: HUDClient
-    let hapticClient: HapticClient
 }
 
 let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(

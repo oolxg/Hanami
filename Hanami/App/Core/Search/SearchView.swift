@@ -1,8 +1,8 @@
 //
 //  SearchView.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 27/05/2022.
+//  Created by Oleg on 27/05/2022.
 //
 
 import SwiftUI

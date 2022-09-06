@@ -41,7 +41,7 @@
 		222A03682871BB0500D5B588 /* NSPersistentStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03672871BB0500D5B588 /* NSPersistentStoreCoordinator.swift */; };
 		222A036A2871BD7500D5B588 /* AppUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03692871BD7500D5B588 /* AppUtil.swift */; };
 		222A036C2871D93A00D5B588 /* Encodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A036B2871D93A00D5B588 /* Encodable.swift */; };
-		222A03722872006200D5B588 /* SmugglerAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03712872006200D5B588 /* SmugglerAppStore.swift */; };
+		222A03722872006200D5B588 /* HanamiAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03712872006200D5B588 /* HanamiAppStore.swift */; };
 		222A03742872330400D5B588 /* HUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222A03732872330400D5B588 /* HUD.swift */; };
 		222ED96D28C01F99009C361E /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222ED96C28C01F99009C361E /* URLSession.swift */; };
 		222ED96F28C6E2C6009C361E /* DeviceUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222ED96E28C6E2C6009C361E /* DeviceUtil.swift */; };
@@ -49,10 +49,10 @@
 		2245D4BE284109AF005B1C83 /* SearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4BD284109AF005B1C83 /* SearchStore.swift */; };
 		2245D4C028413642005B1C83 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2245D4BF28413642005B1C83 /* SearchView.swift */; };
 		22471E1E288E10A300223D35 /* Author.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22471E1D288E10A300223D35 /* Author.swift */; };
-		224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* SmugglerApp.swift */; };
+		224C657C2827204100AAEF2E /* HanamiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* HanamiApp.swift */; };
 		224C65802827204300AAEF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C657F2827204300AAEF2E /* Assets.xcassets */; };
 		224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C65822827204300AAEF2E /* Preview Assets.xcassets */; };
-		224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* SmugglerTests.swift */; };
+		224C658D2827204300AAEF2E /* HanamiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* HanamiTests.swift */; };
 		224E6712282E91FF001D214C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6711282E91FF001D214C /* Response.swift */; };
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E671B282EAA50001D214C /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671A282EAA50001D214C /* AppError.swift */; };
@@ -167,7 +167,7 @@
 		222A03672871BB0500D5B588 /* NSPersistentStoreCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinator.swift; sourceTree = "<group>"; };
 		222A03692871BD7500D5B588 /* AppUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUtil.swift; sourceTree = "<group>"; };
 		222A036B2871D93A00D5B588 /* Encodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Encodable.swift; sourceTree = "<group>"; };
-		222A03712872006200D5B588 /* SmugglerAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerAppStore.swift; sourceTree = "<group>"; };
+		222A03712872006200D5B588 /* HanamiAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HanamiAppStore.swift; sourceTree = "<group>"; };
 		222A03732872330400D5B588 /* HUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUD.swift; sourceTree = "<group>"; };
 		222ED96C28C01F99009C361E /* URLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
 		222ED96E28C6E2C6009C361E /* DeviceUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceUtil.swift; sourceTree = "<group>"; };
@@ -176,11 +176,11 @@
 		2245D4BF28413642005B1C83 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		22471E1D288E10A300223D35 /* Author.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Author.swift; sourceTree = "<group>"; };
 		224C65782827204100AAEF2E /* Hanami.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hanami.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		224C657B2827204100AAEF2E /* SmugglerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerApp.swift; sourceTree = "<group>"; };
+		224C657B2827204100AAEF2E /* HanamiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HanamiApp.swift; sourceTree = "<group>"; };
 		224C657F2827204300AAEF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		224C65822827204300AAEF2E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		224C65882827204300AAEF2E /* HanamiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HanamiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		224C658C2827204300AAEF2E /* SmugglerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmugglerTests.swift; sourceTree = "<group>"; };
+		224C658C2827204300AAEF2E /* HanamiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HanamiTests.swift; sourceTree = "<group>"; };
 		224C65922827204300AAEF2E /* HanamiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HanamiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		224E6711282E91FF001D214C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
@@ -457,7 +457,7 @@
 		224C658B2827204300AAEF2E /* HanamiTests */ = {
 			isa = PBXGroup;
 			children = (
-				224C658C2827204300AAEF2E /* SmugglerTests.swift */,
+				224C658C2827204300AAEF2E /* HanamiTests.swift */,
 			);
 			path = HanamiTests;
 			sourceTree = "<group>";
@@ -550,8 +550,8 @@
 		229F8D88282DB2E900761054 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				224C657B2827204100AAEF2E /* SmugglerApp.swift */,
-				222A03712872006200D5B588 /* SmugglerAppStore.swift */,
+				224C657B2827204100AAEF2E /* HanamiApp.swift */,
+				222A03712872006200D5B588 /* HanamiAppStore.swift */,
 				229B2C2F282859560028015B /* Core */,
 			);
 			path = App;
@@ -831,7 +831,7 @@
 				2220E15728312D400046F08A /* MangaThumbnailStore.swift in Sources */,
 				22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */,
 				2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */,
-				222A03722872006200D5B588 /* SmugglerAppStore.swift in Sources */,
+				222A03722872006200D5B588 /* HanamiAppStore.swift in Sources */,
 				222ED96F28C6E2C6009C361E /* DeviceUtil.swift in Sources */,
 				2225265D28B15ED3009F6FA3 /* HapticUtil.swift in Sources */,
 				22655332287EFED400D61873 /* Array.swift in Sources */,
@@ -843,7 +843,7 @@
 				2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */,
 				22471E1E288E10A300223D35 /* Author.swift in Sources */,
 				226DF7952865BFDC007CF96A /* View.swift in Sources */,
-				224C657C2827204100AAEF2E /* SmugglerApp.swift in Sources */,
+				224C657C2827204100AAEF2E /* HanamiApp.swift in Sources */,
 				226DF79028652A3A007CF96A /* ZoomableScrollView.swift in Sources */,
 				2220E1652832A8D60046F08A /* OnlineMangaStore.swift in Sources */,
 				222A03642871AFC400D5B588 /* PersistenceController.swift in Sources */,
@@ -862,7 +862,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224C658D2827204300AAEF2E /* SmugglerTests.swift in Sources */,
+				224C658D2827204300AAEF2E /* HanamiTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1085,7 +1085,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.HanamiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1105,7 +1105,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.HanamiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1123,12 +1123,12 @@
 				DEVELOPMENT_TEAM = HJ9678T652;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.HanamiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Smuggler;
+				TEST_TARGET_NAME = Hanami;
 			};
 			name = Debug;
 		};
@@ -1141,12 +1141,12 @@
 				DEVELOPMENT_TEAM = HJ9678T652;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.SmugglerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.HanamiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Smuggler;
+				TEST_TARGET_NAME = Hanami;
 			};
 			name = Release;
 		};

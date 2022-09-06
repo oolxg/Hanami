@@ -1,8 +1,8 @@
 //
 //  DeviceUtil.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 05/09/2022.
+//  Created by Oleg on 05/09/2022.
 //
 
 import Foundation

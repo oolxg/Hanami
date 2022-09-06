@@ -1,27 +1,27 @@
 //
-//  SmugglerApp.swift
-//  Smuggler
+//  HanamiApp.swift
+//  Hanami
 //
-//  Created by mk.pwnz on 07/05/2022.
+//  Created by Oleg on 07/05/2022.
 //
 
 import SwiftUI
 import ComposableArchitecture
 
 @main
-struct SmugglerApp: App {
+struct HanamiApp: App {
     let store: Store<AppState, AppAction> = .init(
         initialState: AppState(rootState: .init(selectedTab: .home)),
         reducer: appReducer,
         environment: .init(
             databaseClient: .live,
-            mangaClient: .live,
-            homeClient: .live,
+            hapticClient: .live,
             searchClient: .live,
             cacheClient: .live,
             imageClient: .live,
-            hudClient: .live,
-            hapticClient: .live
+            mangaClient: .live,
+            homeClient: .live,
+            hudClient: .live
         )
     )
     

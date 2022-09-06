@@ -1,8 +1,8 @@
 //
 //  DownloadsStore.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 19/07/2022.
+//  Created by Oleg on 19/07/2022.
 //
 
 import Foundation
@@ -38,11 +38,11 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    cacheClient: $0.cacheClient,
+                    hapticClient: $0.hapticClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    cacheClient: $0.cacheClient,
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

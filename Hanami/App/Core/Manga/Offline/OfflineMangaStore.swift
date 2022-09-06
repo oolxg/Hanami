@@ -1,8 +1,8 @@
 //
 //  OfflineMangaViewStore.swift
-//  Smuggler
+//  Hanami
 //
-//  Created by mk.pwnz on 23/07/2022.
+//  Created by Oleg on 23/07/2022.
 //
 
 import Foundation
@@ -54,8 +54,8 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
         state: \.pagesState,
         action: /OfflineMangaViewAction.pagesAction,
         environment: { .init(
-            mangaClient: $0.mangaClient,
             databaseClient: $0.databaseClient,
+            mangaClient: $0.mangaClient,
             cacheClient: $0.cacheClient
         ) }
     ),
@@ -63,11 +63,11 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
         state: \.mangaReadingViewState,
         action: /OfflineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
-            mangaClient: $0.mangaClient,
-            imageClient: $0.imageClient,
-            hudClient: $0.hudClient,
             databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient
+            cacheClient: $0.cacheClient,
+            imageClient: $0.imageClient,
+            mangaClient: $0.mangaClient,
+            hudClient: $0.hudClient
         ) }
     ),
     Reducer { state, action, env in
