@@ -21,10 +21,6 @@ struct OnlineMangaView: View {
         headerOffset < -350
     }
     
-    private var isHeaderBackButtonVisible: Bool {
-        headerOffset > -270
-    }
-    
     var body: some View {
         WithViewStore(store) { viewStore in
             ScrollView(showsIndicators: false) {
@@ -144,7 +140,7 @@ extension OnlineMangaView {
                     endPoint: .bottom
                 )
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
                     backButton
                     
                     Spacer()
@@ -170,6 +166,8 @@ extension OnlineMangaView {
                     
                     Text(viewStore.manga.title)
                         .font(.title.bold())
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(5)
                 }
                 .padding(.horizontal)
                 .padding(.top, 40)
@@ -363,16 +361,16 @@ extension OnlineMangaView {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 25) {
                 backButton
-                    .opacity(isHeaderBackButtonVisible ? 0 : 1)
+                    .opacity(isViewScrolledDown ? 1 : 0)
                 
                 ForEach(OnlineMangaViewState.Tab.allCases, content: makeTabLabel)
-                    .offset(x: isHeaderBackButtonVisible ? -40 : 0)
+                    .offset(x: isViewScrolledDown ? 0 : -40)
             }
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
-        .animation(.linear(duration: 0.2), value: isHeaderBackButtonVisible)
+        .animation(.linear(duration: 0.2), value: isViewScrolledDown)
         .background(Color.black)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(

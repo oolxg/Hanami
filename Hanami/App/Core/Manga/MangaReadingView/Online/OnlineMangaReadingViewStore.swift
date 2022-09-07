@@ -54,15 +54,7 @@ enum OnlineMangaReadingViewAction {
     case userLeftMangaReadingView
 }
 
-struct MangaReadingViewEnvironment {
-    let databaseClient: DatabaseClient
-    let cacheClient: CacheClient
-    let imageClient: ImageClient
-    let mangaClient: MangaClient
-    let hudClient: HUDClient
-}
-
-    // swiftlint:disable:next line_length
+// swiftlint:disable:next line_length
 let mangaReadingViewReducer: Reducer<MangaReadingViewState, MangaReadingViewAction, MangaReadingViewEnvironment> = .combine(
     onlineMangaReadingViewReducer.pullback(
         state: /MangaReadingViewState.online,

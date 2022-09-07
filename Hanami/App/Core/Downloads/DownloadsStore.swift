@@ -23,11 +23,11 @@ enum DownloadsAction {
 
 struct DownloadsEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
+    let hapticClient: HapticClient
     let cacheClient: CacheClient
     let imageClient: ImageClient
+    let mangaClient: MangaClient
     let hudClient: HUDClient
-    let hapticClient: HapticClient
 }
 
 let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironment> = .combine(

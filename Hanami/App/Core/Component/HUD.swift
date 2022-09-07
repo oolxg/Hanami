@@ -33,7 +33,7 @@ struct HUD: View {
         .background(
             RoundedRectangle(cornerRadius: 25)
                 .fill(backgroundColor)
-                .opacity(0.8)
+                .opacity(0.7)
                 .shadow(color: .black.opacity(0.25), radius: 35, x: 0, y: 5)
         )
     }

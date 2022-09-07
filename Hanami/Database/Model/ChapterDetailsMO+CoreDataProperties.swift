@@ -11,10 +11,6 @@ import CoreData
 
 
 extension ChapterDetailsMO {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<ChapterDetailsMO> {
-        NSFetchRequest<ChapterDetailsMO>(entityName: "ChapterDetailsMO")
-    }
-
     @NSManaged public var attributes: Data
     @NSManaged public var id: UUID
     @NSManaged public var pagesCount: Int

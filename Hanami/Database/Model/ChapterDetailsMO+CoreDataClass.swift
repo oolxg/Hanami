@@ -37,9 +37,3 @@ extension ChapterDetails: ManagedObjectConvertible {
         return chapterDetailsMO
     }
 }
-
-extension ChapterDetailsMO {
-    var manga: Manga {
-        fromManga.toEntity()
-    }
-}

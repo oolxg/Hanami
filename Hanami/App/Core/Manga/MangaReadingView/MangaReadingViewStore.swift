@@ -7,8 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-import Kingfisher
-import class SwiftUI.UIImage
 
 enum MangaReadingViewState: Equatable {
     case online(OnlineMangaReadingViewState)
@@ -23,16 +21,6 @@ enum MangaReadingViewState: Equatable {
                 return offlineMangaReadingViewState.chapter.attributes.chapterIndex
         }
     }
-    
-    var chapterID: UUID {
-        switch self {
-            case .online(let onlineMangaReadingViewState):
-                return onlineMangaReadingViewState.chapterID
-                
-            case .offline(let offlineMangaReadingViewState):
-                return offlineMangaReadingViewState.chapter.id
-        }
-    }
 }
 
 
@@ -41,3 +29,11 @@ enum MangaReadingViewAction {
     case offline(OfflineMangaReadingViewAction)
 }
        
+
+struct MangaReadingViewEnvironment {
+    let databaseClient: DatabaseClient
+    let cacheClient: CacheClient
+    let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let hudClient: HUDClient
+}

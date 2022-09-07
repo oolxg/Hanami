@@ -10,6 +10,10 @@ import UIKit.UIDevice
 
 enum DeviceUtil {
     static var deviceName: String {
-        UIDevice.current.name
+        UIDevice.modelName
+    }
+    
+    static var fullOSName: String {
+        "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
     }
 }

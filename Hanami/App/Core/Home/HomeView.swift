@@ -66,12 +66,12 @@ struct HomeView_Previews: PreviewProvider {
                 reducer: homeReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live,
-                    homeClient: .live,
+                    hapticClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live,
-                    hapticClient: .live
+                    mangaClient: .live,
+                    homeClient: .live,
+                    hudClient: .live
                 )
             )
         )

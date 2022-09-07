@@ -13,11 +13,6 @@ struct OnlineMangaViewState: Equatable {
     let manga: Manga
     var pagesState: PagesState?
     
-    var areVolumesLoaded = false
-    var shouldShowEmptyMangaMessage: Bool {
-        areVolumesLoaded && pagesState != nil && pagesState!.splitIntoPagesVolumeTabStates.isEmpty
-    }
-
     init(manga: Manga) {
         self.manga = manga
     }
@@ -134,15 +129,14 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         )
                 }
                 
-                return effects.isEmpty ? .none : .merge(effects)
+                return .merge(effects)
                 
             case .volumesDownloaded(let result):
-                state.areVolumesLoaded = true
                 switch result {
                     case .success(let response):
                         state.pagesState = PagesState(
                             mangaVolumes: response.volumes,
-                            chaptersPerPage: 10,
+                            chaptersPerPage: 15,
                             isOnline: true
                         )
                         

@@ -90,7 +90,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                         state.lastRetrievedChapterIDs = chaptersIDsSet
                         state.pagesState = PagesState(
                             chaptersDetailsList: chapters.map(\.chapter),
-                            chaptersPerPages: 10
+                            chaptersPerPages: 15
                         )
                         return .none
 

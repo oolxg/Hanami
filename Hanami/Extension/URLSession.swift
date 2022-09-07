@@ -12,7 +12,8 @@ extension URLSession {
     func get<T: Decodable>(url: URL, decodeResponseAs type: T.Type) -> Effect<T, AppError> {
         var request = URLRequest(url: url)
         
-        request.setValue("Hanami/\(AppUtil.version) \(DeviceUtil.deviceName)", forHTTPHeaderField: "User-Agent")
+        let userAgent = "Hanami/\(AppUtil.version) (\(DeviceUtil.deviceName); \(DeviceUtil.fullOSName))"
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         
         return URLSession.shared.dataTaskPublisher(for: request)
             .validateResponseCode()

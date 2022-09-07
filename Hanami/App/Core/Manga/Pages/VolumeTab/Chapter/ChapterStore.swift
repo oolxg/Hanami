@@ -136,7 +136,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             // we should fetch nothing 
             guard state.isOnline else { return .none }
             
-            return effects.isEmpty ? .none : .merge(effects)
+            return .merge(effects)
             
         case .deleteChapter(let chapterID):
             state.confirmationDialog = ConfirmationDialogState(

@@ -43,12 +43,12 @@ enum HomeAction {
 
 struct HomeEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
+    let hapticClient: HapticClient
     let cacheClient: CacheClient
     let imageClient: ImageClient
+    let mangaClient: MangaClient
+    let homeClient: HomeClient
     let hudClient: HUDClient
-    let hapticClient: HapticClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(

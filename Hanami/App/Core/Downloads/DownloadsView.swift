@@ -56,11 +56,11 @@ struct DownloadsView_Previews: PreviewProvider {
                 reducer: downloadsReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live,
+                    hapticClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live,
-                    hapticClient: .live
+                    mangaClient: .live,
+                    hudClient: .live
                 )
             )
         )

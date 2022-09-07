@@ -199,10 +199,6 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func fetchManga(id: UUID) -> Manga? {
-        fetch(entityType: MangaMO.self, id: id)?.toEntity()
-    }
-
     func fetchAllCachedMangas() -> Effect<[Manga], Never> {
         Future { promise in
             promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))

@@ -25,11 +25,7 @@ struct HanamiApp: App {
         )
     )
     
-    @ObservedObject private var viewStore: ViewStore<AppState, AppAction>
-    
     init() {
-        viewStore = ViewStore(store)
-        
         let appearance = UITabBarAppearance()
         appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
         appearance.backgroundColor = UIColor(Color.black.opacity(0.1))
@@ -44,14 +40,16 @@ struct HanamiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView(
-                store: store.scope(
-                    state: \.rootState,
-                    action: AppAction.rootAction
+            WithViewStore(store.stateless) { viewStore in
+                RootView(
+                    store: store.scope(
+                        state: \.rootState,
+                        action: AppAction.rootAction
+                    )
                 )
-            )
-            .onAppear {
-                viewStore.send(.initApp)
+                .onAppear {
+                    viewStore.send(.initApp)
+                }
             }
         }
     }

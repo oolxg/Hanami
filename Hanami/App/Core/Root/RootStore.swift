@@ -46,12 +46,12 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
-                    homeClient: $0.homeClient,
+                    hapticClient: $0.hapticClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    mangaClient: $0.mangaClient,
+                    homeClient: $0.homeClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -62,12 +62,12 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
+                    hapticClient: $0.hapticClient,
                     searchClient: $0.searchClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),
@@ -78,11 +78,11 @@ let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
-                    mangaClient: $0.mangaClient,
+                    hapticClient: $0.hapticClient,
                     cacheClient: $0.cacheClient,
                     imageClient: $0.imageClient,
-                    hudClient: $0.hudClient,
-                    hapticClient: $0.hapticClient
+                    mangaClient: $0.mangaClient,
+                    hudClient: $0.hudClient
                 )
             }
         ),

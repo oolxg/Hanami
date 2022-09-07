@@ -20,6 +20,9 @@ struct SearchView: View {
                     HStack {
                         SearchBarView(searchText: viewStore.binding(\.$searchText), showDismisButton: false)
                             .focused($isSearchFieldFocused)
+                            .onTapGesture {
+                                isSearchFieldFocused = true
+                            }
                         
                         if isSearchFieldFocused || !viewStore.searchText.isEmpty {
                             Button("Cancel") {
@@ -74,12 +77,12 @@ struct SearchView_Previews: PreviewProvider {
                 reducer: searchReducer,
                 environment: .init(
                     databaseClient: .live,
-                    mangaClient: .live,
+                    hapticClient: .live,
                     searchClient: .live,
                     cacheClient: .live,
                     imageClient: .live,
-                    hudClient: .live,
-                    hapticClient: .live
+                    mangaClient: .live,
+                    hudClient: .live
                 )
             )
         )

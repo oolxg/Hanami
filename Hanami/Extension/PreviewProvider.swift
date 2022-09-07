@@ -25,27 +25,6 @@ class DeveloperPreview {
         others: [UUID(), UUID(), UUID()]
     )
     
-    let coverArtInfo = CoverArtInfo(
-        id: UUID(uuidString: "5609b1de-523f-4d78-b698-40527a7abd90")!,
-        attributes: .init(
-            description: "",
-            volume: "1",
-            fileName: "9c8d9166-7b7e-4376-849b-faa50c3df7ef.jpg",
-            locale: "ja",
-            version: 1
-        ),
-        relationships: [
-            .init(
-                id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
-                type: .manga
-            ),
-            .init(
-                id: UUID(uuidString: "a8b6d978-9707-4f34-ad78-04c7378b383b")!,
-                type: .user
-            )
-        ]
-    )
-
     let manga = Manga(
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
         attributes: .init(

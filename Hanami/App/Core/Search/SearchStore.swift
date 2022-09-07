@@ -57,12 +57,12 @@ enum SearchAction: BindableAction {
 
 struct SearchEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
+    let hapticClient: HapticClient
     let searchClient: SearchClient
     let cacheClient: CacheClient
     let imageClient: ImageClient
+    let mangaClient: MangaClient
     let hudClient: HUDClient
-    let hapticClient: HapticClient
 }
 
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
