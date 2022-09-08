@@ -136,7 +136,7 @@ extension HomeView {
                 ForEachStore(
                     store.scope(
                         state: \.lastUpdatedMangaThumbnailStates,
-                        action: HomeAction.mangaThumbnailAction
+                        action: HomeAction.lastUpdatesMangaThumbnailAction
                     )
                 ) { thumbnailViewStore in
                     MangaThumbnailView(store: thumbnailViewStore)

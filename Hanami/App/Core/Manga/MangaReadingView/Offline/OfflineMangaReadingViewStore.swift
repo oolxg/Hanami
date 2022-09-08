@@ -53,12 +53,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 var effects: [Effect<OfflineMangaReadingViewAction, Never>] = (0..<state.pagesCount).indices
                     .map { pageIndex in
                         env.mangaClient.retrieveChapterPage(state.chapter.id, pageIndex, env.cacheClient)
-                            .map {
-                                OfflineMangaReadingViewAction.cachedChapterPageRetrieved(
-                                    result: $0,
-                                    pageIndex: pageIndex
-                                )
-                            }
+                            .map { .cachedChapterPageRetrieved(result: $0, pageIndex: pageIndex) }
                     }
                 
                 effects.append(
@@ -84,9 +79,15 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 }
                 
             case .userChangedPage(let newPageIndex):
-                if newPageIndex == -1 {
+                // this checks for some shitty bug(appears rare, but anyway) when user changes chapter(`.userHitLastPage` or `.userHitTheMostFirstPage`)
+                // if page is not retrived yet `newPageIndex` is equal to -1 and Effect(value:) will be returned
+                guard !state.cachedPages.isEmpty else {
+                    return .none
+                }
+                
+                if newPageIndex == -1 && state.cachedPages.first! != nil {
                     return Effect(value: .userHitTheMostFirstPage)
-                } else if newPageIndex == state.pagesCount {
+                } else if newPageIndex == state.pagesCount && state.cachedPages.last! != nil {
                     return Effect(value: .userHitLastPage)
                 }
                 

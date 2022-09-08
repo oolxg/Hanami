@@ -46,6 +46,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
 
 enum MangaThumbnailAction {
     case onAppear
+    case checkForMangaStatisticsAfterDelay
     case coverArtRetrieved(Result<UIImage, Error>)
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
@@ -139,11 +140,29 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         
         switch action {
             case .onAppear:
+                var effects: [Effect<MangaThumbnailAction, Never>] = []
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
-                    return env.mangaClient.fetchCoverArtInfo(coverArtID)
+                    effects.append(
+                        env.mangaClient.fetchCoverArtInfo(coverArtID)
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                   )
+                }
+                
+                effects.append(
+                    Effect(value: MangaThumbnailAction.checkForMangaStatisticsAfterDelay)
+                        .delay(for: .seconds(5), scheduler: DispatchQueue.main)
+                        .eraseToEffect()
+                )
+                
+                return .merge(effects)
+                
+            case .checkForMangaStatisticsAfterDelay:
+                if state.mangaStatistics == nil {
+                    return env.mangaClient.fetchMangaStatistics(state.manga.id)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                        .catchToEffect(MangaThumbnailAction.mangaStatisticsFetched)
                 }
                 
                 return .none

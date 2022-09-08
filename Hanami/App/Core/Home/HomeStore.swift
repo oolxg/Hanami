@@ -35,7 +35,7 @@ enum HomeAction {
     case userOpenedAwardWinningView
     case userOpenedMostFollowedView
     
-    case mangaThumbnailAction(UUID, MangaThumbnailAction)
+    case lastUpdatesMangaThumbnailAction(UUID, MangaThumbnailAction)
     case seasonalMangaThumbnailAction(UUID, MangaThumbnailAction)
     case awardWinningMangaThumbnailAction(UUID, MangaThumbnailAction)
     case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailAction)
@@ -55,7 +55,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
     mangaThumbnailReducer
         .forEach(
             state: \.lastUpdatedMangaThumbnailStates,
-            action: /HomeAction.mangaThumbnailAction,
+            action: /HomeAction.lastUpdatesMangaThumbnailAction,
             environment: {
                 .init(
                     databaseClient: $0.databaseClient,
@@ -144,7 +144,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 
                 fetchedMangaIDs.append(contentsOf: state.awardWinningMangaThumbnailStates.map(\.id))
                 fetchedMangaIDs.append(contentsOf: state.mostFollowedMangaThumbnailStates.map(\.id))
-                
+                fetchedMangaIDs.append(contentsOf: state.lastUpdatedMangaThumbnailStates.map(\.id))
+                fetchedMangaIDs.append(contentsOf: state.seasonalMangaThumbnailStates.map(\.id))
+
                 state.awardWinningMangaThumbnailStates.removeAll()
                 state.mostFollowedMangaThumbnailStates.removeAll()
                 
@@ -191,7 +193,6 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         let fetchedMangaIDsList = response.data.map(\.id)
                         
                         guard mangaIDsList != fetchedMangaIDsList else {
-                            env.hudClient.show(message: "Everything is up to date", backgroundColor: .green)
                             return .none
                         }
                         
@@ -244,7 +245,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         return .none
                 }
                 
-            case .mangaThumbnailAction:
+            case .lastUpdatesMangaThumbnailAction:
                 return .none
                 
             case .seasonalMangaThumbnailAction:

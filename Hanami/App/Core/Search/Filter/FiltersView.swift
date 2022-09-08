@@ -116,38 +116,42 @@ extension FiltersView {
                     .frame(height: 3)
                     .foregroundColor(.theme.darkGray)
                 
-                VStack(alignment: .leading) {
-                    makeTitle("Content")
+                if !viewStore.contentTypes.isEmpty {
+                    VStack(alignment: .leading) {
+                        makeTitle("Content")
+                        
+                        makeFiltersViewFor(\.contentTypes)
+                            .frame(height: 60)
+                            .padding(5)
+                    }
                     
-                    makeFiltersViewFor(\.contentTypes)
-                        .frame(height: 60)
-                        .padding(5)
+                    Rectangle()
+                        .frame(height: 3)
+                        .foregroundColor(.theme.darkGray)
                 }
-                
-                Rectangle()
-                    .frame(height: 3)
-                    .foregroundColor(.theme.darkGray)
             }
         }
     }
     
     private var filtersList: some View {
-        Group {
-            makeTagNavigationLink(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
-                makeFiltersViewFor(\.formatTypes, navTitle: "Format", isActive: $showFormatFiltersPage)
-                    .padding()
-            }
-            
-            makeTagNavigationLink(title: "Themes", \.themeTypes, isActive: $showThemesFiltersPage) {
-                ScrollView(showsIndicators: false) {
-                    makeFiltersViewFor(\.themeTypes, navTitle: "Themes", isActive: $showThemesFiltersPage)
+        WithViewStore(store) { viewStore in
+            if !viewStore.allTags.isEmpty {
+                makeTagNavigationLink(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
+                    makeFiltersViewFor(\.formatTypes, navTitle: "Format", isActive: $showFormatFiltersPage)
                         .padding()
                 }
-            }
-            
-            makeTagNavigationLink(title: "Genres", \.genres, isActive: $showGenresFiltersPage) {
-                makeFiltersViewFor(\.genres, navTitle: "Genres", isActive: $showGenresFiltersPage)
-                    .padding()
+                
+                makeTagNavigationLink(title: "Themes", \.themeTypes, isActive: $showThemesFiltersPage) {
+                    ScrollView(showsIndicators: false) {
+                        makeFiltersViewFor(\.themeTypes, navTitle: "Themes", isActive: $showThemesFiltersPage)
+                            .padding()
+                    }
+                }
+                
+                makeTagNavigationLink(title: "Genres", \.genres, isActive: $showGenresFiltersPage) {
+                    makeFiltersViewFor(\.genres, navTitle: "Genres", isActive: $showGenresFiltersPage)
+                        .padding()
+                }
             }
         }
     }

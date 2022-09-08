@@ -65,21 +65,23 @@ extension VolumeTabView {
     var chapterIndexesList: some View {
         WithViewStore(store) { viewStore in
             HStack {
-                // splittin chapter indexes as subsequences, e.g.
+                // splitting chapter indexes as subsequences, e.g.
                 // [1, 2, 3, 5, 9, 10] will be [[1, 2, 3], [5], [9, 10]]
                 let allSubsequences = viewStore.childrenChapterIndexes.getAllSubsequences()
                 
-                Text("Ch.")
-                
-                ForEach(allSubsequences, id: \.self) { subsequence in
-                    let delimeter = subsequence == allSubsequences.last ? "" : ","
-                    if subsequence.count == 1 {
-                        Text("\(subsequence.first!)\(delimeter)")
-                    } else {
-                        let start = subsequence.first!.description
-                        let end = subsequence.last!.description
-                        
-                        Text("\(start)-\(end)\(delimeter)")
+                if !allSubsequences.isEmpty {
+                    Text("Ch.")
+                    
+                    ForEach(allSubsequences, id: \.self) { subsequence in
+                        let delimeter = subsequence == allSubsequences.last ? "" : ","
+                        if subsequence.count == 1 {
+                            Text("\(subsequence.first!)\(delimeter)")
+                        } else {
+                            let start = subsequence.first!.description
+                            let end = subsequence.last!.description
+                            
+                            Text("\(start)-\(end)\(delimeter)")
+                        }
                     }
                 }
             }
