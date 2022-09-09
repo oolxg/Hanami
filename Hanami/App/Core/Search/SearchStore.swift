@@ -10,13 +10,14 @@ import ComposableArchitecture
 import SwiftUI
 
 struct SearchState: Equatable {
-    var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+    var searchResults: IdentifiedArrayOf<MangaThumbnailState> = []
     var filtersState = FiltersState()
     
     var areSearchResultsDownloaded = false
+    var isLoading = false
     
     var shouldShowEmptyResultsMessage: Bool {
-        areSearchResultsDownloaded && !searchText.isEmpty && mangaThumbnailStates.isEmpty
+        areSearchResultsDownloaded && !searchText.isEmpty && searchResults.isEmpty
     }
     
     @BindableState var searchSortOption: QuerySortOption = .relevance
@@ -68,7 +69,7 @@ struct SearchEnvironment {
 let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .combine(
     mangaThumbnailReducer
         .forEach(
-            state: \.mangaThumbnailStates,
+            state: \.searchResults,
             action: /SearchAction.mangaThumbnailAction,
             environment: {
                 .init(
@@ -94,7 +95,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
         switch action {
             case .resetSearchQuery:
                 state.searchText = ""
-                state.mangaThumbnailStates.removeAll()
+                state.searchResults.removeAll()
                 state.areSearchResultsDownloaded = false
                 state.lastSuccessfulRequestParams = nil
                 return .none
@@ -109,7 +110,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                     state.areSearchResultsDownloaded = true
                     state.lastSuccessfulRequestParams = nil
 
-                    let mangaIDs = state.mangaThumbnailStates.map(\.id)
+                    let mangaIDs = state.searchResults.map(\.id)
                     // cancelling all subscriptions to clear cache for manga(because all instance are already destroyed)
                     return .cancel(
                         ids: mangaIDs.map { OnlineMangaViewState.CancelClearCache(mangaID: $0) }
@@ -138,11 +139,12 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 }
                                 
                 state.areSearchResultsDownloaded = false
-                state.mangaThumbnailStates.removeAll()
+                state.isLoading = true
+                state.searchResults.removeAll()
 
                 return .concatenate(
                     .cancel(
-                        ids: state.mangaThumbnailStates.map {
+                        ids: state.searchResults.map {
                             OnlineMangaViewState.CancelClearCache(mangaID: $0.id)
                         }
                     ),
@@ -155,15 +157,17 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 )
                 
             case .searchResultDownloaded(let result, let requestParams):
+                state.isLoading = false
+                
                 switch result {
                     case .success(let response):
                         state.lastSuccessfulRequestParams = requestParams
                         state.areSearchResultsDownloaded = true
-                        state.mangaThumbnailStates = .init(
+                        state.searchResults = .init(
                             uniqueElements: response.data.map { MangaThumbnailState(manga: $0) }
                         )
                         
-                        if !state.mangaThumbnailStates.isEmpty {
+                        if !state.searchResults.isEmpty {
                             UIApplication.shared.endEditing()
                         }
                         
@@ -173,6 +177,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         
                     case .failure(let error):
                         print("error on downloading search results \(error)")
+                        env.hudClient.show(message: error.description)
                         return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
                 
@@ -180,7 +185,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 switch result {
                     case .success(let response):
                         for stat in response.statistics {
-                            state.mangaThumbnailStates[id: stat.key]?.onlineMangaState!.statistics = stat.value
+                            state.searchResults[id: stat.key]?.onlineMangaState!.statistics = stat.value
                         }
                         
                         return .none

@@ -8,6 +8,7 @@
 import Cache
 import ComposableArchitecture
 import Combine
+import Foundation
 import class SwiftUI.UIImage
 
 struct CacheClient {

@@ -10,50 +10,82 @@ import ComposableArchitecture
 import Kingfisher
 
 struct OnlineMangaReadingView: View {
-    private let store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
-    private let viewStore: ViewStore<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
+    let store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
-    init(store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>) {
-        self.store = store
-        viewStore = ViewStore(store)
+    private struct ViewState: Equatable {
+        let pagesURLs: [URL]?
+        let pagesCount: Int?
+        let startFromLastPage: Bool
+        let chapterIndex: Double?
+        let chapterIndexes: [Double]
+        
+        init(state: OnlineMangaReadingViewState) {
+            pagesURLs = state.pagesInfo?.dataSaverURLs
+            pagesCount = state.pagesCount
+            startFromLastPage = state.startFromLastPage
+            chapterIndex = state.chapterIndex
+            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex)
+        }
     }
     
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .top) {
-                if shouldShowNavBar {
-                    navigationBar
-                        .frame(height: geo.size.height * 0.05)
-                        .zIndex(1)
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            TabView(selection: $currentPageIndex) {
+                Color.clear
+                    .tag(-1)
+                
+                ForEach(viewStore.pagesURLs?.indices ?? [].indices, id: \.self) { pageIndex in
+                    ZoomableScrollView {
+                        KFImage.url(
+                            viewStore.pagesURLs?[pageIndex],
+                            cacheKey: viewStore.pagesURLs?[pageIndex].absoluteString
+                        )
+                        .retry(maxCount: 3)
+                        .placeholder {
+                            ProgressView()
+                                .frame(width: 120)
+                        }
+                        .resizable()
+                        .scaledToFit()
+                    }
                 }
                 
-                readingContent
-                    .zIndex(0)
+                Color.clear
+                    .tag(viewStore.pagesURLs?.count)
             }
-            .frame(height: UIScreen.main.bounds.height * 1.05)
+            .onAppear {
+                if viewStore.startFromLastPage && viewStore.pagesCount != nil {
+                    currentPageIndex = viewStore.pagesCount! - 1
+                } else {
+                    currentPageIndex = 0
+                }
+            }
+            .onChange(of: currentPageIndex) {
+                ViewStore(store).send(.userChangedPage(newPageIndex: $0))
+            }
+            .overlay(
+                ZStack {
+                    if viewStore.pagesURLs == nil {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    }
+                }
+            )
         }
-        .navigationBarHidden(true)
         .gesture(tapGesture)
         .gesture(swipeGesture)
-        .onChange(of: viewStore.pagesInfo) { _ in
-            if viewStore.shouldSendUserToTheLastPage && viewStore.pagesCount != nil {
-                currentPageIndex = viewStore.pagesCount! - 1
-            } else {
-                currentPageIndex = 0
-            }
-        }
-        .onChange(of: currentPageIndex) {
-            viewStore.send(.userChangedPage(newPageIndex: $0))
-        }
+        .overlay(navigationBlock)
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationBarHidden(true)
     }
 }
 
 extension OnlineMangaReadingView {
     private var backButton: some View {
         Button {
-            viewStore.send(.userLeftMangaReadingView)
+            ViewStore(store).send(.userLeftMangaReadingView)
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)
@@ -62,86 +94,98 @@ extension OnlineMangaReadingView {
         }
     }
     
-    private var readingContent: some View {
-        ZStack {
-            WithViewStore(store) { viewStore in
-                if let urls = viewStore.pagesInfo?.dataSaverURLs {
-                    TabView(selection: $currentPageIndex) {
-                        Color.clear
-                            .tag(-1)
+    private var navigationBlock: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if shouldShowNavBar {
+                VStack {
+                    ZStack {
+                        Color.black
+                            .ignoresSafeArea(.all, edges: .top)
                         
-                        ForEach(urls.indices, id: \.self) { pageIndex in
-                            ZoomableScrollView {
-                                KFImage.url(
-                                    urls[pageIndex],
-                                    cacheKey: urls[pageIndex].absoluteString
-                                )
-                                .retry(maxCount: 3)
-                                .placeholder {
-                                    ProgressView()
-                                        .frame(width: 120)
+                        HStack(spacing: 15) {
+                            backButton
+                                .padding(.horizontal)
+                            
+                            Spacer()
+                            
+                            VStack {
+                                if let chapterIndex = viewStore.chapterIndex {
+                                    Text("Chapter \(chapterIndex.clean())")
                                 }
-                                .resizable()
-                                .scaledToFit()
+                                
+                                if let pagesCount = viewStore.pagesCount,
+                                   currentPageIndex < pagesCount,
+                                   currentPageIndex + 1 > 0 {
+                                    Text("\(currentPageIndex + 1)/\(pagesCount)")
+                                }
                             }
+                            .font(.callout)
+                            .padding(.horizontal)
+                            .transition(.opacity)
+                            .animation(.linear, value: viewStore.pagesCount)
+                            
+                            Spacer()
+                            
+                            // to align VStack in center
+                            backButton
+                                .padding(.horizontal)
+                                .opacity(0)
+                                .disabled(true)
+                        }
+                    }
+                    .frame(height: 60)
+                    
+                    Spacer()
+                    
+                    chaptersCarousel
+                }
+            }
+        }
+    }
+    
+    private var chaptersCarousel: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            ScrollView(.horizontal, showsIndicators: false) {
+                ScrollViewReader { proxy in
+                    HStack(spacing: 3) {
+                        Color.clear.frame(width: 10)
+                        
+                        ForEach(viewStore.chapterIndexes, id: \.self) { chapterIndex in
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(viewStore.chapterIndex == chapterIndex ? Color.theme.accent : .white)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(.black)
+                                )
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Text(chapterIndex.clean())
+                                )
+                                .id(chapterIndex)
+                                .onTapGesture {
+                                    guard chapterIndex != viewStore.chapterIndex else { return }
+                                    
+                                    viewStore.send(.changeChapter(newChapterIndex: chapterIndex))
+                                }
                         }
                         
-                        Color.clear
-                            .tag(urls.count)
+                        Color.clear.frame(width: 10)
                     }
-                } else {
-                    TabView {
-                        ProgressView()
-                            .frame(width: 120)
+                    .onAppear {
+                        proxy.scrollTo(viewStore.chapterIndex)
                     }
                 }
             }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .transition(.opacity)
-    }
-    
-    private var navigationBar: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea()
-            
-            HStack(spacing: 15) {
-                backButton
-                    .padding(.horizontal)
-                
-                Spacer()
-                
-                VStack {
-                    if let chapterIndex = viewStore.chapterIndex {
-                        Text("Chapter \(chapterIndex.clean())")
-                    }
-                    
-                    if let pagesCount = viewStore.pagesCount, currentPageIndex < pagesCount, currentPageIndex + 1 > 0 {
-                        Text("\(currentPageIndex + 1)/\(pagesCount)")
-                    }
-                }
-                .font(.callout)
-                .padding(.horizontal)
-                .animation(.linear, value: viewStore.pagesCount)
-                
-                Spacer()
-                
-                    // to align VStack in center
-                backButton
-                    .padding(.horizontal)
-                    .opacity(0)
-                    .disabled(true)
-            }
+            .frame(height: 60)
         }
     }
     
-        // MARK: - Gestures
+    // MARK: - Gestures
     private var swipeGesture: some Gesture {
         DragGesture(minimumDistance: 100, coordinateSpace: .local)
             .onEnded { value in
                 if value.translation.height > 100 {
-                    viewStore.send(.userLeftMangaReadingView)
+                    ViewStore(store).send(.userLeftMangaReadingView)
                 }
             }
     }

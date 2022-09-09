@@ -15,7 +15,7 @@ struct FiltersView: View {
     @State private var showGenresFiltersPage = false
     
     var body: some View {
-        WithViewStore(store.stateless) { viewStore in
+        WithViewStore(store) { viewStore in
             NavigationView {
                 ScrollView(showsIndicators: false) {
                     filtersList
@@ -26,6 +26,8 @@ struct FiltersView: View {
                 .toolbar(content: toolbar)
                 .navigationBarTitleDisplayMode(.inline)
             }
+            .transition(.opacity)
+            .animation(.linear, value: viewStore.allTags.isEmpty)
             .onAppear {
                 viewStore.send(.onAppear)
             }

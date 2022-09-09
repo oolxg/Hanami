@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
-        "revision" : "f7c8277f05f27a5bfb2f6ecccb0bad126ffcf472",
-        "version" : "0.7.0"
+        "revision" : "11973960af9c5426f22d337628cec4342c5e660d",
+        "version" : "0.7.4"
       }
     },
     {
@@ -24,7 +24,7 @@
       "location" : "https://github.com/onevcat/Kingfisher",
       "state" : {
         "branch" : "master",
-        "revision" : "2231f92b5af71c78ad2c1450e583bf4a8713b951"
+        "revision" : "13f842e18fbbde0093390b58591e99aa2c7800d3"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "48254824bb4248676bf7ce56014ff57b142b77eb",
-        "version" : "1.0.2"
+        "revision" : "f504716c27d2e5d4144fa4794b12129301d17729",
+        "version" : "1.0.3"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "108e3a536fcebb16c4f247ef92c2d7326baf9fe3",
-        "version" : "0.39.0"
+        "revision" : "cbe013b42b3c368957f8f882c960b93845e1589d",
+        "version" : "0.40.1"
       }
     },
     {

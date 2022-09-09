@@ -54,6 +54,11 @@ struct ChapterState: Equatable, Identifiable {
     
     var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
+    struct ChapterCacheStatus: Equatable {
+        let chapterID: UUID
+//        let 
+    }
+    
     struct CancelChapterFetch: Hashable { let id: UUID }
 }
 

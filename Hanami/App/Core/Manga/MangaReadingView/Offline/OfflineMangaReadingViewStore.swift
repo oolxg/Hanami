@@ -10,16 +10,16 @@ import ComposableArchitecture
 import class SwiftUI.UIImage
 
 struct OfflineMangaReadingViewState: Equatable {
-    init(mangaID: UUID, chapter: ChapterDetails, pagesCount: Int, shouldSendUserToTheLastPage: Bool) {
+    init(mangaID: UUID, chapter: ChapterDetails, pagesCount: Int, startFromLastPage: Bool) {
         self.mangaID = mangaID
         self.chapter = chapter
         self.pagesCount = pagesCount
-        self.shouldSendUserToTheLastPage = shouldSendUserToTheLastPage
+        self.startFromLastPage = startFromLastPage
     }
     
     let mangaID: UUID
     let chapter: ChapterDetails
-    let shouldSendUserToTheLastPage: Bool
+    let startFromLastPage: Bool
     let pagesCount: Int
     
     var cachedPages: [UIImage?] = []
@@ -30,8 +30,9 @@ enum OfflineMangaReadingViewAction {
     case userStartedReadingChapter
     case userChangedPage(newPageIndex: Int)
     
-    case userHitLastPage
-    case userHitTheMostFirstPage
+    case moveToNextChapter
+    case moveToPreviousChapter(startFromLastPage: Bool)
+    case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
     
     case cachedChapterPageRetrieved(result: Result<UIImage, Error>, pageIndex: Int)
@@ -86,9 +87,9 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 }
                 
                 if newPageIndex == -1 && state.cachedPages.first! != nil {
-                    return Effect(value: .userHitTheMostFirstPage)
+                    return Effect(value: .moveToPreviousChapter(startFromLastPage: true))
                 } else if newPageIndex == state.pagesCount && state.cachedPages.last! != nil {
-                    return Effect(value: .userHitLastPage)
+                    return Effect(value: .moveToNextChapter)
                 }
                 
                 return .none
@@ -104,7 +105,36 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                         return .none
                 }
                 
-            case .userHitLastPage:
+            case .changeChapter(let newChapterIndex):
+                guard newChapterIndex != state.chapter.attributes.chapterIndex else {
+                    return .none
+                }
+                let chapterIndex = env.mangaClient.computeChapterIndex(
+                    newChapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
+                )
+                guard let chapterIndex = chapterIndex else { fatalError("Here must be chapterIndex!") }
+                
+                let chapter = state.sameScanlationGroupChapters[chapterIndex]
+                
+                let sameScanlationGroupChapters = state.sameScanlationGroupChapters
+                
+                guard let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount else {
+                    env.hudClient.show(message: "🙁 Internal error occured.")
+                    return .none
+                }
+                
+                state = OfflineMangaReadingViewState(
+                    mangaID: state.mangaID,
+                    chapter: chapter,
+                    pagesCount: pagesCount,
+                    startFromLastPage: false
+                )
+                
+                state.sameScanlationGroupChapters = sameScanlationGroupChapters
+                
+                return Effect(value: .userStartedReadingChapter)
+                
+            case .moveToNextChapter:
                 let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
                     state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
                 )
@@ -126,14 +156,14 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                     mangaID: state.mangaID,
                     chapter: nextChapter,
                     pagesCount: pagesCount,
-                    shouldSendUserToTheLastPage: false
+                    startFromLastPage: false
                 )
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
                 return Effect(value: .userStartedReadingChapter)
                 
-            case .userHitTheMostFirstPage:
+            case .moveToPreviousChapter(let startFromLastPage):
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
                     state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
                 )
@@ -156,7 +186,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                     mangaID: state.mangaID,
                     chapter: previousChapter,
                     pagesCount: pagesCount,
-                    shouldSendUserToTheLastPage: true
+                    startFromLastPage: startFromLastPage
                 )
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters

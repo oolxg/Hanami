@@ -213,6 +213,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                             
                     case .failure(let error):
                         env.hudClient.show(message: error.description)
+                        state.lastRefreshDate = nil
                         print("error: \(error)")
                         return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }

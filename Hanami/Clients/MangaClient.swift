@@ -23,6 +23,7 @@ struct MangaClient {
     // MARK: - Actions inside App
     let getMangaPaginationPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabState]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
+    let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let getDidReadChapterOnPaginationPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
     
@@ -139,6 +140,13 @@ extension MangaClient {
             }
             
             return chapterIndex + 1 < chapters!.count ? chapterIndex + 1 : nil
+        },
+        computeChapterIndex: { chapterIndex, chapters in
+            guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == chapterIndex }) else {
+                return nil
+            }
+            
+            return chapterIndex >= 0 && chapterIndex < chapters!.count ? chapterIndex : nil
         },
         computePreviousChapterIndex: { currentChapterIndex, chapters in
             // 'currentChapterIndex' - is index(Double) and may not match with index in 'chapters'

@@ -40,16 +40,14 @@ struct HanamiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            WithViewStore(store.stateless) { viewStore in
-                RootView(
-                    store: store.scope(
-                        state: \.rootState,
-                        action: AppAction.rootAction
-                    )
+            RootView(
+                store: store.scope(
+                    state: \.rootState,
+                    action: AppAction.rootAction
                 )
-                .onAppear {
-                    viewStore.send(.initApp)
-                }
+            )
+            .onAppear {
+                ViewStore(store).send(.initApp)
             }
         }
     }

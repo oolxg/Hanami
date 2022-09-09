@@ -22,7 +22,7 @@ extension URLSession {
             .decode(type: T.self, decoder: AppUtil.decoder)
             .mapError { err -> AppError in
                 if let err = err as? URLError {
-                    return AppError.downloadError(err)
+                    return AppError.networkError(err)
                 } else if let err = err as? DecodingError {
                     return AppError.decodingError(err)
                 }

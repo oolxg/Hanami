@@ -12,8 +12,16 @@ struct RootView: View {
     let store: Store<RootState, RootAction>
     @StateObject private var hudState = HUDClient.live
     
+    private struct ViewState: Equatable {
+        let selectedTab: RootState.Tab
+        
+        init(state: RootState) {
+            selectedTab = state.selectedTab
+        }
+    }
+    
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(selection: viewStore.binding(get: \.selectedTab, send: RootAction.tabChanged)) {
                 HomeView(
                     store: store.scope(

@@ -16,14 +16,14 @@ struct OnlineMangaReadingViewState: Equatable {
         chapterIndex: Double?,
         scanlationGroupID: UUID?,
         translatedLanguage: String,
-        shouldSendUserToTheLastPage: Bool = false
+        startFromLastPage: Bool = false
     ) {
         self.mangaID = mangaID
         self.chapterID = chapterID
         self.chapterIndex = chapterIndex
         self.scanlationGroupID = scanlationGroupID
         self.translatedLanguage = translatedLanguage
-        self.shouldSendUserToTheLastPage = shouldSendUserToTheLastPage
+        self.startFromLastPage = startFromLastPage
     }
     
     let mangaID: UUID
@@ -31,7 +31,7 @@ struct OnlineMangaReadingViewState: Equatable {
     let translatedLanguage: String
     let chapterIndex: Double?
     let scanlationGroupID: UUID?
-    let shouldSendUserToTheLastPage: Bool
+    let startFromLastPage: Bool
     
     var pagesInfo: ChapterPagesInfo?
     
@@ -49,8 +49,9 @@ enum OnlineMangaReadingViewAction {
     
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
     
-    case userHitLastPage
-    case userHitTheMostFirstPage
+    case moveToNextChapter
+    case moveToPreviousChapters(startFromLastPage: Bool)
+    case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
 }
 
@@ -125,9 +126,9 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
             case .userChangedPage(let newPageIndex):
                 if newPageIndex == -1 {
-                    return Effect(value: .userHitTheMostFirstPage)
+                    return Effect(value: .moveToPreviousChapters(startFromLastPage: true))
                 } else if newPageIndex == state.pagesInfo?.dataSaverURLs.count {
-                    return Effect(value: .userHitLastPage)
+                    return Effect(value: .moveToNextChapter)
                 }
                 
                 return .none
@@ -143,7 +144,33 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                         return .none
                 }
                 
-            case .userHitLastPage:
+            case .changeChapter(let newChapterIndex):
+                guard newChapterIndex != state.chapterIndex else {
+                    return .none
+                }
+                let chapterIndex = env.mangaClient.computeChapterIndex(
+                    newChapterIndex, state.sameScanlationGroupChapters
+                )
+                
+                guard let chapterIndex = chapterIndex else { fatalError("Here must be chapterIndex!") }
+                
+                let chapter = state.sameScanlationGroupChapters[chapterIndex]
+                
+                let sameScanlationGroupChapters = state.sameScanlationGroupChapters
+                
+                state = OnlineMangaReadingViewState(
+                    mangaID: state.mangaID,
+                    chapterID: chapter.id,
+                    chapterIndex: chapter.chapterIndex,
+                    scanlationGroupID: state.scanlationGroupID,
+                    translatedLanguage: state.translatedLanguage
+                )
+                
+                state.sameScanlationGroupChapters = sameScanlationGroupChapters
+                
+                return Effect(value: .userStartedReadingChapter)
+                
+            case .moveToNextChapter:
                 let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
                     state.chapterIndex, state.sameScanlationGroupChapters
                 )
@@ -169,7 +196,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 return Effect(value: .userStartedReadingChapter)
                 
-            case .userHitTheMostFirstPage:
+            case .moveToPreviousChapters(let startFromLastPage):
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
                     state.chapterIndex, state.sameScanlationGroupChapters
                 )
@@ -189,7 +216,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                     chapterIndex: previousChapter.chapterIndex,
                     scanlationGroupID: state.scanlationGroupID,
                     translatedLanguage: state.translatedLanguage,
-                    shouldSendUserToTheLastPage: true
+                    startFromLastPage: startFromLastPage
                 )
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters

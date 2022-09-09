@@ -80,7 +80,6 @@ struct PagesState: Equatable {
         for volumeIndex in volumesDict.keys {
             let volume = volumesDict[volumeIndex]!
             
-            // chapterIndex - list of chapters(one chapter can have many translations)
             // need this because chapters with one 'chapterIndex' can be downloaded more than once - with different scanltaionGroups
             var cachedChapterDetails: [Double?: [ChapterDetails]] = [:]
             
@@ -94,7 +93,7 @@ struct PagesState: Equatable {
             
             // sorting chapters desc by 'volumeIndex'
             let cachedChaptersAsList = cachedChapterDetails.map(\.value).sorted { lhs, rhs in
-                // all chapters in each array are having the same 'volumeIndex' - they're just different translations of the same chapter
+                // all chapters in each array are having the same 'volumeIndex'
                 (lhs.first!.attributes.volumeIndex ?? 9999) < (rhs.first!.attributes.volumeIndex ?? 9999)
             }
             

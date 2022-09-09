@@ -19,6 +19,22 @@ struct MangaThumbnailView: View {
     private let store: Store<MangaThumbnailState, MangaThumbnailAction>
     @State private var isNavigationLinkActive = false
     
+    private struct ViewState: Equatable {
+        let isOnline: Bool
+        let coverArtInfo: CoverArtInfo?
+        let coverArt: UIImage?
+        let manga: Manga
+        let mangaStatistics: MangaStatistics?
+        
+        init(state: MangaThumbnailState) {
+            isOnline = state.isOnline
+            coverArtInfo = state.coverArtInfo
+            coverArt = state.offlineMangaState?.coverArt
+            manga = state.manga
+            mangaStatistics = state.mangaStatistics
+        }
+    }
+    
     var body: some View {
         VStack {
             if isCompact {
@@ -37,8 +53,8 @@ struct MangaThumbnailView: View {
     }
     
     private var coverArt: some View {
-        WithViewStore(store.scope(state: \.isOnline)) { viewStore in
-            if viewStore.state {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if viewStore.isOnline {
                 onlineCoverArt
             } else {
                 offlineCoverArt
@@ -47,8 +63,8 @@ struct MangaThumbnailView: View {
     }
     
     private var onlineCoverArt: some View {
-        WithViewStore(store.scope(state: \.coverArtInfo)) { coverArtInfo in
-            KFImage.url(coverArtInfo.state?.coverArtURL256)
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
                 .placeholder {
                     Color.black
                         .opacity(0.45)
@@ -65,8 +81,8 @@ struct MangaThumbnailView: View {
     }
     
     private var offlineCoverArt: some View {
-        WithViewStore(store.scope(state: \.offlineMangaState)) { offlineMangaState in
-            if let coverArt = offlineMangaState.state?.coverArt {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if let coverArt = viewStore.coverArt {
                 Image(uiImage: coverArt)
                     .resizable()
                     .scaledToFill()
@@ -82,8 +98,8 @@ struct MangaThumbnailView: View {
     }
     
     private var mangaView: some View {
-        WithViewStore(store.scope(state: \.isOnline)) { viewStore in
-            if viewStore.state {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if viewStore.isOnline {
                 IfLetStore(
                     store.scope(
                         state: \.onlineMangaState,
@@ -129,7 +145,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
 // MARK: - Full version
 extension MangaThumbnailView {
     private var fullVersion: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.theme.darkGray.opacity(0.6))
@@ -161,13 +177,13 @@ extension MangaThumbnailView {
             .onAppear { viewStore.send(.onAppear) }
             .onTapGesture { isNavigationLinkActive.toggle() }
             .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+                ViewStore(store).send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
             }
         }
     }
     
     private var statistics: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack(alignment: .top, spacing: 10) {
                 HStack(alignment: .top, spacing: 0) {
                     Image(systemName: "star.fill")
@@ -216,7 +232,7 @@ extension MangaThumbnailView {
 // MARK: - Compact
 extension MangaThumbnailView {
     private var compactVersion: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.theme.darkGray.opacity(0.6))

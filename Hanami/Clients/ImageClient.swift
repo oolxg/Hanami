@@ -8,6 +8,7 @@
 import Combine
 import ComposableArchitecture
 import Kingfisher
+import Foundation
 import class SwiftUI.UIImage
 
 struct ImageClient {

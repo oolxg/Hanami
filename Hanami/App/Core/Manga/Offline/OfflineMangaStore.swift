@@ -154,7 +154,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                         mangaID: state.manga.id,
                         chapter: retrievedChapter.chapter,
                         pagesCount: retrievedChapter.pagesCount,
-                        shouldSendUserToTheLastPage: false
+                                            startFromLastPage: false
                     )
                 )
                 

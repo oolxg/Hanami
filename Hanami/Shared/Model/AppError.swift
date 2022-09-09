@@ -8,7 +8,7 @@
 import Foundation
 
 enum AppError: Error {
-    case downloadError(URLError)
+    case networkError(URLError)
     case decodingError(DecodingError)
     case unknownError(Error)
     case notFound
@@ -19,7 +19,7 @@ enum AppError: Error {
 extension AppError: Equatable {
     static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
-            case (.downloadError, .downloadError):
+            case (.networkError, .networkError):
                 return true
                 
             case (.notFound, .notFound):
@@ -44,8 +44,27 @@ extension AppError: Equatable {
     
     var description: String {
         switch self {
-            case .downloadError:
-                return "Failed to fetch data. Check your internet connection or try again later."
+            case .networkError(let err):
+                switch err.errorCode {
+                    case 401:
+                        return "You must be authorized to perform this action."
+                    case 403:
+                        return "You're not allowed to perform this action."
+                    case 404:
+                        return "Can't find this page."
+                    case 408:
+                        return "Request timed out."
+                    case 418:
+                        return "I'm a teapot."
+                    case 429:
+                        return "Too many requests, try again a little later."
+                    case 451:
+                        return "Unavailable for legal reasons."
+                    case 500...:
+                        return "Some problems on server, try again later."
+                    default:
+                        return "Some network error occured: code \(err.errorCode)"
+                }
                 
             case .decodingError:
                 return "Internal error on data decoding."
@@ -54,7 +73,7 @@ extension AppError: Equatable {
                 return "Something strange happened \n\(err.localizedDescription)"
                 
             case .notFound:
-                return "Requested item was not found"
+                return "Requested item not found"
                 
             case .cacheError(let errorStr):
                 return "Error occured while managing cache: \(errorStr)"

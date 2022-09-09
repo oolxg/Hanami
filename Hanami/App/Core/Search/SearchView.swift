@@ -96,6 +96,9 @@ extension SearchView {
             VStack {
                 if viewStore.shouldShowEmptyResultsMessage {
                     noFoundMangaView
+                } else if viewStore.isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 } else {
                     mangaList
                 }
@@ -122,26 +125,26 @@ extension SearchView {
         WithViewStore(store.actionless) { viewStore in
             ScrollView {
                 VStack(spacing: 0) {
-                    if !viewStore.mangaThumbnailStates.isEmpty {
+                    if !viewStore.searchResults.isEmpty {
                         ForEachStore(
                             store.scope(
-                                state: \.mangaThumbnailStates,
+                                state: \.searchResults,
                                 action: SearchAction.mangaThumbnailAction)
                         ) { thumbnailStore in
                             MangaThumbnailView(store: thumbnailStore)
                                 .padding()
                         }
                         
-                        if !viewStore.mangaThumbnailStates.isEmpty &&
-                            viewStore.resultsCount != viewStore.mangaThumbnailStates.count {
-                            Text("Only \(viewStore.mangaThumbnailStates.count) titles available")
+                        if !viewStore.searchResults.isEmpty &&
+                            viewStore.resultsCount != viewStore.searchResults.count {
+                            Text("Only \(viewStore.searchResults.count) titles available")
                                 .font(.headline)
                                 .fontWeight(.black)
                                 .padding()
                         }
                     }
                 }
-                .animation(.linear, value: viewStore.mangaThumbnailStates.isEmpty)
+                .animation(.linear, value: viewStore.searchResults.isEmpty)
                 .transition(.opacity)
             }
         }
@@ -286,7 +289,7 @@ extension SearchView {
             }
         }
         
-            // swiftlint:disable:next cyclomatic_complexity
+        // swiftlint:disable:next cyclomatic_complexity
         private func getSortTypeName(sortOption: QuerySortOption, order: QuerySortOption.Order) -> String {
             switch sortOption {
                 case .relevance:

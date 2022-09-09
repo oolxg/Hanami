@@ -12,10 +12,38 @@ struct HomeView: View {
     let store: Store<HomeState, HomeAction>
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    
+    private struct ViewState: Equatable {
+        let isRefreshActionInProgress: Bool
+        init(homeState: HomeState) {
+            isRefreshActionInProgress = homeState.isRefreshActionInProgress
+        }
+    }
 
     var body: some View {
+        if networkMonitor.isConnected {
+            homeConten
+        } else {
+            noInternetConnectionView
+        }
+    }
+    
+    private var noInternetConnectionView: some View {
+        VStack(alignment: .center, spacing: 15) {
+            Image(systemName: "wifi.slash")
+                .font(.title)
+            
+            Text("Looks like you're not connected to the internet")
+                .font(.title.bold())
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+    }
+    
+    private var homeConten: some View {
         NavigationView {
-            WithViewStore(store.stateless) { viewStore in
+            WithViewStore(store, observe: ViewState.init) { viewStore in
                 VStack {
                     Text("by oolxg")
                         .font(.caption2)
@@ -39,7 +67,21 @@ struct HomeView: View {
                 .onAppear {
                     viewStore.send(.onAppear)
                 }
-                .toolbar { toolbar }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            viewStore.send(.refresh, animation: .linear(duration: 1.5))
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .foregroundColor(.white)
+                                .font(.title3)
+                                .rotationEffect(
+                                    Angle(degrees: viewStore.isRefreshActionInProgress ? 360 : 0),
+                                    anchor: .center
+                                )
+                        }
+                    }
+                }
             }
         }
     }
@@ -79,24 +121,6 @@ struct HomeView_Previews: PreviewProvider {
 }
 
 extension HomeView {
-    private var toolbar: some ToolbarContent {
-        WithViewStore(store.scope(state: \.isRefreshActionInProgress)) { viewStore in
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    viewStore.send(.refresh, animation: .linear(duration: 1.5))
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.white)
-                        .font(.title3)
-                        .rotationEffect(
-                            Angle(degrees: viewStore.state ? 360 : 0),
-                            anchor: .center
-                        )
-                }
-            }
-        }
-    }
-    
     private var seasonal: some View {
         Section {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -201,35 +225,33 @@ extension HomeView {
     }
     
     private var mostFollowed: some View {
-        WithViewStore(store.stateless) { viewStore in
-            VStack {
-                Text("by oolxg")
-                    .font(.caption2)
-                    .frame(height: 0)
-                    .foregroundColor(.clear)
+        VStack {
+            Text("by oolxg")
+                .font(.caption2)
+                .frame(height: 0)
+                .foregroundColor(.clear)
 
-                ScrollView {
-                    LazyVStack {
-                        ForEachStore(
-                            store.scope(
-                                state: \.mostFollowedMangaThumbnailStates,
-                                action: HomeAction.mostFollowedMangaThumbnailAction
-                            )) { thumbnailStore in
-                                MangaThumbnailView(store: thumbnailStore)
-                                    .padding()
-                            }
-                    }
+            ScrollView {
+                LazyVStack {
+                    ForEachStore(
+                        store.scope(
+                            state: \.mostFollowedMangaThumbnailStates,
+                            action: HomeAction.mostFollowedMangaThumbnailAction
+                        )) { thumbnailStore in
+                            MangaThumbnailView(store: thumbnailStore)
+                                .padding()
+                        }
                 }
             }
-            .navigationTitle("Most Followed")
-            .navigationBarBackButtonHidden(true)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                toolbar { showMostFollowed = false }
-            }
-            .onAppear {
-                viewStore.send(.userOpenedMostFollowedView)
-            }
+        }
+        .navigationTitle("Most Followed")
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            toolbar { showMostFollowed = false }
+        }
+        .onAppear {
+            ViewStore(store).send(.userOpenedMostFollowedView)
         }
     }
 }
@@ -269,35 +291,33 @@ extension HomeView {
     }
     
     private var awardWinning: some View {
-        WithViewStore(store.stateless) { viewStore in
-            VStack {
-                Text("by oolxg")
-                    .font(.caption2)
-                    .frame(height: 0)
-                    .foregroundColor(.clear)
+        VStack {
+            Text("by oolxg")
+                .font(.caption2)
+                .frame(height: 0)
+                .foregroundColor(.clear)
 
-                ScrollView {
-                    LazyVStack {
-                        ForEachStore(
-                            store.scope(
-                                state: \.awardWinningMangaThumbnailStates,
-                                action: HomeAction.awardWinningMangaThumbnailAction
-                            )) { thumbnailStore in
-                                MangaThumbnailView(store: thumbnailStore)
-                                    .padding()
-                            }
-                    }
+            ScrollView {
+                LazyVStack {
+                    ForEachStore(
+                        store.scope(
+                            state: \.awardWinningMangaThumbnailStates,
+                            action: HomeAction.awardWinningMangaThumbnailAction
+                        )) { thumbnailStore in
+                            MangaThumbnailView(store: thumbnailStore)
+                                .padding()
+                        }
                 }
             }
-            .navigationTitle("Award Winning")
-            .navigationBarTitleDisplayMode(.large)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                toolbar { showAwardWinning = false }
-            }
-            .onAppear {
-                viewStore.send(.userOpenedAwardWinningView)
-            }
+        }
+        .navigationTitle("Award Winning")
+        .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            toolbar { showAwardWinning = false }
+        }
+        .onAppear {
+            ViewStore(store).send(.userOpenedMostFollowedView)
         }
     }
 }

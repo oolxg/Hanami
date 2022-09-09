@@ -185,28 +185,26 @@ extension OfflineMangaView {
     
     
     private var deleteButton: some View {
-        WithViewStore(store.stateless) { viewStore in
-            Button {
-                showMangaDeletionDialog = true
-            } label: {
-                Image(systemName: "trash")
-                    .foregroundColor(.white)
+        Button {
+            showMangaDeletionDialog = true
+        } label: {
+            Image(systemName: "trash")
+                .foregroundColor(.white)
+        }
+        .confirmationDialog(
+            "Are you sure you want delete this manga and all chapters from device?",
+            isPresented: $showMangaDeletionDialog
+        ) {
+            Button("Delete", role: .destructive) {
+                self.dismiss()
+                ViewStore(store).send(.deleteManga)
             }
-            .confirmationDialog(
-                "Are you sure you want delete this manga and all chapters from device?",
-                isPresented: $showMangaDeletionDialog
-            ) {
-                Button("Delete", role: .destructive) {
-                    self.dismiss()
-                    viewStore.send(.deleteManga)
-                }
-                
-                Button("Cancel", role: .cancel) {
-                    showMangaDeletionDialog = false
-                }
-            } message: {
-                Text("Are you sure you want delete this manga and all chapters from device?")
+            
+            Button("Cancel", role: .cancel) {
+                showMangaDeletionDialog = false
             }
+        } message: {
+            Text("Are you sure you want delete this manga and all chapters from device?")
         }
     }
     

@@ -11,6 +11,14 @@ import ComposableArchitecture
 struct DownloadsView: View {
     let store: Store<DownloadsState, DownloadsAction>
     
+    private struct ViewState: Equatable {
+        let cachedMangaCount: Int
+        
+        init(state: DownloadsState) {
+            cachedMangaCount = state.cachedMangaThumbnailStates.count
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -19,8 +27,8 @@ struct DownloadsView: View {
                     .frame(height: 0)
                     .foregroundColor(.clear)
 
-                WithViewStore(store) { viewStore in
-                    if viewStore.cachedMangaThumbnailStates.isEmpty {
+                WithViewStore(store, observe: ViewState.init) { viewStore in
+                    if viewStore.cachedMangaCount == 0 {
                         Text("Wow, such empty here...")
                             .font(.title2)
                             .fontWeight(.black)
@@ -39,7 +47,7 @@ struct DownloadsView: View {
                             }
                         }
                         .transition(.opacity)
-                        .animation(.linear, value: viewStore.cachedMangaThumbnailStates.count)
+                        .animation(.linear, value: viewStore.cachedMangaCount)
                     }
                 }
             }
