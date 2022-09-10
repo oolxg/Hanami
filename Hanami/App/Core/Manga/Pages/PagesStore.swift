@@ -204,9 +204,12 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
             case .changePageAfterEffectCancellation(let newPageIndex):
                 state.lockPage = true
                 state.currentPageIndex = newPageIndex
-                return Effect(value: .unlockPage)
-                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
-                    .eraseToEffect()
+                return .task {
+                    let delay = UInt64(1_000_000_000 * 0.3)
+                    try await Task.sleep(nanoseconds: delay)
+                    
+                    return .unlockPage
+                }
                 
             case .unlockPage:
                 state.lockPage = false

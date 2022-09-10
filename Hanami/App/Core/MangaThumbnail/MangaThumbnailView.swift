@@ -55,41 +55,26 @@ struct MangaThumbnailView: View {
     private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             if viewStore.isOnline {
-                onlineCoverArt
+                KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
+                    .placeholder {
+                        Color.black
+                            .opacity(0.45)
+                            .redacted(reason: .placeholder)
+                    }
+                    .retry(maxCount: 3)
+                    .fade(duration: 0.5)
+                    .resizable()
+                    .scaledToFill()
             } else {
-                offlineCoverArt
-            }
-        }
-    }
-    
-    private var onlineCoverArt: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            KFImage.url(viewStore.coverArtInfo?.coverArtURL256)
-                .placeholder {
+                if let coverArt = viewStore.coverArt {
+                    Image(uiImage: coverArt)
+                        .resizable()
+                        .scaledToFill()
+                } else {
                     Color.black
                         .opacity(0.45)
                         .redacted(reason: .placeholder)
                 }
-                .retry(maxCount: 3)
-                .fade(duration: 0.5)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 100, height: 150)
-                .clipped()
-                .cornerRadius(10)
-        }
-    }
-    
-    private var offlineCoverArt: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            if let coverArt = viewStore.coverArt {
-                Image(uiImage: coverArt)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Color.black
-                    .opacity(0.45)
-                    .redacted(reason: .placeholder)
             }
         }
         .frame(width: 100, height: 150)
@@ -291,5 +276,70 @@ extension MangaThumbnailView {
                 viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
             }
         }
+    }
+}
+
+extension MangaThumbnailView {
+    static func skeleton(isCompact: Bool) -> some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.theme.darkGray.opacity(0.6))
+            
+            HStack(alignment: .top) {
+                skeletonCoverArt
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    // manga title
+                    Text(String.placeholder(length: 20))
+                        .lineLimit(3)
+                        .foregroundColor(.white)
+                        .font(.callout)
+                        .redacted(reason: .placeholder)
+                    
+                    skeletonRating
+                    
+                    // description
+                    VStack(alignment: .leading) {
+                        Text(String.placeholder(length: 20))
+                        Text(String.placeholder(length: 15))
+                        Text(String.placeholder(length: 20))
+                        Text(String.placeholder(length: 10))
+                    }
+                    .lineLimit(1)
+                    .font(.footnote)
+                    .redacted(reason: .placeholder)
+                }
+            }
+            .padding(10)
+        }
+        .frame(width: isCompact ? 250 : nil, height: 150)
+    }
+    
+    private static var skeletonCoverArt: some View {
+        Color.black
+            .opacity(0.45)
+            .redacted(reason: .placeholder)
+            .frame(width: 100, height: 150)
+            .clipped()
+            .cornerRadius(10)
+    }
+    
+    private static var skeletonRating: some View {
+        HStack {
+            HStack(alignment: .top, spacing: 0) {
+                Image(systemName: "star.fill")
+                
+                Text(String.placeholder(length: 3))
+                    .redacted(reason: .placeholder)
+            }
+            
+            HStack(alignment: .top, spacing: 0) {
+                Image(systemName: "bookmark.fill")
+                
+                Text(String.placeholder(length: 7))
+                    .redacted(reason: .placeholder)
+            }
+        }
+        .font(.caption)
     }
 }

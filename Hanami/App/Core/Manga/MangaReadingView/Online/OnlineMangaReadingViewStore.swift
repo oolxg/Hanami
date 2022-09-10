@@ -128,9 +128,9 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 guard state.pagesInfo != nil else { return .none }
 
                 if newPageIndex == -1 {
-                    return Effect(value: .moveToPreviousChapters(startFromLastPage: true))
+                    return .task { .moveToPreviousChapters(startFromLastPage: true) }
                 } else if newPageIndex == Int.max {
-                    return Effect(value: .moveToNextChapter)
+                    return .task { .moveToNextChapter }
                 }
                 
                 return .none
@@ -170,7 +170,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return Effect(value: .userStartedReadingChapter)
+                return .task { .userStartedReadingChapter }
                 
             case .moveToNextChapter:
                 let nextChapterIndex = env.mangaClient.computeNextChapterIndex(
@@ -179,7 +179,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 guard let nextChapterIndex = nextChapterIndex else {
                     env.hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
-                    return Effect(value: .userLeftMangaReadingView)
+                    return .task { .userLeftMangaReadingView }
                 }
                 
                 let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
@@ -196,7 +196,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return Effect(value: .userStartedReadingChapter)
+                return .task { .userStartedReadingChapter }
                 
             case .moveToPreviousChapters(let startFromLastPage):
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
@@ -205,7 +205,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 guard let previousChapterIndex = previousChapterIndex else {
                     env.hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
-                    return Effect(value: .userLeftMangaReadingView)
+                    return .task { .userLeftMangaReadingView }
                 }
                 
                 let previousChapter = state.sameScanlationGroupChapters[previousChapterIndex]
@@ -223,7 +223,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return Effect(value: .userStartedReadingChapter)
+                return .task { .userStartedReadingChapter }
                 
             case .userLeftMangaReadingView:
                 return .none

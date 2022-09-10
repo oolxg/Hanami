@@ -31,6 +31,7 @@ enum AppUtil {
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
+        fmt.timeZone = .init(identifier: "UTC")
         
         decoder.dateDecodingStrategy = .formatted(fmt)
         
@@ -43,6 +44,7 @@ enum AppUtil {
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
+        fmt.timeZone = .autoupdatingCurrent
         
         encoder.dateEncodingStrategy = .formatted(fmt)
         return encoder

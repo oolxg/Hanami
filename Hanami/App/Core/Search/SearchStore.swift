@@ -210,7 +210,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 )
                 
             case .binding:
-                return Effect(value: .searchForManga)
+                return .task { .searchForManga }
                 
             case .filterAction:
                 return .none

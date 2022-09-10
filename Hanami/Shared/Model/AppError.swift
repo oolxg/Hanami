@@ -52,7 +52,7 @@ extension AppError: Equatable {
                     case NSURLErrorBadURL:
                         return "Something wrong with URL"
                     case NSURLErrorTimedOut:
-                        return "Server doesn't respond in reasonable time"
+                        return "Server didn't respond in reasonable time"
                     case NSURLErrorCannotFindHost:
                         return "Can't find given host"
                     case NSURLErrorCannotConnectToHost:
@@ -88,7 +88,7 @@ extension AppError: Equatable {
                     case 500...:
                         return "Some problems on server, try again later"
                     default:
-                        return "Some network error occured: code \(err.errorCode)"
+                        return "Some network error occured: \(err.localizedDescription)"
                 }
                 
             case .decodingError:

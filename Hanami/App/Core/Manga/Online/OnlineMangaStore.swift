@@ -66,9 +66,7 @@ enum OnlineMangaViewAction: BindableAction {
     case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
     
-    case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, ChapterDetails)
-    case chapterPageForCachingFetched(Result<UIImage, Error>, Int, ChapterDetails)
-    case coverArtFetched(Result<UIImage, Error>)
+    case cacheAction(CacheActions)
     
     // MARK: - Substate actions
     case mangaReadingViewAction(MangaReadingViewAction)
@@ -76,6 +74,13 @@ enum OnlineMangaViewAction: BindableAction {
     
     // MARK: - Binding
     case binding(BindingAction<OnlineMangaViewState>)
+    
+    // MARK: - Actions for saving chapters for offline reading
+    enum CacheActions {
+        case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, ChapterDetails)
+        case chapterPageForCachingFetched(Result<UIImage, Error>, Int, ChapterDetails)
+        case coverArtFetched(Result<UIImage, Error>)
+    }
 }
 
 struct MangaViewEnvironment {
@@ -188,13 +193,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             case .pagesAction:
                 return .none
                 
-            case .pagesInfoForChapterCachingFetched:
-                return .none
-                
-            case .chapterPageForCachingFetched:
-                return .none
-                
-            case .coverArtFetched:
+            case .cacheAction:
                 return .none
                 
             case .binding:
@@ -210,7 +209,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 var effects: [Effect<OnlineMangaViewAction, Never>] = [
                     env.mangaClient.fetchPagesInfo(chapter.id)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect { OnlineMangaViewAction.pagesInfoForChapterCachingFetched($0, chapter) }
+                        .catchToEffect { .cacheAction(.pagesInfoForChapterCachingFetched($0, chapter)) }
                 ]
                 
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
@@ -218,22 +217,23 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                     effects.append(
                         env.imageClient.downloadImage(coverArtURL, nil)
                             .receive(on: DispatchQueue.main)
-                            .eraseToEffect(OnlineMangaViewAction.coverArtFetched)
+                            .eraseToEffect { .cacheAction(.coverArtFetched($0)) }
                     )
                 }
                 
                 return .merge(effects)
                 
-            case .pagesInfoForChapterCachingFetched(let result, let chapter):
+            case .cacheAction(.pagesInfoForChapterCachingFetched(let result, let chapter)):
                 switch result {
                     case .success(let pagesInfo):
                         var effects = pagesInfo
                             .dataSaverURLs
                             .enumerated()
                             .map { i, url in
-                                env.imageClient.downloadImage(url, nil)
+                                env.imageClient
+                                    .downloadImage(url, nil)
                                     .eraseToEffect {
-                                        OnlineMangaViewAction.chapterPageForCachingFetched($0, i, chapter)
+                                        OnlineMangaViewAction.cacheAction(.chapterPageForCachingFetched($0, i, chapter))
                                     }
                             }
                         
@@ -248,13 +248,14 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         )
                         
                         return .merge(effects)
+                            .cancellable(id: ChapterState.CancelChapterCache(id: chapter.id))
                         
                     case .failure(let error):
                         print("Error on fetching PagesInfo for caching: \(error)")
                         return .none
                 }
                 
-            case .coverArtFetched(let result):
+            case .cacheAction(.coverArtFetched(let result)):
                 switch result {
                     case .success(let coverArt):
                         return env.mangaClient
@@ -266,11 +267,12 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         return .none
                 }
                 
-            case .chapterPageForCachingFetched(let result, let pageIndex, let chapter):
+            case .cacheAction(.chapterPageForCachingFetched(let result, let pageIndex, let chapter)):
                 switch result {
                     case .success(let chapterPage):
                         return env.mangaClient
                             .saveChapterPage(chapterPage, pageIndex, chapter.id, env.cacheClient)
+                            .cancellable(id: ChapterState.CancelChapterCache(id: chapter.id))
                             .fireAndForget()
                         
                     case .failure(let error):
@@ -286,7 +288,6 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
         }
     },
     // MARK: - Actions to read chapter
-    // separated actions from MangaReadingView
     Reducer { state, action, env in
         switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
@@ -302,13 +303,13 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 
                 state.isUserOnReadingView = true
 
-                return Effect(value: .mangaReadingViewAction(.online(.userStartedReadingChapter)))
+                return .task { .mangaReadingViewAction(.online(.userStartedReadingChapter)) }
                 
             case .mangaReadingViewAction(.online(.userStartedReadingChapter)):
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     state.mangaReadingViewState?.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
                 }
                 
                 return .none
@@ -331,8 +332,8 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                     return .none
                 }
                 
-                return Effect(
-                    value: .pagesAction(
+                return .task {
+                    .pagesAction(
                         .volumeTabAction(
                             volumeID: info.volumeID,
                             volumeAction: .chapterAction(
@@ -341,7 +342,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                             )
                         )
                     )
-                )
+                }
                 
             default:
                 return .none

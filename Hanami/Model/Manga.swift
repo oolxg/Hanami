@@ -93,6 +93,7 @@ extension Manga.Attributes {
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
+        fmt.timeZone = .init(identifier: "UTC")
         createdAt = fmt.date(from: (try? container.decode(String.self, forKey: .createdAt)) ?? "")
         updatedAt = fmt.date(from: (try? container.decode(String.self, forKey: .updatedAt)) ?? "")
     }

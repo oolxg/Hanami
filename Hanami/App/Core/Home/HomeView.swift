@@ -16,14 +16,19 @@ struct HomeView: View {
     
     private struct ViewState: Equatable {
         let isRefreshActionInProgress: Bool
-        init(homeState: HomeState) {
-            isRefreshActionInProgress = homeState.isRefreshActionInProgress
+        let areSeasonalTitlesFetched: Bool
+        let areLatestUpdatesFetched: Bool
+        
+        init(state: HomeState) {
+            isRefreshActionInProgress = state.isRefreshActionInProgress
+            areSeasonalTitlesFetched = !state.seasonalMangaThumbnailStates.isEmpty
+            areLatestUpdatesFetched = !state.lastUpdatedMangaThumbnailStates.isEmpty
         }
     }
 
     var body: some View {
         if networkMonitor.isConnected {
-            homeConten
+            homeContent
         } else {
             noInternetConnectionView
         }
@@ -41,7 +46,7 @@ struct HomeView: View {
         .padding()
     }
     
-    private var homeConten: some View {
+    private var homeContent: some View {
         NavigationView {
             WithViewStore(store, observe: ViewState.init) { viewStore in
                 VStack {
@@ -58,7 +63,6 @@ struct HomeView: View {
                             
                             latestUpdates
                         }
-                        .transition(.opacity)
                     }
                 }
                 .navigationTitle("Home")
@@ -125,13 +129,21 @@ extension HomeView {
         Section {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 15) {
-                    ForEachStore(
-                        store.scope(
-                            state: \.seasonalMangaThumbnailStates,
-                            action: HomeAction.seasonalMangaThumbnailAction
-                        )) { thumbnailStore in
-                            MangaThumbnailView(store: thumbnailStore, compact: true)
+                    WithViewStore(store, observe: ViewState.init) { viewStore in
+                        if viewStore.areSeasonalTitlesFetched {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.seasonalMangaThumbnailStates,
+                                    action: HomeAction.seasonalMangaThumbnailAction
+                                )) { thumbnailStore in
+                                    MangaThumbnailView(store: thumbnailStore, compact: true)
+                                }
+                        } else {
+                            ForEach(0..<7) { _ in
+                                MangaThumbnailView.skeleton(isCompact: true)
+                            }
                         }
+                    }
                 }
                 .padding()
             }
@@ -157,14 +169,23 @@ extension HomeView {
     private var latestUpdates: some View {
         Section {
             LazyVStack {
-                ForEachStore(
-                    store.scope(
-                        state: \.lastUpdatedMangaThumbnailStates,
-                        action: HomeAction.lastUpdatesMangaThumbnailAction
-                    )
-                ) { thumbnailViewStore in
-                    MangaThumbnailView(store: thumbnailViewStore)
-                        .padding()
+                WithViewStore(store, observe: ViewState.init) { viewStore in
+                    if viewStore.areLatestUpdatesFetched {
+                        ForEachStore(
+                            store.scope(
+                                state: \.lastUpdatedMangaThumbnailStates,
+                                action: HomeAction.lastUpdatesMangaThumbnailAction
+                            )
+                        ) { thumbnailViewStore in
+                            MangaThumbnailView(store: thumbnailViewStore)
+                                .padding()
+                        }
+                    } else {
+                        ForEach(0..<10) { _ in
+                            MangaThumbnailView.skeleton(isCompact: false)
+                                .padding()
+                        }
+                    }
                 }
             }
         } header: {

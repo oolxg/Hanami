@@ -160,13 +160,13 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 
                 state.isUserOnReadingView = true
 
-                return Effect(value: .mangaReadingViewAction(.offline(.userStartedReadingChapter)))
+                return .task { .mangaReadingViewAction(.offline(.userStartedReadingChapter)) }
                 
             case .mangaReadingViewAction(.offline(.userStartedReadingChapter)):
                 if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
                     state.mangaReadingViewState?.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return Effect(value: .pagesAction(.changePage(newPageIndex: pageIndex)))
+                    return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
                 }
                 
                 return .none
@@ -190,8 +190,8 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                     return .none
                 }
 
-                return Effect(
-                    value: .pagesAction(
+                return .task {
+                    .pagesAction(
                         .volumeTabAction(
                             volumeID: info.volumeID,
                             volumeAction: .chapterAction(
@@ -200,7 +200,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                             )
                         )
                     )
-                )
+                }
 
             default:
                 return .none

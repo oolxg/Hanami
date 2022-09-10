@@ -54,12 +54,8 @@ struct ChapterState: Equatable, Identifiable {
     
     var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
-    struct ChapterCacheStatus: Equatable {
-        let chapterID: UUID
-//        let 
-    }
-    
     struct CancelChapterFetch: Hashable { let id: UUID }
+    struct CancelChapterCache: Hashable { let id: UUID }
 }
 
 enum ChapterAction: BindableAction, Equatable {
@@ -163,6 +159,10 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     .deleteChapter(chapterID: chapterID)
                     .fireAndForget()
             ]
+            
+            effects.append(
+                .cancel(id: ChapterState.CancelChapterCache(id: chapterID))
+            )
             
             if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapterID)?.pagesCount {
                 effects.append(

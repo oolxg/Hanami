@@ -199,11 +199,15 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
                 // Can be cancelled if user returns wihing 60 sec.
-                return Effect(value: .userLeftMangaViewDelayCompleted)
-                    .delay(for: .seconds(60), scheduler: DispatchQueue.main)
-                    .eraseToEffect()
-                    .cancellable(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
-                
+                return .task {
+                    let sixtySeconds: UInt64 = 1_000_000_000 * 60
+                    try await Task.sleep(nanoseconds: sixtySeconds)
+                    
+                    return MangaThumbnailAction.userLeftMangaViewDelayCompleted
+                }
+                .eraseToEffect()
+                .cancellable(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
+
             case .userLeftMangaViewDelayCompleted:
                 state.onlineMangaState!.reset()
                 return .none
