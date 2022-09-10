@@ -33,29 +33,9 @@ struct OnlineMangaReadingView: View {
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(selection: $currentPageIndex) {
-                Color.clear
-                    .tag(-1)
-                
-                ForEach(viewStore.pagesURLs?.indices ?? [].indices, id: \.self) { pageIndex in
-                    ZoomableScrollView {
-                        KFImage.url(
-                            viewStore.pagesURLs?[pageIndex],
-                            cacheKey: viewStore.pagesURLs?[pageIndex].absoluteString
-                        )
-                        .retry(maxCount: 3)
-                        .placeholder {
-                            ProgressView()
-                                .frame(width: 120)
-                        }
-                        .resizable()
-                        .scaledToFit()
-                    }
-                }
-                
-                Color.clear
-                    .tag(viewStore.pagesURLs?.count)
+                pages
             }
-            .onAppear {
+            .onChange(of: viewStore.pagesCount) { _ in
                 if viewStore.startFromLastPage && viewStore.pagesCount != nil {
                     currentPageIndex = viewStore.pagesCount! - 1
                 } else {
@@ -83,6 +63,31 @@ struct OnlineMangaReadingView: View {
 }
 
 extension OnlineMangaReadingView {
+    private var pages: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            Color.clear
+                .tag(-1)
+            
+            ForEach(viewStore.pagesURLs?.indices ?? [].indices, id: \.self) { pageIndex in
+                ZoomableScrollView {
+                    KFImage.url(
+                        viewStore.pagesURLs?[pageIndex],
+                        cacheKey: viewStore.pagesURLs?[pageIndex].absoluteString
+                    )
+                    .retry(maxCount: 3)
+                    .placeholder {
+                        ProgressView()
+                            .frame(width: 120)
+                    }
+                    .resizable()
+                    .scaledToFit()
+                }
+            }
+            
+            Color.clear
+                .tag(Int.max)
+        }
+    }
     private var backButton: some View {
         Button {
             ViewStore(store).send(.userLeftMangaReadingView)
@@ -114,7 +119,7 @@ extension OnlineMangaReadingView {
                                 }
                                 
                                 if let pagesCount = viewStore.pagesCount,
-                                   currentPageIndex < pagesCount,
+                                   currentPageIndex < Int.max,
                                    currentPageIndex + 1 > 0 {
                                     Text("\(currentPageIndex + 1)/\(pagesCount)")
                                 }
@@ -157,7 +162,7 @@ extension OnlineMangaReadingView {
                                     RoundedRectangle(cornerRadius: 4)
                                         .fill(.black)
                                 )
-                                .frame(width: 40, height: 40)
+                                .frame(width: 50, height: 50)
                                 .overlay(
                                     Text(chapterIndex.clean())
                                 )

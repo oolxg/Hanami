@@ -9,17 +9,18 @@ import Foundation
 import ComposableArchitecture
 
 extension URLSession {
-    func get<T: Decodable>(url: URL, decodeResponseAs type: T.Type) -> Effect<T, AppError> {
+    func get<T: Decodable>(url: URL, decodeResponseAs type: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> Effect<T, AppError> {
         var request = URLRequest(url: url)
         
         let userAgent = "Hanami/\(AppUtil.version) (\(DeviceUtil.deviceName); \(DeviceUtil.fullOSName))"
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        request.timeoutInterval = 15
         
         return URLSession.shared.dataTaskPublisher(for: request)
             .validateResponseCode()
-            .retry(3)
+            .retry(2)
             .map(\.data)
-            .decode(type: T.self, decoder: AppUtil.decoder)
+            .decode(type: T.self, decoder: decoder)
             .mapError { err -> AppError in
                 if let err = err as? URLError {
                     return AppError.networkError(err)

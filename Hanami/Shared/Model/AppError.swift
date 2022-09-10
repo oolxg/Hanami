@@ -41,33 +41,58 @@ extension AppError: Equatable {
                 return false
         }
     }
-    
+    // https://stackoverflow.com/a/39481916/11090054
     var description: String {
         switch self {
             case .networkError(let err):
                 switch err.errorCode {
+                    /* NSURLErrorDomain codes */
+                    case NSURLErrorUnknown:
+                        return "Some unknown error occured"
+                    case NSURLErrorBadURL:
+                        return "Something wrong with URL"
+                    case NSURLErrorTimedOut:
+                        return "Server doesn't respond in reasonable time"
+                    case NSURLErrorCannotFindHost:
+                        return "Can't find given host"
+                    case NSURLErrorCannotConnectToHost:
+                        return "Can't connect to the given host"
+                    case NSURLErrorNetworkConnectionLost:
+                        return "Connection with internet was lost"
+                    case NSURLErrorResourceUnavailable:
+                        return "Requested resource is unavailable at this moment"
+                    case NSURLErrorNotConnectedToInternet:
+                        return "Device isn't connected to the internet"
+                    case NSURLErrorBadServerResponse:
+                        return "Some problems on server, try again later"
+                    case NSURLErrorUserAuthenticationRequired:
+                        return "You must be authenticated to perform this action"
+                    case NSURLErrorCannotParseResponse:
+                        return "Server returned invalid response"
+                        
+                    /* Server response codes */
                     case 401:
-                        return "You must be authorized to perform this action."
+                        return "You must be authenticated to perform this action"
                     case 403:
-                        return "You're not allowed to perform this action."
+                        return "You're not allowed to perform this action"
                     case 404:
-                        return "Can't find this page."
+                        return "Can't find this page"
                     case 408:
-                        return "Request timed out."
+                        return "Request timed out"
                     case 418:
-                        return "I'm a teapot."
+                        return "I'm a teapot"
                     case 429:
-                        return "Too many requests, try again a little later."
+                        return "Too many requests, try again a little later"
                     case 451:
-                        return "Unavailable for legal reasons."
+                        return "Unavailable for legal reasons"
                     case 500...:
-                        return "Some problems on server, try again later."
+                        return "Some problems on server, try again later"
                     default:
                         return "Some network error occured: code \(err.errorCode)"
                 }
                 
             case .decodingError:
-                return "Internal error on data decoding."
+                return "Internal error on data decoding"
                 
             case .unknownError(let err):
                 return "Something strange happened \n\(err.localizedDescription)"

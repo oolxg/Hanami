@@ -132,7 +132,7 @@ struct OfflineMangaReadingView: View {
                                     RoundedRectangle(cornerRadius: 4)
                                         .fill(.black)
                                 )
-                                .frame(width: 40, height: 40)
+                                .frame(width: 50, height: 50)
                                 .overlay(
                                     Text(chapterIndex.clean())
                                 )

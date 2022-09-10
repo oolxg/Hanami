@@ -125,9 +125,11 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 }
                 
             case .userChangedPage(let newPageIndex):
+                guard state.pagesInfo != nil else { return .none }
+
                 if newPageIndex == -1 {
                     return Effect(value: .moveToPreviousChapters(startFromLastPage: true))
-                } else if newPageIndex == state.pagesInfo?.dataSaverURLs.count {
+                } else if newPageIndex == Int.max {
                     return Effect(value: .moveToNextChapter)
                 }
                 

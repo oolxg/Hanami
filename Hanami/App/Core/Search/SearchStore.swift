@@ -98,6 +98,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 state.searchResults.removeAll()
                 state.areSearchResultsDownloaded = false
                 state.lastSuccessfulRequestParams = nil
+                state.isLoading = false
                 return .none
                 
             case .searchForManga:
