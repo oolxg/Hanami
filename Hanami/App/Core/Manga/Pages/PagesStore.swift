@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct PagesState: Equatable {
     // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
-    init(mangaVolumes: [MangaVolume], chaptersPerPage: Int, isOnline: Bool) {
+    init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, isOnline: Bool) {
         // flattening all chapters into one array(but not forgetting to store 'volumeIndex'
         let allMangaChapters: [(chapter: Chapter, volumeIndex: Double?)] = mangaVolumes.flatMap { volume in
             volume.chapters.map { (chapter: $0, volumeIndex: volume.volumeIndex) }
@@ -49,7 +49,7 @@ struct PagesState: Equatable {
             }
             
             splitIntoPagesVolumeTabStates.append(
-                volumesOnPage.map { VolumeTabState(volume: $0, isOnline: isOnline) }
+                volumesOnPage.map { VolumeTabState(volume: $0, parentManga: manga, isOnline: isOnline) }
             )
         }
         
@@ -61,7 +61,7 @@ struct PagesState: Equatable {
     }
     
     // init for offline use
-    init(chaptersDetailsList: [ChapterDetails], chaptersPerPages: Int = 10) {
+    init(manga: Manga, chaptersDetailsList: [ChapterDetails], chaptersPerPages: Int = 10) {
         var volumesDict: [Double?: [ChapterDetails]] = [:]
         
         // splitting chapters into arrays according to 'chapter.attributes.volumeIndex'
@@ -141,6 +141,7 @@ struct PagesState: Equatable {
         // here we're shaped the data(volumes) as they were for online reading
         // and we can use another initializer
         self.init(
+            manga: manga,
             mangaVolumes: volumes.map(\.volume),
             chaptersPerPage: chaptersPerPages,
             isOnline: false
@@ -172,8 +173,10 @@ enum PagesAction {
 
 struct PagesEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
+    let imageClient: ImageClient
     let cacheClient: CacheClient
+    let mangaClient: MangaClient
+    let hudClient: HUDClient
 }
 
 let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
@@ -182,8 +185,10 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
         action: /PagesAction.volumeTabAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
+            imageClient: $0.imageClient,
+            cacheClient: $0.cacheClient,
             mangaClient: $0.mangaClient,
-            cacheClient: $0.cacheClient
+            hudClient: $0.hudClient
         ) }
     ),
     Reducer { state, action, _ in

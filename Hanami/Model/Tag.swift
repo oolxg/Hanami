@@ -28,7 +28,7 @@ struct Tag: Codable {
             let en: Name
             
             enum Name: String, Codable {
-                // Format types
+                /* Format types */
                 case oneshot = "Oneshot"
                 case awardWinning = "Award Winning"
                 case officialColored = "Official Colored"
@@ -41,9 +41,9 @@ struct Tag: Codable {
                 case webComic = "Web Comic"
                 case adaptation = "Adaptation"
                 case fullColor = "Full Color"
-                // Format types END
+                /* Format types END */
                 
-                // Theme types
+                /* Theme types */
                 case reincarnation = "Reincarnation"
                 case timeTravel = "Time Travel"
                 case genderswap = "Genderswap"
@@ -81,14 +81,14 @@ struct Tag: Codable {
                 case supernatural = "Supernatural"
                 case music = "Music"
                 case gyaru = "Gyaru"
-                // Theme type END
+                /* Theme type END */
                 
-                // Content types
+                /* Content types */
                 case sexualViolence = "Sexual Violence"
                 case gore = "Gore"
-                // Content types END
+                /* Content types END */
                 
-                // Genre types
+                /* Genre types */
                 case thriller = "Thriller"
                 case sciFi = "Sci-Fi"
                 case historical = "Historical"
@@ -114,7 +114,7 @@ struct Tag: Codable {
                 case sliceOfLife = "Slice of Life"
                 case mystery = "Mystery"
                 case tragedy = "Tragedy"
-                // Genre types END
+                /* Genre types END */
             }
         }
     }

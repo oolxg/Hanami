@@ -46,7 +46,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
 
 enum MangaThumbnailAction {
     case onAppear
-    case checkForMangaStatisticsAfterDelay
     case coverArtRetrieved(Result<UIImage, Error>)
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
@@ -98,7 +97,6 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
                 }
                 
                 return env.mangaClient.retrieveCoverArt(state.manga.id, env.cacheClient)
-                    .receive(on: DispatchQueue.main)
                     .eraseToEffect(MangaThumbnailAction.coverArtRetrieved)
                 
             case .coverArtRetrieved(let result):
@@ -145,27 +143,11 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
                     effects.append(
                         env.mangaClient.fetchCoverArtInfo(coverArtID)
-                            .receive(on: DispatchQueue.main)
                             .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                    )
                 }
                 
-                effects.append(
-                    Effect(value: MangaThumbnailAction.checkForMangaStatisticsAfterDelay)
-                        .delay(for: .seconds(5), scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                )
-                
                 return .merge(effects)
-                
-            case .checkForMangaStatisticsAfterDelay:
-                if state.mangaStatistics == nil {
-                    return env.mangaClient.fetchMangaStatistics(state.manga.id)
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(MangaThumbnailAction.mangaStatisticsFetched)
-                }
-                
-                return .none
                 
             case .mangaStatisticsFetched(let result):
                 switch result {

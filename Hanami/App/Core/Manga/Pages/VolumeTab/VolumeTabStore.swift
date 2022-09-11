@@ -9,10 +9,12 @@ import Foundation
 import ComposableArchitecture
 
 struct VolumeTabState: Equatable {
-    init(volume: MangaVolume, isOnline: Bool) {
+    init(volume: MangaVolume, parentManga: Manga, isOnline: Bool) {
         self.volume = volume
         chapterStates = .init(
-            uniqueElements: volume.chapters.map { ChapterState(chapter: $0, isOnline: isOnline) }
+            uniqueElements: volume.chapters.map {
+                ChapterState(chapter: $0, parentManga: parentManga, isOnline: isOnline)
+            }
         )
     }
     
@@ -40,8 +42,10 @@ enum VolumeTabAction {
 
 struct VolumeTabEnvironment {
     let databaseClient: DatabaseClient
-    let mangaClient: MangaClient
+    let imageClient: ImageClient
     let cacheClient: CacheClient
+    let mangaClient: MangaClient
+    let hudClient: HUDClient
 }
 
 // this reducer is only to store chapters more conveniently
@@ -51,8 +55,10 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, VolumeTabEnvironm
         action: /VolumeTabAction.chapterAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
+            imageClient: .live,
+            cacheClient: $0.cacheClient,
             mangaClient: $0.mangaClient,
-            cacheClient: $0.cacheClient
+            hudClient: $0.hudClient
         ) }
     )
 )

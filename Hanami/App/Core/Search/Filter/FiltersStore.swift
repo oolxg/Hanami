@@ -66,7 +66,6 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             guard state.allTags.isEmpty else { return .none }
             
             return env.searchClient.fetchTags()
-                .receive(on: DispatchQueue.main)
                 .catchToEffect(FiltersAction.filterListDownloaded)
             
         case .filterListDownloaded(let result):

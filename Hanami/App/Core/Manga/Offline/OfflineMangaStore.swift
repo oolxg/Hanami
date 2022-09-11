@@ -55,8 +55,10 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
         action: /OfflineMangaViewAction.pagesAction,
         environment: { .init(
             databaseClient: $0.databaseClient,
+            imageClient: $0.imageClient,
+            cacheClient: $0.cacheClient,
             mangaClient: $0.mangaClient,
-            cacheClient: $0.cacheClient
+            hudClient: $0.hudClient
         ) }
     ),
     mangaReadingViewReducer.optional().pullback(
@@ -89,6 +91,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
 
                         state.lastRetrievedChapterIDs = chaptersIDsSet
                         state.pagesState = PagesState(
+                            manga: state.manga,
                             chaptersDetailsList: chapters.map(\.chapter),
                             chaptersPerPages: 15
                         )

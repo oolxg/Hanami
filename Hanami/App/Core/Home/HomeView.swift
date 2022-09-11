@@ -18,19 +18,25 @@ struct HomeView: View {
         let isRefreshActionInProgress: Bool
         let areSeasonalTitlesFetched: Bool
         let areLatestUpdatesFetched: Bool
+        let areAwardWinningTitlesFetched: Bool
+        let areMostFollowedTitlesFetched: Bool
         
         init(state: HomeState) {
             isRefreshActionInProgress = state.isRefreshActionInProgress
             areSeasonalTitlesFetched = !state.seasonalMangaThumbnailStates.isEmpty
             areLatestUpdatesFetched = !state.lastUpdatedMangaThumbnailStates.isEmpty
+            areAwardWinningTitlesFetched = !state.awardWinningMangaThumbnailStates.isEmpty
+            areMostFollowedTitlesFetched = !state.mostFollowedMangaThumbnailStates.isEmpty
         }
     }
 
     var body: some View {
-        if networkMonitor.isConnected {
-            homeContent
-        } else {
-            noInternetConnectionView
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if networkMonitor.isConnected || viewStore.areSeasonalTitlesFetched || viewStore.areLatestUpdatesFetched {
+                homeContent
+            } else {
+                noInternetConnectionView
+            }
         }
     }
     
@@ -254,14 +260,23 @@ extension HomeView {
 
             ScrollView {
                 LazyVStack {
-                    ForEachStore(
-                        store.scope(
-                            state: \.mostFollowedMangaThumbnailStates,
-                            action: HomeAction.mostFollowedMangaThumbnailAction
-                        )) { thumbnailStore in
-                            MangaThumbnailView(store: thumbnailStore)
-                                .padding()
+                    WithViewStore(store, observe: ViewState.init) { viewStore in
+                        if viewStore.areMostFollowedTitlesFetched {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.mostFollowedMangaThumbnailStates,
+                                    action: HomeAction.mostFollowedMangaThumbnailAction
+                                )) { thumbnailStore in
+                                    MangaThumbnailView(store: thumbnailStore)
+                                        .padding()
+                                }
+                        } else {
+                            ForEach(0..<20) { _ in
+                                MangaThumbnailView.skeleton(isCompact: false)
+                                    .padding()
+                            }
                         }
+                    }
                 }
             }
         }
@@ -320,14 +335,23 @@ extension HomeView {
 
             ScrollView {
                 LazyVStack {
-                    ForEachStore(
-                        store.scope(
-                            state: \.awardWinningMangaThumbnailStates,
-                            action: HomeAction.awardWinningMangaThumbnailAction
-                        )) { thumbnailStore in
-                            MangaThumbnailView(store: thumbnailStore)
-                                .padding()
+                    WithViewStore(store, observe: ViewState.init) { viewStore in
+                        if viewStore.areAwardWinningTitlesFetched {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.awardWinningMangaThumbnailStates,
+                                    action: HomeAction.awardWinningMangaThumbnailAction
+                                )) { thumbnailStore in
+                                    MangaThumbnailView(store: thumbnailStore)
+                                        .padding()
+                                }
+                        } else {
+                            ForEach(0..<20) { _ in
+                                MangaThumbnailView.skeleton(isCompact: false)
+                                    .padding()
+                            }
                         }
+                    }
                 }
             }
         }
@@ -338,7 +362,7 @@ extension HomeView {
             toolbar { showAwardWinning = false }
         }
         .onAppear {
-            ViewStore(store).send(.userOpenedMostFollowedView)
+            ViewStore(store).send(.userOpenedAwardWinningView)
         }
     }
 }

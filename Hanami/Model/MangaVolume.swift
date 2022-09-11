@@ -7,79 +7,6 @@
 
 import Foundation
 
-// JSON Example https://api.mangadex.org/manga/9d3d3403-1a87-4737-9803-bc3d99db1424/aggregate
-/*
-
-{
-    "result":"ok",
-    "volumes":{
-        "none":{
-            "volume":"none",
-            "count":13,
-            "chapters":{
-                "7":{
-                    "chapter":"7",
-                    "id":"5b459e5a-1b92-4173-913f-2461d1126dc2",
-                    "others":[
-                        
-                    ],
-                    "count":1
-                },
-                "6":{
-                    "chapter":"6",
-                    "id":"f663173e-cc94-4cf8-9d2a-491f763ee949",
-                    "others":[
-                        "c037ec52-e036-426f-b577-b588cd0362fa"
-                    ],
-                    "count":2
-                },
-                "5":{
-                    "chapter":"5",
-                    "id":"0a51631d-70ba-48c5-87b5-d1e3071b2430",
-                    "others":[
-                        "c9271404-f701-476c-b448-6849d970cb93"
-                    ],
-                    "count":2
-                },
-                "4":{
-                    "chapter":"4",
-                    "id":"85a77d44-58d3-4018-9d60-608a62161c79",
-                    "others":[
-                        "9528152b-5e91-4118-abfc-471862ec3759"
-                    ],
-                    "count":2
-                },
-                "3":{
-                    "chapter":"3",
-                    "id":"aa32de98-f603-4554-ae67-928cc5294c74",
-                    "others":[
-                        "d2bcab62-41c9-49f6-9cc8-574f6e82f9ac"
-                    ],
-                    "count":2
-                },
-                "2":{
-                    "chapter":"2",
-                    "id":"d2726135-c790-4b79-bc5b-f4e96eae2ff4",
-                    "others":[
-                        "0b1c07a5-8dac-438d-9f3d-4bb289fa2d37"
-                    ],
-                    "count":2
-                },
-                "1":{
-                    "chapter":"1",
-                    "id":"af9a4326-9934-41bb-b666-fd5d8784fe4b",
-                    "others":[
-                        "3a25fa25-cd11-4408-afac-1323839c6397"
-                    ],
-                    "count":2
-                }
-            }
-        }
-    }
-}
- 
- */
-
 struct VolumesContainer: Codable {
     let volumes: [MangaVolume]
     
@@ -173,20 +100,9 @@ extension MangaVolume: Equatable {
 
 extension MangaVolume: Identifiable { }
 
-
-extension VolumesContainer: Equatable {
-    static func == (lhs: VolumesContainer, rhs: VolumesContainer) -> Bool {
-        lhs.volumes == rhs.volumes
-    }
-}
-
 extension MangaVolume {
     var volumeName: String {
         volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean())"
-    }
-    
-    var availableChapters: [Double] {
-        chapters.compactMap(\.chapterIndex)
     }
 }
 

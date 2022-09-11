@@ -14,8 +14,6 @@ struct HomeClient {
     let fetchMangaByIDs: ([UUID]) -> Effect<Response<[Manga]>, AppError>
     let fetchAwardWinningManga: () -> Effect<Response<[Manga]>, AppError>
     let fetchMostFollowedManga: () -> Effect<Response<[Manga]>, AppError>
-    let fetchHighestRatingManga: () -> Effect<Response<[Manga]>, AppError>
-    let fetchRecentlyAddedManga: () -> Effect<Response<[Manga]>, AppError>
     let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
 }
 
@@ -124,50 +122,6 @@ extension HomeClient {
                 URLQueryItem(name: "contentRating[]", value: "suggestive"),
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "order[followedCount]", value: "desc"),
-                URLQueryItem(name: "includes[]", value: "author"),
-                URLQueryItem(name: "includes[]", value: "cover_art")
-            ]
-            
-            guard let url = components.url else {
-                return .none
-            }
-            
-            return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
-        },
-        fetchHighestRatingManga: {
-            var components = URLComponents()
-            components.scheme = "https"
-            components.host = "api.mangadex.org"
-            components.path = "/manga"
-            components.queryItems = [
-                URLQueryItem(name: "limit", value: "25"),
-                URLQueryItem(name: "offset", value: "0"),
-                URLQueryItem(name: "contentRating[]", value: "safe"),
-                URLQueryItem(name: "contentRating[]", value: "suggestive"),
-                URLQueryItem(name: "contentRating[]", value: "erotica"),
-                URLQueryItem(name: "order[rating]", value: "desc"),
-                URLQueryItem(name: "includes[]", value: "author"),
-                URLQueryItem(name: "includes[]", value: "cover_art")
-            ]
-            
-            guard let url = components.url else {
-                return .none
-            }
-            
-            return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
-        },
-        fetchRecentlyAddedManga: {
-            var components = URLComponents()
-            components.scheme = "https"
-            components.host = "api.mangadex.org"
-            components.path = "/manga"
-            components.queryItems = [
-                URLQueryItem(name: "limit", value: "25"),
-                URLQueryItem(name: "offset", value: "0"),
-                URLQueryItem(name: "contentRating[]", value: "safe"),
-                URLQueryItem(name: "contentRating[]", value: "suggestive"),
-                URLQueryItem(name: "contentRating[]", value: "erotica"),
-                URLQueryItem(name: "order[createdAt]", value: "desc"),
                 URLQueryItem(name: "includes[]", value: "author"),
                 URLQueryItem(name: "includes[]", value: "cover_art")
             ]

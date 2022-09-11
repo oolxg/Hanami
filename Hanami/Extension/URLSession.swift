@@ -15,6 +15,7 @@ extension URLSession {
         let userAgent = "Hanami/\(AppUtil.version) (\(DeviceUtil.deviceName); \(DeviceUtil.fullOSName))"
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 15
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         
         return URLSession.shared.dataTaskPublisher(for: request)
             .validateResponseCode()

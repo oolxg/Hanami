@@ -300,10 +300,10 @@ extension MangaThumbnailView {
                     
                     // description
                     VStack(alignment: .leading) {
-                        Text(String.placeholder(length: 20))
-                        Text(String.placeholder(length: 15))
-                        Text(String.placeholder(length: 20))
-                        Text(String.placeholder(length: 10))
+                        Text(String.placeholder(length: AppUtil.isIpad ? 100 : 20))
+                        Text(String.placeholder(length: AppUtil.isIpad ? 85 : 15))
+                        Text(String.placeholder(length: AppUtil.isIpad ? 100 : 20))
+                        Text(String.placeholder(length: AppUtil.isIpad ? 65 : 10))
                     }
                     .lineLimit(1)
                     .font(.footnote)

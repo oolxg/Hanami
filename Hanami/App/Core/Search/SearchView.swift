@@ -26,7 +26,7 @@ struct SearchView: View {
                         
                         if isSearchFieldFocused || !viewStore.searchText.isEmpty {
                             Button("Cancel") {
-                                viewStore.send(.resetSearchQuery)
+                                viewStore.send(.resetSearch)
                                 UIApplication.shared.endEditing()
                             }
                             .foregroundColor(.white)

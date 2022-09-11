@@ -50,15 +50,14 @@ struct MangaStatisticsContainer: Codable {
 struct MangaStatistics: Codable {
     let rating: MangaRating
     let follows: Int
+    
+    // MARK: - Rating
+    struct MangaRating: Codable {
+        let average: Double?
+        let bayesian: Double
+    }
 }
-
-// MARK: - Rating
-struct MangaRating: Codable {
-    let average: Double?
-    let bayesian: Double
-}
-
-extension MangaRating: Equatable { }
-
 
 extension MangaStatistics: Equatable { }
+
+extension MangaStatistics.MangaRating: Equatable { }

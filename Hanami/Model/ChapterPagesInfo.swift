@@ -30,12 +30,6 @@ extension ChapterPagesInfo: Equatable {
     }
 }
 
-extension ChapterPagesInfo: Identifiable {
-    var id: String {
-        pagesInfo.hash
-    }
-}
-
 extension ChapterPagesInfo {
     var dataSaverURLs: [URL] {
         pagesInfo.dataSaver.compactMap { fileName in
