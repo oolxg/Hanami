@@ -10,12 +10,24 @@ import ComposableArchitecture
 
 struct VolumeTabView: View {
     let store: Store<VolumeTabState, VolumeTabAction>
+    
+    struct ViewState: Equatable {
+        let volumeName: String
+        let splitChapterIndexes: [[Int]]
+        
+        init(state: VolumeTabState) {
+            volumeName = state.volume.volumeName
+            // splitting chapter indexes as subsequences, e.g.
+            // [1, 2, 3, 5, 9, 10] will be [[1, 2, 3], [5], [9, 10]]
+            splitChapterIndexes = state.childrenChapterIndexes.getAllSubsequences()
+        }
+    }
 
     var body: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack {
                 HStack(alignment: .bottom) {
-                    Text(viewStore.volume.volumeName)
+                    Text(viewStore.volumeName)
                         .font(.title2)
                         .fontWeight(.medium)
                     
@@ -65,17 +77,13 @@ struct VolumeTabView_Previews: PreviewProvider {
 
 extension VolumeTabView {
     var chapterIndexesList: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack {
-                // splitting chapter indexes as subsequences, e.g.
-                // [1, 2, 3, 5, 9, 10] will be [[1, 2, 3], [5], [9, 10]]
-                let allSubsequences = viewStore.childrenChapterIndexes.getAllSubsequences()
-                
-                if !allSubsequences.isEmpty {
+                if !viewStore.splitChapterIndexes.isEmpty {
                     Text("Ch.")
                     
-                    ForEach(allSubsequences, id: \.self) { subsequence in
-                        let delimeter = subsequence == allSubsequences.last ? "" : ","
+                    ForEach(viewStore.splitChapterIndexes, id: \.self) { subsequence in
+                        let delimeter = subsequence == viewStore.splitChapterIndexes.last ? "" : ","
                         if subsequence.count == 1 {
                             Text("\(subsequence.first!)\(delimeter)")
                         } else {

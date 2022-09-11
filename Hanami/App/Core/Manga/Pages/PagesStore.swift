@@ -198,7 +198,7 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
                     return .none
                 }
                 
-                let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childrenChapterIDs)
+                let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childrenChapterDetailsIDs)
                 
                 return .concatenate(
                     .cancel(ids: chapterIDs.map { ChapterState.CancelChapterFetch(id: $0) }),

@@ -21,7 +21,7 @@ struct VolumeTabState: Equatable {
     let volume: MangaVolume
     var chapterStates: IdentifiedArrayOf<ChapterState> = []
     
-    var childrenChapterIDs: [UUID] {
+    var childrenChapterDetailsIDs: [UUID] {
         chapterStates.flatMap { $0.chapterDetailsList.map(\.id) }
     }
     

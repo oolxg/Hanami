@@ -42,6 +42,9 @@ struct ChapterView: View {
                 store.scope(state: \.confirmationDialog),
                 dismiss: .cancelTapped
             )
+            .onAppear {
+                viewStore.send(.checkIfChaptersCached)
+            }
             
             Divider()
         }
@@ -176,8 +179,10 @@ extension ChapterView {
                             value: Double(chapterState.pagesFetched) / Double(chapterState.pagesCount)
                         )
                         .progressViewStyle(.linear)
-                        .padding(.top)
+                        .padding(.top, 5)
+                        .padding(5)
                         .frame(width: 40)
+                        .tint(.white)
                         .onTapGesture {
                             viewStore.send(.cancelChapterDownload(chapterID: chapter.id))
                         }
