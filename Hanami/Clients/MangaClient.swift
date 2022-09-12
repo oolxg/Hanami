@@ -31,7 +31,6 @@ struct MangaClient {
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let isCoverArtCached: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
-    let isChapterCacheValid: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Bool
     let getPathsForCachedChapterPages: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> [URL?]
     let getCoverArtPath: (_ mangaID: UUID, _ cacheClient: CacheClient) -> URL?
     // swiftlint:enable line_length
@@ -192,14 +191,6 @@ extension MangaClient {
             let imageName = getCoverArtName(mangaID: mangaID)
             
             return cacheClient.isCached(imageName)
-        },
-        isChapterCacheValid: { chapterID, pagesCount, cacheClient in
-            // checks whether all pages from chapter cached
-            (0..<pagesCount).indices.map { pageIndex in
-                let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
-                return cacheClient.isCached(imageName)
-            }
-            .allSatisfy { $0 }
         },
         getPathsForCachedChapterPages: { chapterID, pagesCount, cacheClient in
             (0..<pagesCount).indices.map { pageIndex in

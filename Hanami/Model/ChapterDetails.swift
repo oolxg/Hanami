@@ -18,7 +18,7 @@ struct ChapterDetails: Codable {
         let createdAt: Date
         let pagesCount: Int
         let publishAt: Date
-        let translatedLanguage: String
+        let translatedLanguage: String?
         let updatedAt: Date
         let version: Int
 
@@ -60,14 +60,14 @@ extension ChapterDetails.Attributes {
         }
         
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        externalURL = try? container.decode(URL?.self, forKey: .externalURL)
+        externalURL = try? container.decode(URL.self, forKey: .externalURL)
         pagesCount = try container.decode(Int.self, forKey: .pagesCount)
         publishAt = try container.decode(Date.self, forKey: .publishAt)
-        readableAt = try? container.decode(Date?.self, forKey: .readableAt)
-        let tempTitle = try? container.decode(String?.self, forKey: .title)
+        readableAt = try? container.decode(Date.self, forKey: .readableAt)
+        let tempTitle = try? container.decode(String.self, forKey: .title)
         // swiftlint:disable:next empty_string
         title = tempTitle == "" ? nil : tempTitle
-        translatedLanguage = try container.decode(String.self, forKey: .translatedLanguage)
+        translatedLanguage = try? container.decode(String.self, forKey: .translatedLanguage)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         version = try container.decode(Int.self, forKey: .version)
         
@@ -83,15 +83,22 @@ extension ChapterDetails {
     var languageFlag: String {
         let flags = [
             "ar": "🇸🇦",
+            "cs": "🇨🇿",
             "de": "🇩🇪",
             "en": "🇬🇧",
             "es": "🇪🇸",
             "es-la": "🇲🇽",
+            "fa": "🇮🇷", // farsi
             "fr": "🇫🇷",
+            "hi": "🇮🇳", // hindi
+            "hu": "🇭🇺",
             "id": "🇮🇩",
             "it": "🇮🇹",
             "ja": "🇯🇵",
             "ja-ro": "🇯🇵",
+            "mn": "🇲🇳", // mongolian
+            "ms": "🇲🇾",
+            "nl": "🇳🇱",
             "pl": "🇵🇱",
             "pt": "🇵🇹",
             "pt-br": "🇧🇷",
@@ -105,7 +112,11 @@ extension ChapterDetails {
             "zh-ro": "🇨🇳"
         ]
         
-        return flags[attributes.translatedLanguage] ?? "❓"
+        if let translatedLanguage = attributes.translatedLanguage {
+            return flags[translatedLanguage] ?? "❓"
+        }
+        
+        return "❓"
     }
     
     var chapterName: String {

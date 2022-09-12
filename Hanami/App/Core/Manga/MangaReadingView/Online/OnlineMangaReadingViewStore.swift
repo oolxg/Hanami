@@ -15,7 +15,7 @@ struct OnlineMangaReadingViewState: Equatable {
         chapterID: UUID,
         chapterIndex: Double?,
         scanlationGroupID: UUID?,
-        translatedLanguage: String,
+        translatedLanguage: String?,
         startFromLastPage: Bool = false
     ) {
         self.mangaID = mangaID
@@ -28,7 +28,7 @@ struct OnlineMangaReadingViewState: Equatable {
     
     let mangaID: UUID
     let chapterID: UUID
-    let translatedLanguage: String
+    let translatedLanguage: String?
     let chapterIndex: Double?
     let scanlationGroupID: UUID?
     let startFromLastPage: Bool

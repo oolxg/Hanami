@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct MangaThumbnailState: Equatable, Identifiable {
     init(manga: Manga, isOnline: Bool = true) {
         self.manga = manga
-        self.isOnline = isOnline
         
         if isOnline {
             onlineMangaState = OnlineMangaViewState(manga: manga)
@@ -33,8 +32,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
     var offlineMangaState: OfflineMangaViewState?
     let manga: Manga
     var coverArtInfo: CoverArtInfo?
-    
-    let isOnline: Bool
     
     var mangaStatistics: MangaStatistics? {
         onlineMangaState?.statistics
@@ -84,7 +81,7 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
         ) }
     ),
     Reducer { state, action, env in
-        guard !state.isOnline else {
+        guard state.offlineMangaState != nil else {
             return .none
         }
         
@@ -121,7 +118,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         ) }
     ),
     Reducer { state, action, env in
-        guard state.isOnline else {
+        guard state.onlineMangaState != nil else {
             return .none
         }
         

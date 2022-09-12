@@ -66,7 +66,7 @@ extension CacheClient {
         },
         isCached: { imageName in
             // force try can be used, because the function 'existsObject(forKey: )' is only marked as throws,
-            // but it does no throw 
+            // but it does not throw
             // swiftlint:disable:next force_try
             try! imageStorage.existsObject(forKey: imageName)
         },
@@ -76,7 +76,8 @@ extension CacheClient {
                     try? imageStorage.removeAll()
                 }
             }
-        }, computeCacheSize: {
+        },
+        computeCacheSize: {
             Future { promise in
                 DispatchQueue.main.async {
                     guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {

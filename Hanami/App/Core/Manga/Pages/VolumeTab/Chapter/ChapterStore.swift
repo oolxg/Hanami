@@ -33,11 +33,16 @@ struct ChapterState: Equatable, Identifiable {
                 chapterDetailsList = .init(uniqueElements: _chapterDetailsList.sorted { lhs, rhs in
                     // sort by lang and by ScanlationGroup's name
                     if lhs.attributes.translatedLanguage == rhs.attributes.translatedLanguage,
-                       let lhsScanlationGroup = lhs.scanlationGroup, let rhsScanlationGroup = rhs.scanlationGroup {
-                        return lhsScanlationGroup.name < rhsScanlationGroup.name
+                       let lhsName = lhs.scanlationGroup?.name, let rhsName = rhs.scanlationGroup?.name {
+                        return lhsName < rhsName
                     }
                     
-                    return lhs.attributes.translatedLanguage < rhs.attributes.translatedLanguage
+                    if let lhsLang = lhs.attributes.translatedLanguage,
+                        let rhsLang = rhs.attributes.translatedLanguage {
+                        return lhsLang < rhsLang
+                    }
+                    
+                    return false
                 })
                 
                 _chapterDetailsList = []
@@ -51,7 +56,7 @@ struct ChapterState: Equatable, Identifiable {
     
     var id: UUID { chapter.id }
     
-    @BindableState var areChaptersShown = false
+    var areChaptersShown = false
     
     var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
@@ -72,7 +77,7 @@ struct ChapterState: Equatable, Identifiable {
     struct CancelChapterFetch: Hashable { let id: UUID }
 }
 
-enum ChapterAction: BindableAction, Equatable {
+enum ChapterAction: Equatable {
     case fetchChapterDetailsIfNeeded
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
@@ -88,8 +93,6 @@ enum ChapterAction: BindableAction, Equatable {
     case deleteChapter(chapterID: UUID)
     case chapterDeletionConfirmed(chapterID: UUID)
     case cancelTapped
-
-    case binding(BindingAction<ChapterState>)
 }
 
 struct ChapterEnvironment {
@@ -232,7 +235,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 case .success(let response):
                     let chapter = response.data
                     
-                    state._chapterDetailsList.append(chapter)
+                    if !state._chapterDetailsList.contains(where: { $0.id == chapter.id }) {
+                        state._chapterDetailsList.append(chapter)
+                    }
                     
                     if let scanlationGroup = response.data.scanlationGroup {
                         state.scanlationGroups[chapter.id] = scanlationGroup
@@ -309,7 +314,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 .init(
                     chapterID: chapter.id,
                     status: .downloadInProgress,
-                    pagesCount: 0,
+                    pagesCount: 1,
                     pagesFetched: 0
                 )
             )
@@ -371,8 +376,8 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .init(
                             chapterID: chapter.id,
                             status: .downloadFailed,
-                            pagesCount: -1,
-                            pagesFetched: -1
+                            pagesCount: 1,
+                            pagesFetched: 0
                         )
                     )
                     
@@ -429,8 +434,8 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .init(
                             chapterID: chapter.id,
                             status: .downloadFailed,
-                            pagesCount: -1,
-                            pagesFetched: -1
+                            pagesCount: 1,
+                            pagesFetched: 0
                         )
                     )
                     
@@ -460,9 +465,5 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return .none
         // MARK: - Caching END
-            
-        case .binding:
-            return .none
     }
 }
-.binding()

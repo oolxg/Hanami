@@ -12,38 +12,47 @@ import Foundation
 
 // swiftlint:disable identifier_name
 struct LocalizedString: Codable {
-    var en, fr, ru, jp, jpRo, th: String?
-    var zh, zhRo, es, esLa, ar: String?
-    var uk, it, ko: String?
+    var ar, cs, en, es, esLa: String?
+    var hi, hu, fa, fr, it: String?
+    var jp, jpRo, ko, mn, ms: String?
+    var nl, ru, th, uk, zh: String?
+    var zhRo: String?
     
     enum CodingKeys: String, CodingKey {
-        case en, ru, zh, fr
-        case es, ar, th, uk
-        case jp = "ja"
-        case jpRo = "ja-ro"
-        case zhRo = "zh-ro"
+        case ar, cs, en, es
         case esLa = "es-la"
-        case it, ko
+        case hi, hu, fa, fr, it, jp
+        case jpRo = "ja-ro"
+        case ko, mn, ms, nl, ru
+        case th, uk, zh
+        case zhRo = "zh-ro"
     }
 }
 
 extension LocalizedString {
     init(localizedStrings langContent: [LocalizedString]) {
         langContent.forEach { content in
+            ar = ar == nil ? content.ar : ar
+            cs = cs == nil ? content.cs : cs
             en = en == nil ? content.en : en
-            uk = uk == nil ? content.uk : uk
-            fr = fr == nil ? content.fr : fr
             es = es == nil ? content.es : es
             esLa = esLa == nil ? content.esLa : esLa
-            ru = ru == nil ? content.ru : ru
+            hi = hi == nil ? content.hi : hi
+            hu = hu == nil ? content.hu : hu
+            fa = fa == nil ? content.fa : fa
+            fr = fr == nil ? content.fr : fr
+            it = it == nil ? content.it : it
             jp = jp == nil ? content.jp : jp
             jpRo = jpRo == nil ? content.jpRo : jpRo
+            ko = ko == nil ? content.ko : ko
+            mn = mn == nil ? content.mn : mn
+            ms = ms == nil ? content.ms : ms
+            nl = nl == nil ? content.nl : nl
+            ru = ru == nil ? content.ru : ru
+            th = th == nil ? content.th : th
+            uk = uk == nil ? content.uk : uk
             zh = zh == nil ? content.zh : zh
             zhRo = zhRo == nil ? content.zhRo : zhRo
-            ar = ar == nil ? content.ar : ar
-            th = th == nil ? content.th : th
-            it = it == nil ? content.it : it
-            ko = ko == nil ? content.ko : ko
         }
     }
 }
@@ -51,67 +60,51 @@ extension LocalizedString {
 extension LocalizedString: Equatable { }
 
 extension LocalizedString {
-    var availableLang: String? {
+    var languageInfo: (language: String, flag: String)? {
         if let en = en {
-            return en
-        } else if let fr = fr {
-            return fr
-        } else if let es = es {
-            return es
-        } else if let esLa = esLa {
-            return esLa
-        } else if let jpRo = jpRo {
-            return jpRo
-        } else if let jp = jp {
-            return jp
-        } else if let ru = ru {
-            return ru
-        } else if let zhRo = zhRo {
-            return zhRo
-        } else if let zh = zh {
-            return zh
+            return (language: en, flag: "🇬🇧")
         } else if let ar = ar {
-            return ar
-        } else if let th = th {
-            return th
-        } else if let uk = uk {
-            return uk
+            return (language: ar, flag: "🇦🇷")
+        } else if let cs = cs {
+            return (language: cs, flag: "🇨🇿")
+        } else if let es = es {
+            return (language: es, flag: "🇪🇸")
+        } else if let esLa = esLa {
+            return (language: esLa, flag: "🇧🇷")
+        } else if let hi = hi {
+            return (language: hi, flag: "🇮🇳")
+        } else if let hu = hu {
+            return (language: hu, flag: "🇭🇺")
+        } else if let fa = fa {
+            return (language: fa, flag: "🇮🇷")
+        } else if let fr = fr {
+            return (language: fr, flag: "🇫🇷")
         } else if let it = it {
-            return it
+            return (language: it, flag: "🇮🇹")
+        } else if let jp = jp {
+            return (language: jp, flag: "🇯🇵")
+        } else if let jpRo = jpRo {
+            return (language: jpRo, flag: "🇯🇵")
         } else if let ko = ko {
-            return ko
+            return (language: ko, flag: "🇰🇷")
+        } else if let mn = mn {
+            return (language: mn, flag: "🇲🇳")
+        } else if let ms = ms {
+            return (language: ms, flag: "🇲🇾")
+        } else if let nl = nl {
+            return (language: nl, flag: "🇳🇱")
+        } else if let ru = ru {
+            return (language: ru, flag: "🇷🇺")
+        } else if let th = th {
+            return (language: th, flag: "🇹🇭")
+        } else if let uk = uk {
+            return (language: uk, flag: "🇺🇦")
+        } else if let zh = zh {
+            return (language: zh, flag: "🇨🇳")
+        } else if let zhRo = zhRo {
+            return (language: zhRo, flag: "🇨🇳")
         }
         
         return nil
-    }
-    
-    var languageFlag: String {
-        if en != nil {
-            return "🇬🇧"
-        } else if fr != nil {
-            return "🇫🇷"
-        } else if es != nil {
-            return "🇪🇸"
-        } else if esLa != nil {
-            return "🇲🇽"
-        } else if jpRo != nil || jp != nil {
-            return "🇯🇵"
-        } else if ru != nil {
-            return "🇷🇺"
-        } else if zhRo != nil || zh != nil {
-            return "🇨🇳"
-        } else if ar != nil {
-            return "🇸🇦"
-        } else if th != nil {
-            return "🇹🇭"
-        } else if uk != nil {
-            return "🇺🇦"
-        } else if it != nil {
-            return "🇮🇹"
-        } else if ko != nil {
-            return "🇰🇷"
-        }
-        
-        return "❓"
     }
 }

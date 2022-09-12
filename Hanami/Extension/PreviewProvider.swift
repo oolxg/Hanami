@@ -29,19 +29,11 @@ class DeveloperPreview {
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
         attributes: .init(
             title: LocalizedString(
-                en: "JoJo's Bizarre Adventure Part 6: Stone Ocean (Fan-Coloured)",
-                ru: nil,
-                jp: nil,
-                jpRo: nil,
-                zh: nil,
-                zhRo: nil),
+                en: "JoJo's Bizarre Adventure Part 6: Stone Ocean (Fan-Coloured)"
+            ),
             altTitles: LocalizedString(
                 en: "Konosuba",
-                ru: nil,
-                jp: "Konosuba",
-                jpRo: nil,
-                zh: nil,
-                zhRo: nil
+                jp: "Konosuba"
             ),
             description: LocalizedString(
                 en: "The sixth story arc of JoJo's Bizarre Adventure.\n\nIn Florida, 2011, Jolyne Cujoh" +
@@ -52,12 +44,7 @@ class DeveloperPreview {
                 " escape from the stone ocean that holds her.\n\nHowever, she soon discovers that her incarceration" +
                 " is merely a small part of agrand plot: one that not only takes aim at her family, but has " +
                 " additional far-reaching consequences. What's more, the mastermind is lurking within the very" +
-                " same prison, and is under the protection of a lineup of menacing Stand users.",
-                ru: nil,
-                jp: nil,
-                jpRo: nil,
-                zh: nil,
-                zhRo: nil
+                " same prison, and is under the protection of a lineup of menacing Stand users."
             ),
             isLocked: false,
             originalLanguage: "ja",

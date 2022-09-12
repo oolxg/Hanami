@@ -27,7 +27,7 @@ struct MangaThumbnailView: View {
         let mangaStatistics: MangaStatistics?
         
         init(state: MangaThumbnailState) {
-            isOnline = state.isOnline
+            isOnline = state.onlineMangaState != nil
             coverArtInfo = state.coverArtInfo
             coverArtPath = state.offlineMangaState?.coverArtPath
             manga = state.manga

@@ -18,6 +18,7 @@ struct ChapterView: View {
         let isOnline: Bool
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
         let cachedChaptersStates: Set<ChapterState.CachedChapterState>
+        let areChaptersShown: Bool
         
         init(state: ChapterState) {
             chapter = state.chapter
@@ -25,12 +26,17 @@ struct ChapterView: View {
             isOnline = state.isOnline
             chapterDetailsList = state.chapterDetailsList
             cachedChaptersStates = state.cachedChaptersStates
+            areChaptersShown = state.areChaptersShown
         }
     }
 
     var body: some View {
-        WithViewStore(store) { viewStore in
-            DisclosureGroup(isExpanded: viewStore.binding(\.$areChaptersShown)) {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            DisclosureGroup(
+                isExpanded: viewStore.binding(
+                    get: \.areChaptersShown, send: .fetchChapterDetailsIfNeeded
+                )
+            ) {
                 disclosureGroupBody
             } label: {
                 disclosureGroupLabel
@@ -99,9 +105,6 @@ extension ChapterView {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
-            .onTapGesture {
-                viewStore.send(.fetchChapterDetailsIfNeeded, animation: .linear)
-            }
         }
     }
     
@@ -175,17 +178,18 @@ extension ChapterView {
                         }
                         
                     case .downloadInProgress:
-                        ProgressView(
-                            value: Double(chapterState.pagesFetched) / Double(chapterState.pagesCount)
-                        )
-                        .progressViewStyle(.linear)
-                        .padding(.top, 5)
-                        .padding(5)
-                        .frame(width: 40)
-                        .tint(.white)
-                        .onTapGesture {
-                            viewStore.send(.cancelChapterDownload(chapterID: chapter.id))
-                        }
+                            ProgressView(
+                                value: Double(chapterState.pagesFetched),
+                                total: Double(chapterState.pagesCount)
+                            )
+                            .progressViewStyle(.linear)
+                            .padding(.top, 5)
+                            .padding(5)
+                            .frame(width: 40)
+                            .tint(.white)
+                            .onTapGesture {
+                                viewStore.send(.cancelChapterDownload(chapterID: chapter.id))
+                            }
                         
                     case .downloadFailed:
                         Button {
