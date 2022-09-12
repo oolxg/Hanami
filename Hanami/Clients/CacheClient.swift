@@ -26,19 +26,16 @@ struct CacheClient {
         static let imagesCachePath = storagePathURL.appendingPathComponent("images")
     }
     
-    private static let imageStorage: Storage<String, Image> = {
+    private static let imageStorage: DiskStorage<String, Image> = {
         let diskConfig = DiskConfig(
             name: "Kamakura_Storage",
             expiry: .never,
             directory: CacheFolderPathes.imagesCachePath
         )
         
-        let memoryConfig = MemoryConfig(expiry: .never)
-        
         // swiftlint:disable:next force_try
-        return try! Storage(
-            diskConfig: diskConfig,
-            memoryConfig: memoryConfig,
+        return try! DiskStorage(
+            config: diskConfig,
             transformer: TransformerFactory.forImage()
         )
     }()
@@ -55,25 +52,15 @@ extension CacheClient {
     static let live = CacheClient(
         cacheImage: { image, imageName in
             .fireAndForget {
-                imageStorage.async.setObject(image, forKey: imageName) { result in
-                    switch result {
-                        case .value:
-                            break
-                        case .error(let err):
-                            print("[CacheClient] - Error on caching image:", err.localizedDescription, err)
-                    }
+                DispatchQueue.main.async {
+                    try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
                 }
             }
         },
         removeImage: { imageName in
             .fireAndForget {
-                imageStorage.async.removeObject(forKey: imageName) { result in
-                    switch result {
-                        case .value:
-                            break
-                        case .error(let err):
-                            print("[CacheClient] - Error on removing image:", err.localizedDescription, err)
-                    }
+                DispatchQueue.main.async {
+                    try? imageStorage.removeObject(forKey: imageName)
                 }
             }
         },
@@ -85,14 +72,8 @@ extension CacheClient {
         },
         clearCache: {
             .fireAndForget {
-                imageStorage.async.removeAll { result in
-                    switch result {
-                        case .value:
-                            break
-                            
-                        case .error(let error):
-                            print("Error on clearing cache:", error)
-                    }
+                DispatchQueue.main.async {
+                    try? imageStorage.removeAll()
                 }
             }
         }, computeCacheSize: {

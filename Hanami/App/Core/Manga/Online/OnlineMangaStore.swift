@@ -250,7 +250,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 let chapterIndex = state.mangaReadingViewState?.chapterIndex
                 let volumes = state.pagesState!.splitIntoPagesVolumeTabStates
                 
-                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(chapterIndex, volumes) {
+                if let pageIndex = env.mangaClient.getMangaPageForReadingChapter(chapterIndex, volumes) {
                     return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
                 }
                 

@@ -21,7 +21,7 @@ struct MangaClient {
     let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
     
     // MARK: - Actions inside App
-    let getMangaPaginationPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabState]]) -> Int?
+    let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabState]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
@@ -117,7 +117,7 @@ extension MangaClient {
             
             return URLSession.shared.get(url: url, decodeResponseAs: Response<CoverArtInfo>.self)
         },
-        getMangaPaginationPageForReadingChapter: { chapterIndex, pages in
+        getMangaPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter
             // we find it among all chapters and send user to this page
             guard let chapterIndex = chapterIndex else {
