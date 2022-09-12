@@ -7,7 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-import class SwiftUI.UIImage
 
 struct OfflineMangaReadingViewState: Equatable {
     init(mangaID: UUID, chapter: ChapterDetails, pagesCount: Int, startFromLastPage: Bool) {
@@ -22,7 +21,7 @@ struct OfflineMangaReadingViewState: Equatable {
     let startFromLastPage: Bool
     let pagesCount: Int
     
-    var cachedPages: [UIImage?] = []
+    var cachedPagesPaths: [URL?] = []
     var sameScanlationGroupChapters: [ChapterDetails] = []
 }
 
@@ -35,7 +34,6 @@ enum OfflineMangaReadingViewAction {
     case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
     
-    case cachedChapterPageRetrieved(result: Result<UIImage, Error>, pageIndex: Int)
     case sameScanlationGroupChaptersRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
 }
 
@@ -45,26 +43,23 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
     Reducer { state, action, env in
         switch action {
             case .userStartedReadingChapter:
-                guard state.cachedPages.isEmpty else {
+                guard state.cachedPagesPaths.isEmpty else {
                     return .none
                 }
                 
-                state.cachedPages = Array(repeating: nil, count: state.pagesCount)
-                
-                var effects: [Effect<OfflineMangaReadingViewAction, Never>] = (0..<state.pagesCount).indices
-                    .map { pageIndex in
-                        env.mangaClient.retrieveChapterPage(state.chapter.id, pageIndex, env.cacheClient)
-                            .map { .cachedChapterPageRetrieved(result: $0, pageIndex: pageIndex) }
-                    }
-                
-                effects.append(
-                    env.databaseClient.retrieveChaptersForManga(
-                        mangaID: state.mangaID, scanlationGroupID: state.chapter.scanlationGroupID
-                    )
-                    .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersRetrieved)
+                state.cachedPagesPaths = env.mangaClient.getPathsForCachedChapterPages(
+                    state.chapter.id, state.pagesCount, env.cacheClient
                 )
                 
-                return .merge(effects)
+                if state.sameScanlationGroupChapters.isEmpty {
+                    let mangaID = state.mangaID
+                    let scanlationGroupID = state.chapter.scanlationGroupID
+                    return env.databaseClient
+                        .retrieveChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
+                        .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersRetrieved)
+                }
+                
+                return .none
                 
             case .sameScanlationGroupChaptersRetrieved(let result):
                 switch result {
@@ -82,46 +77,38 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
             case .userChangedPage(let newPageIndex):
                 // this checks for some shitty bug(appears rare, but anyway) when user changes chapter(`.userHitLastPage` or `.userHitTheMostFirstPage`)
                 // if page is not retrived yet `newPageIndex` is equal to -1 and Effect(value:) will be returned
-                guard !state.cachedPages.isEmpty else {
+                guard !state.cachedPagesPaths.isEmpty else {
                     return .none
                 }
                 
-                if newPageIndex == -1 && state.cachedPages.first! != nil {
+                if newPageIndex == -1 {
                     return .task { .moveToPreviousChapter(startFromLastPage: true) }
-                } else if newPageIndex == state.pagesCount && state.cachedPages.last! != nil {
+                } else if newPageIndex == state.pagesCount {
                     return .task { .moveToNextChapter }
                 }
                 
                 return .none
                 
-            case .cachedChapterPageRetrieved(let result, let pageIndex):
-                switch result {
-                    case .success(let image):
-                        state.cachedPages[pageIndex] = image
-                        return .none
-                        
-                    case .failure(let error):
-                        print(error)
-                        return .none
-                }
-                
             case .changeChapter(let newChapterIndex):
                 guard newChapterIndex != state.chapter.attributes.chapterIndex else {
                     return .none
                 }
+                
                 let chapterIndex = env.mangaClient.computeChapterIndex(
                     newChapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
                 )
+                
                 guard let chapterIndex = chapterIndex else { fatalError("Here must be chapterIndex!") }
                 
                 let chapter = state.sameScanlationGroupChapters[chapterIndex]
                 
-                let sameScanlationGroupChapters = state.sameScanlationGroupChapters
                 
                 guard let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount else {
                     env.hudClient.show(message: "🙁 Internal error occured.")
                     return .none
                 }
+                
+                let sameScanlationGroupChapters = state.sameScanlationGroupChapters
                 
                 state = OfflineMangaReadingViewState(
                     mangaID: state.mangaID,

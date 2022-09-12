@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Kingfisher
 
 struct OfflineMangaReadingView: View {
     let store: Store<OfflineMangaReadingViewState, OfflineMangaReadingViewAction>
@@ -17,7 +18,7 @@ struct OfflineMangaReadingView: View {
         let chapterIndex: Double?
         let chapterID: UUID
         let pagesCount: Int
-        let cachedPages: [UIImage?]
+        let cachedPagesPaths: [URL?]
         let startFromLastPage: Bool
         let chapterIndexes: [Double]
         
@@ -25,9 +26,9 @@ struct OfflineMangaReadingView: View {
             chapterIndex = state.chapter.attributes.chapterIndex
             chapterID = state.chapter.id
             pagesCount = state.pagesCount
-            cachedPages = state.cachedPages
             startFromLastPage = state.startFromLastPage
             chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.chapterIndex)
+            cachedPagesPaths = state.cachedPagesPaths
         }
     }
     
@@ -37,15 +38,15 @@ struct OfflineMangaReadingView: View {
                 Color.clear
                     .tag(-1)
                 
-                ForEach(viewStore.cachedPages.indices, id: \.self) { pageIndex in
+                ForEach(viewStore.cachedPagesPaths.indices, id: \.self) { pagePathIndex in
                     ZoomableScrollView {
-                        if let page = viewStore.cachedPages[pageIndex] {
-                            Image(uiImage: page)
-                                .resizable()
-                                .scaledToFit()
-                        } else {
-                            ProgressView()
-                        }
+                        KFImage.url(viewStore.cachedPagesPaths[pagePathIndex])
+                            .placeholder {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            }
+                            .resizable()
+                            .scaledToFit()
                     }
                 }
                 

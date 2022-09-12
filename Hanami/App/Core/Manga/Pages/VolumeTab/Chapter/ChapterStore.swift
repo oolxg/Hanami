@@ -163,7 +163,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     }
                 } else if possiblyCachedChapterDetails == nil {
                     // chapter fetched, but not cached
-                    if let i = state.cachedChaptersStates.firstIndex(where: { $0.chapterID == chapterID }) {
+                    if let i = state.cachedChaptersStates.firstIndex(
+                        where: { $0.chapterID == chapterID && $0.status != .downloadFailed }
+                    ) {
                         state.cachedChaptersStates.remove(at: i)
                     }
                 }
@@ -293,8 +295,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 return .checkChapterCachedResponse(cachedChaptersStates)
             }
             
-        case .checkChapterCachedResponse(let checkChapterCachedResponse):
-            state.cachedChaptersStates = checkChapterCachedResponse
+        case .checkChapterCachedResponse(let cachedChaptersStates):
+            let failedToDownloadChapters = state.cachedChaptersStates.filter { $0.status == .downloadFailed }
+            state.cachedChaptersStates = cachedChaptersStates.union(failedToDownloadChapters)
             return .none
             
         case .downloadChapterForOfflineReading(let chapter):
@@ -368,8 +371,8 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .init(
                             chapterID: chapter.id,
                             status: .downloadFailed,
-                            pagesCount: 0,
-                            pagesFetched: 0
+                            pagesCount: -1,
+                            pagesFetched: -1
                         )
                     )
                     

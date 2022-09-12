@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-
+import Kingfisher
 
 struct OfflineMangaView: View {
     let store: Store<OfflineMangaViewState, OfflineMangaViewAction>
@@ -107,15 +107,13 @@ extension OfflineMangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                if let coverArt = viewStore.coverArt {
-                    Image(uiImage: coverArt)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                        .overlay(headerOverlay)
-                        .cornerRadius(0)
-                        .offset(y: -minY)
-                }
+                KFImage.url(viewStore.coverArtPath)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                    .overlay(headerOverlay)
+                    .cornerRadius(0)
+                    .offset(y: -minY)
             }
             .frame(height: 350)
         }

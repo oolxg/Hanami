@@ -7,11 +7,14 @@
 
 import Foundation
 
+// For details see
+// https://api.mangadex.org/docs/static-data/#language-codes--localization
+
 // swiftlint:disable identifier_name
 struct LocalizedString: Codable {
     var en, fr, ru, jp, jpRo, th: String?
     var zh, zhRo, es, esLa, ar: String?
-    var uk: String?
+    var uk, it, ko: String?
     
     enum CodingKeys: String, CodingKey {
         case en, ru, zh, fr
@@ -20,24 +23,27 @@ struct LocalizedString: Codable {
         case jpRo = "ja-ro"
         case zhRo = "zh-ro"
         case esLa = "es-la"
+        case it, ko
     }
 }
 
 extension LocalizedString {
     init(localizedStrings langContent: [LocalizedString]) {
         langContent.forEach { content in
-            en = content.en == nil ? en : content.en
-            uk = content.uk == nil ? uk : content.uk
-            fr = content.fr == nil ? fr : content.fr
-            es = content.es == nil ? es : content.es
-            esLa = content.esLa == nil ? esLa : content.esLa
-            ru = content.ru == nil ? ru : content.ru
-            jp = content.jp == nil ? jp : content.jp
-            jpRo = content.jpRo == nil ? jpRo : content.jpRo
-            zh = content.zh == nil ? zh : content.zh
-            zhRo = content.zhRo == nil ? zhRo : content.zhRo
-            ar = content.ar == nil ? ar : content.ar
-            th = content.th == nil ? th : content.th
+            en = en == nil ? content.en : en
+            uk = uk == nil ? content.uk : uk
+            fr = fr == nil ? content.fr : fr
+            es = es == nil ? content.es : es
+            esLa = esLa == nil ? content.esLa : esLa
+            ru = ru == nil ? content.ru : ru
+            jp = jp == nil ? content.jp : jp
+            jpRo = jpRo == nil ? content.jpRo : jpRo
+            zh = zh == nil ? content.zh : zh
+            zhRo = zhRo == nil ? content.zhRo : zhRo
+            ar = ar == nil ? content.ar : ar
+            th = th == nil ? content.th : th
+            it = it == nil ? content.it : it
+            ko = ko == nil ? content.ko : ko
         }
     }
 }
@@ -70,6 +76,10 @@ extension LocalizedString {
             return th
         } else if let uk = uk {
             return uk
+        } else if let it = it {
+            return it
+        } else if let ko = ko {
+            return ko
         }
         
         return nil
@@ -96,6 +106,10 @@ extension LocalizedString {
             return "🇹🇭"
         } else if uk != nil {
             return "🇺🇦"
+        } else if it != nil {
+            return "🇮🇹"
+        } else if ko != nil {
+            return "🇰🇷"
         }
         
         return "❓"

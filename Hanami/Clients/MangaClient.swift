@@ -25,15 +25,15 @@ struct MangaClient {
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
-    let getDidReadChapterOnPaginationPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
+    let findDidReadChapterOnMangaPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
     
     let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
-    let retrieveCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
-    let retrieveChapterPage: (_ chapterID: UUID, _ pageIndex: Int, _ cacheClient: CacheClient) -> Effect<Result<UIImage, Error>, Never>
     let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let isCoverArtCached: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
     let isChapterCacheValid: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Bool
+    let getPathsForCachedChapterPages: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> [URL?]
+    let getCoverArtPath: (_ mangaID: UUID, _ cacheClient: CacheClient) -> URL?
     // swiftlint:enable line_length
 }
 
@@ -156,7 +156,7 @@ extension MangaClient {
             
             return chapterIndex > 0 ? chapterIndex - 1 : nil
         },
-        getDidReadChapterOnPaginationPage: { chapterIndex, volumes in
+        findDidReadChapterOnMangaPage: { chapterIndex, volumes in
             for volumeStateID in volumes.ids {
                 for chapterStateID in volumes[id: volumeStateID]!.chapterStates.ids {
                     let chapterState = volumes[id: volumeStateID]!.chapterStates[id: chapterStateID]!
@@ -174,20 +174,10 @@ extension MangaClient {
             
             return cacheClient.cacheImage(coverArt, imageName).fireAndForget()
         },
-        retrieveCoverArt: { mangaID, cacheClient in
-            let imageName = getCoverArtName(mangaID: mangaID)
-            
-            return cacheClient.retrieveImage(imageName)
-        },
         saveChapterPage: { chapterPage, pageIndex, chapterID, cacheClient in
             let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
             
             return cacheClient.cacheImage(chapterPage, imageName).fireAndForget()
-        },
-        retrieveChapterPage: { chapterID, pageIndex, cacheClient in
-            let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
-            
-            return cacheClient.retrieveImage(imageName)
         },
         removeCachedPagesForChapter: { chapterID, pagesCount, cacheClient in
             .merge(
@@ -210,6 +200,14 @@ extension MangaClient {
                 return cacheClient.isCached(imageName)
             }
             .allSatisfy { $0 }
+        },
+        getPathsForCachedChapterPages: { chapterID, pagesCount, cacheClient in
+            (0..<pagesCount).indices.map { pageIndex in
+                cacheClient.pathForImage(getChapterPageName(chapterID: chapterID, pageIndex: pageIndex))
+            }
+        },
+        getCoverArtPath: { mangaID, cacheClient in
+            cacheClient.pathForImage(getCoverArtName(mangaID: mangaID))
         }
     )
 }

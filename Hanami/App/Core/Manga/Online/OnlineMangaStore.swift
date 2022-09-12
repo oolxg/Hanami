@@ -247,9 +247,10 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 return .task { .mangaReadingViewAction(.online(.userStartedReadingChapter)) }
                 
             case .mangaReadingViewAction(.online(.userStartedReadingChapter)):
-                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(
-                    state.mangaReadingViewState?.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
-                ) {
+                let chapterIndex = state.mangaReadingViewState?.chapterIndex
+                let volumes = state.pagesState!.splitIntoPagesVolumeTabStates
+                
+                if let pageIndex = env.mangaClient.getMangaPaginationPageForReadingChapter(chapterIndex, volumes) {
                     return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
                 }
                 
@@ -262,7 +263,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
                 
-                guard let info = env.mangaClient.getDidReadChapterOnPaginationPage(chapterIndex, volumes) else {
+                guard let info = env.mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
                     return .none
                 }
                 

@@ -7,7 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-import SwiftUI
 
 struct MangaThumbnailState: Equatable, Identifiable {
     init(manga: Manga, isOnline: Bool = true) {
@@ -46,7 +45,6 @@ struct MangaThumbnailState: Equatable, Identifiable {
 
 enum MangaThumbnailAction {
     case onAppear
-    case coverArtRetrieved(Result<UIImage, Error>)
     case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
     case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     case userOpenedMangaView
@@ -92,24 +90,15 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
         
         switch action {
             case .onAppear:
-                guard state.offlineMangaState!.coverArt == nil else {
+                guard state.offlineMangaState!.coverArtPath == nil else {
                     return .none
                 }
                 
-                return env.mangaClient.retrieveCoverArt(state.manga.id, env.cacheClient)
-                    .eraseToEffect(MangaThumbnailAction.coverArtRetrieved)
+                state.offlineMangaState!.coverArtPath = env.mangaClient.getCoverArtPath(
+                    state.manga.id, env.cacheClient
+                )
                 
-            case .coverArtRetrieved(let result):
-                switch result {
-                    case .success(let coverArt):
-                        state.offlineMangaState!.coverArt = coverArt
-                        
-                        return .none
-                        
-                    case .failure(let error):
-                        print("error on retrieving coverArt: \(error)")
-                        return .none
-                }
+                return .none
                 
             default:
                 return .none
@@ -195,9 +184,6 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                 return .none
                 
             case .onlineMangaAction:
-                return .none
-                
-            case .coverArtRetrieved:
                 return .none
                 
             case .offlineMangaAction:

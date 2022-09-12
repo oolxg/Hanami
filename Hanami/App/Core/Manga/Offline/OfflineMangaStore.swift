@@ -7,11 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
-import class SwiftUI.UIImage
 
 struct OfflineMangaViewState: Equatable {
     let manga: Manga
-    var coverArt: UIImage?
+    var coverArtPath: URL?
     
     // to compare with cached chapters, we retrieved last time
     var lastRetrievedChapterIDs: Set<UUID> = []
@@ -180,7 +179,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
 
-                guard let info = env.mangaClient.getDidReadChapterOnPaginationPage(chapterIndex, volumes) else {
+                guard let info = env.mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
                     return .none
                 }
                 

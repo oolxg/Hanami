@@ -26,7 +26,7 @@ struct CacheClient {
         static let imagesCachePath = storagePathURL.appendingPathComponent("images")
     }
     
-    private static let dataStorage: Storage<String, Data> = {
+    private static let imageStorage: Storage<String, Image> = {
         let diskConfig = DiskConfig(
             name: "Kamakura_Storage",
             expiry: .never,
@@ -39,18 +39,16 @@ struct CacheClient {
         return try! Storage(
             diskConfig: diskConfig,
             memoryConfig: memoryConfig,
-            transformer: TransformerFactory.forCodable(ofType: Data.self)
+            transformer: TransformerFactory.forImage()
         )
     }()
     
-    private static let imageStorage = dataStorage.transformImage()
-    
     let cacheImage: (UIImage, String) -> Effect<Never, Never>
-    let retrieveImage: (String) -> Effect<Swift.Result<UIImage, Error>, Never>
     let removeImage: (String) -> Effect<Never, Never>
     let isCached: (String) -> Bool
     let clearCache: () -> Effect<Never, Never>
     let computeCacheSize: () -> Effect<Swift.Result<Double, AppError>, Never>
+    let pathForImage: (_ fileName: String) -> URL?
 }
 
 extension CacheClient {
@@ -66,20 +64,6 @@ extension CacheClient {
                     }
                 }
             }
-        },
-        retrieveImage: { imageName in
-            Future { promise in
-                imageStorage.async.object(forKey: imageName) { result in
-                    switch result {
-                        case .value(let image):
-                            return promise(.success(image))
-                        case .error(let error):
-                            return promise(.failure(error))
-                    }
-                }
-            }
-            .receive(on: DispatchQueue.main)
-            .catchToEffect()
         },
         removeImage: { imageName in
             .fireAndForget {
@@ -101,7 +85,7 @@ extension CacheClient {
         },
         clearCache: {
             .fireAndForget {
-                dataStorage.async.removeAll { result in
+                imageStorage.async.removeAll { result in
                     switch result {
                         case .value:
                             break
@@ -123,6 +107,13 @@ extension CacheClient {
             }
             .receive(on: DispatchQueue.main)
             .catchToEffect()
+        },
+        pathForImage: { fileName in
+            if let path = try? imageStorage.entry(forKey: fileName).filePath {
+                return URL(string: "file://\(path)")
+            }
+            
+            return nil
         }
     )
 }

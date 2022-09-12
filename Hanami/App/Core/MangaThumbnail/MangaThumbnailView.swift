@@ -22,14 +22,14 @@ struct MangaThumbnailView: View {
     private struct ViewState: Equatable {
         let isOnline: Bool
         let coverArtInfo: CoverArtInfo?
-        let coverArt: UIImage?
+        let coverArtPath: URL?
         let manga: Manga
         let mangaStatistics: MangaStatistics?
         
         init(state: MangaThumbnailState) {
             isOnline = state.isOnline
             coverArtInfo = state.coverArtInfo
-            coverArt = state.offlineMangaState?.coverArt
+            coverArtPath = state.offlineMangaState?.coverArtPath
             manga = state.manga
             mangaStatistics = state.mangaStatistics
         }
@@ -66,14 +66,15 @@ struct MangaThumbnailView: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                if let coverArt = viewStore.coverArt {
-                    Image(uiImage: coverArt)
+                if let coverArtPath = viewStore.coverArtPath {
+                    KFImage.url(coverArtPath)
+                        .placeholder {
+                            Color.black
+                                .opacity(0.45)
+                                .redacted(reason: .placeholder)
+                        }
                         .resizable()
                         .scaledToFill()
-                } else {
-                    Color.black
-                        .opacity(0.45)
-                        .redacted(reason: .placeholder)
                 }
             }
         }
