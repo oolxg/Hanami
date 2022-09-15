@@ -13,6 +13,6 @@ enum ResponseDataType: String, Codable {
     case coverArt = "cover_art"
     case author, artist
     case scanlationGroup = "scanlation_group"
-    case tag, user
+    case tag, user, leader, member
     case customList = "custom_list"
 }

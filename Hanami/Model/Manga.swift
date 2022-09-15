@@ -109,8 +109,8 @@ extension Manga: Identifiable { }
 
 extension Manga {
     var title: String {
-        if let language = attributes.title.languageInfo?.language {
-            return language
+        if let title = attributes.title.languageInfo?.language {
+            return title
         } else {
             return attributes.altTitles.languageInfo?.language ?? "No title available"
         }

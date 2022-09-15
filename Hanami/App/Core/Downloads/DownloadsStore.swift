@@ -15,9 +15,7 @@ struct DownloadsState: Equatable {
 
 enum DownloadsAction {
     case retrieveCachedManga
-    
     case cachedMangaFetched(Result<[Manga], Never>)
-    
     case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailAction)
 }
 
@@ -83,6 +81,15 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                     
                     return .retrieveCachedManga
                 }
+                
+            case .cachedMangaThumbnailAction(_, .userLeftMangaView):
+                return .task {
+                    let delay = UInt64(1_000_000_000 * 0.2)
+                    try await Task.sleep(nanoseconds: delay)
+                    
+                    return .retrieveCachedManga
+                }
+                
 
             case .cachedMangaThumbnailAction:
                 return .none

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
+		08B1346B28D2A8D000D1C85B /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B1346A28D2A8D000D1C85B /* Set.swift */; };
 		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
 		22048EB4286D0B3500FE6A54 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EB3286D0B3500FE6A54 /* Kingfisher */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
@@ -136,6 +137,7 @@
 
 /* Begin PBXFileReference section */
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
+		08B1346A28D2A8D000D1C85B /* Set.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		2205CB9D28569DDE00421888 /* MangaStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaStatistics.swift; sourceTree = "<group>"; };
 		2205CB9F2856A91900421888 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		22104829285B665700CE8CED /* MangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingViewStore.swift; sourceTree = "<group>"; };
@@ -344,6 +346,7 @@
 				226DF7942865BFDC007CF96A /* View.swift */,
 				22B9CA56285D43FD007EBE20 /* Int.swift */,
 				229F9A3028BB0A290015BC8B /* URL.swift */,
+				08B1346A28D2A8D000D1C85B /* Set.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -745,6 +748,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		2270C8CC284E86DB00DAB28B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -758,7 +762,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -796,6 +800,7 @@
 				2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */,
 				2225266328B4E9EF009F6FA3 /* OfflineMangaReadingView.swift in Sources */,
 				2245D4C028413642005B1C83 /* SearchView.swift in Sources */,
+				08B1346B28D2A8D000D1C85B /* Set.swift in Sources */,
 				22B9CA57285D43FD007EBE20 /* Int.swift in Sources */,
 				226EA988287840AD0077F928 /* Manga.Attributes.Status.swift in Sources */,
 				221F59EF284551B200B11D5D /* FiltersStore.swift in Sources */,
@@ -1009,6 +1014,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1044,6 +1050,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

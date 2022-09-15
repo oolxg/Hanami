@@ -94,7 +94,9 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                             chaptersDetailsList: chapters.map(\.chapter),
                             chaptersPerPages: 15
                         )
-                        return .none
+                        return  env.cacheClient
+                            .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
+                            .fireAndForget()
 
                     case .failure(let error):
                         print("Error on retrieving chapters:", error)
@@ -106,24 +108,30 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                 return .none
                 
             case .deleteManga:
-                return env.databaseClient.retrieveChaptersForManga(mangaID: state.manga.id)
+                return env.databaseClient
+                    .retrieveChaptersForManga(mangaID: state.manga.id)
                     .catchToEffect(OfflineMangaViewAction.chaptersForMangaDeletionRetrieved)
                 
             case .chaptersForMangaDeletionRetrieved(let result):
                 switch result {
                     case .success(let chapters):
-                        return .concatenate(
+                        var effects: [Effect<OfflineMangaViewAction, Never>] = [
                             env.databaseClient.deleteManga(mangaID: state.manga.id)
                                 .fireAndForget(),
                             
-                            .merge(
-                                chapters.map { chapterEntity in
-                                    env.mangaClient
-                                        .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, env.cacheClient)
-                                        .fireAndForget()
-                                }
-                            )
+                            env.cacheClient
+                                .removeAllCachedChapterIDsFromMemory(state.manga.id)
+                                .fireAndForget()
+                        ]
+                        
+                        effects.append(
+                            contentsOf: chapters.map { chapterEntity in
+                                env.mangaClient
+                                    .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, env.cacheClient)
+                                    .fireAndForget()
+                            }
                         )
+                        return .merge(effects)
                         
                     case .failure(let error):
                         print("Error on retrieving chapters:", error)

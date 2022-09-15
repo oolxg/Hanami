@@ -220,7 +220,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                             .fireAndForget()
                         
                     case .failure(let error):
-                        print("Error on fetching coverArt for caching: \(error.localizedDescription)")
+                        print("Error on fetching coverArt for caching: \(error.description)")
                         return .none
                 }
                 

@@ -124,16 +124,13 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         
         switch action {
             case .onAppear:
-                var effects: [Effect<MangaThumbnailAction, Never>] = []
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
-                    effects.append(
-                        env.mangaClient.fetchCoverArtInfo(coverArtID)
-                            .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
-                   )
+                    return env.mangaClient.fetchCoverArtInfo(coverArtID)
+                        .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 }
                 
-                return .merge(effects)
+                return .none
                 
             case .mangaStatisticsFetched(let result):
                 switch result {

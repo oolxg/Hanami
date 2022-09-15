@@ -140,7 +140,7 @@ extension OnlineMangaView {
                     endPoint: .bottom
                 )
                 
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 12) {
                     backButton
                     
                     Spacer()

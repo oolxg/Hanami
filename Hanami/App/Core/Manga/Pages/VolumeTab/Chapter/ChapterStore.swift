@@ -61,9 +61,8 @@ struct ChapterState: Equatable, Identifiable {
     var confirmationDialog: ConfirmationDialogState<ChapterAction>?
     
     var cachedChaptersStates = Set<CachedChapterState>()
-
-    struct CachedChapterState: Equatable, Hashable {
-        let chapterID: UUID
+    struct CachedChapterState: Equatable, Hashable, Identifiable {
+        let id: UUID
         let status: Status
         let pagesCount: Int
         let pagesFetched: Int
@@ -84,7 +83,6 @@ enum ChapterAction: Equatable {
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
     
     case checkIfChaptersCached
-    case checkChapterCachedResponse(Set<ChapterState.CachedChapterState>)
     case downloadChapterForOfflineReading(chapter: ChapterDetails)
     case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, ChapterDetails)
     case chapterPageForCachingFetched(Result<UIImage, AppError>, pageIndex: Int, ChapterDetails)
@@ -114,43 +112,44 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             let allChapterIDs = [state.chapter.id] + state.chapter.others
             
             for chapterID in allChapterIDs {
-                let possiblyCachedChapterDetails = env.databaseClient.fetchChapter(chapterID: chapterID)
+                let possiblyCachedChapterEntry = env.databaseClient.fetchChapter(chapterID: chapterID)
                 
                 if state.chapterDetailsList[id: chapterID] == nil {
                     // if chapter is cached - no need to fetch it from API
-                    if let cachedChapterDetails = possiblyCachedChapterDetails?.chapter {
+                    if let cachedChapterDetails = possiblyCachedChapterEntry?.chapter {
                         if !state._chapterDetailsList.contains(where: { $0.id == chapterID }) {
                             state._chapterDetailsList.append(cachedChapterDetails)
                         }
                         
-                        state.cachedChaptersStates.insert(
+                        state.cachedChaptersStates.insertOrUpdate(
                             .init(
-                                chapterID: chapterID,
+                                id: chapterID,
                                 status: .cached,
-                                pagesCount: possiblyCachedChapterDetails!.pagesCount,
-                                pagesFetched: possiblyCachedChapterDetails!.pagesCount
+                                pagesCount: possiblyCachedChapterEntry!.pagesCount,
+                                pagesFetched: possiblyCachedChapterEntry!.pagesCount
                             )
+                        )
+
+                        effects.append(
+                            env.cacheClient
+                                .saveCachedChapterInMemory(state.parentManga.id, chapterID)
+                                .fireAndForget()
                         )
                         
                         if let scanlationGroup = cachedChapterDetails.scanlationGroup {
                             state.scanlationGroups[cachedChapterDetails.id] = scanlationGroup
-                        } else if let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
+                        } else if state.isOnline, let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
                             effects.append(
                                 env.mangaClient.fetchScanlationGroup(scanlationGroupID)
                                     .receive(on: DispatchQueue.main)
-                                    .catchToEffect {
-                                        ChapterAction.scanlationGroupInfoFetched(
-                                            result: $0,
-                                            chapterID: cachedChapterDetails.id
-                                        )
-                                    }
+                                    .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapterID) }
                                     .cancellable(
                                         id: ChapterState.CancelChapterFetch(id: chapterID),
                                         cancelInFlight: true
                                     )
                             )
                         }
-                    } else {
+                    } else if state.isOnline {
                         // chapter is not cached, need to fetch
                         effects.append(
                             env.mangaClient.fetchChapterDetails(chapterID)
@@ -159,67 +158,14 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                                 .catchToEffect(ChapterAction.chapterDetailsFetched)
                                 .animation(.linear)
                                 .cancellable(
-                                    id: ChapterState.CancelChapterFetch(id: chapterID),
-                                    cancelInFlight: true
+                                    id: ChapterState.CancelChapterFetch(id: chapterID), cancelInFlight: true
                                 )
                         )
-                    }
-                } else if possiblyCachedChapterDetails == nil {
-                    // chapter fetched, but not cached
-                    if let i = state.cachedChaptersStates.firstIndex(
-                        where: { $0.chapterID == chapterID && $0.status != .downloadFailed }
-                    ) {
-                        state.cachedChaptersStates.remove(at: i)
                     }
                 }
             }
             
             state.areChaptersShown.toggle()
-            
-            // all effects here are online, so is this store is using in offline mode
-            // e.g. OfflineMangaStore->PagesStore->...->ChapterStore
-            // we should fetch nothing 
-            guard state.isOnline else { return .none }
-            
-            return .merge(effects)
-            
-        case .deleteChapter(let chapterID):
-            state.confirmationDialog = ConfirmationDialogState(
-                title: TextState("Delete this chapter from device?"),
-                message: TextState("Delete this chapter from device?"),
-                buttons: [
-                    .destructive(TextState("Delete"), action: .send(.chapterDeletionConfirmed(chapterID: chapterID))),
-                    .cancel(TextState("Cancel"), action: .send(.cancelTapped))
-                ]
-            )
-            
-            // this cancel for the case, when action was called from '.cancelChapterDownload'
-            return .cancel(id: CancelChapterCache(id: chapterID))
-            
-        case .chapterDeletionConfirmed(let chapterID):
-            if let i = state.cachedChaptersStates.firstIndex(where: { $0.chapterID == chapterID }) {
-                state.cachedChaptersStates.remove(at: i)
-            }
-
-            state.confirmationDialog = nil
-            
-            var effects: [Effect<ChapterAction, Never>] = [
-                env.databaseClient
-                    .deleteChapter(chapterID: chapterID)
-                    .fireAndForget()
-            ]
-            
-            effects.append(
-                .cancel(id: CancelChapterCache(id: chapterID))
-            )
-            
-            if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapterID)?.pagesCount {
-                effects.append(
-                    env.mangaClient
-                        .removeCachedPagesForChapter(chapterID, pagesCount, env.cacheClient)
-                        .fireAndForget()
-                )
-            }
             
             return .merge(effects)
             
@@ -277,64 +223,88 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     return .none
             }
         // MARK: - Caching
-        case .checkIfChaptersCached:
-            return .task(priority: .background) { [chapter = state.chapter] in
-                let allChapterIDs = [chapter.id] + chapter.others
-                var cachedChaptersStates: Set<ChapterState.CachedChapterState> = []
-                
-                for chapterID in allChapterIDs {
-                    let possiblyCacheChapter = env.databaseClient.fetchChapter(chapterID: chapterID)
-                    
-                    if let cachedChapter = possiblyCacheChapter {
-                        cachedChaptersStates.insert(
-                            .init(
-                                chapterID: cachedChapter.chapter.id,
-                                status: .cached,
-                                pagesCount: cachedChapter.pagesCount,
-                                pagesFetched: cachedChapter.pagesCount
-                            )
-                        )
-                    }
-                }
-                
-                return .checkChapterCachedResponse(cachedChaptersStates)
+        case .deleteChapter(let chapterID):
+            state.confirmationDialog = ConfirmationDialogState(
+                title: TextState("Delete this chapter from device?"),
+                message: TextState("Delete this chapter from device?"),
+                buttons: [
+                    .destructive(TextState("Delete"), action: .send(.chapterDeletionConfirmed(chapterID: chapterID))),
+                    .cancel(TextState("Cancel"), action: .send(.cancelTapped))
+                ]
+            )
+            
+            // this cancel for the case, when action was called from '.cancelChapterDownload'
+            return .cancel(id: CancelChapterCache(id: chapterID))
+            
+        case .chapterDeletionConfirmed(let chapterID):
+            state.confirmationDialog = nil
+
+            state.cachedChaptersStates.remove(where: { $0.id == chapterID })
+            
+            if !state.isOnline {
+                state.chapterDetailsList.remove(id: chapterID)
             }
             
-        case .checkChapterCachedResponse(let cachedChaptersStates):
-            let failedToDownloadChapters = state.cachedChaptersStates.filter { $0.status == .downloadFailed }
-            state.cachedChaptersStates = cachedChaptersStates.union(failedToDownloadChapters)
+            var effects: [Effect<ChapterAction, Never>] = [
+                env.databaseClient
+                    .deleteChapter(chapterID: chapterID)
+                    .fireAndForget(),
+                
+                env.cacheClient
+                    .removeCachedChapterIDFromMemory(state.parentManga.id, chapterID)
+                    .fireAndForget(),
+                
+                .cancel(id: CancelChapterCache(id: chapterID))
+            ]
+            
+            if let pagesCount = env.databaseClient.fetchChapter(chapterID: chapterID)?.pagesCount {
+                effects.append(
+                    env.mangaClient
+                        .removeCachedPagesForChapter(chapterID, pagesCount, env.cacheClient)
+                        .fireAndForget()
+                )
+            }
+            
+            return .merge(effects)
+            
+        case .checkIfChaptersCached:
+            let cachedChapterIDs = env.cacheClient.retrieveFromMemoryCachedChapters(state.parentManga.id)
+            
+            state.cachedChaptersStates = []
+            
+            for cachedChapterID in cachedChapterIDs {
+                state.cachedChaptersStates.insertOrUpdate(
+                    .init(
+                        id: cachedChapterID,
+                        status: .cached,
+                        pagesCount: 0,
+                        pagesFetched: 0
+                    )
+                )
+            }
+            
             return .none
             
         case .downloadChapterForOfflineReading(let chapter):
-            if let i = state.cachedChaptersStates.firstIndex(where: { $0.chapterID == chapter.id }) {
-                state.cachedChaptersStates.remove(at: i)
-            }
-            
-            state.cachedChaptersStates.insert(
+            state.cachedChaptersStates.insertOrUpdate(
                 .init(
-                    chapterID: chapter.id,
+                    id: chapter.id,
                     status: .downloadInProgress,
                     pagesCount: 1,
                     pagesFetched: 0
                 )
             )
-            
-            var effects: [Effect<ChapterAction, Never>] = [
-                env.mangaClient.fetchPagesInfo(chapter.id)
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
-            ]
-            
-            return .merge(effects)
+
+            return env.mangaClient.fetchPagesInfo(chapter.id)
+                .receive(on: DispatchQueue.main)
+                .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
             
         case .pagesInfoForChapterCachingFetched(let result, let chapter):
             switch result {
                 case .success(let pagesInfo):
-                    let chapterState = state.cachedChaptersStates.first(where: { $0.chapterID == chapter.id })!
-                    state.cachedChaptersStates.remove(chapterState)
-                    state.cachedChaptersStates.insert(
+                    state.cachedChaptersStates.insertOrUpdate(
                         .init(
-                            chapterID: chapter.id,
+                            id: chapter.id,
                             status: .downloadInProgress,
                             pagesCount: pagesInfo.dataSaverURLs.count,
                             pagesFetched: 0
@@ -370,11 +340,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
 
                     env.hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
 
-                    let chapterState = state.cachedChaptersStates.first(where: { $0.chapterID == chapter.id })!
-                    state.cachedChaptersStates.remove(chapterState)
-                    state.cachedChaptersStates.insert(
+                    state.cachedChaptersStates.insertOrUpdate(
                         .init(
-                            chapterID: chapter.id,
+                            id: chapter.id,
                             status: .downloadFailed,
                             pagesCount: 1,
                             pagesFetched: 0
@@ -394,33 +362,45 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
         case .chapterPageForCachingFetched(let result, let pageIndex, let chapter):
             switch result {
                 case .success(let chapterPage):
-                    let chapterState = state.cachedChaptersStates.first(where: { $0.chapterID == chapter.id })!
-                    state.cachedChaptersStates.remove(chapterState)
+                    let chapterState = state.cachedChaptersStates.first(where: { $0.id == chapter.id })!
                     
                     let chapterPagesCount = chapterState.pagesCount
                     let fetchedPagesCount = chapterState.pagesFetched + 1
                     
-                    state.cachedChaptersStates.insert(
+                    state.cachedChaptersStates.insertOrUpdate(
                         .init(
-                            chapterID: chapter.id,
+                            id: chapter.id,
                             status: fetchedPagesCount == chapterPagesCount ? .cached : .downloadInProgress,
                             pagesCount: chapterPagesCount,
                             pagesFetched: fetchedPagesCount
                         )
                     )
                     
-                    return env.mangaClient
-                        .saveChapterPage(chapterPage, pageIndex, chapter.id, env.cacheClient)
-                        .cancellable(id: CancelChapterCache(id: chapter.id))
-                        .fireAndForget()
+                    return .merge(
+                        env.mangaClient
+                            .saveChapterPage(chapterPage, pageIndex, chapter.id, env.cacheClient)
+                            .cancellable(id: CancelChapterCache(id: chapter.id))
+                            .fireAndForget(),
+
+                        env.cacheClient
+                            .saveCachedChapterInMemory(state.parentManga.id, chapter.id)
+                            .fireAndForget()
+                    )
                     
                 case .failure(let error):
-                    print("Error on fetching chapterPage(image) for caching: \(error.localizedDescription)")
+                    print("Error on fetching chapterPage(image) for caching: \(error.description)")
                     
-                    env.hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
+                    var msg = ""
                     
-                    let chapterState = state.cachedChaptersStates.first(where: { $0.chapterID == chapter.id })!
-                    state.cachedChaptersStates.remove(chapterState)
+                    if let chapterIndex = chapter.attributes.chapterIndex?.clean() {
+                        msg = "Failed to cache chapter \(chapterIndex) \(chapter.chapterName)"
+                    } else {
+                        msg = "Failed to cache chapter \(chapter.chapterName)"
+                    }
+                    
+                    env.hudClient.show(message: msg)
+                    
+                    state.cachedChaptersStates.remove(where: { $0.id == chapter.id })
                     
                     var effects: [Effect<ChapterAction, Never>] = [
                         env.databaseClient
@@ -430,9 +410,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .cancel(id: CancelChapterCache(id: chapter.id))
                     ]
                     
-                    state.cachedChaptersStates.insert(
+                    state.cachedChaptersStates.insertOrUpdate(
                         .init(
-                            chapterID: chapter.id,
+                            id: chapter.id,
                             status: .downloadFailed,
                             pagesCount: 1,
                             pagesFetched: 0

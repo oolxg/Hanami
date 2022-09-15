@@ -120,7 +120,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                             .fireAndForget()
                         
                     case .failure(let error):
-                        print("error on fetching chapterPagesInfo: \(error)")
+                        print("error on retrieving chapterPagesInfo: \(error)")
                         return .none
                 }
                 

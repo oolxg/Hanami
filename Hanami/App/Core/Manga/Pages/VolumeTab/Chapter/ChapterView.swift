@@ -110,13 +110,13 @@ extension ChapterView {
     
     private var disclosureGroupBody: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if viewStore.chapterDetailsList.isEmpty {
-                ProgressView()
-                    .frame(width: 40, height: 40)
-                    .padding()
-                    .transition(.opacity)
-            } else {
-                LazyVStack {
+            LazyVStack {
+                if viewStore.chapterDetailsList.isEmpty {
+                    ProgressView()
+                        .frame(width: 40, height: 40)
+                        .padding()
+                        .transition(.opacity)
+                } else {
                     ForEach(
                         viewStore.chapterDetailsList,
                         content: makeChapterDetailsView
@@ -165,7 +165,7 @@ extension ChapterView {
                 Image(systemName: "arrow.up.forward.square")
                     .font(.callout)
                     .padding(5)
-            } else if let chapterState = viewStore.cachedChaptersStates.first(where: { $0.chapterID == chapter.id }) {
+            } else if let chapterState = viewStore.cachedChaptersStates.first(where: { $0.id == chapter.id }) {
                 switch chapterState.status {
                     case .cached:
                         Button {
@@ -188,7 +188,7 @@ extension ChapterView {
                             .frame(width: 40)
                             .tint(.white)
                             .onTapGesture {
-                                viewStore.send(.cancelChapterDownload(chapterID: chapter.id))
+                                viewStore.send(.cancelChapterDownload(chapterID: chapter.id), animation: .linear)
                             }
                         
                     case .downloadFailed:
@@ -203,7 +203,7 @@ extension ChapterView {
                 }
             } else if viewStore.isOnline {
                 Button {
-                    viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
+                    viewStore.send(.downloadChapterForOfflineReading(chapter: chapter), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.down.to.line.circle")
                         .font(.callout)
