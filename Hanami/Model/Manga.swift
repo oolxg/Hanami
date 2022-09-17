@@ -147,3 +147,9 @@ extension Manga {
         return nil
     }
 }
+
+extension Tag: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}

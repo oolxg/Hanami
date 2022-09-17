@@ -34,7 +34,7 @@ enum OfflineMangaReadingViewAction {
     case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
     
-    case sameScanlationGroupChaptersRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
+    case sameScanlationGroupChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
 }
 
 

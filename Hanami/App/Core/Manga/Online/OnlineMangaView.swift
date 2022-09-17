@@ -273,13 +273,13 @@ extension OnlineMangaView {
                         
                         Divider()
                         
-                        GridChipsView(
-                            viewStore.manga.authors,
-                            width: UIScreen.main.bounds.width * 0.95
-                        ) { author in
-                            makeChipsView(text: author.name)
+                        FlexibleView(
+                            data: viewStore.manga.authors.map(\.name),
+                            spacing: 10,
+                            alignment: .leading
+                        ) { authorName in
+                            makeChipsView(text: authorName)
                         }
-                        .frame(minHeight: 20)
                     }
                 }
                 
@@ -299,7 +299,6 @@ extension OnlineMangaView {
                 tags
             }
         }
-        .padding(.horizontal, 20)
     }
     
     private var tags: some View {
@@ -310,15 +309,15 @@ extension OnlineMangaView {
                     .fontWeight(.black)
                 
                 Divider()
-            
-                GridChipsView(
-                    viewStore.manga.attributes.tags,
-                    width: UIScreen.main.bounds.width * 0.95
+                
+                FlexibleView(
+                    data: viewStore.manga.attributes.tags,
+                    spacing: 10,
+                    alignment: .leading
                 ) { tag in
                     makeChipsView(text: tag.name.capitalized)
                 }
-                .frame(minHeight: 20)
-                
+
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {
                         Text("Demographic")

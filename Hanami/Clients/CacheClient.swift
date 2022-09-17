@@ -14,7 +14,7 @@ import class SwiftUI.UIImage
 struct CacheClient {
     private enum CacheFolderPathes {
         private static let storagePathURL: URL = {
-                // swiftlint:disable:next force_try
+            // swiftlint:disable:next force_try
             try! FileManager.default.url(
                 for: .documentDirectory,
                 in: .userDomainMask,
@@ -25,8 +25,6 @@ struct CacheClient {
         
         static let imagesCachePath = storagePathURL.appendingPathComponent("images")
     }
-    
-    private static let queue = DispatchQueue(label: "CacheQueue", qos: .utility)
     
     private static let imageStorage: DiskStorage<String, Image> = {
         let diskConfig = DiskConfig(
@@ -45,8 +43,7 @@ struct CacheClient {
     
     // Manga -> set of cached chapterIDs
     private static let cachedChapterIDsStorage: MemoryStorage<UUID, Set<UUID>> = {
-        let fifteenMinutes = Expiry.seconds(15 * 60)
-        let config = MemoryConfig(expiry: fifteenMinutes)
+        let config = MemoryConfig(expiry: .never)
         
         return MemoryStorage(config: config)
     }()
@@ -104,7 +101,7 @@ struct CacheClient {
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
     /// - Returns: `Set<UUID>`: Set of cached chaptes
-    let retrieveFromMemoryCachedChapters: (_ mangaID: UUID) -> Set<UUID>
+    let retrieveFromMemoryCachedChapters: (_ mangaID: UUID) -> Effect<Set<UUID>, AppError>
     /// Removes all chapter IDs from list of cached chapters in manga
     ///
     /// - Parameter mangaID: `UUID` manga id, whose chapter are gonna be removed from memory
@@ -122,14 +119,14 @@ extension CacheClient {
     static let live = CacheClient(
         cacheImage: { image, imageName in
                 .fireAndForget {
-                    queue.async {
+                    DispatchQueue.main.async {
                         try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
                     }
                 }
         },
         removeImage: { imageName in
                 .fireAndForget {
-                    queue.async {
+                    DispatchQueue.main.async {
                         try? imageStorage.removeObject(forKey: imageName)
                     }
                 }
@@ -142,14 +139,14 @@ extension CacheClient {
         },
         clearCache: {
             .fireAndForget {
-                queue.async {
+                DispatchQueue.main.async {
                     try? imageStorage.removeAll()
                 }
             }
         },
         computeCacheSize: {
             Future { promise in
-                queue.async {
+                DispatchQueue.main.async {
                     guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {
                         promise(.failure(.cacheError("Can't compute cache size")))
                         return
@@ -169,40 +166,55 @@ extension CacheClient {
         },
         saveCachedChaptersInMemory: { mangaID, chapterIDs in
             .fireAndForget {
-                cachedChapterIDsStorage.setObject(chapterIDs, forKey: mangaID)
+                DispatchQueue.main.async {
+                    cachedChapterIDsStorage.setObject(chapterIDs, forKey: mangaID)
+                }
             }
         },
         saveCachedChapterInMemory: { mangaID, chapterID in
             .fireAndForget {
-                if var savedChapters = try? cachedChapterIDsStorage.object(forKey: mangaID) {
-                    savedChapters.insert(chapterID)
-                    cachedChapterIDsStorage.setObject(savedChapters, forKey: mangaID)
-                } else {
-                    cachedChapterIDsStorage.setObject([chapterID], forKey: mangaID)
+                DispatchQueue.main.async {
+                    if var savedChapters = try? cachedChapterIDsStorage.object(forKey: mangaID) {
+                        savedChapters.insert(chapterID)
+                        cachedChapterIDsStorage.setObject(savedChapters, forKey: mangaID)
+                    } else {
+                        cachedChapterIDsStorage.setObject([chapterID], forKey: mangaID)
+                    }
                 }
             }
         },
         retrieveFromMemoryCachedChapters: { mangaID in
-            if let cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
-                return cachedChapterIDs
+            Future { promise in
+                DispatchQueue.main.async {
+                    if let cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
+                        promise(.success(cachedChapterIDs))
+                        return
+                    }
+                    
+                    return promise(.failure(.notFound))
+                }
             }
-            
-            return []
+            .receive(on: DispatchQueue.main)
+            .eraseToEffect()
         },
         removeAllCachedChapterIDsFromMemory: { mangaID in
             .fireAndForget {
-                cachedChapterIDsStorage.removeObject(forKey: mangaID)
+                DispatchQueue.main.async {
+                    cachedChapterIDsStorage.removeObject(forKey: mangaID)
+                }
             }
         },
         removeCachedChapterIDFromMemory: { mangaID, chapterID in
             .fireAndForget {
-                if var cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
-                    // there're already cached chapters this manga
-                    cachedChapterIDs.remove(chapterID)
-                    if cachedChapterIDs.isEmpty {
-                        cachedChapterIDsStorage.removeObject(forKey: mangaID)
-                    } else {
-                        cachedChapterIDsStorage.setObject(cachedChapterIDs, forKey: mangaID)
+                DispatchQueue.main.async {
+                    if var cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
+                        // its already cached chapters from this manga
+                        cachedChapterIDs.remove(chapterID)
+                        if cachedChapterIDs.isEmpty {
+                            cachedChapterIDsStorage.removeObject(forKey: mangaID)
+                        } else {
+                            cachedChapterIDsStorage.setObject(cachedChapterIDs, forKey: mangaID)
+                        }
                     }
                 }
             }

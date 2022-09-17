@@ -36,10 +36,10 @@ struct OfflineMangaViewState: Equatable {
 
 enum OfflineMangaViewAction: BindableAction {
     case onAppear
-    case cachedChaptersRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
+    case cachedChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
     case mangaTabChanged(OfflineMangaViewState.Tab)
     case deleteManga
-    case chaptersForMangaDeletionRetrieved(Result<[(chapter: ChapterDetails, pagesCount: Int)], AppError>)
+    case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
     
     case mangaReadingViewAction(MangaReadingViewAction)
     case pagesAction(PagesAction)
@@ -94,7 +94,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                             chaptersDetailsList: chapters.map(\.chapter),
                             chaptersPerPages: 15
                         )
-                        return  env.cacheClient
+                        return env.cacheClient
                             .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
                             .fireAndForget()
 

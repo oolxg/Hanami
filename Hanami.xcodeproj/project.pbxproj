@@ -16,7 +16,7 @@
 		2210482A285B665700CE8CED /* MangaReadingViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22104829285B665700CE8CED /* MangaReadingViewStore.swift */; };
 		2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2210482B285B666000CE8CED /* MangaReadingView.swift */; };
 		2215CA5828482B3C00986F71 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2215CA5728482B3C00986F71 /* FiltersView.swift */; };
-		221F59EC284530AC00B11D5D /* GridChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EB284530AC00B11D5D /* GridChipsView.swift */; };
+		221F59EC284530AC00B11D5D /* FlexibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EB284530AC00B11D5D /* FlexibleView.swift */; };
 		221F59EF284551B200B11D5D /* FiltersStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EE284551B200B11D5D /* FiltersStore.swift */; };
 		2220E14F283074F10046F08A /* LocalizedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E14E283074F10046F08A /* LocalizedString.swift */; };
 		2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2220E15328312D1F0046F08A /* MangaThumbnailView.swift */; };
@@ -138,12 +138,13 @@
 /* Begin PBXFileReference section */
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		08B1346A28D2A8D000D1C85B /* Set.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
+		08E23C7D28D34A3600149889 /* Hanami.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hanami.entitlements; sourceTree = "<group>"; };
 		2205CB9D28569DDE00421888 /* MangaStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaStatistics.swift; sourceTree = "<group>"; };
 		2205CB9F2856A91900421888 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
 		22104829285B665700CE8CED /* MangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingViewStore.swift; sourceTree = "<group>"; };
 		2210482B285B666000CE8CED /* MangaReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingView.swift; sourceTree = "<group>"; };
 		2215CA5728482B3C00986F71 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
-		221F59EB284530AC00B11D5D /* GridChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridChipsView.swift; sourceTree = "<group>"; };
+		221F59EB284530AC00B11D5D /* FlexibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexibleView.swift; sourceTree = "<group>"; };
 		221F59EE284551B200B11D5D /* FiltersStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersStore.swift; sourceTree = "<group>"; };
 		2220E14E283074F10046F08A /* LocalizedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedString.swift; sourceTree = "<group>"; };
 		2220E15328312D1F0046F08A /* MangaThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailView.swift; sourceTree = "<group>"; };
@@ -308,7 +309,7 @@
 			isa = PBXGroup;
 			children = (
 				226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */,
-				221F59EB284530AC00B11D5D /* GridChipsView.swift */,
+				221F59EB284530AC00B11D5D /* FlexibleView.swift */,
 				22C2024B28BAC29600047E1C /* SearchBarView.swift */,
 				225AA5A7284D16D300B406DA /* LazyView.swift */,
 				222A03732872330400D5B588 /* HUD.swift */,
@@ -435,6 +436,7 @@
 		224C657A2827204100AAEF2E /* Hanami */ = {
 			isa = PBXGroup;
 			children = (
+				08E23C7D28D34A3600149889 /* Hanami.entitlements */,
 				229DA9EE28725F5E00C6EF91 /* Info.plist */,
 				226ADDE0287DB52800C3E55F /* Clients */,
 				222A03612871AF9900D5B588 /* Database */,
@@ -806,7 +808,7 @@
 				221F59EF284551B200B11D5D /* FiltersStore.swift in Sources */,
 				22A7BF2F283AB730008EDD52 /* Chapter.swift in Sources */,
 				22F4A85828AB29C9008C11A7 /* PagesStore.swift in Sources */,
-				221F59EC284530AC00B11D5D /* GridChipsView.swift in Sources */,
+				221F59EC284530AC00B11D5D /* FlexibleView.swift in Sources */,
 				2225266128B4E966009F6FA3 /* OnlineMangaReadingView.swift in Sources */,
 				228D8D55287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift in Sources */,
 				229F8D93282DB9D200761054 /* HomeView.swift in Sources */,
@@ -1014,6 +1016,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1050,6 +1053,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

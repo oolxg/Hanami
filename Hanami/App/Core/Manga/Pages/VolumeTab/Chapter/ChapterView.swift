@@ -19,6 +19,7 @@ struct ChapterView: View {
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
         let cachedChaptersStates: Set<ChapterState.CachedChapterState>
         let areChaptersShown: Bool
+        let scanlationGroups: [UUID: ScanlationGroup]
         
         init(state: ChapterState) {
             chapter = state.chapter
@@ -27,6 +28,7 @@ struct ChapterView: View {
             chapterDetailsList = state.chapterDetailsList
             cachedChaptersStates = state.cachedChaptersStates
             areChaptersShown = state.areChaptersShown
+            scanlationGroups = state.scanlationGroups
         }
     }
 
@@ -215,7 +217,7 @@ extension ChapterView {
     }
     
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             HStack {
                 VStack(alignment: .leading) {
                     Text("Translated by:")

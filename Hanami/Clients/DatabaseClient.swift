@@ -255,7 +255,7 @@ extension DatabaseClient {
         }
     }
     
-    func retrieveChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[(chapter: ChapterDetails, pagesCount: Int)], AppError> {
+    func retrieveChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CachedChapterEntry], AppError> {
         Future { promise in
             DispatchQueue.main.async {
                 guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {

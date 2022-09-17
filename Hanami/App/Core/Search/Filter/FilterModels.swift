@@ -11,7 +11,7 @@ enum TagState {
     case selected, notSelected, banned
 }
 
-protocol FilterTagProtocol: Identifiable, Equatable {
+protocol FilterTagProtocol: Identifiable, Equatable, Hashable {
     var state: TagState { get set }
     var name: String { get }
 }

@@ -236,13 +236,13 @@ extension OfflineMangaView {
                         
                         Divider()
                         
-                        GridChipsView(
-                            viewStore.manga.authors,
-                            width: UIScreen.main.bounds.width * 0.95
-                        ) { author in
-                            makeChipsView(text: author.name)
+                        FlexibleView(
+                            data: viewStore.manga.authors.map(\.name),
+                            spacing: 10,
+                            alignment: .leading
+                        ) { authorName in
+                            makeChipsView(text: authorName)
                         }
-                        .frame(minHeight: 20)
                     }
                 }
                 
@@ -267,20 +267,19 @@ extension OfflineMangaView {
     
     private var tags: some View {
         WithViewStore(store.actionless) { viewStore in
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading) {
                 Text("Tags")
                     .font(.headline)
                     .fontWeight(.black)
                 
                 Divider()
                 
-                GridChipsView(
-                    viewStore.manga.attributes.tags,
-                    width: UIScreen.main.bounds.width * 0.95
-                ) { tag in
-                    makeChipsView(text: tag.name.capitalized)
-                }
-                .frame(minHeight: 20)
+                FlexibleView(
+                    data: viewStore.manga.attributes.tags.map(\.name.capitalized),
+                    spacing: 10,
+                    alignment: .leading,
+                    content: makeChipsView
+                )
                 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {
@@ -291,7 +290,7 @@ extension OfflineMangaView {
                         Divider()
                         
                         makeChipsView(text: demographic.capitalized)
-                            .padding(.horizontal, 5)
+                            .padding(5)
                     }
                     .frame(minHeight: 20)
                 }

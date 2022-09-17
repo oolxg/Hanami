@@ -67,19 +67,21 @@ extension FiltersView {
     
     private var optionsList: some View {
         WithViewStore(store) { viewStore in
-            let sectionWidth = UIScreen.main.bounds.width / 1.1
-
             VStack(alignment: .leading) {
                 VStack(alignment: .leading) {
                     makeTitle("Status")
                     
-                    GridChipsView(viewStore.mangaStatuses, width: sectionWidth) { mangaStatus in
+                    FlexibleView(
+                        data: viewStore.mangaStatuses,
+                        spacing: 10,
+                        alignment: .leading
+                    ) { mangaStatus in
                         makeChipsViewFor(mangaStatus)
                             .onTapGesture {
                                 viewStore.send(.mangaStatusButtonTapped(mangaStatus))
                             }
                     }
-                    .padding(5)
+                    .padding(15)
                 }
                 
                 Rectangle()
@@ -89,13 +91,17 @@ extension FiltersView {
                 VStack(alignment: .leading) {
                     makeTitle("Content rating")
                     
-                    GridChipsView(viewStore.contentRatings, width: sectionWidth) { contentRating in
+                    FlexibleView(
+                        data: viewStore.contentRatings,
+                        spacing: 10,
+                        alignment: .leading
+                    ) { contentRating in
                         makeChipsViewFor(contentRating)
                             .onTapGesture {
                                 viewStore.send(.contentRatingButtonTapped(contentRating))
                             }
                     }
-                    .padding(5)
+                    .padding(15)
                 }
                 
                 Rectangle()
@@ -105,13 +111,17 @@ extension FiltersView {
                 VStack(alignment: .leading) {
                     makeTitle("Demographic")
                     
-                    GridChipsView(viewStore.publicationDemographics, width: sectionWidth) { demographic in
+                    FlexibleView(
+                        data: viewStore.publicationDemographics,
+                        spacing: 10,
+                        alignment: .leading
+                    ) { demographic in
                         makeChipsViewFor(demographic)
                             .onTapGesture {
                                 viewStore.send(.publicationDemographicButtonTapped(demographic))
                             }
                     }
-                    .padding(5)
+                    .padding(15)
                 }
                 
                 Rectangle()
@@ -123,8 +133,7 @@ extension FiltersView {
                         makeTitle("Content")
                         
                         makeFiltersViewFor(\.contentTypes)
-                            .frame(height: 60)
-                            .padding(5)
+                            .padding(15)
                     }
                     
                     Rectangle()
@@ -219,22 +228,15 @@ extension FiltersView {
             }
             
             WithViewStore(store) { viewStore in
-                if AppUtil.isIpad {
-                    GeometryReader { geo in
-                        GridChipsView(viewStore.state[keyPath: path], width: geo.size.width * 0.95) { tag in
-                            makeChipsViewFor(tag)
-                                .onTapGesture {
-                                    viewStore.send(.filterTagButtonTapped(tag))
-                                }
+                FlexibleView(
+                    data: viewStore.state[keyPath: path],
+                    spacing: 10,
+                    alignment: .leading
+                ) { tag in
+                    makeChipsViewFor(tag)
+                        .onTapGesture {
+                            viewStore.send(.filterTagButtonTapped(tag))
                         }
-                    }
-                } else {
-                    GridChipsView(viewStore.state[keyPath: path], width: UIScreen.main.bounds.width * 0.95) { tag in
-                        makeChipsViewFor(tag)
-                            .onTapGesture {
-                                viewStore.send(.filterTagButtonTapped(tag))
-                            }
-                    }
                 }
             }
             .navigationBarBackButtonHidden(true)

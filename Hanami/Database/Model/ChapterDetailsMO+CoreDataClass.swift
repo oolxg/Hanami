@@ -37,3 +37,8 @@ extension ChapterDetails: ManagedObjectConvertible {
         return chapterDetailsMO
     }
 }
+
+struct CachedChapterEntry: Equatable {
+    let chapter: ChapterDetails
+    let pagesCount: Int
+}
