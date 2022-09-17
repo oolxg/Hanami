@@ -79,7 +79,7 @@ struct ChapterState: Equatable, Identifiable {
 enum ChapterAction: Equatable {
     case fetchChapterDetailsIfNeeded
     // need this only for `cachedChaptersStates`
-    case allCachedChaptersFetched(Result<[CachedChapterEntry], AppError>)
+    case allChapterDetailsRetrieved(Result<[CachedChapterEntry], AppError>)
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
@@ -111,8 +111,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
     switch action {
         case .fetchChapterDetailsIfNeeded:
             var effects: [Effect<ChapterAction, Never>] = [
-                env.databaseClient.retrieveChaptersForManga(mangaID: state.parentManga.id)
-                    .catchToEffect(ChapterAction.allCachedChaptersFetched)
+                env.databaseClient
+                    .retrieveChaptersForManga(mangaID: state.parentManga.id)
+                    .catchToEffect(ChapterAction.allChapterDetailsRetrieved)
             ]
             
             let allChapterIDs = [state.chapter.id] + state.chapter.others
@@ -160,7 +161,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return .merge(effects)
             
-        case .allCachedChaptersFetched(let result):
+        case .allChapterDetailsRetrieved(let result):
             // only to store all cached chapter ids(from parent manga)
             // and update state on scroll as less as possible
             switch result {
@@ -314,7 +315,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     print("failed to retriev cached chapters from memory:", error.description)
                     return env.databaseClient
                         .retrieveChaptersForManga(mangaID: state.parentManga.id)
-                        .catchToEffect(ChapterAction.allCachedChaptersFetched)
+                        .catchToEffect(ChapterAction.allChapterDetailsRetrieved)
             }
             
         case .downloadChapterForOfflineReading(let chapter):

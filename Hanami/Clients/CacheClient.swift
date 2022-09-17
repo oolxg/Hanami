@@ -26,6 +26,12 @@ struct CacheClient {
         static let imagesCachePath = storagePathURL.appendingPathComponent("images")
     }
     
+    private static let cacheQueue = DispatchQueue(
+        label: "moe.mkpwnz.Hanami.imageCaching",
+        qos: .userInitiated,
+        attributes: .concurrent
+    )
+    
     private static let imageStorage: DiskStorage<String, Image> = {
         let diskConfig = DiskConfig(
             name: "Kamakura_Storage",
@@ -119,14 +125,14 @@ extension CacheClient {
     static let live = CacheClient(
         cacheImage: { image, imageName in
                 .fireAndForget {
-                    DispatchQueue.main.async {
+                    cacheQueue.async {
                         try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
                     }
                 }
         },
         removeImage: { imageName in
                 .fireAndForget {
-                    DispatchQueue.main.async {
+                    cacheQueue.async {
                         try? imageStorage.removeObject(forKey: imageName)
                     }
                 }
@@ -146,7 +152,7 @@ extension CacheClient {
         },
         computeCacheSize: {
             Future { promise in
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {
                         promise(.failure(.cacheError("Can't compute cache size")))
                         return
@@ -166,14 +172,14 @@ extension CacheClient {
         },
         saveCachedChaptersInMemory: { mangaID, chapterIDs in
             .fireAndForget {
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     cachedChapterIDsStorage.setObject(chapterIDs, forKey: mangaID)
                 }
             }
         },
         saveCachedChapterInMemory: { mangaID, chapterID in
             .fireAndForget {
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     if var savedChapters = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                         savedChapters.insert(chapterID)
                         cachedChapterIDsStorage.setObject(savedChapters, forKey: mangaID)
@@ -185,7 +191,7 @@ extension CacheClient {
         },
         retrieveFromMemoryCachedChapters: { mangaID in
             Future { promise in
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     if let cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                         promise(.success(cachedChapterIDs))
                         return
@@ -199,22 +205,19 @@ extension CacheClient {
         },
         removeAllCachedChapterIDsFromMemory: { mangaID in
             .fireAndForget {
-                DispatchQueue.main.async {
-                    cachedChapterIDsStorage.removeObject(forKey: mangaID)
+                cacheQueue.async {
+                    // we have to store empty set for recently deleted manga to avoid some UI bugs
+                    cachedChapterIDsStorage.setObject([], forKey: mangaID)
                 }
             }
         },
         removeCachedChapterIDFromMemory: { mangaID, chapterID in
             .fireAndForget {
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     if var cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                         // its already cached chapters from this manga
                         cachedChapterIDs.remove(chapterID)
-                        if cachedChapterIDs.isEmpty {
-                            cachedChapterIDsStorage.removeObject(forKey: mangaID)
-                        } else {
-                            cachedChapterIDsStorage.setObject(cachedChapterIDs, forKey: mangaID)
-                        }
+                        cachedChapterIDsStorage.setObject(cachedChapterIDs, forKey: mangaID)
                     }
                 }
             }
