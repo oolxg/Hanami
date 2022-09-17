@@ -30,7 +30,7 @@ struct FiltersState: Equatable {
         .init(tag: .josei), .init(tag: .seinen), .init(tag: .shoujo), .init(tag: .shounen)
     ])
     var contentRatings: IdentifiedArrayOf<FilterContentRatings> = .init(uniqueElements: [
-        .init(tag: .erotica), .init(tag: .pornographic), .init(tag: .safe), .init(tag: .suggestive)
+        .init(tag: .erotica), .init(tag: .pornographic), .init(tag: .safe), .init(tag: .suggestive, state: .selected)
     ])
     var mangaStatuses: IdentifiedArrayOf<FilterMangaStatus> = .init(uniqueElements: [
         .init(tag: .cancelled), .init(tag: .completed), .init(tag: .hiatus), .init(tag: .ongoing)
@@ -40,7 +40,7 @@ struct FiltersState: Equatable {
         !allTags.filter { $0.state == .selected || $0.state == .banned }.isEmpty ||
         // 'mangaStatuses', 'publicationDemographics' and 'contentRatings' can't have .state as 'banned', so we don't check this type
         !publicationDemographics.filter { $0.state == .selected }.isEmpty ||
-        !contentRatings.filter { $0.state == .selected }.isEmpty ||
+        !contentRatings.filter { $0.state == .selected && $0.tag != .suggestive }.isEmpty ||
         !mangaStatuses.filter { $0.state == .selected }.isEmpty
     }
 }
@@ -100,7 +100,9 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             }
 
             for tagID in state.contentRatings.map(\.id) {
-                state.contentRatings[id: tagID]!.state = .notSelected
+                if state.contentRatings[id: tagID]!.tag != .suggestive {
+                    state.contentRatings[id: tagID]!.state = .notSelected
+                }
             }
             
             return .none

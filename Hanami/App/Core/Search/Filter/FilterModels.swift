@@ -32,7 +32,7 @@ struct FilterTag: FilterTagProtocol, Comparable {
     var id: UUID { tag.id }
     
     static func < (lhs: FilterTag, rhs: FilterTag) -> Bool {
-        lhs.tag.attributes.name.en.rawValue < rhs.tag.attributes.name.en.rawValue
+        lhs.name < rhs.name
     }
     
     mutating func toggleState() {
@@ -59,7 +59,7 @@ struct FilterPublicationDemographic: FilterTagProtocol {
 }
 
 struct FilterContentRatings: FilterTagProtocol {
-    var tag: Manga.Attributes.ContentRatings
+    let tag: Manga.Attributes.ContentRatings
     var name: String {
         tag.rawValue
     }
@@ -70,7 +70,7 @@ struct FilterContentRatings: FilterTagProtocol {
 }
 
 struct FilterMangaStatus: FilterTagProtocol {
-    var tag: Manga.Attributes.Status
+    let tag: Manga.Attributes.Status
     var name: String {
         tag.rawValue
     }

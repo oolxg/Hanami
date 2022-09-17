@@ -26,7 +26,7 @@ struct VolumeTabView: View {
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack {
-                HStack(alignment: .bottom) {
+                HStack {
                     Text(viewStore.volumeName)
                         .font(.title2)
                         .fontWeight(.medium)
@@ -34,6 +34,7 @@ struct VolumeTabView: View {
                     Spacer()
                     
                     chapterIndexesList
+                        .font(.headline)
                 }
                 
                 Rectangle()
@@ -81,16 +82,19 @@ extension VolumeTabView {
             HStack {
                 if !viewStore.splitChapterIndexes.isEmpty {
                     Text("Ch.")
-                    
+                        .fontWeight(.light)
+
                     ForEach(viewStore.splitChapterIndexes, id: \.self) { subsequence in
                         let delimeter = subsequence == viewStore.splitChapterIndexes.last ? "" : ","
                         if subsequence.count == 1 {
                             Text("\(subsequence.first!)\(delimeter)")
+                                .fontWeight(.light)
                         } else {
                             let start = subsequence.first!.description
                             let end = subsequence.last!.description
                             
                             Text("\(start)-\(end)\(delimeter)")
+                                .fontWeight(.light)
                         }
                     }
                 }

@@ -21,7 +21,7 @@ extension SearchClient {
             
             components.scheme = "https"
             components.host = "api.mangadex.org"
-            components.path = "/manga/"
+            components.path = "/manga"
             
             components.queryItems = [
                 URLQueryItem(name: "title", value: requestParams.searchQuery),
@@ -35,17 +35,17 @@ extension SearchClient {
                 URLQueryItem(name: "order[\(requestParams.sortOption)]", value: "\(requestParams.sortOptionOrder)")
             ]
             
-            for tag in requestParams.tags {
-                if tag.state == .banned {
-                    components.queryItems?.append(
-                        URLQueryItem(name: "excludedTags[]", value: tag.id.uuidString.lowercased())
-                    )
-                } else if tag.state == .selected {
-                    components.queryItems?.append(
-                        URLQueryItem(name: "includedTags[]", value: tag.id.uuidString.lowercased())
-                    )
-                }
-            }
+            components.queryItems!.append(
+                contentsOf: requestParams.tags
+                    .filter { $0.state == .banned }
+                    .map { URLQueryItem(name: "excludedTags[]", value: $0.id.uuidString.lowercased()) }
+            )
+            
+            components.queryItems!.append(
+                contentsOf: requestParams.tags
+                    .filter { $0.state == .selected }
+                    .map { URLQueryItem(name: "includedTags[]", value: $0.id.uuidString.lowercased()) }
+            )
             
             components.queryItems?.append(
                 contentsOf: requestParams.publicationDemographic.filter { $0.state == .selected }

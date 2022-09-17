@@ -147,19 +147,19 @@ extension FiltersView {
     private var filtersList: some View {
         WithViewStore(store) { viewStore in
             if !viewStore.allTags.isEmpty {
-                makeTagNavigationLink(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
+                makeNavigationLinkLabel(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
                     makeFiltersViewFor(\.formatTypes, navTitle: "Format", isActive: $showFormatFiltersPage)
                         .padding()
                 }
                 
-                makeTagNavigationLink(title: "Themes", \.themeTypes, isActive: $showThemesFiltersPage) {
+                makeNavigationLinkLabel(title: "Themes", \.themeTypes, isActive: $showThemesFiltersPage) {
                     ScrollView(showsIndicators: false) {
                         makeFiltersViewFor(\.themeTypes, navTitle: "Themes", isActive: $showThemesFiltersPage)
                             .padding()
                     }
                 }
                 
-                makeTagNavigationLink(title: "Genres", \.genres, isActive: $showGenresFiltersPage) {
+                makeNavigationLinkLabel(title: "Genres", \.genres, isActive: $showGenresFiltersPage) {
                     makeFiltersViewFor(\.genres, navTitle: "Genres", isActive: $showGenresFiltersPage)
                         .padding()
                 }
@@ -176,7 +176,7 @@ extension FiltersView {
             .padding(.vertical, 8)
     }
     
-    @ViewBuilder private func makeTagNavigationLink<T, Content>(
+    @ViewBuilder private func makeNavigationLinkLabel<T, Content>(
         title: String,
         _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>,
         isActive: Binding<Bool>,
