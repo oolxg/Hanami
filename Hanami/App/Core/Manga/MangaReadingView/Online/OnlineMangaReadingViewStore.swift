@@ -33,6 +33,9 @@ struct OnlineMangaReadingViewState: Equatable {
     let scanlationGroupID: UUID?
     let startFromLastPage: Bool
     
+    // if user reaches this index, means we have to send him to the next chapter
+    let afterLastPageIndex = -2
+    
     var pagesInfo: ChapterPagesInfo?
     
     var pagesCount: Int? {
@@ -120,7 +123,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                             .fireAndForget()
                         
                     case .failure(let error):
-                        print("error on retrieving chapterPagesInfo: \(error)")
+                        print("error on retrieving chapterPagesInfo: \(error.description)")
                         return .none
                 }
                 
@@ -129,7 +132,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
 
                 if newPageIndex == -1 {
                     return .task { .moveToPreviousChapters(startFromLastPage: true) }
-                } else if newPageIndex == Int.max {
+                } else if newPageIndex == state.afterLastPageIndex {
                     return .task { .moveToNextChapter }
                 }
                 
@@ -142,7 +145,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                         return .none
                         
                     case .failure(let error):
-                        print("error on chaptersDownloaded, \(error)")
+                        print("error on chaptersDownloaded, \(error.description)")
                         return .none
                 }
                 

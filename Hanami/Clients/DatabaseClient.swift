@@ -15,6 +15,8 @@ struct DatabaseClient {
     let dropDatabase: () -> Effect<Result<Void, AppError>, Never>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
+    
+    private static let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.DatabaseClient", qos: .utility)
 }
 
 extension DatabaseClient {
@@ -35,7 +37,7 @@ extension DatabaseClient {
             .catchToEffect()
         }, saveContext: {
             let context = PersistenceController.shared.container.viewContext
-            AppUtil.dispatchMainSync {
+            DatabaseClient.queue.sync {
                 guard context.hasChanges else { return }
                 do {
                     try context.save()
@@ -66,7 +68,7 @@ extension DatabaseClient {
     ) -> [MO] {
         var results: [MO] = []
         let context = PersistenceController.shared.container.viewContext
-        AppUtil.dispatchMainSync {
+        DatabaseClient.queue.sync {
             if findBeforeFetch, let predicate = predicate {
                 if let objects = materializedObjects(context, predicate) as? [MO], !objects.isEmpty {
                     results = objects
@@ -134,7 +136,7 @@ extension DatabaseClient {
         createIfNil: Bool = false,
         commitChanges: (MO) -> Void
     ) {
-        AppUtil.dispatchMainSync {
+        DatabaseClient.queue.sync {
             let storedMO: MO?
             if createIfNil {
                 storedMO = fetchOrCreate(entityType: entityType, predicate: predicate)
@@ -175,7 +177,7 @@ extension DatabaseClient {
         createIfNil: Bool = false,
         commitChanges: @escaping (MO) -> Void
     ) {
-        AppUtil.dispatchMainSync {
+        DatabaseClient.queue.sync {
             let storedMO: MO?
             if createIfNil {
                 storedMO = fetchOrCreate(entityType: entityType, id: id)

@@ -34,48 +34,29 @@ struct MangaThumbnailView: View {
     }
     
     var body: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.theme.darkGray.opacity(0.6))
-
-                HStack(alignment: .top) {
-                    coverArt
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(viewStore.manga.title)
-                            .lineLimit(2)
-                            .foregroundColor(.white)
-                            .font(.headline)
-
-                        if viewStore.isOnline {
-                            statistics
-                        }
-
-                        if let mangaDescription = viewStore.manga.description {
-                            Text(LocalizedStringKey(mangaDescription))
-                                .lineLimit(5)
-                                .foregroundColor(.white)
-                                .font(.footnote)
-                        }
-                    }
-                }
-                .padding(10)
-            }
-            .frame(width: isCompact ? 250 : nil, height: 150)
-            .onAppear { viewStore.send(.onAppear) }
-            .onTapGesture { isNavigationLinkActive.toggle() }
-            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-            }
-        }
-        .background(
+        ZStack(alignment: .leading) {
             NavigationLink(
                 isActive: $isNavigationLinkActive,
                 destination: { LazyView(mangaView) },
                 label: { EmptyView() }
             )
-        )
+            
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.theme.darkGray.opacity(0.6))
+
+            HStack(alignment: .top) {
+                coverArt
+
+                textBlock
+            }
+            .padding(10)
+        }
+        .frame(width: isCompact ? 250 : nil, height: 150)
+        .onAppear { ViewStore(store).send(.onAppear) }
+        .onTapGesture { isNavigationLinkActive.toggle() }
+        .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+            ViewStore(store).send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+        }
     }
 }
 
@@ -102,6 +83,27 @@ struct MangaThumbnailView_Previews: PreviewProvider {
 }
 
 extension MangaThumbnailView {
+    private var textBlock: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            VStack(alignment: .leading, spacing: 10) {
+                Text(viewStore.manga.title)
+                    .lineLimit(2)
+                    .foregroundColor(.white)
+                    .font(.headline)
+                
+                if viewStore.isOnline {
+                    statistics
+                }
+                
+                if let mangaDescription = viewStore.manga.description {
+                    Text(LocalizedStringKey(mangaDescription))
+                        .lineLimit(5)
+                        .foregroundColor(.white)
+                        .font(.footnote)
+                }
+            }
+        }
+    }
     private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             KFImage.url(viewStore.coverArtURL)
@@ -111,6 +113,7 @@ extension MangaThumbnailView {
                         .redacted(reason: .placeholder)
                 }
                 .retry(maxCount: 2)
+                .backgroundDecode()
                 .fade(duration: 0.5)
                 .resizable()
                 .scaledToFill()

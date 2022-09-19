@@ -176,7 +176,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                             .catchToEffect(SearchAction.mangaStatisticsFetched)
                         
                     case .failure(let error):
-                        print("error on downloading search results \(error)")
+                        print("error on downloading search results \(error.description)")
                         env.hudClient.show(message: error.description)
                         return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
@@ -191,7 +191,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                         return .none
                         
                     case .failure(let error):
-                        print("error on downloading home page: \(error)")
+                        print("error on downloading home page: \(error.description)")
                         return .none
                 }
                 

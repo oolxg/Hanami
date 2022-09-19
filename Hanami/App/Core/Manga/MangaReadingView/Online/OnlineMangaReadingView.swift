@@ -15,18 +15,22 @@ struct OnlineMangaReadingView: View {
     @State private var currentPageIndex = 0
     
     private struct ViewState: Equatable {
-        let pagesURLs: [URL]?
+        let pagesURLs: [URL]
+        let isPagesInfoFetched: Bool
         let pagesCount: Int?
         let startFromLastPage: Bool
         let chapterIndex: Double?
         let chapterIndexes: [Double]
+        let afterLastPageIndex: Int
         
         init(state: OnlineMangaReadingViewState) {
-            pagesURLs = state.pagesInfo?.dataSaverURLs
+            pagesURLs = state.pagesInfo?.dataSaverURLs ?? []
+            isPagesInfoFetched = state.pagesInfo != nil
             pagesCount = state.pagesCount
             startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex
             chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex)
+            afterLastPageIndex = state.afterLastPageIndex
         }
     }
     
@@ -43,11 +47,11 @@ struct OnlineMangaReadingView: View {
                 }
             }
             .onChange(of: currentPageIndex) {
-                ViewStore(store).send(.userChangedPage(newPageIndex: $0))
+                viewStore.send(.userChangedPage(newPageIndex: $0))
             }
             .overlay(
                 ZStack {
-                    if viewStore.pagesURLs == nil {
+                    if !viewStore.isPagesInfoFetched {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
@@ -68,11 +72,11 @@ extension OnlineMangaReadingView {
             Color.clear
                 .tag(-1)
             
-            ForEach(viewStore.pagesURLs?.indices ?? [].indices, id: \.self) { pageIndex in
+            ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
                 ZoomableScrollView {
                     KFImage.url(
-                        viewStore.pagesURLs?[pageIndex],
-                        cacheKey: viewStore.pagesURLs?[pageIndex].absoluteString
+                        viewStore.pagesURLs[pageIndex],
+                        cacheKey: viewStore.pagesURLs[pageIndex].absoluteString
                     )
                     .retry(maxCount: 3)
                     .placeholder {
@@ -85,9 +89,10 @@ extension OnlineMangaReadingView {
             }
             
             Color.clear
-                .tag(Int.max)
+                .tag(viewStore.afterLastPageIndex)
         }
     }
+    
     private var backButton: some View {
         Button {
             ViewStore(store).send(.userLeftMangaReadingView)
@@ -119,7 +124,7 @@ extension OnlineMangaReadingView {
                                 }
                                 
                                 if let pagesCount = viewStore.pagesCount,
-                                   currentPageIndex < Int.max,
+                                   currentPageIndex != viewStore.afterLastPageIndex,
                                    currentPageIndex + 1 > 0 {
                                     Text("\(currentPageIndex + 1)/\(pagesCount)")
                                 }

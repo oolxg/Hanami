@@ -185,7 +185,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .fireAndForget()
                     
                 case .failure(let error):
-                    print("error fetching cached chapters, \(error)")
+                    print("error fetching cached chapters, \(error.description)")
                     return .none
             }
             
@@ -228,7 +228,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         )
                     
                 case .failure(let error):
-                    print("error on downloading chapter details, \(error)")
+                    print("error on downloading chapter details, \(error.description)")
                     return .none
             }
             
@@ -239,7 +239,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     return .none
                     
                 case .failure(let error):
-                    print("Error on fetching scanlation group \(error)")
+                    print("Error on fetching scanlation group \(error.description)")
                     return .none
             }
         // MARK: - Caching
@@ -369,7 +369,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .cancellable(id: CancelChapterCache(id: chapter.id))
                     
                 case .failure(let error):
-                    print("Error on fetching PagesInfo for caching: \(error)")
+                    print("Error on fetching PagesInfo for caching: \(error.description)")
 
                     env.hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
 
@@ -426,9 +426,9 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     var msg = ""
                     
                     if let chapterIndex = chapter.attributes.chapterIndex?.clean() {
-                        msg = "Failed to cache chapter \(chapterIndex) \(chapter.chapterName)"
+                        msg = "Failed to cache chapter \(chapterIndex) \(chapter.chapterName)\n \(error.description)"
                     } else {
-                        msg = "Failed to cache chapter \(chapter.chapterName)"
+                        msg = "Failed to cache chapter \(chapter.chapterName)\n \(error.description)"
                     }
                     
                     env.hudClient.show(message: msg)

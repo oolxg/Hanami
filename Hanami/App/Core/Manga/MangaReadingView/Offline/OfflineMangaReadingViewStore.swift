@@ -51,15 +51,23 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                     state.chapter.id, state.pagesCount, env.cacheClient
                 )
                 
+                var effects: [Effect<OfflineMangaReadingViewAction, Never>] = [
+                    env.imageClient
+                        .prefetchImages(state.cachedPagesPaths.compactMap { $0 }, nil)
+                        .fireAndForget()
+                ]
+                
                 if state.sameScanlationGroupChapters.isEmpty {
                     let mangaID = state.mangaID
                     let scanlationGroupID = state.chapter.scanlationGroupID
-                    return env.databaseClient
-                        .retrieveChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
-                        .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersRetrieved)
+                    effects.append(
+                        env.databaseClient
+                            .retrieveChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
+                            .catchToEffect(OfflineMangaReadingViewAction.sameScanlationGroupChaptersRetrieved)
+                    )
                 }
                 
-                return .none
+                return .merge(effects)
                 
             case .sameScanlationGroupChaptersRetrieved(let result):
                 switch result {

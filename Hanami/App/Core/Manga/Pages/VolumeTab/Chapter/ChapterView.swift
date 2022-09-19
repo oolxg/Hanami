@@ -136,7 +136,7 @@ extension ChapterView {
                 Text(chapter.chapterName)
                     .fontWeight(.medium)
                     .font(.headline)
-                    .lineLimit(nil)
+                    .lineLimit(2)
                     .padding(5)
                 
                 Spacer()

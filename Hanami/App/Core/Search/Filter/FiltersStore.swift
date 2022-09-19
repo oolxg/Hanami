@@ -78,7 +78,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
                     return .none
                     
                 case .failure(let error):
-                    print("error on downloading tags list \(error)")
+                    print("error on downloading tags list \(error.description)")
                     return .none
             }
             

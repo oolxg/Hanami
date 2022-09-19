@@ -126,7 +126,8 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
             case .onAppear:
                 if state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
-                    return env.mangaClient.fetchCoverArtInfo(coverArtID)
+                    return env.mangaClient
+                        .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
                 }
                 
@@ -140,7 +141,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                         return .none
                         
                     case .failure(let error):
-                        print("error on downloading thumbnail info: \(error)")
+                        print("error on downloading thumbnail info: \(error.description)")
                         return .none
                 }
                 
@@ -153,7 +154,7 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
                         return .none
                         
                     case .failure(let error):
-                        print("error on downloading thumbnail info: \(error)")
+                        print("error on downloading thumbnail info: \(error.description)")
                         return .none
                 }
                 

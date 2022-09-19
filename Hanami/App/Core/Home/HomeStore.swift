@@ -214,7 +214,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     case .failure(let error):
                         env.hudClient.show(message: error.description)
                         state.lastRefreshDate = nil
-                        print("error: \(error)")
+                        print("error: \(error.description)")
                         return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
                 
@@ -228,7 +228,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         return .none
                         
                     case .failure(let error):
-                        print("Error on fetching statistics on homeReducer: \(error)")
+                        print("Error on fetching statistics on homeReducer: \(error.description)")
                         return .none
                 }
                 
@@ -237,12 +237,13 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                     case .success(let response):
                         let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
                         
-                        return env.homeClient.fetchMangaByIDs(mangaIDs)
+                        return env.homeClient
+                            .fetchMangaByIDs(mangaIDs)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect { HomeAction.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
 
                     case .failure(let error):
-                        print("error: \(error)")
+                        print("error: \(error.description)")
                         return .none
                 }
                 

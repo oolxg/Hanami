@@ -17,14 +17,6 @@ enum AppUtil {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "null"
     }
     
-    static func dispatchMainSync(execute work: () -> Void) {
-        if Thread.isMainThread {
-            work()
-        } else {
-            DispatchQueue.main.sync(execute: work)
-        }
-    }
-    
     static var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         

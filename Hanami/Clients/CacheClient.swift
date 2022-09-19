@@ -27,14 +27,14 @@ struct CacheClient {
     }
     
     private static let cacheQueue = DispatchQueue(
-        label: "moe.mkpwnz.Hanami.imageCaching",
+        label: "moe.mkpwnz.Hanami.CacheClient",
         qos: .userInitiated,
         attributes: .concurrent
     )
     
     private static let imageStorage: DiskStorage<String, Image> = {
         let diskConfig = DiskConfig(
-            name: "Kamakura_Storage",
+            name: "HanamiImages",
             expiry: .never,
             directory: CacheFolderPathes.imagesCachePath
         )
@@ -124,18 +124,18 @@ struct CacheClient {
 extension CacheClient {
     static let live = CacheClient(
         cacheImage: { image, imageName in
-                .fireAndForget {
-                    cacheQueue.async {
-                        try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
-                    }
+            .fireAndForget {
+                cacheQueue.async {
+                    try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
                 }
+            }
         },
         removeImage: { imageName in
-                .fireAndForget {
-                    cacheQueue.async {
-                        try? imageStorage.removeObject(forKey: imageName)
-                    }
+            .fireAndForget {
+                cacheQueue.async {
+                    try? imageStorage.removeObject(forKey: imageName)
                 }
+            }
         },
         isCached: { imageName in
             // force try can be used, because the function 'existsObject(forKey: )' is only marked as `throws`,

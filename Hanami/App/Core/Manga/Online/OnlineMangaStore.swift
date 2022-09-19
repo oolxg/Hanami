@@ -145,7 +145,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         return .none
                         
                     case .failure(let error):
-                        print("error on chaptersDownloaded, \(error)")
+                        print("error on chaptersDownloaded, \(error.description)")
                         
                         return .none
                 }
@@ -169,7 +169,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         
                     case .failure(let error):
                         env.hudClient.show(message: error.description)
-                        print("error on fetching allCoverArtsInfo, \(error)")
+                        print("error on fetching allCoverArtsInfo, \(error.description)")
                         return .none
                 }
                 
@@ -180,7 +180,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         return .none
                         
                     case .failure(let error):
-                        print("error on mangaFetchStatistics, \(error)")
+                        print("error on mangaFetchStatistics, \(error.description)")
                         return .none
                 }
                 
