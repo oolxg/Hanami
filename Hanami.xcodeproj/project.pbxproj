@@ -13,8 +13,7 @@
 		22048EB4286D0B3500FE6A54 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EB3286D0B3500FE6A54 /* Kingfisher */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
 		2205CBA02856A91900421888 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9F2856A91900421888 /* UINavigationController.swift */; };
-		2210482A285B665700CE8CED /* MangaReadingViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22104829285B665700CE8CED /* MangaReadingViewStore.swift */; };
-		2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2210482B285B666000CE8CED /* MangaReadingView.swift */; };
+		2210482A285B665700CE8CED /* MangaReadingViewEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22104829285B665700CE8CED /* MangaReadingViewEnvironment.swift */; };
 		2215CA5828482B3C00986F71 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2215CA5728482B3C00986F71 /* FiltersView.swift */; };
 		221F59EC284530AC00B11D5D /* FlexibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EB284530AC00B11D5D /* FlexibleView.swift */; };
 		221F59EF284551B200B11D5D /* FiltersStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221F59EE284551B200B11D5D /* FiltersStore.swift */; };
@@ -141,8 +140,7 @@
 		08E23C7D28D34A3600149889 /* Hanami.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hanami.entitlements; sourceTree = "<group>"; };
 		2205CB9D28569DDE00421888 /* MangaStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaStatistics.swift; sourceTree = "<group>"; };
 		2205CB9F2856A91900421888 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
-		22104829285B665700CE8CED /* MangaReadingViewStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingViewStore.swift; sourceTree = "<group>"; };
-		2210482B285B666000CE8CED /* MangaReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingView.swift; sourceTree = "<group>"; };
+		22104829285B665700CE8CED /* MangaReadingViewEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaReadingViewEnvironment.swift; sourceTree = "<group>"; };
 		2215CA5728482B3C00986F71 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		221F59EB284530AC00B11D5D /* FlexibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexibleView.swift; sourceTree = "<group>"; };
 		221F59EE284551B200B11D5D /* FiltersStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersStore.swift; sourceTree = "<group>"; };
@@ -269,8 +267,7 @@
 			children = (
 				2225266528B4EC22009F6FA3 /* Offline */,
 				2225266428B4EC1C009F6FA3 /* Online */,
-				2210482B285B666000CE8CED /* MangaReadingView.swift */,
-				22104829285B665700CE8CED /* MangaReadingViewStore.swift */,
+				22104829285B665700CE8CED /* MangaReadingViewEnvironment.swift */,
 			);
 			path = MangaReadingView;
 			sourceTree = "<group>";
@@ -828,7 +825,7 @@
 				228FA498288D86C800369529 /* CustomMangaList.swift in Sources */,
 				2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */,
 				229F8D90282DB5E400761054 /* RootStore.swift in Sources */,
-				2210482A285B665700CE8CED /* MangaReadingViewStore.swift in Sources */,
+				2210482A285B665700CE8CED /* MangaReadingViewEnvironment.swift in Sources */,
 				222ED96D28C01F99009C361E /* URLSession.swift in Sources */,
 				2220E16B2832B3910046F08A /* ChapterDetails.swift in Sources */,
 				222A03682871BB0500D5B588 /* NSPersistentStoreCoordinator.swift in Sources */,
@@ -836,7 +833,6 @@
 				22D74BFA287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift in Sources */,
 				2220E15728312D400046F08A /* MangaThumbnailStore.swift in Sources */,
 				22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */,
-				2210482C285B666000CE8CED /* MangaReadingView.swift in Sources */,
 				222A03722872006200D5B588 /* HanamiAppStore.swift in Sources */,
 				222ED96F28C6E2C6009C361E /* DeviceUtil.swift in Sources */,
 				2225265D28B15ED3009F6FA3 /* HapticUtil.swift in Sources */,

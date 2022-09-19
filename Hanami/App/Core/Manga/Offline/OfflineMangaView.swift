@@ -74,9 +74,10 @@ extension OfflineMangaView {
     private func mangaReadingView() -> some View {
         IfLetStore(
             store.scope(
-                state: \.mangaReadingViewState, action: OfflineMangaViewAction.mangaReadingViewAction
+                state: \.mangaReadingViewState,
+                action: OfflineMangaViewAction.mangaReadingViewAction
             ),
-            then: MangaReadingView.init
+            then: OfflineMangaReadingView.init
         )
     }
     

@@ -92,9 +92,10 @@ extension OnlineMangaView {
     private var mangaReadingView: some View {
         IfLetStore(
             store.scope(
-                state: \.mangaReadingViewState, action: OnlineMangaViewAction.mangaReadingViewAction
+                state: \.mangaReadingViewState,
+                action: OnlineMangaViewAction.mangaReadingViewAction
             ),
-            then: MangaReadingView.init
+            then: OnlineMangaReadingView.init
         )
     }
     

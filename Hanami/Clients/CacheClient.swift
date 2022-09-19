@@ -197,7 +197,7 @@ extension CacheClient {
                         return
                     }
                     
-                    return promise(.failure(.notFound))
+                    promise(.failure(.notFound))
                 }
             }
             .receive(on: DispatchQueue.main)

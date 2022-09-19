@@ -31,7 +31,7 @@ struct OfflineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewState?
+    var mangaReadingViewState: OfflineMangaReadingViewState?
 }
 
 enum OfflineMangaViewAction: BindableAction {
@@ -41,7 +41,7 @@ enum OfflineMangaViewAction: BindableAction {
     case deleteManga
     case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
     
-    case mangaReadingViewAction(MangaReadingViewAction)
+    case mangaReadingViewAction(OfflineMangaReadingViewAction)
     case pagesAction(PagesAction)
     
     case binding(BindingAction<OfflineMangaViewState>)
@@ -60,7 +60,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
             hudClient: $0.hudClient
         ) }
     ),
-    mangaReadingViewReducer.optional().pullback(
+    offlineMangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
         action: /OfflineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
@@ -159,32 +159,31 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                     return .none
                 }
                 
-                state.mangaReadingViewState = .offline(
-                    OfflineMangaReadingViewState(
-                        mangaID: state.manga.id,
-                        chapter: retrievedChapter.chapter,
-                        pagesCount: retrievedChapter.pagesCount,
-                                            startFromLastPage: false
-                    )
+                state.mangaReadingViewState = OfflineMangaReadingViewState(
+                    mangaID: state.manga.id,
+                    chapter: retrievedChapter.chapter,
+                    pagesCount: retrievedChapter.pagesCount,
+                    startFromLastPage: false
                 )
                 
                 state.isUserOnReadingView = true
 
-                return .task { .mangaReadingViewAction(.offline(.userStartedReadingChapter)) }
+                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
-            case .mangaReadingViewAction(.offline(.userStartedReadingChapter)):
+            case .mangaReadingViewAction(.userStartedReadingChapter):
                 if let pageIndex = env.mangaClient.getMangaPageForReadingChapter(
-                    state.mangaReadingViewState?.chapterIndex, state.pagesState!.splitIntoPagesVolumeTabStates
+                    state.mangaReadingViewState?.chapter.attributes.chapterIndex,
+                    state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
                     return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
                 }
                 
                 return .none
 
-            case .mangaReadingViewAction(.offline(.userLeftMangaReadingView)):
+            case .mangaReadingViewAction(.userLeftMangaReadingView):
                 defer { state.isUserOnReadingView = false }
 
-                let chapterIndex = state.mangaReadingViewState!.chapterIndex
+                let chapterIndex = state.mangaReadingViewState!.chapter.attributes.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
 
                 guard let info = env.mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {

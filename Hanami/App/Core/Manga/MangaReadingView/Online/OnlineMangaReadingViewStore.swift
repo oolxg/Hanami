@@ -59,32 +59,6 @@ enum OnlineMangaReadingViewAction {
 }
 
 // swiftlint:disable:next line_length
-let mangaReadingViewReducer: Reducer<MangaReadingViewState, MangaReadingViewAction, MangaReadingViewEnvironment> = .combine(
-    onlineMangaReadingViewReducer.pullback(
-        state: /MangaReadingViewState.online,
-        action: /MangaReadingViewAction.online,
-        environment: { .init(
-            databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient,
-            imageClient: $0.imageClient,
-            mangaClient: $0.mangaClient,
-            hudClient: $0.hudClient
-        ) }
-    ),
-    offlineMangaReadingViewReducer.pullback(
-        state: /MangaReadingViewState.offline,
-        action: /MangaReadingViewAction.offline,
-        environment: { .init(
-            databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient,
-            imageClient: $0.imageClient,
-            mangaClient: $0.mangaClient,
-            hudClient: $0.hudClient
-        ) }
-    )
-)
-
-    // swiftlint:disable:next line_length
 let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMangaReadingViewAction, MangaReadingViewEnvironment> = .combine(
     Reducer { state, action, env in
         switch action {

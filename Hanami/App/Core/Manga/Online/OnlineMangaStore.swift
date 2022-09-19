@@ -32,7 +32,7 @@ struct OnlineMangaViewState: Equatable {
     
     // MARK: - Props for MangaReadingView
     @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: MangaReadingViewState?
+    var mangaReadingViewState: OnlineMangaReadingViewState?
      
     var mainCoverArtURL: URL?
     var coverArtURL256: URL?
@@ -67,7 +67,7 @@ enum OnlineMangaViewAction: BindableAction {
     case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
     
     // MARK: - Substate actions
-    case mangaReadingViewAction(MangaReadingViewAction)
+    case mangaReadingViewAction(OnlineMangaReadingViewAction)
     case pagesAction(PagesAction)
     
     // MARK: - Binding
@@ -98,7 +98,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             hudClient: $0.hudClient
         ) }
     ),
-    mangaReadingViewReducer.optional().pullback(
+    onlineMangaReadingViewReducer.optional().pullback(
         state: \.mangaReadingViewState,
         action: /OnlineMangaViewAction.mangaReadingViewAction,
         environment: { .init(
@@ -232,21 +232,19 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
     Reducer { state, action, env in
         switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
-                state.mangaReadingViewState = .online(
-                    OnlineMangaReadingViewState(
-                        mangaID: state.manga.id,
-                        chapterID: chapter.id,
-                        chapterIndex: chapter.attributes.chapterIndex,
-                        scanlationGroupID: chapter.scanlationGroupID,
-                        translatedLanguage: chapter.attributes.translatedLanguage
-                    )
+                state.mangaReadingViewState = OnlineMangaReadingViewState(
+                    mangaID: state.manga.id,
+                    chapterID: chapter.id,
+                    chapterIndex: chapter.attributes.chapterIndex,
+                    scanlationGroupID: chapter.scanlationGroupID,
+                    translatedLanguage: chapter.attributes.translatedLanguage
                 )
                 
                 state.isUserOnReadingView = true
 
-                return .task { .mangaReadingViewAction(.online(.userStartedReadingChapter)) }
+                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
-            case .mangaReadingViewAction(.online(.userStartedReadingChapter)):
+            case .mangaReadingViewAction(.userStartedReadingChapter):
                 let chapterIndex = state.mangaReadingViewState?.chapterIndex
                 let volumes = state.pagesState!.splitIntoPagesVolumeTabStates
                 
@@ -257,7 +255,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                 return .none
 
                 
-            case .mangaReadingViewAction(.online(.userLeftMangaReadingView)):
+            case .mangaReadingViewAction(.userLeftMangaReadingView):
                 defer { state.isUserOnReadingView = false }
                 
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
