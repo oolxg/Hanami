@@ -75,20 +75,14 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
                 }
                 
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
-                return .task {
-                    let delay = UInt64(1_000_000_000 * 0.2)
-                    try await Task.sleep(nanoseconds: delay)
-                    
-                    return .retrieveCachedManga
-                }
+                return .task { .retrieveCachedManga }
+                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
                 
             case .cachedMangaThumbnailAction(_, .userLeftMangaView):
-                return .task {
-                    let delay = UInt64(1_000_000_000 * 0.2)
-                    try await Task.sleep(nanoseconds: delay)
-                    
-                    return .retrieveCachedManga
-                }
+                return .task { .retrieveCachedManga }
+                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
                 
 
             case .cachedMangaThumbnailAction:

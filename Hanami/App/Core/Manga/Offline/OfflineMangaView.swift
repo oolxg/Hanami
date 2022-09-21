@@ -240,10 +240,10 @@ extension OfflineMangaView {
                         FlexibleView(
                             data: viewStore.manga.authors.map(\.name),
                             spacing: 10,
-                            alignment: .leading
-                        ) { authorName in
-                            makeChipsView(text: authorName)
-                        }
+                            alignment: .leading,
+                            content: makeChipsView
+                        )
+                        .padding(.horizontal, 5)
                     }
                 }
                 
@@ -281,6 +281,7 @@ extension OfflineMangaView {
                     alignment: .leading,
                     content: makeChipsView
                 )
+                .padding(.horizontal, 5)
                 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {

@@ -124,24 +124,21 @@ extension SearchView {
     private var mangaList: some View {
         WithViewStore(store.actionless) { viewStore in
             ScrollView {
-                VStack(spacing: 0) {
-                    if !viewStore.searchResults.isEmpty {
-                        ForEachStore(
-                            store.scope(
-                                state: \.searchResults,
-                                action: SearchAction.mangaThumbnailAction)
-                        ) { thumbnailStore in
-                            MangaThumbnailView(store: thumbnailStore)
-                                .padding()
-                        }
-                        
-                        if !viewStore.searchResults.isEmpty &&
-                            viewStore.resultsCount != viewStore.searchResults.count {
-                            Text("Only \(viewStore.searchResults.count) titles available")
-                                .font(.headline)
-                                .fontWeight(.black)
-                                .padding()
-                        }
+                LazyVStack(spacing: 0) {
+                    ForEachStore(
+                        store.scope(
+                            state: \.searchResults,
+                            action: SearchAction.mangaThumbnailAction)
+                    ) { thumbnailStore in
+                        MangaThumbnailView(store: thumbnailStore)
+                            .padding()
+                    }
+                    
+                    if !viewStore.searchResults.isEmpty && viewStore.resultsCount != viewStore.searchResults.count {
+                        Text("Only \(viewStore.searchResults.count) titles available")
+                            .font(.headline)
+                            .fontWeight(.black)
+                            .padding()
                     }
                 }
                 .animation(.linear, value: viewStore.searchResults.isEmpty)

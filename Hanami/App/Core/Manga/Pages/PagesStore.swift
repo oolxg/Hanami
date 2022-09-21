@@ -16,7 +16,7 @@ struct PagesState: Equatable {
             volume.chapters.map { (chapter: $0, volumeIndex: volume.volumeIndex) }
         }
         
-        // all chapters chunked into 'pages' - as they will be show to user
+        // all chapters chunked into 'pages' - as they will be shown to user
         for chaptersOnPage in allMangaChapters.chunked(into: chaptersPerPage) {
             var volumesOnPage: [MangaVolume] = []
             var chaptersWithTheSameVolumeIndex: [(chapter: Chapter, volumeIndex: Double?)] = []
@@ -37,7 +37,7 @@ struct PagesState: Equatable {
                     chaptersWithTheSameVolumeIndex = [chapter]
                 }
                 
-                // if chapter is the last on page, we add it
+                // if chapter is the last chapter on page, we add it too
                 if chapter == chaptersOnPage.last! {
                     volumesOnPage.append(
                         MangaVolume(
@@ -53,15 +53,15 @@ struct PagesState: Equatable {
             )
         }
         
-        // if we have some chapters, we add it to 'volumeTabStatesOnCurrentPage'
+        // if manga has at least on chapter, we show it on current(first) page
         // 'volumeTabStatesOnCurrentPage' - this is volumes, that gonna be displayed on page
         if !splitIntoPagesVolumeTabStates.isEmpty {
             volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates.first!)
         }
     }
     
-    // init for offline use
-    init(manga: Manga, chaptersDetailsList: [ChapterDetails], chaptersPerPages: Int = 10) {
+    // MARK: - init for offline usage
+    init(manga: Manga, chaptersDetailsList: [ChapterDetails], chaptersPerPages: Int) {
         var volumesDict: [Double?: [ChapterDetails]] = [:]
         
         // splitting chapters into arrays according to 'chapter.attributes.volumeIndex'
@@ -118,10 +118,8 @@ struct PagesState: Equatable {
             }
             
             // almost alway chapter has 'chapterIndex'
-            // if not, most likely it's oneshot or sth, that should be at the beginning
-            chapters.sort {
-                ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1)
-            }
+            // if not, most likely it's oneshot or sth, that should be at the beginning(in our pagination = in the end)
+            chapters.sort { ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1) }
             
             volumes.append((
                 volume: MangaVolume(chapters: chapters, volumeIndex: volumeIndex),
@@ -134,9 +132,7 @@ struct PagesState: Equatable {
         // sorting volmues by volumeIndex
         // typically the most fresh chapters stored in 'No Volume'(volumes w/o 'volumeIndex')
         // so we show this volume in the first place
-        volumes.sort {
-            ($0.volume.volumeIndex ?? 9999) > ($1.volume.volumeIndex ?? 9999)
-        }
+        volumes.sort { ($0.volume.volumeIndex ?? 9999) > ($1.volume.volumeIndex ?? 9999) }
         
         // here we're shaped the data(volumes) as they were for online reading
         // and we can use another initializer
@@ -203,21 +199,22 @@ let pagesReducer: Reducer<PagesState, PagesAction, PagesEnvironment> = .combine(
                 return .concatenate(
                     .cancel(ids: chapterIDs.map { ChapterState.CancelChapterFetch(id: $0) }),
                     
-                    Effect(value: .changePageAfterEffectCancellation(newPageIndex: newPageIndex))
+                    .task { .changePageAfterEffectCancellation(newPageIndex: newPageIndex) }
                 )
                 
             case .changePageAfterEffectCancellation(let newPageIndex):
                 state.lockPage = true
                 state.currentPageIndex = newPageIndex
-                return .task {
-                    let delay = UInt64(1_000_000_000 * 0.3)
-                    try await Task.sleep(nanoseconds: delay)
-                    
-                    return .unlockPage
-                }
+                return .task { .unlockPage }
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
                 
             case .unlockPage:
                 state.lockPage = false
+                return .none
+                
+            case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume):
+                state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
                 return .none
                 
             case .volumeTabAction:

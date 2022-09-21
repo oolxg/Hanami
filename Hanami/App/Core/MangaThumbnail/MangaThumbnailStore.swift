@@ -37,6 +37,10 @@ struct MangaThumbnailState: Equatable, Identifiable {
         onlineMangaState?.statistics
     }
     
+    var isOnline: Bool {
+        onlineMangaState != nil
+    }
+    
     var id: UUID { manga.id }
 }
 
@@ -60,14 +64,7 @@ struct MangaThumbnailEnvironment {
     let hudClient: HUDClient
 }
 
-let mangaThumbnailReducer = Reducer.combine(
-    onlineMangaThumbnailReducer,
-    offlineMangaThumbnailReducer
-)
-
-
-// swiftlint:disable:next line_length
-let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment>  = .combine(
+let mangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment> = .combine(
     offlineMangaViewReducer.optional().pullback(
         state: \.offlineMangaState,
         action: /MangaThumbnailAction.offlineMangaAction,
@@ -80,31 +77,6 @@ let offlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAct
             hudClient: $0.hudClient
         ) }
     ),
-    Reducer { state, action, env in
-        guard state.offlineMangaState != nil else {
-            return .none
-        }
-        
-        switch action {
-            case .onAppear:
-                guard state.offlineMangaState!.coverArtPath == nil else {
-                    return .none
-                }
-                
-                state.offlineMangaState!.coverArtPath = env.mangaClient.getCoverArtPath(
-                    state.manga.id, env.cacheClient
-                )
-                
-                return .none
-                
-            default:
-                return .none
-        }
-    }
-)
-
-// swiftlint:disable:next line_length
-let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, MangaThumbnailEnvironment> = .combine(
     onlineMangaViewReducer.optional().pullback(
         state: \.onlineMangaState,
         action: /MangaThumbnailAction.onlineMangaAction,
@@ -118,17 +90,21 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
         ) }
     ),
     Reducer { state, action, env in
-        guard state.onlineMangaState != nil else {
-            return .none
-        }
-        
         switch action {
             case .onAppear:
-                if state.coverArtInfo == nil,
+                if state.isOnline, state.coverArtInfo == nil,
                    let coverArtID = state.manga.relationships.first(where: { $0.type == .coverArt })?.id {
                     return env.mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
+                } else if !state.isOnline {
+                    guard state.offlineMangaState!.coverArtPath == nil else {
+                        return .none
+                    }
+                    
+                    state.offlineMangaState!.coverArtPath = env.mangaClient.getCoverArtPath(
+                        state.manga.id, env.cacheClient
+                    )
                 }
                 
                 return .none
@@ -165,14 +141,10 @@ let onlineMangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailActi
             case .userLeftMangaView:
                 // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
                 // Can be cancelled if user returns wihing 60 sec.
-                return .task {
-                    let sixtySeconds: UInt64 = 1_000_000_000 * 60
-                    try await Task.sleep(nanoseconds: sixtySeconds)
-                    
-                    return MangaThumbnailAction.userLeftMangaViewDelayCompleted
-                }
-                .eraseToEffect()
-                .cancellable(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
+                return .task { MangaThumbnailAction.userLeftMangaViewDelayCompleted }
+                    .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
+                    .cancellable(id: OnlineMangaViewState.CancelClearCache(mangaID: state.manga.id))
 
             case .userLeftMangaViewDelayCompleted:
                 state.onlineMangaState!.reset()

@@ -281,6 +281,7 @@ extension OnlineMangaView {
                         ) { authorName in
                             makeChipsView(text: authorName)
                         }
+                        .padding(.horizontal, 5)
                     }
                 }
                 
@@ -318,6 +319,7 @@ extension OnlineMangaView {
                 ) { tag in
                     makeChipsView(text: tag.name.capitalized)
                 }
+                .padding(.horizontal, 5)
 
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {

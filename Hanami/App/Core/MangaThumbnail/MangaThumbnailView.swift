@@ -26,7 +26,7 @@ struct MangaThumbnailView: View {
         let coverArtURL: URL?
         
         init(state: MangaThumbnailState) {
-            isOnline = state.onlineMangaState != nil
+            isOnline = state.isOnline
             manga = state.manga
             mangaStatistics = state.mangaStatistics
             coverArtURL = isOnline ? state.coverArtInfo?.coverArtURL256 : state.offlineMangaState?.coverArtPath
@@ -52,11 +52,7 @@ struct MangaThumbnailView: View {
             .padding(10)
         }
         .frame(width: isCompact ? 250 : nil, height: 150)
-        .onAppear { ViewStore(store).send(.onAppear) }
         .onTapGesture { isNavigationLinkActive.toggle() }
-        .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-            ViewStore(store).send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-        }
     }
 }
 
@@ -102,24 +98,29 @@ extension MangaThumbnailView {
                         .font(.footnote)
                 }
             }
+            .onAppear { viewStore.send(.onAppear) }
+            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
+                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
+            }
         }
     }
+    
     private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             KFImage.url(viewStore.coverArtURL)
                 .placeholder {
-                    Color.black
-                        .opacity(0.45)
+                    Color.clear
                         .redacted(reason: .placeholder)
+                        .frame(width: 100, height: 150)
                 }
+                .processingQueue(.dispatch(.global(qos: .background)))
                 .retry(maxCount: 2)
                 .backgroundDecode()
                 .fade(duration: 0.5)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 150)
-                .clipped()
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
     

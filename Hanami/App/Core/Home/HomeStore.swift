@@ -163,7 +163,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(HomeAction.seasonalMangaListFetched),
                     
-                    Effect(value: .refreshDelayCompleted)
+                    .task { .refreshDelayCompleted }
                         .delay(for: .seconds(3), scheduler: DispatchQueue.main)
                         .eraseToEffect()
                 )

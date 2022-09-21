@@ -38,6 +38,7 @@ extension VolumeTabState: Identifiable {
 
 enum VolumeTabAction {
     case chapterAction(id: UUID, action: ChapterAction)
+    case userDeletedLastChapterInVolume
 }
 
 struct VolumeTabEnvironment {
@@ -60,5 +61,26 @@ let volumeTabReducer: Reducer<VolumeTabState, VolumeTabAction, VolumeTabEnvironm
             mangaClient: $0.mangaClient,
             hudClient: $0.hudClient
         ) }
-    )
+    ),
+    Reducer { state, action, _ in
+        switch action {
+            case .chapterAction(let chapterStateID, action: .chapterDeletionConfirmed):
+                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
+                    state.chapterStates.remove(id: chapterStateID)
+                    
+                    if state.chapterStates.isEmpty {
+                        return .task { .userDeletedLastChapterInVolume }
+                    }
+                }
+                
+                return .none
+                
+            // to be hijacked inside pagesReducer
+            case .userDeletedLastChapterInVolume:
+                return .none
+                
+            case .chapterAction:
+                return .none
+        }
+    }
 )

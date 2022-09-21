@@ -203,7 +203,7 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
                 return .merge(
                     .cancel(id: CancelSearch()),
                     
-                    Effect(value: .searchForManga)
+                    .task { .searchForManga }
                         .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
                         .eraseToEffect()
                 )

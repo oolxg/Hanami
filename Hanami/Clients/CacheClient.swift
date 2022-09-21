@@ -28,7 +28,7 @@ struct CacheClient {
     
     private static let cacheQueue = DispatchQueue(
         label: "moe.mkpwnz.Hanami.CacheClient",
-        qos: .userInitiated,
+        qos: .utility,
         attributes: .concurrent
     )
     
