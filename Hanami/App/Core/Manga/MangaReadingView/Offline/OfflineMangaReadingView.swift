@@ -45,6 +45,7 @@ struct OfflineMangaReadingView: View {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                             }
+                            .backgroundDecode()
                             .resizable()
                             .scaledToFit()
                     }
@@ -123,7 +124,7 @@ struct OfflineMangaReadingView: View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
-                    HStack(spacing: 3) {
+                    LazyHStack(spacing: 3) {
                         Color.clear.frame(width: 10)
                         
                         ForEach(viewStore.chapterIndexes, id: \.self) { chapterIndex in
@@ -134,13 +135,9 @@ struct OfflineMangaReadingView: View {
                                         .fill(.black)
                                 )
                                 .frame(width: 50, height: 50)
-                                .overlay(
-                                    Text(chapterIndex.clean())
-                                )
+                                .overlay { Text(chapterIndex.clean()) }
                                 .id(chapterIndex)
                                 .onTapGesture {
-                                    guard chapterIndex != viewStore.chapterIndex else { return }
-                                    
                                     viewStore.send(.changeChapter(newChapterIndex: chapterIndex))
                                 }
                         }

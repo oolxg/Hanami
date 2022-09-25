@@ -16,7 +16,6 @@ struct OnlineMangaReadingView: View {
     
     private struct ViewState: Equatable {
         let pagesURLs: [URL]
-        let isPagesInfoFetched: Bool
         let pagesCount: Int?
         let startFromLastPage: Bool
         let chapterIndex: Double?
@@ -25,7 +24,6 @@ struct OnlineMangaReadingView: View {
         
         init(state: OnlineMangaReadingViewState) {
             pagesURLs = state.pagesInfo?.dataSaverURLs ?? []
-            isPagesInfoFetched = state.pagesInfo != nil
             pagesCount = state.pagesCount
             startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex
@@ -37,7 +35,25 @@ struct OnlineMangaReadingView: View {
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(selection: $currentPageIndex) {
-                pages
+                Color.clear
+                    .tag(-1)
+                
+                ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
+                    ZoomableScrollView {
+                        KFImage.url(viewStore.pagesURLs[pageIndex])
+                            .placeholder {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            }
+                            .backgroundDecode()
+                            .retry(maxCount: 2)
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+                
+                Color.clear
+                    .tag(viewStore.afterLastPageIndex)
             }
             .onChange(of: viewStore.pagesCount) { _ in
                 if viewStore.startFromLastPage && viewStore.pagesCount != nil {
@@ -51,7 +67,7 @@ struct OnlineMangaReadingView: View {
             }
             .overlay(
                 ZStack {
-                    if !viewStore.isPagesInfoFetched {
+                    if viewStore.pagesURLs.isEmpty {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
@@ -67,32 +83,6 @@ struct OnlineMangaReadingView: View {
 }
 
 extension OnlineMangaReadingView {
-    private var pages: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            Color.clear
-                .tag(-1)
-            
-            ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
-                ZoomableScrollView {
-                    KFImage.url(
-                        viewStore.pagesURLs[pageIndex],
-                        cacheKey: viewStore.pagesURLs[pageIndex].absoluteString
-                    )
-                    .retry(maxCount: 3)
-                    .placeholder {
-                        ProgressView()
-                            .frame(width: 120)
-                    }
-                    .resizable()
-                    .scaledToFit()
-                }
-            }
-            
-            Color.clear
-                .tag(viewStore.afterLastPageIndex)
-        }
-    }
-    
     private var backButton: some View {
         Button {
             ViewStore(store).send(.userLeftMangaReadingView)
@@ -155,9 +145,9 @@ extension OnlineMangaReadingView {
     
     private var chaptersCarousel: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            ScrollView(.horizontal, showsIndicators: false) {
-                ScrollViewReader { proxy in
-                    HStack(spacing: 3) {
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 3) {
                         Color.clear.frame(width: 10)
                         
                         ForEach(viewStore.chapterIndexes, id: \.self) { chapterIndex in
@@ -168,13 +158,9 @@ extension OnlineMangaReadingView {
                                         .fill(.black)
                                 )
                                 .frame(width: 50, height: 50)
-                                .overlay(
-                                    Text(chapterIndex.clean())
-                                )
+                                .overlay(Text(chapterIndex.clean()))
                                 .id(chapterIndex)
                                 .onTapGesture {
-                                    guard chapterIndex != viewStore.chapterIndex else { return }
-                                    
                                     viewStore.send(.changeChapter(newChapterIndex: chapterIndex))
                                 }
                         }

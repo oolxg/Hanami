@@ -113,10 +113,8 @@ extension MangaThumbnailView {
                         .redacted(reason: .placeholder)
                         .frame(width: 100, height: 150)
                 }
-                .processingQueue(.dispatch(.global(qos: .background)))
                 .retry(maxCount: 2)
                 .backgroundDecode()
-                .fade(duration: 0.5)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 100, height: 150)
@@ -189,6 +187,7 @@ extension MangaThumbnailView {
                 }
             }
             .font(.footnote)
+            .frame(height: 15)
         }
     }
 }

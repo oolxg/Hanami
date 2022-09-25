@@ -146,6 +146,10 @@ extension Manga {
         
         return nil
     }
+    
+    var coverArtID: UUID? {
+        relationships.first(where: { $0.type == .coverArt })?.id
+    }
 }
 
 extension Tag: Hashable {

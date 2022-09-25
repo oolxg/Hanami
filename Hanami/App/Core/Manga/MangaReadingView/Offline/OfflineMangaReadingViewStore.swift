@@ -30,7 +30,7 @@ enum OfflineMangaReadingViewAction {
     case userChangedPage(newPageIndex: Int)
     
     case moveToNextChapter
-    case moveToPreviousChapter(startFromLastPage: Bool)
+    case moveToPreviousChapter
     case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
     
@@ -90,7 +90,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 }
                 
                 if newPageIndex == -1 {
-                    return .task { .moveToPreviousChapter(startFromLastPage: true) }
+                    return .task { .moveToPreviousChapter }
                 } else if newPageIndex == state.pagesCount {
                     return .task { .moveToNextChapter }
                 }
@@ -113,7 +113,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 
                 guard let pagesCount = env.databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount else {
                     env.hudClient.show(message: "🙁 Internal error occured.")
-                    return .none
+                    return .task { .userLeftMangaReadingView }
                 }
                 
                 let sameScanlationGroupChapters = state.sameScanlationGroupChapters
@@ -142,7 +142,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
                 guard let pagesCount = env.databaseClient.fetchChapter(chapterID: nextChapter.id)?.pagesCount else {
                     env.hudClient.show(message: "🙁 Internal error occured.")
-                    return .none
+                    return .task { .userLeftMangaReadingView }
                 }
                 
                 let sameScanlationGroupChapters = state.sameScanlationGroupChapters
@@ -158,7 +158,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 
                 return .task { .userStartedReadingChapter }
                 
-            case .moveToPreviousChapter(let startFromLastPage):
+            case .moveToPreviousChapter:
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
                     state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
                 )
@@ -172,7 +172,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
 
                 guard let pagesCount = env.databaseClient.fetchChapter(chapterID: previousChapter.id)?.pagesCount else {
                     env.hudClient.show(message: "🙁 Internal error occured.")
-                    return .none
+                    return .task { .userLeftMangaReadingView }
                 }
                 
                 let sameScanlationGroupChapters = state.sameScanlationGroupChapters
@@ -181,7 +181,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                     mangaID: state.mangaID,
                     chapter: previousChapter,
                     pagesCount: pagesCount,
-                    startFromLastPage: startFromLastPage
+                    startFromLastPage: true
                 )
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters

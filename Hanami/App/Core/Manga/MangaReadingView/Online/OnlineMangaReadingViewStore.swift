@@ -53,7 +53,7 @@ enum OnlineMangaReadingViewAction {
     case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
     
     case moveToNextChapter
-    case moveToPreviousChapters(startFromLastPage: Bool)
+    case moveToPreviousChapter
     case changeChapter(newChapterIndex: Double)
     case userLeftMangaReadingView
 }
@@ -105,7 +105,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 guard state.pagesInfo != nil else { return .none }
 
                 if newPageIndex == -1 {
-                    return .task { .moveToPreviousChapters(startFromLastPage: true) }
+                    return .task { .moveToPreviousChapter }
                 } else if newPageIndex == state.afterLastPageIndex {
                     return .task { .moveToNextChapter }
                 }
@@ -175,7 +175,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                 
                 return .task { .userStartedReadingChapter }
                 
-            case .moveToPreviousChapters(let startFromLastPage):
+            case .moveToPreviousChapter:
                 let previousChapterIndex = env.mangaClient.computePreviousChapterIndex(
                     state.chapterIndex, state.sameScanlationGroupChapters
                 )
@@ -195,7 +195,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                     chapterIndex: previousChapter.chapterIndex,
                     scanlationGroupID: state.scanlationGroupID,
                     translatedLanguage: state.translatedLanguage,
-                    startFromLastPage: startFromLastPage
+                    startFromLastPage: true
                 )
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
