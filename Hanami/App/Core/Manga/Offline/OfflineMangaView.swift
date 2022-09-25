@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Kingfisher
+import NukeUI
 
 struct OfflineMangaView: View {
     let store: Store<OfflineMangaViewState, OfflineMangaViewAction>
@@ -102,15 +102,13 @@ extension OfflineMangaView {
         }
     }
     
-    private var header: some View {
+    @MainActor private var header: some View {
         WithViewStore(store) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                KFImage.url(viewStore.coverArtPath)
-                    .resizable()
-                    .scaledToFill()
+                LazyImage(url: viewStore.coverArtPath, resizingMode: .aspectFill)
                     .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
                     .overlay(headerOverlay)
                     .cornerRadius(0)

@@ -7,31 +7,30 @@
 
 import Combine
 import ComposableArchitecture
-import Kingfisher
+import Nuke
 import Foundation
 import class SwiftUI.UIImage
 
 struct ImageClient {
-    let prefetchImages: ([URL], KingfisherOptionsInfo?) -> Effect<Never, Never>
-    let downloadImage: (URL, KingfisherOptionsInfo?) -> Effect<Result<UIImage, AppError>, Never>
+    let prefetchImages: ([URL]) -> Effect<Never, Never>
+    let downloadImage: (URL) -> Effect<Result<UIImage, AppError>, Never>
 }
 
 extension ImageClient {
     static var live = ImageClient(
-        prefetchImages: { urls, options in
+        prefetchImages: { urls in
             .fireAndForget {
-                ImagePrefetcher(urls: urls, options: options).start()
+                ImagePrefetcher().startPrefetching(with: urls)
             }
         },
-        downloadImage: { url, options in
+        downloadImage: { url in
             Future { promise in
-                KingfisherManager.shared.downloader.downloadImage(with: url, options: options) { result in
-                    switch result {
-                        case .success(let response):
-                            return promise(.success(response.image))
-                        case .failure(let error):
-                            return promise(.failure(.kingfisherError(error)))
+                DispatchQueue.global().async {
+                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                        return promise(.success(image))
                     }
+                    
+                    return promise(.failure(.networkError(URLError(URLError.Code.badServerResponse))))
                 }
             }
             .retry(3)

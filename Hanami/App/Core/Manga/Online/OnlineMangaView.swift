@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Kingfisher
+import NukeUI
 
 struct OnlineMangaView: View {
     let store: Store<OnlineMangaViewState, OnlineMangaViewAction>
@@ -107,26 +107,25 @@ extension OnlineMangaView {
         }
     }
     
-    private var header: some View {
+    @MainActor private var header: some View {
         WithViewStore(store) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                KFImage.url(viewStore.mainCoverArtURL)
-                    .placeholder {
-                        KFImage.url(viewStore.coverArtURL256)
-                            .onlyFromCache()
-                            .resizable()
-                            .scaledToFill()
+                ZStack {
+                    LazyImage(url: viewStore.mainCoverArtURL) { state in
+                        if let image = state.image {
+                            image.resizingMode(.aspectFill)
+                        } else if state.isLoading || state.error != nil {
+                            LazyImage(url: viewStore.coverArtURL256, resizingMode: .aspectFill)
+                        }
                     }
-                    .retry(maxCount: 3)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
-                    .overlay(headerOverlay)
-                    .cornerRadius(0)
-                    .offset(y: -minY)
+                }
+                .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
+                .overlay(headerOverlay)
+                .cornerRadius(0)
+                .offset(y: -minY)
             }
             .frame(height: 350)
         }
@@ -189,7 +188,7 @@ extension OnlineMangaView {
     }
     
     
-    private var mangaBodyView: some View {
+    @MainActor private var mangaBodyView: some View {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
                 case .info:
@@ -214,31 +213,34 @@ extension OnlineMangaView {
         .padding(.horizontal, 5)
     }
     
-    private var coverArtTab: some View {
+    @MainActor private var coverArtTab: some View {
         WithViewStore(store.actionless) { viewStore in
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
                 ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
-                    KFImage.url(viewStore.croppedCoverArtURLs[coverArtIndex])
-                        .retry(maxCount: 3)
-                        .fade(duration: 0.3)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 240)
-                        .padding(.horizontal, 5)
-                        .overlay(
-                            ZStack(alignment: .bottom) {
-                                if let volumeName = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
-                                    LinearGradient(
-                                        colors: [.clear, .clear, .black],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                    
-                                    Text("Volume \(volumeName)")
-                                        .font(.callout)
-                                }
-                            }
-                        )
+                    LazyImage(url: viewStore.croppedCoverArtURLs[coverArtIndex]) { state in
+                        if let image = state.image {
+                            image
+                                .resizingMode(.aspectFit)
+                                .overlay(
+                                    ZStack(alignment: .bottom) {
+                                        if let volume = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
+                                            LinearGradient(
+                                                colors: [.clear, .clear, .black],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                            
+                                            Text("Volume \(volume)")
+                                                .font(.callout)
+                                        }
+                                    }
+                                )
+                        } else if state.isLoading || state.error != nil {
+                            ProgressView()
+                        }
+                    }
+                    .frame(height: 240)
+                    .padding(.horizontal, 5)
                 }
             }
             .padding()

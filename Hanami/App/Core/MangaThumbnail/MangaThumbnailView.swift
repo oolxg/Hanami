@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Kingfisher
+import NukeUI
 
 struct MangaThumbnailView: View {
     init(store: Store<MangaThumbnailState, MangaThumbnailAction>, compact: Bool = false) {
@@ -105,20 +105,20 @@ extension MangaThumbnailView {
         }
     }
     
-    private var coverArt: some View {
+    @MainActor private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            KFImage.url(viewStore.coverArtURL)
-                .placeholder {
+            LazyImage(url: viewStore.coverArtURL) { state in
+                if let image = state.image {
+                    image
+                        .resizingMode(.aspectFill)
+                        .frame(width: 100, height: 150)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else if state.isLoading || state.error != nil {
                     Color.clear
                         .redacted(reason: .placeholder)
                         .frame(width: 100, height: 150)
                 }
-                .retry(maxCount: 2)
-                .backgroundDecode()
-                .resizable()
-                .scaledToFill()
-                .frame(width: 100, height: 150)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
         }
     }
     

@@ -53,7 +53,7 @@ let offlineMangaReadingViewReducer: Reducer<OfflineMangaReadingViewState, Offlin
                 
                 var effects: [Effect<OfflineMangaReadingViewAction, Never>] = [
                     env.imageClient
-                        .prefetchImages(state.cachedPagesPaths.compactMap { $0 }, nil)
+                        .prefetchImages(state.cachedPagesPaths.compactMap { $0 })
                         .fireAndForget()
                 ]
                 

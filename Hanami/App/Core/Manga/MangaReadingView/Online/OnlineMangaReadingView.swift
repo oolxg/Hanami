@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Kingfisher
+import NukeUI
 
 struct OnlineMangaReadingView: View {
     let store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
@@ -40,15 +40,14 @@ struct OnlineMangaReadingView: View {
                 
                 ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
                     ZoomableScrollView {
-                        KFImage.url(viewStore.pagesURLs[pageIndex])
-                            .placeholder {
+                        LazyImage(url: viewStore.pagesURLs[pageIndex]) { state in
+                            if let image = state.image {
+                                image.resizingMode(.aspectFit)
+                            } else if state.isLoading || state.error != nil {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                             }
-                            .backgroundDecode()
-                            .retry(maxCount: 2)
-                            .resizable()
-                            .scaledToFit()
+                        }
                     }
                 }
                 

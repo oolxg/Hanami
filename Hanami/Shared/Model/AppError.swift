@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import enum Kingfisher.KingfisherError
 
 enum AppError: Error {
     case networkError(URLError)
@@ -15,7 +14,6 @@ enum AppError: Error {
     case notFound
     case databaseError(String)
     case cacheError(String)
-    case kingfisherError(KingfisherError)
 }
 
 extension AppError: Equatable {
@@ -37,9 +35,6 @@ extension AppError: Equatable {
                 return true
                 
             case (.cacheError, .cacheError):
-                return true
-                
-            case (.kingfisherError, .kingfisherError):
                 return true
                 
             default:
@@ -110,9 +105,6 @@ extension AppError: Equatable {
                 
             case .databaseError(let errorStr):
                 return errorStr
-                
-            case .kingfisherError(let error):
-                return error.localizedDescription
         }
     }
 }

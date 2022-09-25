@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import Kingfisher
+import NukeUI
 
 struct OfflineMangaReadingView: View {
     let store: Store<OfflineMangaReadingViewState, OfflineMangaReadingViewAction>
@@ -40,14 +40,14 @@ struct OfflineMangaReadingView: View {
                 
                 ForEach(viewStore.cachedPagesPaths.indices, id: \.self) { pagePathIndex in
                     ZoomableScrollView {
-                        KFImage.url(viewStore.cachedPagesPaths[pagePathIndex])
-                            .placeholder {
+                        LazyImage(url: viewStore.cachedPagesPaths[pagePathIndex]) { state in
+                            if let image = state.image {
+                                image.resizingMode(.aspectFit)
+                            } else if state.isLoading || state.error != nil {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                             }
-                            .backgroundDecode()
-                            .resizable()
-                            .scaledToFit()
+                        }
                     }
                 }
                 

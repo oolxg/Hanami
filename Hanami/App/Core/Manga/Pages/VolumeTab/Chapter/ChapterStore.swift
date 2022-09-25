@@ -349,7 +349,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .enumerated()
                         .map { i, url in
                             env.imageClient
-                                .downloadImage(url, nil)
+                                .downloadImage(url)
                                 .eraseToEffect {
                                     ChapterAction.chapterPageForCachingFetched($0, pageIndex: i, chapter)
                                 }

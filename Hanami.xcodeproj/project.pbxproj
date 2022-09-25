@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DB65E28E11BD100AF5323 /* NukeUI */; };
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
 		08B1346B28D2A8D000D1C85B /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B1346A28D2A8D000D1C85B /* Set.swift */; };
 		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
-		22048EB4286D0B3500FE6A54 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EB3286D0B3500FE6A54 /* Kingfisher */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
 		2205CBA02856A91900421888 /* UINavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9F2856A91900421888 /* UINavigationController.swift */; };
 		2210482A285B665700CE8CED /* MangaReadingViewEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22104829285B665700CE8CED /* MangaReadingViewEnvironment.swift */; };
@@ -240,8 +240,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				228FA49B288DBB4D00369529 /* Cache in Frameworks */,
-				22048EB4286D0B3500FE6A54 /* Kingfisher in Frameworks */,
 				22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */,
+				085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -626,8 +626,8 @@
 			name = Hanami;
 			packageProductDependencies = (
 				22048EAE286CC5B400FE6A54 /* ComposableArchitecture */,
-				22048EB3286D0B3500FE6A54 /* Kingfisher */,
 				228FA49A288DBB4D00369529 /* Cache */,
+				085DB65E28E11BD100AF5323 /* NukeUI */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami.app */;
@@ -703,8 +703,8 @@
 			mainGroup = 224C656F2827204000AAEF2E;
 			packageReferences = (
 				22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				22048EB2286D0B3500FE6A54 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				228FA499288DBB4C00369529 /* XCRemoteSwiftPackageReference "Cache" */,
+				085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */,
 			);
 			productRefGroup = 224C65792827204100AAEF2E /* Products */;
 			projectDirPath = "";
@@ -1199,20 +1199,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kean/Nuke";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
 		22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.9.0;
-			};
-		};
-		22048EB2286D0B3500FE6A54 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
 			};
 		};
 		228FA499288DBB4C00369529 /* XCRemoteSwiftPackageReference "Cache" */ = {
@@ -1226,15 +1226,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		085DB65E28E11BD100AF5323 /* NukeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */;
+			productName = NukeUI;
+		};
 		22048EAE286CC5B400FE6A54 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
-		};
-		22048EB3286D0B3500FE6A54 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 22048EB2286D0B3500FE6A54 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
 		};
 		228FA49A288DBB4D00369529 /* Cache */ = {
 			isa = XCSwiftPackageProductDependency;

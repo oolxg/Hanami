@@ -205,7 +205,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading(let chapter)))):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !env.mangaClient.isCoverArtCached(state.manga.id, env.cacheClient), let coverArtURL = state.mainCoverArtURL {
-                    return env.imageClient.downloadImage(coverArtURL, nil)
+                    return env.imageClient.downloadImage(coverArtURL)
                         .receive(on: DispatchQueue.main)
                         .eraseToEffect { .coverArtForCachingFetched($0) }
                 }

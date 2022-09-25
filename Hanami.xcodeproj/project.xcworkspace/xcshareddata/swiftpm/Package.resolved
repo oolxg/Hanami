@@ -19,12 +19,12 @@
       }
     },
     {
-      "identity" : "kingfisher",
+      "identity" : "nuke",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onevcat/Kingfisher",
+      "location" : "https://github.com/kean/Nuke",
       "state" : {
-        "revision" : "be1a1acb283a702b99b630f586877ba02234b4cb",
-        "version" : "7.3.2"
+        "revision" : "0d8a0dc3cca7432a6772ec546a7e5e1b20103bda",
+        "version" : "11.3.0"
       }
     },
     {

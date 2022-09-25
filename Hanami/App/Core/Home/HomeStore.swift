@@ -7,7 +7,6 @@
 
 import Foundation
 import ComposableArchitecture
-import Kingfisher
 
 struct HomeState: Equatable {
     var lastUpdatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
@@ -207,7 +206,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                                 .receive(on: DispatchQueue.main)
                                 .catchToEffect { HomeAction.statisticsFetched($0, keyPath) },
                             
-                            env.imageClient.prefetchImages(coverArtURLs, [.alsoPrefetchToMemory, .backgroundDecode])
+                            env.imageClient.prefetchImages(coverArtURLs)
                                 .fireAndForget()
                         )
                             
