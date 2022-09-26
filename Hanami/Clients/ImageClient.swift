@@ -14,13 +14,15 @@ import class SwiftUI.UIImage
 struct ImageClient {
     let prefetchImages: ([URL]) -> Effect<Never, Never>
     let downloadImage: (URL) -> Effect<Result<UIImage, AppError>, Never>
+    
+    private static let prefetcher = ImagePrefetcher(maxConcurrentRequestCount: 5)
 }
 
 extension ImageClient {
     static var live = ImageClient(
         prefetchImages: { urls in
             .fireAndForget {
-                ImagePrefetcher().startPrefetching(with: urls)
+                prefetcher.startPrefetching(with: urls)
             }
         },
         downloadImage: { url in

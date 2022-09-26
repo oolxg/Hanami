@@ -121,6 +121,7 @@ extension OnlineMangaView {
                             LazyImage(url: viewStore.coverArtURL256, resizingMode: .aspectFill)
                         }
                     }
+                    .animation(nil)
                 }
                 .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
                 .overlay(headerOverlay)
