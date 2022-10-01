@@ -32,7 +32,7 @@ extension ChapterDetails: ManagedObjectConvertible {
         chapterDetailsMO.id = id
         chapterDetailsMO.attributes = attributes.toData()!
         chapterDetailsMO.relationships = relationships.toData()!
-        chapterDetailsMO.fromManga = manga!
+        chapterDetailsMO.parentManga = manga!
         
         return chapterDetailsMO
     }

@@ -223,7 +223,7 @@ extension DatabaseClient {
 }
 
 extension DatabaseClient {
-    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, fromManga manga: Manga) -> Effect<Never, Never> {
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 var mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
@@ -241,7 +241,7 @@ extension DatabaseClient {
                     chapterDetailsManagedObject?.pagesCount = pagesCount
                     chapterDetailsManagedObject?.relationships = chapterDetails.relationships.toData()!
                     chapterDetailsManagedObject?.attributes = chapterDetails.attributes.toData()!
-                    chapterDetailsManagedObject?.fromManga = mangaMO!
+                    chapterDetailsManagedObject?.parentManga = mangaMO!
                 }
                 
                 if chapterDetailsMO == nil {
@@ -277,13 +277,12 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func fetchChapter(chapterID: UUID) -> (chapter: ChapterDetails, pagesCount: Int)? {
-        // swiftlint:disable:next identifier_name
-        guard let MO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
+    func fetchChapter(chapterID: UUID) -> CachedChapterEntry? {
+        guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
             return nil
         }
         
-        return (chapter: MO.toEntity(), pagesCount: MO.pagesCount)
+        return CachedChapterEntry(chapter: chapterMO.toEntity(), pagesCount: chapterMO.pagesCount)
     }
     
     func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {
@@ -293,15 +292,13 @@ extension DatabaseClient {
                     return
                 }
 
-                let leftChapters = chapterMO.fromManga.chapterDetailsSet.filter { $0.id != chapterID }
-                let parentMangaID = chapterMO.fromManga.id
+                let leftChaptersCount = chapterMO.parentManga.chapterDetailsSet.count - 1
                 
-                remove(entityType: ChapterDetailsMO.self, id: chapterID)
-                
-                saveContext()
-                
-                if leftChapters.isEmpty {
-                    _deleteManga(mangaID: parentMangaID)
+                if leftChaptersCount == 0 {
+                    _deleteManga(mangaID: chapterMO.parentManga.id)
+                } else {
+                    remove(entityType: ChapterDetailsMO.self, id: chapterID)
+                    saveContext()
                 }
             }
         }

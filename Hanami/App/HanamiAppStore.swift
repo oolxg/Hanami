@@ -50,7 +50,7 @@ let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
         switch action {
             case .initApp:
                 return .concatenate(
-//                  env.databaseClient.dropDatabase().fireAndForget()
+//                    env.databaseClient.dropDatabase().fireAndForget(),
                     env.databaseClient.prepareDatabase().fireAndForget(),
                     
                     .task { .rootAction(.downloadsAction(.retrieveCachedManga)) }

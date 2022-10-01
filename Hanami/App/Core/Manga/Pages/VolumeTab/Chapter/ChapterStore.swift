@@ -360,7 +360,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                             .saveChapterDetails(
                                 chapter,
                                 pagesCount: pagesInfo.pagesURLs.count,
-                                fromManga: state.parentManga
+                                parentManga: state.parentManga
                             )
                             .fireAndForget()
                     )

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21G83" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="ChapterDetailsMO" representedClassName="ChapterDetailsMO" syncable="YES">
         <attribute name="attributes" attributeType="Binary"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="pagesCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="relationships" attributeType="Binary"/>
-        <relationship name="fromManga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MangaMO" inverseName="chapterDetailsSet" inverseEntity="MangaMO"/>
+        <relationship name="parentManga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MangaMO" inverseName="chapterDetailsSet" inverseEntity="MangaMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -16,15 +16,11 @@
         <attribute name="attributes" optional="YES" attributeType="Binary"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="relationships" optional="YES" attributeType="Binary"/>
-        <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" destinationEntity="ChapterDetailsMO" inverseName="fromManga" inverseEntity="ChapterDetailsMO"/>
+        <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" destinationEntity="ChapterDetailsMO" inverseName="parentManga" inverseEntity="ChapterDetailsMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <elements>
-        <element name="ChapterDetailsMO" positionX="150.7620849609375" positionY="-9.60968017578125" width="128" height="104"/>
-        <element name="MangaMO" positionX="-54" positionY="-9" width="128" height="89"/>
-    </elements>
 </model>

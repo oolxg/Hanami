@@ -15,7 +15,7 @@ extension ChapterDetailsMO {
     @NSManaged public var id: UUID
     @NSManaged public var pagesCount: Int
     @NSManaged public var relationships: Data
-    @NSManaged public var fromManga: MangaMO
+    @NSManaged public var parentManga: MangaMO
 }
 
 extension ChapterDetailsMO: Identifiable { }
