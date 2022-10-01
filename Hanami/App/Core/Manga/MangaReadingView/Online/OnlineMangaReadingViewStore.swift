@@ -39,7 +39,7 @@ struct OnlineMangaReadingViewState: Equatable {
     var pagesInfo: ChapterPagesInfo?
     
     var pagesCount: Int? {
-        pagesInfo?.dataSaverURLs.count
+        pagesInfo?.pagesURLs.count
     }
     
     var sameScanlationGroupChapters: [Chapter] = []
@@ -93,7 +93,7 @@ let onlineMangaReadingViewReducer: Reducer<OnlineMangaReadingViewState, OnlineMa
                         state.pagesInfo = chapterPagesInfo
                         
                         return env.imageClient
-                            .prefetchImages(chapterPagesInfo.dataSaverURLs)
+                            .prefetchImages(chapterPagesInfo.pagesURLs)
                             .fireAndForget()
                         
                     case .failure(let error):

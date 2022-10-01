@@ -14,6 +14,7 @@ enum AppError: Error {
     case notFound
     case databaseError(String)
     case cacheError(String)
+    case imageError(String)
 }
 
 extension AppError: Equatable {
@@ -37,6 +38,9 @@ extension AppError: Equatable {
             case (.cacheError, .cacheError):
                 return true
                 
+            case (.imageError, .imageError):
+                return true
+                
             default:
                 return false
         }
@@ -48,7 +52,7 @@ extension AppError: Equatable {
                 switch err.errorCode {
                     /* NSURLErrorDomain codes */
                     case NSURLErrorUnknown:
-                        return "Some unknown error occured"
+                        return "Some network error occured: \(err.localizedDescription)"
                     case NSURLErrorBadURL:
                         return "Something wrong with URL"
                     case NSURLErrorTimedOut:
@@ -103,8 +107,11 @@ extension AppError: Equatable {
             case .cacheError(let errorStr):
                 return "Error occured while managing cache: \(errorStr)"
                 
-            case .databaseError(let errorStr):
-                return errorStr
+            case .imageError(let errorMessage):
+                return "Failed to decode image: \(errorMessage)"
+                
+            case .databaseError(let errorMessage):
+                return errorMessage
         }
     }
 }

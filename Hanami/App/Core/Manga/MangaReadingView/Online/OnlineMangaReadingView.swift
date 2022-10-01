@@ -23,7 +23,7 @@ struct OnlineMangaReadingView: View {
         let afterLastPageIndex: Int
         
         init(state: OnlineMangaReadingViewState) {
-            pagesURLs = state.pagesInfo?.dataSaverURLs ?? []
+            pagesURLs = state.pagesInfo?.pagesURLs ?? []
             pagesCount = state.pagesCount
             startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex
@@ -64,14 +64,12 @@ struct OnlineMangaReadingView: View {
             .onChange(of: currentPageIndex) {
                 viewStore.send(.userChangedPage(newPageIndex: $0))
             }
-            .overlay(
-                ZStack {
-                    if viewStore.pagesURLs.isEmpty {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    }
+            .overlay {
+                if viewStore.pagesURLs.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
-            )
+            }
         }
         .gesture(tapGesture)
         .gesture(swipeGesture)
@@ -120,7 +118,6 @@ extension OnlineMangaReadingView {
                             }
                             .font(.callout)
                             .padding(.horizontal)
-                            .transition(.opacity)
                             .animation(.linear, value: viewStore.pagesCount)
                             
                             Spacer()

@@ -73,19 +73,19 @@ struct CacheClient {
     let isCached: (String) -> Bool
     /// Removes all images from cache
     ///
-    /// - Note: Doesn't affect Kingfisher cache
+    /// - Note: Doesn't affect Nuke cache
     ///
     /// - Returns: `Effect<Never, Never>`
     let clearCache: () -> Effect<Never, Never>
     /// Computes cache for all save on disk images
     ///
-    /// - Note: Doesn't compute Kingfisher cache
+    /// - Note: Doesn't compute Nuke cache
     ///
     /// - Returns: `Effect<Result<Double, AppError>, Never>`: `Double` - cached size in Megabytes
     let computeCacheSize: () -> Effect<Swift.Result<Double, AppError>, Never>
     /// Returns path for image with given `imageName`
     ///
-    /// - Note: Doesn't affect cached images in Kingfisher
+    /// - Note: Doesn't affect cached images in Nuke
     ///
     /// - Returns: `URL`: `URL`-location on disk if image was found, otherwise `nil`
     let pathForImage: (_ fileName: String) -> URL?

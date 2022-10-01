@@ -18,19 +18,17 @@ struct VolumesContainer: Codable {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
         var temp: [MangaVolume] = []
         
-        for key in container.allKeys where key.stringValue == "volumes" {
-            do {
-                let decodedVolumes = try container.decode(
-                    [String: MangaVolume].self,
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
-                )
-                temp = decodedVolumes.map(\.value)
-            } catch DecodingError.typeMismatch {
-                temp = try container.decode(
-                    [MangaVolume].self,
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
-                )
-            }
+        do {
+            let decodedVolumes = try container.decode(
+                [String: MangaVolume].self,
+                forKey: DynamicCodingKeys(stringValue: "volumes")!
+            )
+            temp = decodedVolumes.map(\.value)
+        } catch DecodingError.typeMismatch {
+            temp = try container.decode(
+                [MangaVolume].self,
+                forKey: DynamicCodingKeys(stringValue: "volumes")!
+            )
         }
         
         // all volumes w/o index are going to be first in list
@@ -47,13 +45,9 @@ struct VolumesContainer: Codable {
 
 struct MangaVolume: Codable {
     let chapters: [Chapter]
-    var count: Int {
-        chapters.count
-    }
     // sometimes volumes can have number as double, e.g. 77.6 (for extras or oneshots),
     // if volume has no index(returns 'none'), 'volumeIndex' will be set to nil
     let volumeIndex: Double?
-    let id: UUID
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
@@ -79,7 +73,6 @@ struct MangaVolume: Codable {
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
-        id = UUID()
         chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? 99999) > ($1.chapterIndex ?? 99999) }
         volumeIndex = Double(tempVolume)
     }
@@ -98,8 +91,6 @@ extension MangaVolume: Equatable {
     }
 }
 
-extension MangaVolume: Identifiable { }
-
 extension MangaVolume {
     var volumeName: String {
         volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean())"
@@ -110,6 +101,5 @@ extension MangaVolume {
     init(chapters: [Chapter], volumeIndex: Double?) {
         self.chapters = chapters
         self.volumeIndex = volumeIndex
-        id = UUID()
     }
 }

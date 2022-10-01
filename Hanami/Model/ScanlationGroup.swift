@@ -42,27 +42,6 @@ struct ScanlationGroup: Codable {
     }
 }
 
-extension ScanlationGroup.Attributes {
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        name = try container.decode(String.self, forKey: .name)
-        isLocked = try container.decode(Bool.self, forKey: .isLocked)
-        
-        website = try? container.decode(URL?.self, forKey: .website)
-        discord = try? container.decode(URL?.self, forKey: .discord)
-        contactEmail = try? container.decode(URL?.self, forKey: .contactEmail)
-        description = try container.decode(String?.self, forKey: .description)
-        twitter = try? container.decode(URL?.self, forKey: .twitter)
-        focusedLanguages = try container.decode([String]?.self, forKey: .focusedLanguages)
-        isOfficial = try container.decode(Bool.self, forKey: .isOfficial)
-        isVerified = try container.decode(Bool.self, forKey: .isVerified)
-        isInactive = try container.decode(Bool.self, forKey: .isInactive)
-        createdAt = try container.decode(Date.self, forKey: .createdAt)
-        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
-        version = try container.decode(Int.self, forKey: .version)
-    }
-}
-
 extension ScanlationGroup: Equatable {
     static func == (lhs: ScanlationGroup, rhs: ScanlationGroup) -> Bool {
         lhs.id == rhs.id

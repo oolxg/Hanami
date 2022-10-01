@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct VolumeTabState: Equatable {
+struct VolumeTabState: Equatable, Identifiable {
     init(volume: MangaVolume, parentManga: Manga, isOnline: Bool) {
         self.volume = volume
         chapterStates = .init(
@@ -19,6 +19,7 @@ struct VolumeTabState: Equatable {
     }
     
     let volume: MangaVolume
+    let id = UUID()
     var chapterStates: IdentifiedArrayOf<ChapterState> = []
     
     var childrenChapterDetailsIDs: [UUID] {
@@ -30,11 +31,6 @@ struct VolumeTabState: Equatable {
     }
 }
 
-extension VolumeTabState: Identifiable {
-    var id: UUID {
-        volume.id
-    }
-}
 
 enum VolumeTabAction {
     case chapterAction(id: UUID, action: ChapterAction)

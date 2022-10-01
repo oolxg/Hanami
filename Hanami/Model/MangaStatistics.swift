@@ -8,7 +8,6 @@
 import Foundation
 
 struct MangaStatisticsContainer: Codable {
-    let result: String
     let statistics: [UUID: MangaStatistics]
     
     private struct DynamicCodingKeys: CodingKey {
@@ -18,31 +17,23 @@ struct MangaStatisticsContainer: Codable {
         init?(intValue: Int) { return nil }
     }
     
+    // https://github.com/apple/swift-corelibs-foundation/issues/3614#issuecomment-1118348969
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-        var tempResult = ""
-        var tempStringStatistics: [String: MangaStatistics] = [:]
         
-        for key in container.allKeys {
-            if key.stringValue == "result" {
-                tempResult = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
-            } else if key.stringValue == "statistics" {
-                tempStringStatistics = try container.decode(
-                    [String: MangaStatistics].self,
-                    forKey: DynamicCodingKeys(stringValue: key.stringValue)!
-                )
-            }
-        }
+        let tempStringStatistics = try container.decode(
+            [String: MangaStatistics].self,
+            forKey: DynamicCodingKeys(stringValue: "statistics")!
+        )
         
         var tempUUIDStatistics: [UUID: MangaStatistics] = [:]
         
         for (id, stat) in tempStringStatistics {
             guard let uuid = UUID(uuidString: id) else { continue }
-            
+
             tempUUIDStatistics[uuid] = stat
         }
         
-        result = tempResult
         statistics = tempUUIDStatistics
     }
 }

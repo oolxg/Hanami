@@ -13,10 +13,6 @@ struct Manga: Codable {
     let attributes: Attributes
     let relationships: [Relationship]
     
-    var mangaFolderName: String {
-        id.uuidString.lowercased()
-    }
-    
     // MARK: - Attributes
     struct Attributes: Codable {
         let title: LocalizedString
@@ -29,7 +25,6 @@ struct Manga: Codable {
         let tags: [Tag]
         let state: State
         
-        // MARK: all this @NullCodable's are for json encoding and storing them with CoreData.
         let createdAt: Date?
         let updatedAt: Date?
         let lastVolume: String?
@@ -90,12 +85,8 @@ extension Manga.Attributes {
         tags = try container.decode([Tag].self, forKey: .tags)
         state = try container.decode(State.self, forKey: .state)
         
-        let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "en_US_POSIX")
-        fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
-        fmt.timeZone = .init(identifier: "UTC")
-        createdAt = fmt.date(from: (try? container.decode(String.self, forKey: .createdAt)) ?? "")
-        updatedAt = fmt.date(from: (try? container.decode(String.self, forKey: .updatedAt)) ?? "")
+        createdAt = try? container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try? container.decode(Date.self, forKey: .updatedAt)
     }
 }
 

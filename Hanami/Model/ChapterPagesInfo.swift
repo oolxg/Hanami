@@ -15,7 +15,7 @@ struct ChapterPagesInfo: Codable {
     // MARK: - PagesInfo
     struct PagesInfo: Codable, Equatable {
         let hash: String
-        let data, dataSaver: [String]
+        let dataSaver: [String]
     }
     
     enum CodingKeys: String, CodingKey {
@@ -31,15 +31,9 @@ extension ChapterPagesInfo: Equatable {
 }
 
 extension ChapterPagesInfo {
-    var dataSaverURLs: [URL] {
-        pagesInfo.dataSaver.compactMap { fileName in
-            URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(fileName)")
-        }
-    }
-    
-    var dataURLs: [URL] {
-        pagesInfo.data.compactMap { fileName in
-            URL(string: "\(baseURL)/data/\(pagesInfo.hash)/\(fileName)")
+    var pagesURLs: [URL] {
+        pagesInfo.dataSaver.map { fileName in
+            URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(fileName)")!
         }
     }
 }

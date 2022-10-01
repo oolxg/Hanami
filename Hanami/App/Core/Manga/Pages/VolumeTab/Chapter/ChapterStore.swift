@@ -79,7 +79,7 @@ struct ChapterState: Equatable, Identifiable {
 enum ChapterAction: Equatable {
     case fetchChapterDetailsIfNeeded
     // need this only for `cachedChaptersStates`
-    case allChapterDetailsRetrieved(Result<[CachedChapterEntry], AppError>)
+    case allChapterDetailsRetrievedFromMemory(Result<[CachedChapterEntry], AppError>)
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
@@ -113,7 +113,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             var effects: [Effect<ChapterAction, Never>] = [
                 env.databaseClient
                     .retrieveChaptersForManga(mangaID: state.parentManga.id)
-                    .catchToEffect(ChapterAction.allChapterDetailsRetrieved)
+                    .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromMemory)
             ]
             
             let allChapterIDs = [state.chapter.id] + state.chapter.others
@@ -161,7 +161,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return .merge(effects)
             
-        case .allChapterDetailsRetrieved(let result):
+        case .allChapterDetailsRetrievedFromMemory(let result):
             // only to store all cached chapter ids(from parent manga)
             // and update state on scroll as less as possible
             switch result {
@@ -315,7 +315,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     print("failed to retriev cached chapters from memory:", error.description)
                     return env.databaseClient
                         .retrieveChaptersForManga(mangaID: state.parentManga.id)
-                        .catchToEffect(ChapterAction.allChapterDetailsRetrieved)
+                        .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromMemory)
             }
             
         case .downloadChapterForOfflineReading(let chapter):
@@ -323,7 +323,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 .init(
                     id: chapter.id,
                     status: .downloadInProgress,
-                    pagesCount: 1,
+                    pagesCount: chapter.attributes.pagesCount,
                     pagesFetched: 0
                 )
             )
@@ -339,13 +339,13 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         .init(
                             id: chapter.id,
                             status: .downloadInProgress,
-                            pagesCount: pagesInfo.dataSaverURLs.count,
+                            pagesCount: pagesInfo.pagesURLs.count,
                             pagesFetched: 0
                         )
                     )
                     
                     var effects = pagesInfo
-                        .dataSaverURLs
+                        .pagesURLs
                         .enumerated()
                         .map { i, url in
                             env.imageClient
@@ -359,7 +359,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         env.databaseClient
                             .saveChapterDetails(
                                 chapter,
-                                pagesCount: pagesInfo.dataSaverURLs.count,
+                                pagesCount: pagesInfo.pagesURLs.count,
                                 fromManga: state.parentManga
                             )
                             .fireAndForget()

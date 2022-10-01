@@ -28,11 +28,16 @@ extension ImageClient {
         downloadImage: { url in
             Future { promise in
                 DispatchQueue.global().async {
-                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                    do {
+                        let data = try Data(contentsOf: url)
+                        guard let image = UIImage(data: data) else {
+                            return promise(.failure(.imageError("Bad data, can't decode it to image")))
+                        }
+                        
                         return promise(.success(image))
+                    } catch {
+                        return promise(.failure(.networkError(URLError(URLError.Code.badURL))))
                     }
-                    
-                    return promise(.failure(.networkError(URLError(URLError.Code.badServerResponse))))
                 }
             }
             .retry(3)
