@@ -40,8 +40,8 @@ extension ImageClient {
                     }
                 }
             }
-            .receive(on: DispatchQueue.main)
             .retry(3)
+            .receive(on: DispatchQueue.main)
             .catchToEffect()
         }
     )
