@@ -122,11 +122,15 @@ extension PagesView {
             ) {
                 ForEach(0..<viewStore.pagesCount, id: \.self) { pageIndex in
                     let volumeIndexes = viewStore.splitIntoPagesVolumeTabStates[pageIndex]
-                        .map { $0.volume.volumeIndex == nil ? "Unindexed" : $0.volume.volumeIndex!.clean() }
+                        .compactMap { $0.volume.volumeIndex?.clean() }
                         .reversed()
                         .joined(separator: ", ")
                     
-                    Text("Page \(pageIndex + 1) (Vol. \(volumeIndexes))")
+                    if !volumeIndexes.isEmpty {
+                        Text("Page \(pageIndex + 1) (Vol. \(volumeIndexes))")
+                    } else {
+                        Text("Page \(pageIndex + 1)")
+                    }
                 }
             } label: { EmptyView() }
         } label: {

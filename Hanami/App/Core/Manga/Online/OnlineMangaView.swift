@@ -17,7 +17,7 @@ struct OnlineMangaView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
-    private var isViewScrolledDown: Bool {
+    private var isCoverArtDisappeared: Bool {
         headerOffset < -350
     }
     
@@ -45,7 +45,7 @@ struct OnlineMangaView: View {
                     }
                 }
             }
-            .animation(.linear, value: isViewScrolledDown)
+            .animation(.linear, value: isCoverArtDisappeared)
             .animation(.default, value: viewStore.pagesState?.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
@@ -53,7 +53,7 @@ struct OnlineMangaView: View {
                     .fill(.black)
                     .frame(height: 50)
                     .frame(maxHeight: .infinity, alignment: .top)
-                    .opacity(isViewScrolledDown ? 1 : 0)
+                    .opacity(isCoverArtDisappeared ? 1 : 0)
             )
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
@@ -100,9 +100,11 @@ extension OnlineMangaView {
     }
     
     private func scrollToHeader(proxy: ScrollViewProxy) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            withAnimation(.linear) {
-                proxy.scrollTo("header")
+        if isCoverArtDisappeared {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                withAnimation(.linear) {
+                    proxy.scrollTo("header")
+                }
             }
         }
     }
@@ -192,8 +194,6 @@ extension OnlineMangaView {
     @MainActor private var mangaBodyView: some View {
         WithViewStore(store.actionless) { viewStore in
             switch viewStore.selectedTab {
-                case .info:
-                    aboutTab
                 case .chapters:
                     IfLetStore(
                         store.scope(
@@ -207,6 +207,8 @@ extension OnlineMangaView {
                                 .padding(.bottom, 20)
                         }
                     )
+                case .info:
+                    aboutTab
                 case .coverArt:
                     coverArtTab
             }
@@ -366,16 +368,16 @@ extension OnlineMangaView {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 25) {
                 backButton
-                    .opacity(isViewScrolledDown ? 1 : 0)
+                    .opacity(isCoverArtDisappeared ? 1 : 0)
                 
                 ForEach(OnlineMangaViewState.Tab.allCases, content: makeTabLabel)
-                    .offset(x: isViewScrolledDown ? 0 : -40)
+                    .offset(x: isCoverArtDisappeared ? 0 : -40)
             }
             .padding(.horizontal)
             .padding(.top, 20)
             .padding(.bottom, 5)
         }
-        .animation(.linear(duration: 0.2), value: isViewScrolledDown)
+        .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.black)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
         .modifier(

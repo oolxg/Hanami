@@ -92,7 +92,7 @@ let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewActi
                         state.pagesState = PagesState(
                             manga: state.manga,
                             chaptersDetailsList: chapters.map(\.chapter),
-                            chaptersPerPages: 15
+                            chaptersPerPages: 10
                         )
                         return env.cacheClient
                             .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)

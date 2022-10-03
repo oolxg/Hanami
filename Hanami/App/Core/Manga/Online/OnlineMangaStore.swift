@@ -138,7 +138,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                         state.pagesState = PagesState(
                             manga: state.manga,
                             mangaVolumes: response.volumes,
-                            chaptersPerPage: 15,
+                            chaptersPerPage: 10,
                             isOnline: true
                         )
                         
