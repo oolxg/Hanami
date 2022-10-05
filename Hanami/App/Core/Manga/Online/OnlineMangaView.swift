@@ -25,10 +25,10 @@ struct OnlineMangaView: View {
         WithViewStore(store) { viewStore in
             ScrollView(showsIndicators: false) {
                 ScrollViewReader { proxy in
-                    header
-                        .id("header")
-                    
                     LazyVStack(pinnedViews: .sectionHeaders) {
+                        header
+                            .id("header")
+                        
                         Section {
                             mangaBodyView
                         } header: {
@@ -37,11 +37,14 @@ struct OnlineMangaView: View {
                             footer
                         }
                     }
-                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
-                        scrollToHeader(proxy: proxy)
-                    }
                     .onChange(of: viewStore.selectedTab) { _ in
-                        scrollToHeader(proxy: proxy)
+                        if isCoverArtDisappeared {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                withAnimation(.linear) {
+                                    proxy.scrollTo("header")
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -97,16 +100,6 @@ extension OnlineMangaView {
             ),
             then: OnlineMangaReadingView.init
         )
-    }
-    
-    private func scrollToHeader(proxy: ScrollViewProxy) {
-        if isCoverArtDisappeared {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                withAnimation(.linear) {
-                    proxy.scrollTo("header")
-                }
-            }
-        }
     }
     
     @MainActor private var header: some View {
@@ -187,7 +180,7 @@ extension OnlineMangaView {
         
         let opacity = 1 - headerOffset * 0.01
         
-        return opacity >= 0 ? opacity : 0
+        return max(opacity, 0)
     }
     
     

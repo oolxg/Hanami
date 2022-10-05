@@ -12,12 +12,12 @@ import SwiftUI
 struct ChapterState: Equatable, Identifiable {
     // Chapter basic info
     let chapter: Chapter
-    let isOnline: Bool
+    let online: Bool
     let parentManga: Manga
     
-    init(chapter: Chapter, parentManga: Manga, isOnline: Bool = false) {
+    init(chapter: Chapter, parentManga: Manga, online: Bool = false) {
         self.chapter = chapter
-        self.isOnline = isOnline
+        self.online = online
         self.parentManga = parentManga
     }
     
@@ -130,7 +130,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                         
                         if let scanlationGroup = cachedChapterDetails.scanlationGroup {
                             state.scanlationGroups[cachedChapterDetails.id] = scanlationGroup
-                        } else if state.isOnline, let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
+                        } else if state.online, let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
                             effects.append(
                                 env.mangaClient.fetchScanlationGroup(scanlationGroupID)
                                     .receive(on: DispatchQueue.main)
@@ -141,7 +141,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                                     )
                             )
                         }
-                    } else if state.isOnline {
+                    } else if state.online {
                         // chapter is not cached, need to fetch
                         effects.append(
                             env.mangaClient.fetchChapterDetails(chapterID)
@@ -261,7 +261,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
 
             state.cachedChaptersStates.remove(where: { $0.id == chapterID })
             
-            if !state.isOnline {
+            if !state.online {
                 state.chapterDetailsList.remove(id: chapterID)
             }
             

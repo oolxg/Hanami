@@ -139,7 +139,7 @@ let onlineMangaViewReducer: Reducer<OnlineMangaViewState, OnlineMangaViewAction,
                             manga: state.manga,
                             mangaVolumes: response.volumes,
                             chaptersPerPage: 10,
-                            isOnline: true
+                            online: true
                         )
                         
                         return .none

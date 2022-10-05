@@ -50,7 +50,7 @@ struct PagesView_Previews: PreviewProvider {
     static var previews: some View {
         PagesView(
             store: .init(
-                initialState: .init(manga: dev.manga, mangaVolumes: [], chaptersPerPage: 1, isOnline: true),
+                initialState: .init(manga: dev.manga, mangaVolumes: [], chaptersPerPage: 1, online: true),
                 reducer: pagesReducer,
                 environment: .init(
                     databaseClient: .live,

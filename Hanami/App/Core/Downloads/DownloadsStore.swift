@@ -53,19 +53,17 @@ let downloadsReducer: Reducer<DownloadsState, DownloadsAction, DownloadsEnvironm
             case .cachedMangaFetched(let result):
                 switch result {
                     case .success(let retrievedMangas):
-                        let chapterStateIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
-                        let mangaIDs = Set(retrievedMangas.map(\.id))
-                        let stateIDsToLeave = chapterStateIDsSet.intersection(mangaIDs)
-                        let newMangaIDs = mangaIDs.subtracting(stateIDsToLeave)
+                        let cachedMangaIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
+                        let retrievedMangaIDs = Set(retrievedMangas.map(\.id))
+                        let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
+                        let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
                         
                         state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
                         
-                        for manga in retrievedMangas {
-                            if newMangaIDs.contains(manga.id) {
-                                state.cachedMangaThumbnailStates.append(
-                                    MangaThumbnailState(manga: manga, isOnline: false)
-                                )
-                            }
+                        for manga in retrievedMangas where newMangaIDs.contains(manga.id) {
+                            state.cachedMangaThumbnailStates.append(
+                                MangaThumbnailState(manga: manga, online: false)
+                            )
                         }
                         
                         return .none

@@ -20,16 +20,16 @@ struct MangaThumbnailView: View {
     @State private var isNavigationLinkActive = false
     
     private struct ViewState: Equatable {
-        let isOnline: Bool
+        let online: Bool
         let manga: Manga
         let mangaStatistics: MangaStatistics?
         let coverArtURL: URL?
         
         init(state: MangaThumbnailState) {
-            isOnline = state.isOnline
+            online = state.online
             manga = state.manga
             mangaStatistics = state.mangaStatistics
-            coverArtURL = isOnline ? state.coverArtInfo?.coverArtURL256 : state.offlineMangaState?.coverArtPath
+            coverArtURL = online ? state.coverArtInfo?.coverArtURL256 : state.offlineMangaState?.coverArtPath
         }
     }
     
@@ -87,7 +87,7 @@ extension MangaThumbnailView {
                     .foregroundColor(.white)
                     .font(.headline)
                 
-                if viewStore.isOnline {
+                if viewStore.online {
                     statistics
                 }
                 
@@ -124,7 +124,7 @@ extension MangaThumbnailView {
     
     private var mangaView: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if viewStore.isOnline {
+            if viewStore.online {
                 OnlineMangaView(
                     store: store.scope(
                         state: \.onlineMangaState!,

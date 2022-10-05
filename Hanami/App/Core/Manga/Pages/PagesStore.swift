@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct PagesState: Equatable {
     // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
-    init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, isOnline: Bool) {
+    init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, online: Bool) {
         // flattening all chapters into one array(but not forgetting to store 'volumeIndex'
         let allMangaChapters: [(chapter: Chapter, volumeIndex: Double?)] = mangaVolumes.flatMap { volume in
             volume.chapters.map { (chapter: $0, volumeIndex: volume.volumeIndex) }
@@ -49,7 +49,7 @@ struct PagesState: Equatable {
             }
             
             splitIntoPagesVolumeTabStates.append(
-                volumesOnPage.map { VolumeTabState(volume: $0, parentManga: manga, isOnline: isOnline) }
+                volumesOnPage.map { VolumeTabState(volume: $0, parentManga: manga, online: online) }
             )
         }
         
@@ -140,7 +140,7 @@ struct PagesState: Equatable {
             manga: manga,
             mangaVolumes: volumes.map(\.volume),
             chaptersPerPage: chaptersPerPages,
-            isOnline: false
+            online: false
         )
     }
     

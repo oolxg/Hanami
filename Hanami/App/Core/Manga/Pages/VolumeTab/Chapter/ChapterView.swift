@@ -15,7 +15,7 @@ struct ChapterView: View {
     private struct ViewState: Equatable {
         let chapter: Chapter
         let chaptersCount: Int
-        let isOnline: Bool
+        let online: Bool
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
         let cachedChaptersStates: Set<ChapterState.CachedChapterState>
         let areChaptersShown: Bool
@@ -24,7 +24,7 @@ struct ChapterView: View {
         init(state: ChapterState) {
             chapter = state.chapter
             chaptersCount = state.chaptersCount
-            isOnline = state.isOnline
+            online = state.online
             chapterDetailsList = state.chapterDetailsList
             cachedChaptersStates = state.cachedChaptersStates
             areChaptersShown = state.areChaptersShown
@@ -203,7 +203,7 @@ extension ChapterView {
                                 .padding(5)
                         }
                 }
-            } else if viewStore.isOnline {
+            } else if viewStore.online {
                 Button {
                     viewStore.send(.downloadChapterForOfflineReading(chapter: chapter), animation: .linear)
                 } label: {

@@ -9,10 +9,10 @@ import Foundation
 import ComposableArchitecture
 
 struct MangaThumbnailState: Equatable, Identifiable {
-    init(manga: Manga, isOnline: Bool = true) {
+    init(manga: Manga, online: Bool = true) {
         self.manga = manga
         
-        if isOnline {
+        if online {
             onlineMangaState = OnlineMangaViewState(manga: manga)
         } else {
             offlineMangaState = OfflineMangaViewState(manga: manga)
@@ -21,7 +21,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
         if let coverArtInfo = manga.coverArtInfo {
             self.coverArtInfo = coverArtInfo
             
-            if isOnline {
+            if online {
                 onlineMangaState!.mainCoverArtURL = coverArtInfo.coverArtURL
                 onlineMangaState!.coverArtURL256 = coverArtInfo.coverArtURL256
             }
@@ -37,7 +37,7 @@ struct MangaThumbnailState: Equatable, Identifiable {
         onlineMangaState?.statistics
     }
     
-    var isOnline: Bool {
+    var online: Bool {
         onlineMangaState != nil
     }
     
@@ -92,11 +92,11 @@ let mangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, Ma
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if state.isOnline, state.coverArtInfo == nil, let coverArtID = state.manga.coverArtID {
+                if state.online, state.coverArtInfo == nil, let coverArtID = state.manga.coverArtID {
                     return env.mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
-                } else if !state.isOnline {
+                } else if !state.online {
                     guard state.offlineMangaState!.coverArtPath == nil else {
                         return .none
                     }

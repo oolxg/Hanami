@@ -9,11 +9,11 @@ import Foundation
 import ComposableArchitecture
 
 struct VolumeTabState: Equatable, Identifiable {
-    init(volume: MangaVolume, parentManga: Manga, isOnline: Bool) {
+    init(volume: MangaVolume, parentManga: Manga, online: Bool) {
         self.volume = volume
         chapterStates = .init(
             uniqueElements: volume.chapters.map {
-                ChapterState(chapter: $0, parentManga: parentManga, isOnline: isOnline)
+                ChapterState(chapter: $0, parentManga: parentManga, online: online)
             }
         )
     }

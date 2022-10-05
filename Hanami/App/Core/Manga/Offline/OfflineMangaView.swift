@@ -23,24 +23,16 @@ struct OfflineMangaView: View {
     var body: some View {
         WithViewStore(store) { viewStore in
             ScrollView(showsIndicators: false) {
-                ScrollViewReader { proxy in
+                LazyVStack(pinnedViews: .sectionHeaders) {
                     header
                         .id("header")
                     
-                    LazyVStack(pinnedViews: .sectionHeaders) {
-                        Section {
-                            mangaBodyView
-                        } header: {
-                            pinnedNavigation
-                        } footer: {
-                            footer
-                        }
-                    }
-                    .onChange(of: viewStore.pagesState?.currentPageIndex) { _ in
-                        scrollToHeader(proxy: proxy)
-                    }
-                    .onChange(of: viewStore.selectedTab) { _ in
-                        scrollToHeader(proxy: proxy)
+                    Section {
+                        mangaBodyView
+                    } header: {
+                        pinnedNavigation
+                    } footer: {
+                        footer
                     }
                 }
             }
@@ -92,14 +84,6 @@ extension OfflineMangaView {
         .foregroundColor(.gray)
         .padding(.horizontal)
         .padding(.bottom, 5)
-    }
-    
-    private func scrollToHeader(proxy: ScrollViewProxy) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            withAnimation(.linear) {
-                proxy.scrollTo("header")
-            }
-        }
     }
     
     @MainActor private var header: some View {
@@ -167,17 +151,17 @@ extension OfflineMangaView {
                 .padding(.bottom, 25)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .opacity(headerTextOpacity)
+            .opacity(headerOverlayOpacity)
         }
     }
     
     // when user scrolls up, we make all text and gradient on header slowly disappear
-    private var headerTextOpacity: Double {
+    private var headerOverlayOpacity: Double {
         if headerOffset < 0 { return 1 }
         
         let opacity = 1 - headerOffset * 0.01
         
-        return opacity >= 0 ? opacity : 0
+        return max(opacity, 0)
     }
     
     
