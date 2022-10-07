@@ -23,36 +23,38 @@ struct MangaThumbnailView: View {
         let online: Bool
         let manga: Manga
         let mangaStatistics: MangaStatistics?
-        let coverArtURL: URL?
+        let thumbnailURL: URL?
         
         init(state: MangaThumbnailState) {
             online = state.online
             manga = state.manga
             mangaStatistics = state.mangaStatistics
-            coverArtURL = online ? state.coverArtInfo?.coverArtURL256 : state.offlineMangaState?.coverArtPath
+            thumbnailURL = state.thumbnailURL
         }
     }
     
     var body: some View {
-        ZStack(alignment: .leading) {
-            NavigationLink(
-                isActive: $isNavigationLinkActive,
-                destination: { LazyView(mangaView) },
-                label: { EmptyView() }
-            )
-            
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.theme.darkGray.opacity(0.6))
+        HStack(alignment: .top, spacing: 0) {
+            coverArt
 
-            HStack(alignment: .top) {
-                coverArt
+            ZStack(alignment: .topLeading) {
+                Color.theme.darkGray
+                    .opacity(0.6)
 
                 textBlock
+                    .padding(10)
             }
-            .padding(10)
         }
-        .frame(width: isCompact ? 250 : nil, height: 150)
+        .frame(width: isCompact ? 250 : nil, height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .onTapGesture { isNavigationLinkActive.toggle() }
+        .overlay {
+            NavigationLink(
+                isActive: $isNavigationLinkActive,
+                destination: { mangaView },
+                label: { EmptyView() }
+            )
+        }
     }
 }
 
@@ -93,7 +95,7 @@ extension MangaThumbnailView {
                 
                 if let mangaDescription = viewStore.manga.description {
                     Text(LocalizedStringKey(mangaDescription))
-                        .lineLimit(5)
+                        .lineLimit(8)
                         .foregroundColor(.white)
                         .font(.footnote)
                 }
@@ -107,16 +109,15 @@ extension MangaThumbnailView {
     
     @MainActor private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            LazyImage(url: viewStore.coverArtURL) { state in
+            LazyImage(url: viewStore.thumbnailURL) { state in
                 if let image = state.image {
                     image
                         .resizingMode(.aspectFill)
-                        .frame(width: 100, height: 150)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else if state.isLoading || state.error != nil {
-                    Color.clear
+                        .frame(width: 120)
+                } else {
+                    Color.theme.darkGray
                         .redacted(reason: .placeholder)
-                        .frame(width: 100, height: 150)
+                        .frame(width: 120)
                 }
             }
         }
@@ -171,7 +172,7 @@ extension MangaThumbnailView {
                     }
                 }
                 
-                if  !isCompact {
+                if !isCompact {
                     HStack(spacing: 5) {
                         let status = viewStore.manga.attributes.status
                         
@@ -194,12 +195,12 @@ extension MangaThumbnailView {
 
 extension MangaThumbnailView {
     static func skeleton(isCompact: Bool) -> some View {
-        ZStack(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.theme.darkGray.opacity(0.6))
+        HStack(alignment: .top, spacing: 0) {
+            skeletonCoverArt
             
-            HStack(alignment: .top) {
-                skeletonCoverArt
+            ZStack(alignment: .topLeading) {
+                Color.theme.darkGray
+                    .opacity(0.6)
                 
                 VStack(alignment: .leading, spacing: 10) {
                     // manga title
@@ -217,24 +218,24 @@ extension MangaThumbnailView {
                         Text(String.placeholder(length: AppUtil.isIpad ? 85 : 15))
                         Text(String.placeholder(length: AppUtil.isIpad ? 100 : 20))
                         Text(String.placeholder(length: AppUtil.isIpad ? 65 : 10))
+                        Text(String.placeholder(length: AppUtil.isIpad ? 105 : 20))
                     }
                     .lineLimit(1)
                     .font(.footnote)
                     .redacted(reason: .placeholder)
                 }
+                .padding(10)
             }
-            .padding(10)
+            .frame(maxWidth: .infinity)
         }
-        .frame(width: isCompact ? 250 : nil, height: 150)
+        .frame(width: isCompact ? 250 : nil, height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
     
     private static var skeletonCoverArt: some View {
-        Color.black
-            .opacity(0.45)
+        Color.theme.darkGray
             .redacted(reason: .placeholder)
-            .frame(width: 100, height: 150)
-            .clipped()
-            .cornerRadius(10)
+            .frame(width: 120)
     }
     
     private static var skeletonRating: some View {

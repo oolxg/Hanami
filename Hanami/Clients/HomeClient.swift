@@ -10,7 +10,9 @@ import ComposableArchitecture
 
 struct HomeClient {
     let fetchLastUpdates: () -> Effect<Response<[Manga]>, AppError>
-    let fetchSeasonalTitlesList: () -> Effect<Response<CustomMangaList>, AppError>
+    let fetchAllSeasonalTitlesLists: () -> Effect<Response<[CustomMangaList]>, AppError>
+    let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> (id: UUID, name: String)
+    let fetchSeasonalTitlesList: (_ seasonalTitlesListID: UUID) -> Effect<Response<CustomMangaList>, AppError>
     let fetchMangaByIDs: ([UUID]) -> Effect<Response<[Manga]>, AppError>
     let fetchAwardWinningManga: () -> Effect<Response<[Manga]>, AppError>
     let fetchMostFollowedManga: () -> Effect<Response<[Manga]>, AppError>
@@ -25,7 +27,7 @@ extension HomeClient {
             components.host = "api.mangadex.org"
             components.path = "/manga"
             components.queryItems = [
-                URLQueryItem(name: "limit", value: "20"),
+                URLQueryItem(name: "limit", value: "25"),
                 URLQueryItem(name: "includedTagsMode", value: "AND"),
                 URLQueryItem(name: "excludedTagsMode", value: "OR"),
                 URLQueryItem(name: "contentRating[]", value: "safe"),
@@ -42,12 +44,47 @@ extension HomeClient {
                       
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
         },
-        fetchSeasonalTitlesList: {
+        fetchAllSeasonalTitlesLists: {
+            // admin user URL
+            guard let url = URL(string: "https://api.mangadex.org/user/d2ae45e0-b5e2-4e7f-a688-17925c2d7d6b/list") else {
+                return .none
+            }
+            
+            return URLSession.shared.get(url: url, decodeResponseAs: Response<[CustomMangaList]>.self)
+        },
+        getCurrentSeasonTitlesListID: { mangaLists in
+            let sorted = mangaLists.sorted { lhs, rhs in
+                let lhsYear = String(lhs.attributes.name.suffix(4))
+                let rhsYear = String(rhs.attributes.name.suffix(4))
+                
+                if lhsYear != rhsYear {
+                    return lhsYear < rhsYear
+                }
+                
+                let priority = ["Winter", "Spring", "Summer", "Fall"]
+                
+                let lhsSeason = lhs.attributes.name
+                    .replacingOccurrences(of: "Seasonal: ", with: "")
+                    .replacingOccurrences(of: " \(lhsYear)", with: "")
+                
+                let rhsSeason = rhs.attributes.name
+                    .replacingOccurrences(of: "Seasonal: ", with: "")
+                    .replacingOccurrences(of: " \(rhsYear)", with: "")
+                
+                let lhsPriority = priority.firstIndex(of: lhsSeason) ?? -1
+                let rhsPriority = priority.firstIndex(of: rhsSeason) ?? -1
+                
+                return lhsPriority < rhsPriority
+            }
+            
+            return (id: sorted.last!.id, name: sorted.last!.attributes.name)
+        },
+        fetchSeasonalTitlesList: { seasonalTitlesListID in
             // admin user has 'Seasonal' manga list
             var components = URLComponents()
             components.scheme = "https"
             components.host = "api.mangadex.org"
-            components.path = "/list/7df1dabc-b1c5-4e8e-a757-de5a2a3d37e9"
+            components.path = "/list/\(seasonalTitlesListID.uuidString.lowercased())"
             components.queryItems = [
                 URLQueryItem(name: "includes[]", value: "author"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),

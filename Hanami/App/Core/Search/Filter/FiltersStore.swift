@@ -102,6 +102,8 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             for tagID in state.contentRatings.map(\.id) {
                 if state.contentRatings[id: tagID]!.tag != .suggestive {
                     state.contentRatings[id: tagID]!.state = .notSelected
+                } else {
+                    state.contentRatings[id: tagID]!.state = .selected
                 }
             }
             

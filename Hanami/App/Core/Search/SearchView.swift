@@ -124,14 +124,14 @@ extension SearchView {
     private var mangaList: some View {
         WithViewStore(store.actionless) { viewStore in
             ScrollView {
-                LazyVStack(spacing: 0) {
+                VStack(spacing: 0) {
                     ForEachStore(
                         store.scope(
                             state: \.searchResults,
                             action: SearchAction.mangaThumbnailAction)
                     ) { thumbnailStore in
                         MangaThumbnailView(store: thumbnailStore)
-                            .padding()
+                            .padding(5)
                     }
                     
                     if !viewStore.searchResults.isEmpty && viewStore.resultsCount != viewStore.searchResults.count {

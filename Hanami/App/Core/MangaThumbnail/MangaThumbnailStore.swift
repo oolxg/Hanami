@@ -10,36 +10,33 @@ import ComposableArchitecture
 
 struct MangaThumbnailState: Equatable, Identifiable {
     init(manga: Manga, online: Bool = true) {
-        self.manga = manga
-        
         if online {
             onlineMangaState = OnlineMangaViewState(manga: manga)
-        } else {
-            offlineMangaState = OfflineMangaViewState(manga: manga)
-        }
-        // in some cases we can have coverArt included with manga as relationship
-        if let coverArtInfo = manga.coverArtInfo {
-            self.coverArtInfo = coverArtInfo
             
-            if online {
+            // in some cases we can have coverArt included with manga as relationship
+            if let coverArtInfo = manga.coverArtInfo {
                 onlineMangaState!.mainCoverArtURL = coverArtInfo.coverArtURL
                 onlineMangaState!.coverArtURL256 = coverArtInfo.coverArtURL256
             }
+        } else {
+            offlineMangaState = OfflineMangaViewState(manga: manga)
         }
     }
     
     var onlineMangaState: OnlineMangaViewState?
     var offlineMangaState: OfflineMangaViewState?
-    let manga: Manga
-    var coverArtInfo: CoverArtInfo?
-    
+    var manga: Manga {
+        online ? onlineMangaState!.manga : offlineMangaState!.manga
+    }
     var mangaStatistics: MangaStatistics? {
         onlineMangaState?.statistics
     }
     
-    var online: Bool {
-        onlineMangaState != nil
+    var thumbnailURL: URL? {
+        online ? onlineMangaState!.coverArtURL256 : offlineMangaState!.coverArtPath
     }
+    
+    var online: Bool { onlineMangaState != nil }
     
     var id: UUID { manga.id }
 }
@@ -92,7 +89,7 @@ let mangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, Ma
     Reducer { state, action, env in
         switch action {
             case .onAppear:
-                if state.online, state.coverArtInfo == nil, let coverArtID = state.manga.coverArtID {
+                if state.online, state.onlineMangaState!.coverArtURL256 == nil, let coverArtID = state.manga.coverArtID {
                     return env.mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(MangaThumbnailAction.thumbnailInfoLoaded)
@@ -123,9 +120,8 @@ let mangaThumbnailReducer: Reducer<MangaThumbnailState, MangaThumbnailAction, Ma
             case .thumbnailInfoLoaded(let result):
                 switch result {
                     case .success(let response):
-                        state.coverArtInfo = response.data
-                        state.onlineMangaState!.mainCoverArtURL = state.coverArtInfo!.coverArtURL
-                        state.onlineMangaState!.coverArtURL256 = state.coverArtInfo!.coverArtURL256
+                        state.onlineMangaState!.mainCoverArtURL = response.data.coverArtURL
+                        state.onlineMangaState!.coverArtURL256 = response.data.coverArtURL256
                         return .none
                         
                     case .failure(let error):

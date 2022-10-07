@@ -312,7 +312,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     return .none
 
                 case .failure(let error):
-                    print("failed to retriev cached chapters from memory:", error.description)
+                    print("failed to retrieve cached chapters from memory:", error.description)
                     return env.databaseClient
                         .retrieveChaptersForManga(mangaID: state.parentManga.id)
                         .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromMemory)
