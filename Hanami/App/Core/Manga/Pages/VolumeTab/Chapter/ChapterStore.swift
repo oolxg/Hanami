@@ -79,7 +79,7 @@ struct ChapterState: Equatable, Identifiable {
 enum ChapterAction: Equatable {
     case fetchChapterDetailsIfNeeded
     // need this only for `cachedChaptersStates`
-    case allChapterDetailsRetrievedFromMemory(Result<[CachedChapterEntry], AppError>)
+    case allChapterDetailsRetrievedFromDisk(Result<[CachedChapterEntry], AppError>)
     case userTappedOnChapterDetails(chapter: ChapterDetails)
     case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
     case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
@@ -113,7 +113,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             var effects: [Effect<ChapterAction, Never>] = [
                 env.databaseClient
                     .retrieveChaptersForManga(mangaID: state.parentManga.id)
-                    .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromMemory)
+                    .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromDisk)
             ]
             
             let allChapterIDs = [state.chapter.id] + state.chapter.others
@@ -161,7 +161,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             
             return .merge(effects)
             
-        case .allChapterDetailsRetrievedFromMemory(let result):
+        case .allChapterDetailsRetrievedFromDisk(let result):
             // only to store all cached chapter ids(from parent manga)
             // and update state on scroll as less as possible
             switch result {
@@ -188,10 +188,6 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     print("error fetching cached chapters, \(error.description)")
                     return .none
             }
-            
-        case .cancelTapped:
-            state.confirmationDialog = nil
-            return .none
             
         case .userTappedOnChapterDetails:
             return .none
@@ -256,6 +252,10 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
             // this cancel for the case, when action was called from '.cancelChapterDownload'
             return .cancel(id: CancelChapterCache(id: chapterID))
             
+        case .cancelTapped:
+            state.confirmationDialog = nil
+            return .none
+            
         case .chapterDeletionConfirmed(let chapterID):
             state.confirmationDialog = nil
 
@@ -297,6 +297,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                 case .success(let cachedChapterIDs):
                     state.cachedChaptersStates.remove(where: { !cachedChapterIDs.contains($0.id) })
                     for cachedChapterID in cachedChapterIDs {
+                        // have to check, because this state also contains chapters, whose download process is in progress
                         if !state.cachedChaptersStates.contains(where: { $0.id == cachedChapterID }) {
                             state.cachedChaptersStates.insertOrUpdate(
                                 .init(
@@ -315,7 +316,7 @@ let chapterReducer = Reducer<ChapterState, ChapterAction, ChapterEnvironment> { 
                     print("failed to retrieve cached chapters from memory:", error.description)
                     return env.databaseClient
                         .retrieveChaptersForManga(mangaID: state.parentManga.id)
-                        .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromMemory)
+                        .catchToEffect(ChapterAction.allChapterDetailsRetrievedFromDisk)
             }
             
         case .downloadChapterForOfflineReading(let chapter):

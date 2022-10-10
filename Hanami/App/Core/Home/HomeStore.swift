@@ -125,6 +125,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         .catchToEffect { HomeAction.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
                     
                     env.homeClient.fetchAllSeasonalTitlesLists()
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect(HomeAction.adminUserListsFetched)
                     )
                 
@@ -202,6 +203,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                         
                         return env.homeClient
                             .fetchSeasonalTitlesList(seasonalList.id)
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(HomeAction.seasonalMangaListFetched)
                         
                     case .failure(let error):

@@ -159,8 +159,7 @@ extension HomeView {
                         }
                     } else {
                         ForEach(0..<10) { _ in
-                            MangaThumbnailView.skeleton(isCompact: false)
-                                .padding(5)
+                            MangaThumbnailView.skeleton.padding(5)
                         }
                     }
                 }
@@ -236,8 +235,7 @@ extension HomeView {
                             }
                     } else {
                         ForEach(0..<20) { _ in
-                            MangaThumbnailView.skeleton(isCompact: false)
-                                .padding(5)
+                            MangaThumbnailView.skeleton.padding(5)
                         }
                     }
                 }
@@ -304,8 +302,7 @@ extension HomeView {
                                 }
                         } else {
                             ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton(isCompact: false)
-                                    .padding(5)
+                                MangaThumbnailView.skeleton.padding(5)
                             }
                         }
                     }
@@ -376,8 +373,7 @@ extension HomeView {
                                 }
                         } else {
                             ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton(isCompact: false)
-                                    .padding(5)
+                                MangaThumbnailView.skeleton.padding(5)
                             }
                         }
                     }

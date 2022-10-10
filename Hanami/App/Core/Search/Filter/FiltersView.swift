@@ -41,7 +41,10 @@ struct FiltersView_Previews: PreviewProvider {
             store: .init(
                 initialState: FiltersState(),
                 reducer: filterReducer,
-                environment: .init(searchClient: .live)
+                environment: .init(
+                    hapticClient: .live,
+                    searchClient: .live
+                )
             )
         )
         .preferredColorScheme(.dark)

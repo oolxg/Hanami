@@ -10,13 +10,7 @@ import ComposableArchitecture
 import NukeUI
 
 struct MangaThumbnailView: View {
-    init(store: Store<MangaThumbnailState, MangaThumbnailAction>, compact: Bool = false) {
-        self.store = store
-        isCompact = compact
-    }
-    
-    private let isCompact: Bool
-    private let store: Store<MangaThumbnailState, MangaThumbnailAction>
+    let store: Store<MangaThumbnailState, MangaThumbnailAction>
     @State private var isNavigationLinkActive = false
     
     private struct ViewState: Equatable {
@@ -45,8 +39,8 @@ struct MangaThumbnailView: View {
                     .padding(10)
             }
         }
-        .frame(width: isCompact ? 250 : nil, height: 170)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .frame(height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .onTapGesture { isNavigationLinkActive.toggle() }
         .overlay {
             NavigationLink(
@@ -74,8 +68,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                     mangaClient: .live,
                     hudClient: .live
                 )
-            ),
-            compact: true
+            )
         )
     }
 }
@@ -172,19 +165,17 @@ extension MangaThumbnailView {
                     }
                 }
                 
-                if !isCompact {
-                    HStack(spacing: 5) {
-                        let status = viewStore.manga.attributes.status
-                        
-                        Circle()
-                            .fill(status.color)
-                            .frame(width: 10, height: 10)
-                            .padding(0)
-                        
-                        Text(status.rawValue.capitalized)
-                            .foregroundColor(.white)
-                            .fontWeight(.semibold)
-                    }
+                HStack(spacing: 5) {
+                    let status = viewStore.manga.attributes.status
+                    
+                    Circle()
+                        .fill(status.color)
+                        .frame(width: 10, height: 10)
+                        .padding(0)
+                    
+                    Text(status.rawValue.capitalized)
+                        .foregroundColor(.white)
+                        .fontWeight(.semibold)
                 }
             }
             .font(.footnote)
@@ -194,7 +185,7 @@ extension MangaThumbnailView {
 }
 
 extension MangaThumbnailView {
-    static func skeleton(isCompact: Bool) -> some View {
+    static var skeleton: some View {
         HStack(alignment: .top, spacing: 0) {
             skeletonCoverArt
             
@@ -228,8 +219,8 @@ extension MangaThumbnailView {
             }
             .frame(maxWidth: .infinity)
         }
-        .frame(width: isCompact ? 250 : nil, height: 170)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .frame(height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
     private static var skeletonCoverArt: some View {

@@ -87,7 +87,10 @@ let searchReducer: Reducer<SearchState, SearchAction, SearchEnvironment> = .comb
             state: \.filtersState,
             action: /SearchAction.filterAction,
             environment: {
-                .init(searchClient: $0.searchClient)
+                .init(
+                    hapticClient: $0.hapticClient,
+                    searchClient: $0.searchClient
+                )
             }
         ),
     Reducer { state, action, env in

@@ -57,6 +57,7 @@ enum FiltersAction {
 }
 
 struct FiltersEnvironment {
+    let hapticClient: HapticClient
     let searchClient: SearchClient
 }
 
@@ -72,8 +73,11 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
         case .filterListDownloaded(let result):
             switch result {
                 case .success(let response):
-                    state.allTags = .init(uniqueElements: response.data.map { FilterTag(tag: $0, state: .notSelected) })
-                    state.allTags.sort(by: <)
+                    state.allTags = .init(
+                        uniqueElements: response.data
+                            .map { FilterTag(tag: $0, state: .notSelected) }
+                            .sorted(by: <)
+                    )
                     
                     return .none
                     
@@ -84,7 +88,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
             
         case .filterTagButtonTapped(let tappedTag):
             state.allTags[id: tappedTag.id]?.toggleState()
-            return .none
+            return env.hapticClient.generateFeedback(.light).fireAndForget()
             
         case .resetFilters:
             for tagID in state.allTags.map(\.id) {
@@ -116,7 +120,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
                 state.mangaStatuses[id: tag.id]!.state = .selected
             }
             
-            return .none
+            return env.hapticClient.generateFeedback(.light).fireAndForget()
             
         case .contentRatingButtonTapped(let tag):
             if tag.state == .selected {
@@ -125,7 +129,7 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
                 state.contentRatings[id: tag.id]!.state = .selected
             }
             
-            return .none
+            return env.hapticClient.generateFeedback(.light).fireAndForget()
             
         case .publicationDemographicButtonTapped(let tag):
             if tag.state == .selected {
@@ -134,6 +138,6 @@ let filterReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { s
                 state.publicationDemographics[id: tag.id]!.state = .selected
             }
             
-            return .none
+            return env.hapticClient.generateFeedback(.light).fireAndForget()
     }
 }
