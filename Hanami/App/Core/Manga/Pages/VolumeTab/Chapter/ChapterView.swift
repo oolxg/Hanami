@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ChapterView: View {
-    let store: Store<ChapterState, ChapterAction>
+    let store: StoreOf<ChapterFeature>
     @Environment(\.openURL) private var openURL
     
     private struct ViewState: Equatable {
@@ -17,11 +17,11 @@ struct ChapterView: View {
         let chaptersCount: Int
         let online: Bool
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
-        let cachedChaptersStates: Set<ChapterState.CachedChapterState>
+        let cachedChaptersStates: Set<ChapterFeature.State.CachedChapterState>
         let areChaptersShown: Bool
         let scanlationGroups: [UUID: ScanlationGroup]
         
-        init(state: ChapterState) {
+        init(state: ChapterFeature.State) {
             chapter = state.chapter
             chaptersCount = state.chaptersCount
             online = state.online
@@ -63,15 +63,8 @@ struct ChapterView_Previews: PreviewProvider {
     static var previews: some View {
         ChapterView(
             store: .init(
-                initialState: ChapterState(chapter: dev.chapter, parentManga: dev.manga),
-                reducer: chapterReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    imageClient: .live,
-                    cacheClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                initialState: ChapterFeature.State(chapter: dev.chapter, parentManga: dev.manga),
+                reducer: ChapterFeature()._printChanges()
             )
         )
     }

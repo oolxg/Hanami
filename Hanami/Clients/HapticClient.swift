@@ -9,13 +9,20 @@
 import SwiftUI
 import ComposableArchitecture
 
+extension DependencyValues {
+    var hapticClient: HapticClient {
+        get { self[HapticClient.self] }
+        set { self[HapticClient.self] = newValue }
+    }
+}
+
 struct HapticClient {
     let generateFeedback: (UIImpactFeedbackGenerator.FeedbackStyle) -> Effect<Never, Never>
     let generateNotificationFeedback: (UINotificationFeedbackGenerator.FeedbackType) -> Effect<Never, Never>
 }
 
-extension HapticClient {
-    static let live: Self = .init(
+extension HapticClient: DependencyKey {
+    static let liveValue: HapticClient = .init(
         generateFeedback: { style in
             .fireAndForget {
                 HapticUtil.generateFeedback(style: style)
@@ -27,4 +34,8 @@ extension HapticClient {
             }
         }
     )
+    
+    static var testValue: HapticClient {
+        fatalError("Unimplemented")
+    }
 }

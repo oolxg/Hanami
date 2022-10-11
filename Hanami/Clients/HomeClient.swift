@@ -8,6 +8,13 @@
 import Foundation
 import ComposableArchitecture
 
+extension DependencyValues {
+    var homeClient: HomeClient {
+        get { self[HomeClient.self] }
+        set { self[HomeClient.self] = newValue }
+    }
+}
+
 struct HomeClient {
     let fetchLastUpdates: () -> Effect<Response<[Manga]>, AppError>
     let fetchAllSeasonalTitlesLists: () -> Effect<Response<[CustomMangaList]>, AppError>
@@ -19,8 +26,8 @@ struct HomeClient {
     let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
 }
 
-extension HomeClient {
-    static var live = HomeClient(
+extension HomeClient: DependencyKey {
+    static var liveValue = HomeClient(
         fetchLastUpdates: {
             var components = URLComponents()
             components.scheme = "https"
@@ -189,4 +196,8 @@ extension HomeClient {
             return URLSession.shared.get(url: url, decodeResponseAs: MangaStatisticsContainer.self)
         }
     )
+    
+    static var testValue: HomeClient {
+        fatalError("Unimplemented")
+    }
 }

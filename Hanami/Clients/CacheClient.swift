@@ -11,6 +11,13 @@ import Combine
 import Foundation
 import class SwiftUI.UIImage
 
+extension DependencyValues {
+    var cacheClient: CacheClient {
+        get { self[CacheClient.self] }
+        set { self[CacheClient.self] = newValue }
+    }
+}
+
 struct CacheClient {
     private enum CacheFolderPathes {
         private static let storagePathURL: URL = {
@@ -121,8 +128,8 @@ struct CacheClient {
     let removeCachedChapterIDFromMemory: (_ mangaID: UUID, _ chapterID: UUID) -> Effect<Never, Never>
 }
 
-extension CacheClient {
-    static let live = CacheClient(
+extension CacheClient: DependencyKey {
+    static let liveValue = CacheClient(
         cacheImage: { image, imageName in
             .fireAndForget {
                 cacheQueue.async {
@@ -223,4 +230,8 @@ extension CacheClient {
             }
         }
     )
+    
+    static var testValue: CacheClient {
+        fatalError("Unimplemented")
+    }
 }

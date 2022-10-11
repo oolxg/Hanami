@@ -9,10 +9,10 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PagesView: View {
-    private let store: Store<PagesState, PagesAction>
-    private let viewStore: ViewStore<PagesState, PagesAction>
+    private let store: StoreOf<PagesFeature>
+    private let viewStore: ViewStoreOf<PagesFeature>
     
-    init(store: Store<PagesState, PagesAction>) {
+    init(store: StoreOf<PagesFeature>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -34,7 +34,7 @@ struct PagesView: View {
             ForEachStore(
                 store.scope(
                     state: \.volumeTabStatesOnCurrentPage,
-                    action: PagesAction.volumeTabAction
+                    action: PagesFeature.Action.volumeTabAction
                 ),
                 content: VolumeTabView.init
             )
@@ -51,14 +51,7 @@ struct PagesView_Previews: PreviewProvider {
         PagesView(
             store: .init(
                 initialState: .init(manga: dev.manga, mangaVolumes: [], chaptersPerPage: 1, online: true),
-                reducer: pagesReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    imageClient: .live,
-                    cacheClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                reducer: PagesFeature()._printChanges()
             )
         )
     }
@@ -117,7 +110,7 @@ extension PagesView {
             Picker(
                 selection: viewStore.binding(
                     get: \.currentPageIndex,
-                    send: PagesAction.changePage
+                    send: PagesFeature.Action.changePage
                 )
             ) {
                 ForEach(0..<viewStore.pagesCount, id: \.self) { pageIndex in

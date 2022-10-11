@@ -9,12 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct DownloadsView: View {
-    let store: Store<DownloadsState, DownloadsAction>
+    let store: StoreOf<DownloadsFeature>
     
     private struct ViewState: Equatable {
         let cachedMangaCount: Int
         
-        init(state: DownloadsState) {
+        init(state: DownloadsFeature.State) {
             cachedMangaCount = state.cachedMangaThumbnailStates.count
         }
     }
@@ -39,7 +39,7 @@ struct DownloadsView: View {
                             ForEachStore(
                                 store.scope(
                                     state: \.cachedMangaThumbnailStates,
-                                    action: DownloadsAction.cachedMangaThumbnailAction
+                                    action: DownloadsFeature.Action.cachedMangaThumbnailAction
                                 )
                             ) { thumbnailViewStore in
                                 MangaThumbnailView(store: thumbnailViewStore)
@@ -60,16 +60,8 @@ struct DownloadsView_Previews: PreviewProvider {
     static var previews: some View {
         DownloadsView(
             store: .init(
-                initialState: .init(),
-                reducer: downloadsReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    hapticClient: .live,
-                    cacheClient: .live,
-                    imageClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                initialState: DownloadsFeature.State(),
+                reducer: DownloadsFeature()._printChanges()
             )
         )
     }

@@ -8,281 +8,232 @@
 import Foundation
 import ComposableArchitecture
 
-struct HomeState: Equatable {
-    var lastUpdatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
-    var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
-    var awardWinningMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
-    var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailState> = []
+struct HomeFeature: ReducerProtocol {
+    struct State: Equatable {
+        var lastUpdatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var awardWinningMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        
+        var isRefreshActionInProgress = false
+        var lastRefreshDate: Date?
+        var seasonalMangaListID: UUID?
+        var seasonalTabName: String?
+    }
     
-    var isRefreshActionInProgress = false
-    var lastRefreshDate: Date?
-    var seasonalMangaListID: UUID?
-    var seasonalTabName: String?
-}
-
-enum HomeAction {
-    case onAppear
-    case refresh
-    case refreshDelayCompleted
-    case statisticsFetched(
-        Result<MangaStatisticsContainer, AppError>, WritableKeyPath<HomeState, IdentifiedArrayOf<MangaThumbnailState>>
-    )
-    case mangaListFetched(
-        Result<Response<[Manga]>, AppError>, WritableKeyPath<HomeState, IdentifiedArrayOf<MangaThumbnailState>>
-    )
+    enum Action {
+        case onAppear
+        case refresh
+        case refreshDelayCompleted
+        case statisticsFetched(
+            Result<MangaStatisticsContainer, AppError>,
+            WritableKeyPath<State, IdentifiedArrayOf<MangaThumbnailFeature.State>>
+        )
+        case mangaListFetched(
+            Result<Response<[Manga]>, AppError>,
+            WritableKeyPath<State, IdentifiedArrayOf<MangaThumbnailFeature.State>>
+        )
+        
+        case adminUserListsFetched(Result<Response<[CustomMangaList]>, AppError>)
+        case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
+        
+        case userOpenedAwardWinningView
+        case userOpenedMostFollowedView
+        
+        case lastUpdatesMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+        case seasonalMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+        case awardWinningMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+        case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+    }
     
-    case adminUserListsFetched(Result<Response<[CustomMangaList]>, AppError>)
-    case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
-    
-    case userOpenedAwardWinningView
-    case userOpenedMostFollowedView
-    
-    case lastUpdatesMangaThumbnailAction(UUID, MangaThumbnailAction)
-    case seasonalMangaThumbnailAction(UUID, MangaThumbnailAction)
-    case awardWinningMangaThumbnailAction(UUID, MangaThumbnailAction)
-    case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailAction)
-}
+    @Dependency(\.homeClient) var homeClient
+    @Dependency(\.hudClient) var hudClient
+    @Dependency(\.hapticClient) var hapticClient
+    @Dependency(\.imageClient) var imageClient
 
-struct HomeEnvironment {
-    let databaseClient: DatabaseClient
-    let hapticClient: HapticClient
-    let cacheClient: CacheClient
-    let imageClient: ImageClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
-    let hudClient: HUDClient
-}
-
-let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
-    mangaThumbnailReducer
-        .forEach(
-            state: \.lastUpdatedMangaThumbnailStates,
-            action: /HomeAction.lastUpdatesMangaThumbnailAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    imageClient: $0.imageClient,
-                    cacheClient: $0.cacheClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    mangaThumbnailReducer
-        .forEach(
-            state: \.seasonalMangaThumbnailStates,
-            action: /HomeAction.seasonalMangaThumbnailAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    imageClient: $0.imageClient,
-                    cacheClient: $0.cacheClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    mangaThumbnailReducer
-        .forEach(
-            state: \.awardWinningMangaThumbnailStates,
-            action: /HomeAction.awardWinningMangaThumbnailAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    imageClient: $0.imageClient,
-                    cacheClient: $0.cacheClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    mangaThumbnailReducer
-        .forEach(
-            state: \.mostFollowedMangaThumbnailStates,
-            action: /HomeAction.mostFollowedMangaThumbnailAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    imageClient: $0.imageClient,
-                    cacheClient: $0.cacheClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    Reducer { state, action, env in
-        switch action {
-            case .onAppear:
-                guard state.lastUpdatedMangaThumbnailStates.isEmpty else { return .none }
-                
-                return .merge(
-                    env.homeClient.fetchLastUpdates()
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect { HomeAction.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
+    var body: some ReducerProtocol<State, Action> {
+        Reduce { state, action in
+            switch action {
+                case .onAppear:
+                    guard state.lastUpdatedMangaThumbnailStates.isEmpty else { return .none }
                     
-                    env.homeClient.fetchAllSeasonalTitlesLists()
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(HomeAction.adminUserListsFetched)
-                    )
-                
-            case .refresh:
-                let now = Date()
-                
-                guard state.lastRefreshDate == nil || now - state.lastRefreshDate! > 10 else {
-                    env.hudClient.show(message: "Wait a little to refresh home page", backgroundColor: .yellow)
-                    return env.hapticClient
-                        .generateNotificationFeedback(.error)
-                        .fireAndForget()
-                }
-                
-                state.isRefreshActionInProgress = true
-                state.lastRefreshDate = now
-                
-                var fetchedMangaIDs: [UUID] = []
-                
-                fetchedMangaIDs.append(contentsOf: state.awardWinningMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.mostFollowedMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.lastUpdatedMangaThumbnailStates.map(\.id))
-                fetchedMangaIDs.append(contentsOf: state.seasonalMangaThumbnailStates.map(\.id))
-
-                state.awardWinningMangaThumbnailStates.removeAll()
-                state.mostFollowedMangaThumbnailStates.removeAll()
-                
-                var effects = [
-                    env.hapticClient.generateNotificationFeedback(.success).fireAndForget(),
-                    
-                    .cancel(ids: fetchedMangaIDs.map { OnlineMangaViewState.CancelClearCache(mangaID: $0) }),
-                    
-                    env.homeClient.fetchLastUpdates()
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect { HomeAction.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
-                    
-                    .task { .refreshDelayCompleted }
-                        .delay(for: .seconds(3), scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                ]
-                
-                if let seasonalListID = state.seasonalMangaListID {
-                    effects.append(
-                        env.homeClient.fetchSeasonalTitlesList(seasonalListID)
+                    return .merge(
+                        homeClient.fetchLastUpdates()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(HomeAction.seasonalMangaListFetched)
-                    )
-                }
-                
-                return .merge(effects)
-                
-            case .refreshDelayCompleted:
-                state.isRefreshActionInProgress = false
-                return .none
-                
-            case .userOpenedAwardWinningView:
-                guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
-                
-                return env.homeClient.fetchAwardWinningManga()
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect { HomeAction.mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
-                
-            case .userOpenedMostFollowedView:
-                guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
-                
-                return env.homeClient.fetchMostFollowedManga()
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect { HomeAction.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
-                
-            case .adminUserListsFetched(let result):
-                switch result {
-                    case .success(let response):
-                        let seasonalList = env.homeClient.getCurrentSeasonTitlesListID(response.data)
-                        state.seasonalMangaListID = seasonalList.id
-                        state.seasonalTabName = seasonalList.name
+                            .catchToEffect { .mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
                         
-                        return env.homeClient
-                            .fetchSeasonalTitlesList(seasonalList.id)
+                        homeClient.fetchAllSeasonalTitlesLists()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(HomeAction.seasonalMangaListFetched)
+                            .catchToEffect(Action.adminUserListsFetched)
+                    )
+                    
+                case .refresh:
+                    let now = Date()
+                    
+                    guard state.lastRefreshDate == nil || now - state.lastRefreshDate! > 10 else {
+                        hudClient.show(message: "Wait a little to refresh home page", backgroundColor: .yellow)
+                        return hapticClient
+                            .generateNotificationFeedback(.error)
+                            .fireAndForget()
+                    }
+                    
+                    state.isRefreshActionInProgress = true
+                    state.lastRefreshDate = now
+                    
+                    var fetchedMangaIDs: [UUID] = []
+                    
+                    fetchedMangaIDs.append(contentsOf: state.awardWinningMangaThumbnailStates.map(\.id))
+                    fetchedMangaIDs.append(contentsOf: state.mostFollowedMangaThumbnailStates.map(\.id))
+                    fetchedMangaIDs.append(contentsOf: state.lastUpdatedMangaThumbnailStates.map(\.id))
+                    fetchedMangaIDs.append(contentsOf: state.seasonalMangaThumbnailStates.map(\.id))
+                    
+                    state.awardWinningMangaThumbnailStates.removeAll()
+                    state.mostFollowedMangaThumbnailStates.removeAll()
+                    
+                    var effects = [
+                        hapticClient.generateNotificationFeedback(.success).fireAndForget(),
                         
-                    case .failure(let error):
-                        print("error: \(error.description)")
-                        return .none
-                }
-                
-            case .mangaListFetched(let result, let keyPath):
-                switch result {
-                    case .success(let response):
-                        let mangaIDsList = state[keyPath: keyPath].map(\.id)
-                        let fetchedMangaIDsList = Array(response.data.map(\.id)[0..<25])
+                        .cancel(ids: fetchedMangaIDs.map { OnlineMangaFeature.CancelClearCache(mangaID: $0) }),
                         
-                        guard mangaIDsList != fetchedMangaIDsList else {
-                            return .none
-                        }
+                        homeClient.fetchLastUpdates()
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect { Action.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
                         
-                        state[keyPath: keyPath] = .init(
-                            uniqueElements: response.data[0..<25].map { MangaThumbnailState(manga: $0) }
-                        )
-                        
-                        let coverArtURLs = state[keyPath: keyPath].compactMap(\.thumbnailURL)
-                        
-                        return .merge(
-                            env.homeClient.fetchStatistics(response.data.map(\.id))
+                        .task { .refreshDelayCompleted }
+                            .delay(for: .seconds(3), scheduler: DispatchQueue.main)
+                            .eraseToEffect()
+                    ]
+                    
+                    if let seasonalListID = state.seasonalMangaListID {
+                        effects.append(
+                            homeClient.fetchSeasonalTitlesList(seasonalListID)
                                 .receive(on: DispatchQueue.main)
-                                .catchToEffect { HomeAction.statisticsFetched($0, keyPath) },
-                            
-                            env.imageClient.prefetchImages(coverArtURLs)
-                                .fireAndForget()
+                                .catchToEffect(Action.seasonalMangaListFetched)
                         )
+                    }
+                    
+                    return .merge(effects)
+                    
+                case .refreshDelayCompleted:
+                    state.isRefreshActionInProgress = false
+                    return .none
+                    
+                case .userOpenedAwardWinningView:
+                    guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
+                    
+                    return homeClient.fetchAwardWinningManga()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect { Action.mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
+                    
+                case .userOpenedMostFollowedView:
+                    guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
+                    
+                    return homeClient.fetchMostFollowedManga()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect { Action.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
+                    
+                case .adminUserListsFetched(let result):
+                    switch result {
+                        case .success(let response):
+                            let seasonalList = homeClient.getCurrentSeasonTitlesListID(response.data)
+                            state.seasonalMangaListID = seasonalList.id
+                            state.seasonalTabName = seasonalList.name
                             
-                    case .failure(let error):
-                        env.hudClient.show(message: error.description)
-                        state.lastRefreshDate = nil
-                        print("error: \(error.description)")
-                        return env.hapticClient.generateNotificationFeedback(.error).fireAndForget()
-                }
-                
-            case .statisticsFetched(let result, let keyPath):
-                switch result {
-                    case .success(let response):
-                        for stat in response.statistics {
-                            state[keyPath: keyPath][id: stat.key]?.onlineMangaState!.statistics = stat.value
-                        }
-                        
-                        return .none
-                        
-                    case .failure(let error):
-                        print("Error on fetching statistics on homeReducer: \(error.description)")
-                        return .none
-                }
-                
-            case .seasonalMangaListFetched(let result):
-                switch result {
-                    case .success(let response):
-                        let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
-                        
-                        return env.homeClient
-                            .fetchMangaByIDs(mangaIDs)
-                            .receive(on: DispatchQueue.main)
-                            .catchToEffect { HomeAction.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
-
-                    case .failure(let error):
-                        print("error: \(error.description)")
-                        return .none
-                }
-                
-            case .lastUpdatesMangaThumbnailAction:
-                return .none
-                
-            case .seasonalMangaThumbnailAction:
-                return .none
-                
-            case .awardWinningMangaThumbnailAction:
-                return .none
-                
-            case .mostFollowedMangaThumbnailAction:
-                return .none
+                            return homeClient
+                                .fetchSeasonalTitlesList(seasonalList.id)
+                                .receive(on: DispatchQueue.main)
+                                .catchToEffect(Action.seasonalMangaListFetched)
+                            
+                        case .failure(let error):
+                            print("error: \(error.description)")
+                            return .none
+                    }
+                    
+                case .mangaListFetched(let result, let keyPath):
+                    switch result {
+                        case .success(let response):
+                            let mangaIDsList = state[keyPath: keyPath].map(\.id)
+                            let fetchedMangaIDsList = Array(response.data.map(\.id)[0..<25])
+                            
+                            guard mangaIDsList != fetchedMangaIDsList else {
+                                return .none
+                            }
+                            
+                            state[keyPath: keyPath] = .init(
+                                uniqueElements: response.data[0..<25].map { MangaThumbnailFeature.State(manga: $0) }
+                            )
+                            
+                            let coverArtURLs = state[keyPath: keyPath].compactMap(\.thumbnailURL)
+                            
+                            return .merge(
+                                homeClient.fetchStatistics(response.data.map(\.id))
+                                    .receive(on: DispatchQueue.main)
+                                    .catchToEffect { Action.statisticsFetched($0, keyPath) },
+                                
+                                imageClient.prefetchImages(coverArtURLs)
+                                    .fireAndForget()
+                            )
+                            
+                        case .failure(let error):
+                            hudClient.show(message: error.description)
+                            state.lastRefreshDate = nil
+                            print("error: \(error.description)")
+                            return hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                    }
+                    
+                case .statisticsFetched(let result, let keyPath):
+                    switch result {
+                        case .success(let response):
+                            for stat in response.statistics {
+                                state[keyPath: keyPath][id: stat.key]?.onlineMangaState!.statistics = stat.value
+                            }
+                            
+                            return .none
+                            
+                        case .failure(let error):
+                            print("Error on fetching statistics on homeReducer: \(error.description)")
+                            return .none
+                    }
+                    
+                case .seasonalMangaListFetched(let result):
+                    switch result {
+                        case .success(let response):
+                            let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
+                            
+                            return homeClient
+                                .fetchMangaByIDs(mangaIDs)
+                                .receive(on: DispatchQueue.main)
+                                .catchToEffect { Action.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
+                            
+                        case .failure(let error):
+                            print("error: \(error.description)")
+                            return .none
+                    }
+                    
+                case .lastUpdatesMangaThumbnailAction:
+                    return .none
+                    
+                case .seasonalMangaThumbnailAction:
+                    return .none
+                    
+                case .awardWinningMangaThumbnailAction:
+                    return .none
+                    
+                case .mostFollowedMangaThumbnailAction:
+                    return .none
+            }
+        }
+        .forEach(\.lastUpdatedMangaThumbnailStates, action: /Action.lastUpdatesMangaThumbnailAction) {
+            MangaThumbnailFeature()
+        }
+        .forEach(\.seasonalMangaThumbnailStates, action: /Action.seasonalMangaThumbnailAction) {
+            MangaThumbnailFeature()
+        }
+        .forEach(\.awardWinningMangaThumbnailStates, action: /Action.awardWinningMangaThumbnailAction) {
+            MangaThumbnailFeature()
+        }
+        .forEach(\.mostFollowedMangaThumbnailStates, action: /Action.mostFollowedMangaThumbnailAction) {
+            MangaThumbnailFeature()
         }
     }
-)
+}

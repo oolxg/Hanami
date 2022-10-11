@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct HomeView: View {
-    let store: Store<HomeState, HomeAction>
+    let store: StoreOf<HomeFeature>
     @State private var showSeasonal = false
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
@@ -23,7 +23,7 @@ struct HomeView: View {
         let areMostFollowedTitlesFetched: Bool
         let seasonalMangaTabName: String
         
-        init(state: HomeState) {
+        init(state: HomeFeature.State) {
             isRefreshActionInProgress = state.isRefreshActionInProgress
             areSeasonalTitlesFetched = !state.seasonalMangaThumbnailStates.isEmpty
             areLatestUpdatesFetched = !state.lastUpdatedMangaThumbnailStates.isEmpty
@@ -126,17 +126,8 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
             store: .init(
-                initialState: HomeState(),
-                reducer: homeReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    hapticClient: .live,
-                    cacheClient: .live,
-                    imageClient: .live,
-                    mangaClient: .live,
-                    homeClient: .live,
-                    hudClient: .live
-                )
+                initialState: HomeFeature.State(),
+                reducer: HomeFeature()._printChanges()
             )
         )
     }
@@ -151,7 +142,7 @@ extension HomeView {
                         ForEachStore(
                             store.scope(
                                 state: \.lastUpdatedMangaThumbnailStates,
-                                action: HomeAction.lastUpdatesMangaThumbnailAction
+                                action: HomeFeature.Action.lastUpdatesMangaThumbnailAction
                             )
                         ) { thumbnailViewStore in
                             MangaThumbnailView(store: thumbnailViewStore)
@@ -228,7 +219,7 @@ extension HomeView {
                         ForEachStore(
                             store.scope(
                                 state: \.seasonalMangaThumbnailStates,
-                                action: HomeAction.seasonalMangaThumbnailAction
+                                action: HomeFeature.Action.seasonalMangaThumbnailAction
                             )) { thumbnailStore in
                                 MangaThumbnailView(store: thumbnailStore)
                                     .padding(5)
@@ -295,7 +286,7 @@ extension HomeView {
                             ForEachStore(
                                 store.scope(
                                     state: \.mostFollowedMangaThumbnailStates,
-                                    action: HomeAction.mostFollowedMangaThumbnailAction
+                                    action: HomeFeature.Action.mostFollowedMangaThumbnailAction
                                 )) { thumbnailStore in
                                     MangaThumbnailView(store: thumbnailStore)
                                         .padding(5)
@@ -366,7 +357,7 @@ extension HomeView {
                             ForEachStore(
                                 store.scope(
                                     state: \.awardWinningMangaThumbnailStates,
-                                    action: HomeAction.awardWinningMangaThumbnailAction
+                                    action: HomeFeature.Action.awardWinningMangaThumbnailAction
                                 )) { thumbnailStore in
                                     MangaThumbnailView(store: thumbnailStore)
                                         .padding(5)

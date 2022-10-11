@@ -10,7 +10,7 @@ import ComposableArchitecture
 import NukeUI
 
 struct OnlineMangaReadingView: View {
-    let store: Store<OnlineMangaReadingViewState, OnlineMangaReadingViewAction>
+    let store: StoreOf<OnlineMangaReadingFeature>
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
@@ -22,7 +22,7 @@ struct OnlineMangaReadingView: View {
         let chapterIndexes: [Double]
         let afterLastPageIndex: Int
         
-        init(state: OnlineMangaReadingViewState) {
+        init(state: OnlineMangaReadingFeature.State) {
             pagesURLs = state.pagesInfo?.pagesURLs ?? []
             pagesCount = state.pagesCount
             startFromLastPage = state.startFromLastPage
@@ -202,14 +202,7 @@ struct OnlineMangaReadingView_Previews: PreviewProvider {
                     scanlationGroupID: .init(),
                     translatedLanguage: ""
                 ),
-                reducer: onlineMangaReadingViewReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    cacheClient: .live,
-                    imageClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                reducer: OnlineMangaReadingFeature()._printChanges()
             )
         )
     }

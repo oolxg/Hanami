@@ -10,7 +10,7 @@ import ComposableArchitecture
 import NukeUI
 
 struct OfflineMangaReadingView: View {
-    let store: Store<OfflineMangaReadingViewState, OfflineMangaReadingViewAction>
+    let store: StoreOf<OfflineMangaReadingFeature>
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
@@ -22,7 +22,7 @@ struct OfflineMangaReadingView: View {
         let startFromLastPage: Bool
         let chapterIndexes: [Double]
         
-        init(state: OfflineMangaReadingViewState) {
+        init(state: OfflineMangaReadingFeature.State) {
             chapterIndex = state.chapter.attributes.chapterIndex
             chapterID = state.chapter.id
             pagesCount = state.pagesCount

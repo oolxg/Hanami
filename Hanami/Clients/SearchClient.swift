@@ -8,14 +8,21 @@
 import Foundation
 import ComposableArchitecture
 
+extension DependencyValues {
+    var searchClient: SearchClient {
+        get { self[SearchClient.self] }
+        set { self[SearchClient.self] = newValue }
+    }
+}
+
 struct SearchClient {
-    let makeSearchRequest: (SearchState.SearchParams) -> Effect<Response<[Manga]>, AppError>
+    let makeSearchRequest: (SearchFeature.SearchParams) -> Effect<Response<[Manga]>, AppError>
     let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
     let fetchTags: () -> Effect<Response<[Tag]>, AppError>
 }
 
-extension SearchClient {
-    static var live = SearchClient(
+extension SearchClient: DependencyKey {
+    static var liveValue = SearchClient(
         makeSearchRequest: { requestParams in
             var components = URLComponents()
             
@@ -93,4 +100,9 @@ extension SearchClient {
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Tag]>.self)
         }
     )
+    
+    
+    static var testValue: SearchClient {
+        fatalError("Unimplemented")
+    }
 }

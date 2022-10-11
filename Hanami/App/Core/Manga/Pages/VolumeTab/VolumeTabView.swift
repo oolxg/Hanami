@@ -9,13 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct VolumeTabView: View {
-    let store: Store<VolumeTabState, VolumeTabAction>
+    let store: StoreOf<VolumeTabFeature>
     
     struct ViewState: Equatable {
         let volumeName: String
         let splitChapterIndexes: [[Int]]
         
-        init(state: VolumeTabState) {
+        init(state: VolumeTabFeature.State) {
             volumeName = state.volume.volumeName
             // splitting chapter indexes as subsequences, e.g.
             // [1, 2, 3, 5, 9, 10] will be [[1, 2, 3], [5], [9, 10]]
@@ -46,7 +46,7 @@ struct VolumeTabView: View {
             ForEachStore(
                 store.scope(
                     state: \.chapterStates,
-                    action: VolumeTabAction.chapterAction
+                    action: VolumeTabFeature.Action.chapterAction
                 ),
                 content: ChapterView.init
             )
@@ -63,14 +63,7 @@ struct VolumeTabView_Previews: PreviewProvider {
                 initialState: .init(
                     volume: .init(chapters: [], volumeIndex: 99999), parentManga: dev.manga, online: false
                 ),
-                reducer: volumeTabReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    imageClient: .live,
-                    cacheClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                reducer: VolumeTabFeature()._printChanges()
             )
         )
     }

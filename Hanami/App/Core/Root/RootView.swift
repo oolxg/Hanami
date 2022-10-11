@@ -9,55 +9,67 @@ import SwiftUI
 import ComposableArchitecture
 
 struct RootView: View {
-    let store: Store<RootState, RootAction>
-    @StateObject private var hudState = HUDClient.live
+    let store: StoreOf<RootFeature>
+    @StateObject private var hudState = HUDClient.liveValue
     
     private struct ViewState: Equatable {
-        let selectedTab: RootState.Tab
+        let selectedTab: RootFeature.State.Tab
         
-        init(state: RootState) {
+        init(state: RootFeature.State) {
             selectedTab = state.selectedTab
         }
     }
     
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            TabView(selection: viewStore.binding(get: \.selectedTab, send: RootAction.tabChanged)) {
+            TabView(selection: viewStore.binding(get: \.selectedTab, send: RootFeature.Action.tabChanged)) {
                 HomeView(
                     store: store.scope(
                         state: \.homeState,
-                        action: RootAction.homeAction
+                        action: RootFeature.Action.homeAction
                     )
                 )
                 .tabItem {
                     Image(systemName: "house")
                     Text("Home")
                 }
-                .tag(RootState.Tab.home)
+                .tag(RootFeature.State.Tab.home)
                 
                 DownloadsView(
                     store: store.scope(
                         state: \.downloadsState,
-                        action: RootAction.downloadsAction
+                        action: RootFeature.Action.downloadsAction
                     )
                 )
                 .tabItem {
                     Image(systemName: "square.and.arrow.down")
                     Text("Downloads")
                 }
-                .tag(RootState.Tab.downloads)
+                .tag(RootFeature.State.Tab.downloads)
                 
                 SearchView(
                     store: store.scope(
                         state: \.searchState,
-                        action: RootAction.searchAction
+                        action: RootFeature.Action.searchAction
                     )
                 )
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
-                .tag(RootState.Tab.search)
+                .tag(RootFeature.State.Tab.search)
+                
+                SettingsView(
+                    store: store.scope(
+                        state: \.settingsState,
+                        action: RootFeature.Action.settingsAction
+                    )
+                )
+                .tabItem {
+                    Image(systemName: "gear")
+                    Text("Settings")
+                }
+                .tag(RootFeature.State.Tab.settings)
             }
         }
         .hud(

@@ -10,7 +10,7 @@ import ComposableArchitecture
 import NukeUI
 
 struct MangaThumbnailView: View {
-    let store: Store<MangaThumbnailState, MangaThumbnailAction>
+    let store: StoreOf<MangaThumbnailFeature>
     @State private var isNavigationLinkActive = false
     
     private struct ViewState: Equatable {
@@ -19,7 +19,7 @@ struct MangaThumbnailView: View {
         let mangaStatistics: MangaStatistics?
         let thumbnailURL: URL?
         
-        init(state: MangaThumbnailState) {
+        init(state: MangaThumbnailFeature.State) {
             online = state.online
             manga = state.manga
             mangaStatistics = state.mangaStatistics
@@ -59,15 +59,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                 initialState: .init(
                     manga: dev.manga
                 ),
-                reducer: mangaThumbnailReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    hapticClient: .live,
-                    imageClient: .live,
-                    cacheClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                reducer: MangaThumbnailFeature()._printChanges()
             )
         )
     }
@@ -122,14 +114,14 @@ extension MangaThumbnailView {
                 OnlineMangaView(
                     store: store.scope(
                         state: \.onlineMangaState!,
-                        action: MangaThumbnailAction.onlineMangaAction
+                        action: MangaThumbnailFeature.Action.onlineMangaAction
                     )
                 )
             } else {
                 OfflineMangaView(
                     store: store.scope(
                         state: \.offlineMangaState!,
-                        action: MangaThumbnailAction.offlineMangaAction
+                        action: MangaThumbnailFeature.Action.offlineMangaAction
                     )
                 )
             }

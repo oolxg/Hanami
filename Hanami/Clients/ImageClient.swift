@@ -11,6 +11,13 @@ import Nuke
 import Foundation
 import class SwiftUI.UIImage
 
+extension DependencyValues {
+    var imageClient: ImageClient {
+        get { self[ImageClient.self] }
+        set { self[ImageClient.self] = newValue }
+    }
+}
+
 struct ImageClient {
     let prefetchImages: ([URL]) -> Effect<Never, Never>
     let downloadImage: (URL) -> Effect<Result<UIImage, AppError>, Never>
@@ -18,8 +25,8 @@ struct ImageClient {
     private static let prefetcher = ImagePrefetcher(maxConcurrentRequestCount: 5)
 }
 
-extension ImageClient {
-    static var live = ImageClient(
+extension ImageClient: DependencyKey {
+    static var liveValue = ImageClient(
         prefetchImages: { urls in
             .fireAndForget {
                 prefetcher.startPrefetching(with: urls)
@@ -45,4 +52,8 @@ extension ImageClient {
             .catchToEffect()
         }
     )
+    
+    static var testValue: ImageClient {
+        fatalError("Unimplemented")
+    }
 }

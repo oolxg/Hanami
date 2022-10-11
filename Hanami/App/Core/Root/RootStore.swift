@@ -8,103 +8,64 @@
 import Foundation
 import ComposableArchitecture
 
-struct RootState: Equatable {
-    var homeState = HomeState()
-    var searchState = SearchState()
-    var downloadsState = DownloadsState()
-    
-    enum Tab: Equatable {
-        case home, search, downloads
+struct RootFeature: ReducerProtocol {
+    struct State: Equatable {
+        var homeState = HomeFeature.State()
+        var searchState = SearchFeature.State()
+        var downloadsState = DownloadsFeature.State()
+        var settingsState = SettingsFeature.State()
+        
+        enum Tab: Equatable {
+            case home, search, downloads, settings
+        }
+        
+        var selectedTab: Tab
     }
     
-    var selectedTab: Tab
-}
-
-enum RootAction {
-    case tabChanged(RootState.Tab)
-    case homeAction(HomeAction)
-    case searchAction(SearchAction)
-    case downloadsAction(DownloadsAction)
-}
-
-struct RootEnvironment {
-    let databaseClient: DatabaseClient
-    let hapticClient: HapticClient
-    let searchClient: SearchClient
-    let cacheClient: CacheClient
-    let imageClient: ImageClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
-    let hudClient: HUDClient
-}
-
-let rootReducer = Reducer<RootState, RootAction, RootEnvironment>.combine(
-    homeReducer
-        .pullback(
-            state: \.homeState,
-            action: /RootAction.homeAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    cacheClient: $0.cacheClient,
-                    imageClient: $0.imageClient,
-                    mangaClient: $0.mangaClient,
-                    homeClient: $0.homeClient,
-                    hudClient: $0.hudClient
-                )
+    enum Action {
+        case tabChanged(RootFeature.State.Tab)
+        case homeAction(HomeFeature.Action)
+        case searchAction(SearchFeature.Action)
+        case downloadsAction(DownloadsFeature.Action)
+        case settingsAction(SettingsFeature.Action)
+    }
+    
+    var body: some ReducerProtocol<State, Action> {
+        Reduce { state, action in
+            switch action {
+                case .tabChanged(let newTab):
+                    state.selectedTab = newTab
+                    
+                    if newTab == .downloads {
+                        return .task { .downloadsAction(.retrieveCachedManga) }
+                    }
+                    
+                    return .none
+                    
+                case .homeAction:
+                    return .none
+                    
+                case .searchAction:
+                    return .none
+                    
+                case .downloadsAction:
+                    return .none
+                    
+                case .settingsAction:
+                    return .none
             }
-        ),
-    searchReducer
-        .pullback(
-            state: \.searchState,
-            action: /RootAction.searchAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    searchClient: $0.searchClient,
-                    cacheClient: $0.cacheClient,
-                    imageClient: $0.imageClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    downloadsReducer
-        .pullback(
-            state: \.downloadsState,
-            action: /RootAction.downloadsAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    cacheClient: $0.cacheClient,
-                    imageClient: $0.imageClient,
-                    mangaClient: $0.mangaClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    Reducer { state, action, _ in
-        switch action {
-            case .tabChanged(let newTab):
-                state.selectedTab = newTab
-                
-                if newTab == .downloads {
-                    return .task { .downloadsAction(.retrieveCachedManga) }
-                }
-                
-                return .none
-                
-            case .homeAction:
-                return .none
-                
-            case .searchAction:
-                return .none
-                
-            case .downloadsAction:
-                return .none
+        }
+        Scope(state: \.homeState, action: /Action.homeAction) {
+            HomeFeature()
+        }
+        Scope(state: \.downloadsState, action: /Action.downloadsAction) {
+            DownloadsFeature()
+        }
+        Scope(state: \.searchState, action: /Action.searchAction) {
+            SearchFeature()
+        }
+        Scope(state: \.settingsState, action: /Action.settingsAction) {
+            SettingsFeature()
         }
     }
-)
+}

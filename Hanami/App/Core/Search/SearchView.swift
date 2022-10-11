@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchView: View {
-    let store: Store<SearchState, SearchAction>
+    let store: StoreOf<SearchFeature>
     @State private var showFilters = false
     @FocusState private var isSearchFieldFocused: Bool
     
@@ -18,7 +18,7 @@ struct SearchView: View {
             WithViewStore(store) { viewStore in
                 VStack {
                     HStack {
-                        SearchBarView(searchText: viewStore.binding(\.$searchText), showDismisButton: false)
+                        SearchBarView(searchText: viewStore.binding(\.$searchText))
                             .focused($isSearchFieldFocused)
                             .onTapGesture {
                                 isSearchFieldFocused = true
@@ -59,9 +59,11 @@ struct SearchView: View {
                 .sheet(isPresented: $showFilters, onDismiss: {
                     viewStore.send(.searchForManga)
                 }, content: {
-                    FiltersView(store: store.scope(
-                        state: \.filtersState,
-                        action: SearchAction.filterAction)
+                    FiltersView(
+                        store: store.scope(
+                            state: \.filtersState,
+                            action: SearchFeature.Action.filtersAction
+                        )
                     )
                 })
             }
@@ -74,16 +76,7 @@ struct SearchView_Previews: PreviewProvider {
         SearchView(
             store: .init(
                 initialState: .init(),
-                reducer: searchReducer,
-                environment: .init(
-                    databaseClient: .live,
-                    hapticClient: .live,
-                    searchClient: .live,
-                    cacheClient: .live,
-                    imageClient: .live,
-                    mangaClient: .live,
-                    hudClient: .live
-                )
+                reducer: SearchFeature()._printChanges()
             )
         )
         .preferredColorScheme(.dark)
@@ -128,7 +121,8 @@ extension SearchView {
                     ForEachStore(
                         store.scope(
                             state: \.searchResults,
-                            action: SearchAction.mangaThumbnailAction)
+                            action: SearchFeature.Action.mangaThumbnailAction
+                        )
                     ) { thumbnailStore in
                         MangaThumbnailView(store: thumbnailStore)
                             .padding(5)

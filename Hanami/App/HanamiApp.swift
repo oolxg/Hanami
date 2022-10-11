@@ -10,19 +10,9 @@ import ComposableArchitecture
 
 @main
 struct HanamiApp: App {
-    let store: Store<AppState, AppAction> = .init(
-        initialState: AppState(rootState: .init(selectedTab: .home)),
-        reducer: appReducer,
-        environment: .init(
-            databaseClient: .live,
-            hapticClient: .live,
-            searchClient: .live,
-            cacheClient: .live,
-            imageClient: .live,
-            mangaClient: .live,
-            homeClient: .live,
-            hudClient: .live
-        )
+    let store: StoreOf<AppFeature> = .init(
+        initialState: AppFeature.State(rootState: .init(selectedTab: .home)),
+        reducer: AppFeature()
     )
     
     init() {
@@ -43,7 +33,7 @@ struct HanamiApp: App {
             RootView(
                 store: store.scope(
                     state: \.rootState,
-                    action: AppAction.rootAction
+                    action: AppFeature.Action.rootAction
                 )
             )
             .onAppear {

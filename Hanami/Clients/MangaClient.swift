@@ -9,6 +9,13 @@ import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIImage
 
+extension DependencyValues {
+    var mangaClient: MangaClient {
+        get { self[MangaClient.self] }
+        set { self[MangaClient.self] = newValue }
+    }
+}
+
 struct MangaClient {
     // swiftlint:disable line_length
     // MARK: - Networking
@@ -21,11 +28,11 @@ struct MangaClient {
     let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
     
     // MARK: - Actions inside App
-    let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabState]]) -> Int?
+    let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabFeature.State]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
-    let findDidReadChapterOnMangaPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabState>) -> (volumeID: UUID, chapterID: UUID)?
+    let findDidReadChapterOnMangaPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabFeature.State>) -> (volumeID: UUID, chapterID: UUID)?
     
     let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
@@ -46,8 +53,8 @@ extension MangaClient {
     }
 }
 
-extension MangaClient {
-    static var live = MangaClient(
+extension MangaClient: DependencyKey {
+    static var liveValue = MangaClient(
         fetchMangaChapters: { mangaID, scanlationGroupID, translatedLanguage in
             var components = URLComponents()
             components.scheme = "https"
@@ -201,4 +208,8 @@ extension MangaClient {
             cacheClient.pathForImage(getCoverArtName(mangaID: mangaID))
         }
     )
+    
+    static var testValue: MangaClient {
+        fatalError("Unimplemented")
+    }
 }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchBarView: View {
     @Binding var searchText: String
-    let showDismisButton: Bool
     
     var body: some View {
         HStack {
@@ -25,7 +24,7 @@ struct SearchBarView: View {
                         .padding()
                         .offset(x: 10)
                         .foregroundColor(.white)
-                        .opacity((showDismisButton && !searchText.isEmpty) ? 1 : 0)
+                        .opacity(searchText.isEmpty ? 0 : 1)
                         .onTapGesture {
                             UIApplication.shared.endEditing()
                             searchText = ""
@@ -45,11 +44,11 @@ struct SearchBarView: View {
 struct SearchBarView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            SearchBarView(searchText: .constant(""), showDismisButton: true)
+            SearchBarView(searchText: .constant(""))
                 .previewLayout(.sizeThatFits)
                 .preferredColorScheme(.dark)
             
-            SearchBarView(searchText: .constant(""), showDismisButton: false)
+            SearchBarView(searchText: .constant(""))
                 .previewLayout(.sizeThatFits)
         }
     }

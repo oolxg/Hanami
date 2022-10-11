@@ -7,15 +7,26 @@
 
 import Foundation
 import SwiftUI
+import ComposableArchitecture
 
-final class HUDClient: ObservableObject {
+extension DependencyValues {
+    var hudClient: HUDClient {
+        get { self[HUDClient.self] }
+        set { self[HUDClient.self] = newValue }
+    }
+}
+
+final class HUDClient: ObservableObject, DependencyKey {
     @Published var isPresented = false
     private(set) var message = ""
     private(set) var hideAfter = 2.5
     private(set) var iconName: String?
     private(set) var backgroundColor: Color = .theme.red
     
-    static var live = HUDClient()
+    static var liveValue = HUDClient()
+    static var testValue: HUDClient {
+        fatalError("Unimplemented")
+    }
     
     private init () { }
     

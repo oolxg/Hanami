@@ -8,56 +8,35 @@
 import Foundation
 import ComposableArchitecture
 
-struct AppState: Equatable {
-    var rootState: RootState
-}
+struct AppFeature: ReducerProtocol {
+    struct State: Equatable {
+        var rootState: RootFeature.State
+    }
+    
+    enum Action {
+        case initApp
+        case rootAction(RootFeature.Action)
+    }
+    
+    @Dependency(\.databaseClient) var databaseClient
 
-enum AppAction {
-    case initApp
-    case rootAction(RootAction)
-}
-
-struct AppEnvironment {
-    let databaseClient: DatabaseClient
-    let hapticClient: HapticClient
-    let searchClient: SearchClient
-    let cacheClient: CacheClient
-    let imageClient: ImageClient
-    let mangaClient: MangaClient
-    let homeClient: HomeClient
-    let hudClient: HUDClient
-}
-
-let appReducer: Reducer<AppState, AppAction, AppEnvironment> = .combine(
-    rootReducer
-        .pullback(
-            state: \.rootState,
-            action: /AppAction.rootAction,
-            environment: {
-                .init(
-                    databaseClient: $0.databaseClient,
-                    hapticClient: $0.hapticClient,
-                    searchClient: $0.searchClient,
-                    cacheClient: $0.cacheClient,
-                    imageClient: $0.imageClient,
-                    mangaClient: $0.mangaClient,
-                    homeClient: $0.homeClient,
-                    hudClient: $0.hudClient
-                )
-            }
-        ),
-    Reducer { _, action, env in
-        switch action {
-            case .initApp:
-                return .concatenate(
-//                    env.databaseClient.dropDatabase().fireAndForget(),
-                    env.databaseClient.prepareDatabase().fireAndForget(),
+    var body: some ReducerProtocol<State, Action> {
+        Reduce { _, action in
+            switch action {
+                case .initApp:
+                    return .concatenate(
+//                        env.databaseClient.dropDatabase().fireAndForget(),
+                        databaseClient.prepareDatabase().fireAndForget(),
+                        
+                        .task { .rootAction(.downloadsAction(.retrieveCachedManga)) }
+                    )
                     
-                    .task { .rootAction(.downloadsAction(.retrieveCachedManga)) }
-                )
-                
-            case .rootAction:
-                return .none
+                case .rootAction:
+                    return .none
+            }
+        }
+        Scope(state: \.rootState, action: /Action.rootAction) {
+            RootFeature()
         }
     }
-)
+}

@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FiltersView: View {
-    let store: Store<FiltersState, FiltersAction>
+    let store: StoreOf<FilterFeature>
     @State private var showFormatFiltersPage = false
     @State private var showThemesFiltersPage = false
     @State private var showGenresFiltersPage = false
@@ -39,12 +39,8 @@ struct FiltersView_Previews: PreviewProvider {
     static var previews: some View {
         FiltersView(
             store: .init(
-                initialState: FiltersState(),
-                reducer: filterReducer,
-                environment: .init(
-                    hapticClient: .live,
-                    searchClient: .live
-                )
+                initialState: FilterFeature.State(),
+                reducer: FilterFeature()
             )
         )
         .preferredColorScheme(.dark)
@@ -181,7 +177,7 @@ extension FiltersView {
     
     @ViewBuilder private func makeNavigationLinkLabel<T, Content>(
         title: String,
-        _ path: KeyPath<FiltersState, IdentifiedArrayOf<T>>,
+        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<T>>,
         isActive: Binding<Bool>,
         _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FilterTagProtocol {
@@ -220,7 +216,7 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeFiltersViewFor(
-        _ path: KeyPath<FiltersState, IdentifiedArrayOf<FilterTag>>,
+        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<FilterTag>>,
         navTitle: String? = nil,
         isActive: Binding<Bool>? = nil
     ) -> some View {

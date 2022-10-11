@@ -10,7 +10,7 @@ import ComposableArchitecture
 import NukeUI
 
 struct OnlineMangaView: View {
-    let store: Store<OnlineMangaViewState, OnlineMangaViewAction>
+    let store: StoreOf<OnlineMangaFeature>
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
     @Namespace private var tabAnimationNamespace
@@ -96,7 +96,7 @@ extension OnlineMangaView {
         IfLetStore(
             store.scope(
                 state: \.mangaReadingViewState,
-                action: OnlineMangaViewAction.mangaReadingViewAction
+                action: OnlineMangaFeature.Action.mangaReadingViewAction
             ),
             then: OnlineMangaReadingView.init
         )
@@ -191,7 +191,7 @@ extension OnlineMangaView {
                     IfLetStore(
                         store.scope(
                             state: \.pagesState,
-                            action: OnlineMangaViewAction.pagesAction
+                            action: OnlineMangaFeature.Action.pagesAction
                         ),
                         then: PagesView.init,
                         else: {
@@ -363,7 +363,7 @@ extension OnlineMangaView {
                 backButton
                     .opacity(isCoverArtDisappeared ? 1 : 0)
                 
-                ForEach(OnlineMangaViewState.Tab.allCases, content: makeTabLabel)
+                ForEach(OnlineMangaFeature.Tab.allCases, content: makeTabLabel)
                     .offset(x: isCoverArtDisappeared ? 0 : -40)
             }
             .padding(.horizontal)
@@ -381,7 +381,7 @@ extension OnlineMangaView {
     }
     
     /// Makes label for navigation through MangaView
-    private func makeTabLabel(for tab: OnlineMangaViewState.Tab) -> some View {
+    private func makeTabLabel(for tab: OnlineMangaFeature.Tab) -> some View {
         WithViewStore(store) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)

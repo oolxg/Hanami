@@ -10,6 +10,13 @@ import CoreData
 import ComposableArchitecture
 import Combine
 
+extension DependencyValues {
+    var databaseClient: DatabaseClient {
+        get { self[DatabaseClient.self] }
+        set { self[DatabaseClient.self] = newValue }
+    }
+}
+
 struct DatabaseClient {
     let prepareDatabase: () -> Effect<Result<Void, AppError>, Never>
     let dropDatabase: () -> Effect<Result<Void, AppError>, Never>
@@ -19,8 +26,8 @@ struct DatabaseClient {
     private static let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.DatabaseClient", qos: .utility)
 }
 
-extension DatabaseClient {
-    static var live = DatabaseClient(
+extension DatabaseClient: DependencyKey {
+    static var liveValue = DatabaseClient(
         prepareDatabase: {
             Future { promise in
                 PersistenceController.shared.prepare(completion: promise)
@@ -56,6 +63,10 @@ extension DatabaseClient {
             return objects
         }
     )
+    
+    static var testValue: DatabaseClient {
+        fatalError("Unimplemented")
+    }
 }
 
 extension DatabaseClient {

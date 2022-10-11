@@ -8,20 +8,27 @@
 import Foundation
 import ComposableArchitecture
 
-struct OfflineMangaViewState: Equatable {
-    let manga: Manga
-    var coverArtPath: URL?
-    
-    // to compare with cached chapters, we retrieved last time
-    var lastRetrievedChapterIDs: Set<UUID> = []
-    
-    init(manga: Manga) {
-        self.manga = manga
+struct OfflineMangaFeature: ReducerProtocol {
+    struct State: Equatable {
+        let manga: Manga
+        var coverArtPath: URL?
+        
+            // to compare with cached chapters, we retrieved last time
+        var lastRetrievedChapterIDs: Set<UUID> = []
+        
+        init(manga: Manga) {
+            self.manga = manga
+        }
+        
+        var pagesState: PagesFeature.State?
+        
+        var selectedTab: Tab = .chapters
+        
+        // MARK: - Props for MangaReadingView
+        @BindableState var isUserOnReadingView = false
+        var mangaReadingViewState: OfflineMangaReadingFeature.State?
     }
     
-    var pagesState: PagesState?
-    
-    var selectedTab: Tab = .chapters
     enum Tab: String, CaseIterable, Identifiable {
         case chapters = "Chapters"
         case info = "Info"
@@ -29,190 +36,173 @@ struct OfflineMangaViewState: Equatable {
         var id: String { rawValue }
     }
     
-    // MARK: - Props for MangaReadingView
-    @BindableState var isUserOnReadingView = false
-    var mangaReadingViewState: OfflineMangaReadingViewState?
-}
-
-enum OfflineMangaViewAction: BindableAction {
-    case onAppear
-    case cachedChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
-    case mangaTabChanged(OfflineMangaViewState.Tab)
-    case deleteManga
-    case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
-    
-    case mangaReadingViewAction(OfflineMangaReadingViewAction)
-    case pagesAction(PagesAction)
-    
-    case binding(BindingAction<OfflineMangaViewState>)
-}
-
-
-let offlineMangaViewReducer: Reducer<OfflineMangaViewState, OfflineMangaViewAction, MangaViewEnvironment> = .combine(
-    pagesReducer.optional().pullback(
-        state: \.pagesState,
-        action: /OfflineMangaViewAction.pagesAction,
-        environment: { .init(
-            databaseClient: $0.databaseClient,
-            imageClient: $0.imageClient,
-            cacheClient: $0.cacheClient,
-            mangaClient: $0.mangaClient,
-            hudClient: $0.hudClient
-        ) }
-    ),
-    offlineMangaReadingViewReducer.optional().pullback(
-        state: \.mangaReadingViewState,
-        action: /OfflineMangaViewAction.mangaReadingViewAction,
-        environment: { .init(
-            databaseClient: $0.databaseClient,
-            cacheClient: $0.cacheClient,
-            imageClient: $0.imageClient,
-            mangaClient: $0.mangaClient,
-            hudClient: $0.hudClient
-        ) }
-    ),
-    Reducer { state, action, env in
-        switch action {
-            case .onAppear:
-                return env.databaseClient
-                    .retrieveChaptersForManga(mangaID: state.manga.id)
-                    .catchToEffect(OfflineMangaViewAction.cachedChaptersRetrieved)
-                
-            case .cachedChaptersRetrieved(let result):
-                switch result {
-                    case .success(let chapters):
-                        // here we're checking if chapters, we've fetched, and chapters, we've fetched before are same
-                        // if yes, we should do nothing
-                        let chaptersIDsSet = Set(chapters.map(\.chapter.id))
-                        guard state.lastRetrievedChapterIDs != chaptersIDsSet else {
-                            return .none
-                        }
-
-                        state.lastRetrievedChapterIDs = chaptersIDsSet
-                        state.pagesState = PagesState(
-                            manga: state.manga,
-                            chaptersDetailsList: chapters.map(\.chapter),
-                            chaptersPerPages: 10
-                        )
-                        return env.cacheClient
-                            .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
-                            .fireAndForget()
-
-                    case .failure(let error):
-                        print("Error on retrieving chapters:", error)
-                        return .none
-                }
-
-            case .mangaTabChanged(let tab):
-                state.selectedTab = tab
-                return .none
-                
-            case .deleteManga:
-                return env.databaseClient
-                    .retrieveChaptersForManga(mangaID: state.manga.id)
-                    .catchToEffect(OfflineMangaViewAction.chaptersForMangaDeletionRetrieved)
-                
-            case .chaptersForMangaDeletionRetrieved(let result):
-                switch result {
-                    case .success(let chapters):
-                        var effects: [Effect<OfflineMangaViewAction, Never>] = [
-                            env.databaseClient.deleteManga(mangaID: state.manga.id)
-                                .fireAndForget(),
-                            
-                            env.cacheClient
-                                .removeAllCachedChapterIDsFromMemory(state.manga.id)
-                                .fireAndForget()
-                        ]
-                        
-                        effects.append(
-                            contentsOf: chapters.map { chapterEntity in
-                                env.mangaClient
-                                    .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, env.cacheClient)
-                                    .fireAndForget()
-                            }
-                        )
-                        return .merge(effects)
-                        
-                    case .failure(let error):
-                        print("Error on retrieving chapters:", error)
-                        return .none
-                }
-
-                
-            case .pagesAction:
-                return .none
-                
-            case .mangaReadingViewAction:
-                return .none
-                
-            case .binding:
-                return .none
-        }
+    enum Action: BindableAction {
+        case onAppear
+        case cachedChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
+        case mangaTabChanged(Tab)
+        case deleteManga
+        case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
+        
+        case mangaReadingViewAction(OfflineMangaReadingFeature.Action)
+        case pagesAction(PagesFeature.Action)
+        
+        case binding(BindingAction<State>)
     }
-    .binding(),
-    // Handling actions from MangaReadingView
-    Reducer { state, action, env in
-        switch action {
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
-                guard let retrievedChapter = env.databaseClient.fetchChapter(chapterID: chapter.id) else {
-                    env.hudClient.show(message: "😢 Error on retrieving saved chapter")
+    
+    @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.mangaClient) var mangaClient
+    @Dependency(\.cacheClient) var cacheClient
+    @Dependency(\.hudClient) var hudClient
+
+    var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+                case .onAppear:
+                    return databaseClient
+                        .retrieveChaptersForManga(mangaID: state.manga.id)
+                        .catchToEffect(Action.cachedChaptersRetrieved)
+                    
+                case .cachedChaptersRetrieved(let result):
+                    switch result {
+                        case .success(let chapters):
+                                // here we're checking if chapters, we've fetched, and chapters, we've fetched before are same
+                                // if yes, we should do nothing
+                            let chaptersIDsSet = Set(chapters.map(\.chapter.id))
+                            guard state.lastRetrievedChapterIDs != chaptersIDsSet else {
+                                return .none
+                            }
+                            
+                            state.lastRetrievedChapterIDs = chaptersIDsSet
+                            state.pagesState = PagesFeature.State(
+                                manga: state.manga,
+                                chaptersDetailsList: chapters.map(\.chapter),
+                                chaptersPerPages: 10
+                            )
+                            return cacheClient
+                                .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
+                                .fireAndForget()
+                            
+                        case .failure(let error):
+                            print("Error on retrieving chapters:", error)
+                            return .none
+                    }
+                    
+                case .mangaTabChanged(let tab):
+                    state.selectedTab = tab
                     return .none
-                }
-                
-                state.mangaReadingViewState = OfflineMangaReadingViewState(
-                    mangaID: state.manga.id,
-                    chapter: retrievedChapter.chapter,
-                    pagesCount: retrievedChapter.pagesCount,
-                    startFromLastPage: false
-                )
-                
-                state.isUserOnReadingView = true
-
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
-                
-            case .mangaReadingViewAction(.userStartedReadingChapter):
-                if let pageIndex = env.mangaClient.getMangaPageForReadingChapter(
-                    state.mangaReadingViewState?.chapter.attributes.chapterIndex,
-                    state.pagesState!.splitIntoPagesVolumeTabStates
-                ) {
-                    return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
-                }
-                
-                return .none
-
-            case .mangaReadingViewAction(.userLeftMangaReadingView):
-                defer { state.isUserOnReadingView = false }
-
-                let chapterIndex = state.mangaReadingViewState!.chapter.attributes.chapterIndex
-                let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
-
-                guard let info = env.mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
+                    
+                case .deleteManga:
+                    return databaseClient
+                        .retrieveChaptersForManga(mangaID: state.manga.id)
+                        .catchToEffect(Action.chaptersForMangaDeletionRetrieved)
+                    
+                case .chaptersForMangaDeletionRetrieved(let result):
+                    switch result {
+                        case .success(let chapters):
+                            var effects: [Effect<Action, Never>] = [
+                                databaseClient.deleteManga(mangaID: state.manga.id)
+                                    .fireAndForget(),
+                                
+                                cacheClient
+                                    .removeAllCachedChapterIDsFromMemory(state.manga.id)
+                                    .fireAndForget()
+                            ]
+                            
+                            effects.append(
+                                contentsOf: chapters.map { chapterEntity in
+                                    mangaClient
+                                        .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, cacheClient)
+                                        .fireAndForget()
+                                }
+                            )
+                            return .merge(effects)
+                            
+                        case .failure(let error):
+                            print("Error on retrieving chapters:", error)
+                            return .none
+                    }
+                    
+                    
+                case .pagesAction:
                     return .none
-                }
-                
-                // chapterState, on which user has left MangaReadingView
-                let chapterState = state.pagesState!
-                    .volumeTabStatesOnCurrentPage[id: info.volumeID]!
-                    .chapterStates[id: info.chapterID]!
-                
-                if chapterState.areChaptersShown {
+                    
+                case .mangaReadingViewAction:
                     return .none
-                }
-
-                return .task {
-                    .pagesAction(
-                        .volumeTabAction(
-                            volumeID: info.volumeID,
-                            volumeAction: .chapterAction(
-                                id: info.chapterID,
-                                action: .fetchChapterDetailsIfNeeded
+                    
+                case .binding:
+                    return .none
+            }
+        }
+        Reduce { state, action in
+            switch action {
+                case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
+                    guard let retrievedChapter = databaseClient.fetchChapter(chapterID: chapter.id) else {
+                        hudClient.show(message: "😢 Error on retrieving saved chapter")
+                        return .none
+                    }
+                    
+                    state.mangaReadingViewState = OfflineMangaReadingFeature.State(
+                        mangaID: state.manga.id,
+                        chapter: retrievedChapter.chapter,
+                        pagesCount: retrievedChapter.pagesCount,
+                        startFromLastPage: false
+                    )
+                    
+                    state.isUserOnReadingView = true
+                    
+                    return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                    
+                case .mangaReadingViewAction(.userStartedReadingChapter):
+                    if let pageIndex = mangaClient.getMangaPageForReadingChapter(
+                        state.mangaReadingViewState?.chapter.attributes.chapterIndex,
+                        state.pagesState!.splitIntoPagesVolumeTabStates
+                    ) {
+                        return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
+                    }
+                    
+                    return .none
+                    
+                case .mangaReadingViewAction(.userLeftMangaReadingView):
+                    defer { state.isUserOnReadingView = false }
+                    
+                    let chapterIndex = state.mangaReadingViewState!.chapter.attributes.chapterIndex
+                    let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
+                    
+                    guard let info = mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
+                        return .none
+                    }
+                    
+                        // chapterState, on which user has left MangaReadingView
+                    let chapterState = state.pagesState!
+                        .volumeTabStatesOnCurrentPage[id: info.volumeID]!
+                        .chapterStates[id: info.chapterID]!
+                    
+                    if chapterState.areChaptersShown {
+                        return .none
+                    }
+                    
+                    return .task {
+                        .pagesAction(
+                            .volumeTabAction(
+                                volumeID: info.volumeID,
+                                volumeAction: .chapterAction(
+                                    id: info.chapterID,
+                                    action: .fetchChapterDetailsIfNeeded
+                                )
                             )
                         )
-                    )
-                }
-
-            default:
-                return .none
+                    }
+                    
+                default:
+                    return .none
+            }
+        }
+        .ifLet(\.pagesState, action: /Action.pagesAction) {
+            PagesFeature()
+        }
+        .ifLet(\.mangaReadingViewState, action: /Action.mangaReadingViewAction) {
+            OfflineMangaReadingFeature()
         }
     }
-)
+}
