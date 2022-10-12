@@ -39,6 +39,25 @@ struct ScanlationGroup: Codable {
             case isInactive = "inactive"
             case createdAt, updatedAt, version
         }
+        
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decode(String.self, forKey: .name)
+            isLocked = try container.decode(Bool.self, forKey: .isLocked)
+            website = URL(string: try container.decodeIfPresent(String.self, forKey: .website) ?? "")
+            discord = URL(string: try container.decodeIfPresent(String.self, forKey: .discord) ?? "")
+            contactEmail = URL(string: try container.decodeIfPresent(String.self, forKey: .contactEmail) ?? "")
+            description = try container.decodeIfPresent(String.self, forKey: .description)
+            twitter = URL(string: try container.decodeIfPresent(String.self, forKey: .twitter) ?? "")
+            focusedLanguages = try container.decodeIfPresent([String].self, forKey: .focusedLanguages)
+            isOfficial = try container.decode(Bool.self, forKey: .isOfficial)
+            isVerified = try container.decode(Bool.self, forKey: .isVerified)
+            isInactive = try container.decode(Bool.self, forKey: .isInactive)
+            createdAt = try container.decode(Date.self, forKey: .createdAt)
+            updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+            version = try container.decode(Int.self, forKey: .version)
+        }
     }
 }
 

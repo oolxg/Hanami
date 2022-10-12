@@ -55,6 +55,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
     
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.logger) private var logger
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -84,7 +85,13 @@ struct MangaThumbnailFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("error on downloading thumbnail info: \(error.description)")
+                            logger.error(
+                                "Failed to load manga statistics: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     
@@ -96,7 +103,13 @@ struct MangaThumbnailFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("error on downloading thumbnail info: \(error.description)")
+                            logger.error(
+                                "Failed to load thumbnail info: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     

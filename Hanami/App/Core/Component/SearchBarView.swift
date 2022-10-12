@@ -19,18 +19,6 @@ struct SearchBarView: View {
                 .foregroundColor(.white)
                 .accentColor(.white)
                 .disableAutocorrection(true)
-                .overlay(
-                    Image(systemName: "xmark.circle.fill")
-                        .padding()
-                        .offset(x: 10)
-                        .foregroundColor(.white)
-                        .opacity(searchText.isEmpty ? 0 : 1)
-                        .onTapGesture {
-                            UIApplication.shared.endEditing()
-                            searchText = ""
-                        },
-                    alignment: .trailing
-                )
         }
         .font(.headline)
         .padding(10)

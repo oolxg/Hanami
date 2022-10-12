@@ -76,17 +76,19 @@ extension Manga.Attributes {
         }
         isLocked = try container.decode(Bool.self, forKey: .isLocked)
         originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
-        lastVolume = try? container.decode(String?.self, forKey: .lastVolume)
-        lastChapter = try? container.decode(String?.self, forKey: .lastChapter)
-        publicationDemographic = try? container.decode(PublicationDemographic?.self, forKey: .publicationDemographic)
+        lastVolume = try container.decodeIfPresent(String.self, forKey: .lastVolume)
+        lastChapter = try container.decodeIfPresent(String.self, forKey: .lastChapter)
+        publicationDemographic = try container.decodeIfPresent(
+            PublicationDemographic.self, forKey: .publicationDemographic
+        )
         status = try container.decode(Status.self, forKey: .status)
-        year = try? container.decode(Int?.self, forKey: .year)
+        year = try container.decodeIfPresent(Int.self, forKey: .year)
         contentRating = try container.decode(ContentRatings.self, forKey: .contentRating)
         tags = try container.decode([Tag].self, forKey: .tags)
         state = try container.decode(State.self, forKey: .state)
         
-        createdAt = try? container.decode(Date.self, forKey: .createdAt)
-        updatedAt = try? container.decode(Date.self, forKey: .updatedAt)
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
     }
 }
 

@@ -21,8 +21,8 @@ struct SearchFeature: ReducerProtocol {
             areSearchResultsDownloaded && !searchText.isEmpty && searchResults.isEmpty
         }
         
-        @BindableState var searchSortOption: QuerySortOption = .relevance
-        @BindableState var searchSortOptionOrder: QuerySortOption.Order = .desc
+        @BindableState var searchSortOption: FilterFeature.QuerySortOption = .relevance
+        @BindableState var searchSortOptionOrder: FilterFeature.QuerySortOption.Order = .desc
         @BindableState var resultsCount = 10
         
         @BindableState var searchText: String = ""
@@ -37,12 +37,12 @@ struct SearchFeature: ReducerProtocol {
     struct SearchParams: Equatable {
         let searchQuery: String
         let resultsCount: Int
-        let tags: IdentifiedArrayOf<FilterTag>
-        let publicationDemographic: IdentifiedArrayOf<FilterPublicationDemographic>
-        let contentRatings: IdentifiedArrayOf<FilterContentRatings>
-        let mangaStatuses: IdentifiedArrayOf<FilterMangaStatus>
-        let sortOption: QuerySortOption
-        let sortOptionOrder: QuerySortOption.Order
+        let tags: IdentifiedArrayOf<FilterFeature.FiltersTag>
+        let publicationDemographic: IdentifiedArrayOf<FilterFeature.PublicationDemographic>
+        let contentRatings: IdentifiedArrayOf<FilterFeature.ContentRatings>
+        let mangaStatuses: IdentifiedArrayOf<FilterFeature.MangaStatus>
+        let sortOption: FilterFeature.QuerySortOption
+        let sortOptionOrder: FilterFeature.QuerySortOption.Order
     }
     
     enum Action: BindableAction {
@@ -57,10 +57,11 @@ struct SearchFeature: ReducerProtocol {
         case binding(BindingAction<State>)
     }
     
-    @Dependency(\.searchClient) var searchClient
-    @Dependency(\.hapticClient) var hapticClient
-    @Dependency(\.hudClient) var hudClient
-
+    @Dependency(\.searchClient) private var searchClient
+    @Dependency(\.hapticClient) private var hapticClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.logger) private var logger
+    
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -149,7 +150,7 @@ struct SearchFeature: ReducerProtocol {
                                 .catchToEffect(Action.mangaStatisticsFetched)
                             
                         case .failure(let error):
-                            print("error on downloading search results \(error.description)")
+                            logger.error("Failed to make search request: \(error)")
                             hudClient.show(message: error.description)
                             return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                     }
@@ -164,7 +165,7 @@ struct SearchFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("error on downloading home page: \(error.description)")
+                            logger.error("Failed to load statistics for found titles: \(error)")
                             return .none
                     }
                     

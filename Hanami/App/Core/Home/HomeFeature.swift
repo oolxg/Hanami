@@ -46,10 +46,11 @@ struct HomeFeature: ReducerProtocol {
         case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
     }
     
-    @Dependency(\.homeClient) var homeClient
-    @Dependency(\.hudClient) var hudClient
-    @Dependency(\.hapticClient) var hapticClient
-    @Dependency(\.imageClient) var imageClient
+    @Dependency(\.homeClient) private var homeClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hapticClient) private var hapticClient
+    @Dependency(\.logger) private var logger
+    @Dependency(\.imageClient) private var imageClient
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -145,7 +146,7 @@ struct HomeFeature: ReducerProtocol {
                                 .catchToEffect(Action.seasonalMangaListFetched)
                             
                         case .failure(let error):
-                            print("error: \(error.description)")
+                            logger.error("Failed to load list of seasonal titles: \(error)")
                             return .none
                     }
                     
@@ -177,7 +178,10 @@ struct HomeFeature: ReducerProtocol {
                         case .failure(let error):
                             hudClient.show(message: error.description)
                             state.lastRefreshDate = nil
-                            print("error: \(error.description)")
+                            logger.error(
+                                "Failed to load manga list: \(error)",
+                                context: ["keyPath": "`\(keyPath.customDumpDescription)`"]
+                            )
                             return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                     }
                     
@@ -191,7 +195,10 @@ struct HomeFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("Error on fetching statistics on homeReducer: \(error.description)")
+                            logger.error(
+                                "Failed to load statistics for manga list: \(error)",
+                                context: ["keyPath": "`\(keyPath.customDumpDescription)`"]
+                            )
                             return .none
                     }
                     
@@ -206,7 +213,7 @@ struct HomeFeature: ReducerProtocol {
                                 .catchToEffect { Action.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
                             
                         case .failure(let error):
-                            print("error: \(error.description)")
+                            logger.error("Failed to load list of seasonal titles: \(error)")
                             return .none
                     }
                     

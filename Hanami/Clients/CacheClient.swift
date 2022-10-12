@@ -19,19 +19,7 @@ extension DependencyValues {
 }
 
 struct CacheClient {
-    private enum CacheFolderPathes {
-        private static let storagePathURL: URL = {
-            // swiftlint:disable:next force_try
-            try! FileManager.default.url(
-                for: .documentDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true
-            )
-        }()
-        
-        static let imagesCachePath = storagePathURL.appendingPathComponent("images")
-    }
+    private static let imagesCachePath = FileUtil.documentDirectory.appendingPathComponent("images")
     
     private static let cacheQueue = DispatchQueue(
         label: "moe.mkpwnz.Hanami.CacheClient",
@@ -43,7 +31,7 @@ struct CacheClient {
         let diskConfig = DiskConfig(
             name: "HanamiImages",
             expiry: .never,
-            directory: CacheFolderPathes.imagesCachePath
+            directory: imagesCachePath
         )
         
         // swiftlint:disable:next force_try
@@ -160,7 +148,7 @@ extension CacheClient: DependencyKey {
         computeCacheSize: {
             Future { promise in
                 cacheQueue.async {
-                    guard let size = CacheFolderPathes.imagesCachePath.sizeOnDisk() else {
+                    guard let size = CacheClient.imagesCachePath.sizeOnDisk() else {
                         promise(.failure(.cacheError("Can't compute cache size")))
                         return
                     }

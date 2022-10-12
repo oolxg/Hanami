@@ -180,7 +180,7 @@ extension FiltersView {
         _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<T>>,
         isActive: Binding<Bool>,
         _ content: @escaping () -> Content
-    ) -> some View where Content: View, T: FilterTagProtocol {
+    ) -> some View where Content: View, T: FiltersTagProtocol {
         WithViewStore(store.actionless) { viewStore in
             NavigationLink(isActive: isActive) {
                 content()
@@ -216,7 +216,7 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeFiltersViewFor(
-        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<FilterTag>>,
+        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<FilterFeature.FiltersTag>>,
         navTitle: String? = nil,
         isActive: Binding<Bool>? = nil
     ) -> some View {
@@ -254,7 +254,7 @@ extension FiltersView {
         }
     }
     
-    @ViewBuilder private func makeChipsViewFor<T: FilterTagProtocol>(_ filterTag: T) -> some View {
+    @ViewBuilder private func makeChipsViewFor<T: FiltersTagProtocol>(_ filterTag: T) -> some View {
         HStack {
             if filterTag.state == .selected {
                 Image(systemName: "plus")
@@ -275,7 +275,7 @@ extension FiltersView {
         .cornerRadius(10)
     }
     
-    private func getColorForTag<T: FilterTagProtocol>(_ tag: T) -> Color {
+    private func getColorForTag<T: FiltersTagProtocol>(_ tag: T) -> Color {
         if tag.state == .notSelected {
             return .theme.darkGray
         } else if tag.state == .selected {

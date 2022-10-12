@@ -58,9 +58,10 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case userLeftMangaReadingView
     }
     
-    @Dependency(\.mangaClient) var mangaClient
-    @Dependency(\.hudClient) var hudClient
-    @Dependency(\.imageClient) var imageClient
+    @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.imageClient) private var imageClient
+    @Dependency(\.logger) private var logger
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
@@ -100,7 +101,10 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                             .fireAndForget()
                         
                     case .failure(let error):
-                        print("error on retrieving chapterPagesInfo: \(error.description)")
+                        logger.error(
+                            "Failed to load chapterPagesInfo: \(error)",
+                            context: ["chapterID": "\(state.chapterID.uuidString.lowercased())"]
+                        )
                         return .none
                 }
                 
@@ -122,7 +126,10 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                         return .none
                         
                     case .failure(let error):
-                        print("error on chaptersDownloaded, \(error.description)")
+                        logger.error(
+                            "Failed to load chapters from current scanlation group: \(error)",
+                            context: ["scanlationGroupID": "\(String(describing: state.scanlationGroupID))"]
+                        )
                         return .none
                 }
                 

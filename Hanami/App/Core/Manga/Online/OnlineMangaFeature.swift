@@ -63,7 +63,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         case mangaTabChanged(Tab)
         
         // MARK: - Actions to be called from reducer
-        case volumesDownloaded(Result<VolumesContainer, AppError>)
+        case volumesRetrieved(Result<VolumesContainer, AppError>)
         case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
         case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
         
@@ -78,10 +78,11 @@ struct OnlineMangaFeature: ReducerProtocol {
         case coverArtForCachingFetched(Result<UIImage, AppError>)
     }
     
-    @Dependency(\.mangaClient) var mangaClient
-    @Dependency(\.cacheClient) var cacheClient
-    @Dependency(\.imageClient) var imageClient
-    @Dependency(\.hudClient) var hudClient
+    @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.imageClient) private var imageClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.logger) private var logger
     
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -94,7 +95,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                         effects.append(
                             mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
                                 .receive(on: DispatchQueue.main)
-                                .catchToEffect(Action.volumesDownloaded)
+                                .catchToEffect(Action.volumesRetrieved)
                         )
                     }
                     
@@ -108,7 +109,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     
                     return .merge(effects)
                     
-                case .volumesDownloaded(let result):
+                case .volumesRetrieved(let result):
                     switch result {
                         case .success(let response):
                             state.pagesState = PagesFeature.State(
@@ -121,7 +122,13 @@ struct OnlineMangaFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("error on chaptersDownloaded, \(error.description)")
+                            logger.error(
+                                "Failed to fetch volumes: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             
                             return .none
                     }
@@ -144,8 +151,14 @@ struct OnlineMangaFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
+                            logger.error(
+                                "Failed to fetch list of cover arts: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             hudClient.show(message: error.description)
-                            print("error on fetching allCoverArtsInfo, \(error.description)")
                             return .none
                     }
                     
@@ -156,7 +169,13 @@ struct OnlineMangaFeature: ReducerProtocol {
                             return .none
                             
                         case .failure(let error):
-                            print("error on mangaFetchStatistics, \(error.description)")
+                            logger.error(
+                                "Failed to fetch statistics for manga: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     
@@ -193,7 +212,13 @@ struct OnlineMangaFeature: ReducerProtocol {
                                 .fireAndForget()
                             
                         case .failure(let error):
-                            print("Error on fetching coverArt for caching: \(error.description)")
+                            logger.error(
+                                "Failed to fetch main cover art for cachin: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     

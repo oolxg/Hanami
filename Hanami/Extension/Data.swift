@@ -14,18 +14,18 @@ extension Data {
             _ = try decoder.decode(O.self, from: self)
             isError = false
         } catch let DecodingError.dataCorrupted(context) {
-            Swift.print(context)
+            print(context)
         } catch let DecodingError.keyNotFound(key, context) {
-            Swift.print("Key '\(key)' not found:", context.debugDescription)
-            Swift.print("codingPath:", context.codingPath)
+            print("Key '\(key)' not found:", context.debugDescription)
+            print("codingPath:", context.codingPath)
         } catch let DecodingError.valueNotFound(value, context) {
-            Swift.print("Value '\(value)' not found:", context.debugDescription)
-            Swift.print("codingPath:", context.codingPath)
+            print("Value '\(value)' not found:", context.debugDescription)
+            print("codingPath:", context.codingPath)
         } catch let DecodingError.typeMismatch(type, context) {
-            Swift.print("Type '\(type)' mismatch:", context.debugDescription)
-            Swift.print("codingPath:", context.codingPath)
+            print("Type '\(type)' mismatch:", context.debugDescription)
+            print("codingPath:", context.codingPath)
         } catch {
-            Swift.print("error: ", error)
+            print("error: ", error)
         }
         
         if isError {

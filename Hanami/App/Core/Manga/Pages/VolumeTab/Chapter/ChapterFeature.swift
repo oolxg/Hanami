@@ -98,11 +98,12 @@ struct ChapterFeature: ReducerProtocol {
         case cancelTapped
     }
     
-    @Dependency(\.mangaClient) var mangaClient
-    @Dependency(\.hudClient) var hudClient
-    @Dependency(\.cacheClient) var cacheClient
-    @Dependency(\.imageClient) var imageClient
-    @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.imageClient) private var imageClient
+    @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.logger) private var logger
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
@@ -123,7 +124,7 @@ struct ChapterFeature: ReducerProtocol {
                     let possiblyCachedChapterEntry = databaseClient.fetchChapter(chapterID: chapterID)
                     
                     if state.chapterDetailsList[id: chapterID] == nil {
-                            // if chapter is cached - no need to fetch it from API
+                        // if chapter is cached - no need to fetch it from API
                         if let cachedChapterDetails = possiblyCachedChapterEntry?.chapter {
                             if !state._chapterDetailsList.contains(where: { $0.id == chapterID }) {
                                 state._chapterDetailsList.append(cachedChapterDetails)
@@ -161,8 +162,8 @@ struct ChapterFeature: ReducerProtocol {
                 return .merge(effects)
                 
             case .allChapterDetailsRetrievedFromDisk(let result):
-                    // only to store all cached chapter ids(from parent manga)
-                    // and update state on scroll as less as possible
+                // only to store all cached on device chapter ids(from parent manga)
+                // and update state on scroll as less as possible
                 switch result {
                     case .success(let chaptersEntry):
                         state.cachedChaptersStates.removeAll()
@@ -184,7 +185,10 @@ struct ChapterFeature: ReducerProtocol {
                             .fireAndForget()
                         
                     case .failure(let error):
-                        print("error fetching cached chapters, \(error.description)")
+                        logger.info(
+                            "Failed to fetch all cached chapters for manga: \(error)",
+                            context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
+                        )
                         return .none
                 }
                 
@@ -218,7 +222,10 @@ struct ChapterFeature: ReducerProtocol {
                             )
                         
                     case .failure(let error):
-                        print("error on downloading chapter details, \(error.description)")
+                        logger.error(
+                            "Failed to fetch chapterDetails: \(error)",
+                            context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
+                        )
                         return .none
                 }
                 
@@ -229,10 +236,16 @@ struct ChapterFeature: ReducerProtocol {
                         return .none
                         
                     case .failure(let error):
-                        print("Error on fetching scanlation group \(error.description)")
+                        logger.error(
+                            "Failed to fetch scanlationGroup: \(error)",
+                            context: [
+                                "mangaID": "\(state.parentManga.id.uuidString.lowercased())",
+                                "chapterID": "\(chapterID.uuidString.lowercased())"
+                            ]
+                        )
                         return .none
                 }
-                    // MARK: - Caching
+            // MARK: - Caching
             case .deleteChapter(let chapterID):
                 state.confirmationDialog = ConfirmationDialogState(
                     title: TextState("Delete this chapter from device?"),
@@ -294,7 +307,7 @@ struct ChapterFeature: ReducerProtocol {
                     case .success(let cachedChapterIDs):
                         state.cachedChaptersStates.remove(where: { !cachedChapterIDs.contains($0.id) })
                         for cachedChapterID in cachedChapterIDs {
-                                // have to check, because this state also contains chapters, whose download process is in progress
+                            // have to check, because this state also contains chapters, whose download process is in progress
                             if !state.cachedChaptersStates.contains(where: { $0.id == cachedChapterID }) {
                                 state.cachedChaptersStates.insertOrUpdate(
                                     .init(
@@ -310,7 +323,10 @@ struct ChapterFeature: ReducerProtocol {
                         return .none
                         
                     case .failure(let error):
-                        print("failed to retrieve cached chapters from memory:", error.description)
+                        logger.info(
+                            "Failed to fetch all chapterDetails: \(error)",
+                            context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
+                        )
                         return databaseClient
                             .retrieveChaptersForManga(mangaID: state.parentManga.id)
                             .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
@@ -367,7 +383,13 @@ struct ChapterFeature: ReducerProtocol {
                             .cancellable(id: CancelChapterCache(id: chapter.id))
                         
                     case .failure(let error):
-                        print("Error on fetching PagesInfo for caching: \(error.description)")
+                        logger.error(
+                            "Failed to fetch pagesInfo for caching: \(error)",
+                            context: [
+                                "mangaID": "\(state.parentManga.id.uuidString.lowercased())",
+                                "chapterID": "\(chapter.id.uuidString.lowercased())"
+                            ]
+                        )
                         
                         hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
                         
@@ -419,7 +441,14 @@ struct ChapterFeature: ReducerProtocol {
                         )
                         
                     case .failure(let error):
-                        print("Error on fetching chapterPage(image) for caching: \(error.description)")
+                        logger.error(
+                            "Failed to fetch page for caching: \(error)",
+                            context: [
+                                "mangaID": "\(state.parentManga.id.uuidString.lowercased())",
+                                "chapterID": "\(chapter.id.uuidString.lowercased())",
+                                "pageIndex": "\(pageIndex)"
+                            ]
+                        )
                         
                         var msg = ""
                         

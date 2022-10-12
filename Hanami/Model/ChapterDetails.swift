@@ -60,14 +60,14 @@ extension ChapterDetails.Attributes {
         }
         
         createdAt = try container.decode(Date.self, forKey: .createdAt)
-        externalURL = try? container.decode(URL.self, forKey: .externalURL)
+        externalURL = try container.decodeIfPresent(URL.self, forKey: .externalURL)
         pagesCount = try container.decode(Int.self, forKey: .pagesCount)
         publishAt = try container.decode(Date.self, forKey: .publishAt)
-        readableAt = try? container.decode(Date.self, forKey: .readableAt)
-        let tempTitle = try? container.decode(String.self, forKey: .title)
+        readableAt = try container.decodeIfPresent(Date.self, forKey: .readableAt)
+        let tempTitle = try container.decodeIfPresent(String.self, forKey: .title)
         // swiftlint:disable:next empty_string
         title = tempTitle == "" ? nil : tempTitle
-        translatedLanguage = try? container.decode(String.self, forKey: .translatedLanguage)
+        translatedLanguage = try container.decodeIfPresent(String.self, forKey: .translatedLanguage)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         version = try container.decode(Int.self, forKey: .version)
         

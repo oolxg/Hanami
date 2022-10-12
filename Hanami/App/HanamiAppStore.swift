@@ -18,7 +18,7 @@ struct AppFeature: ReducerProtocol {
         case rootAction(RootFeature.Action)
     }
     
-    @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.databaseClient) private var databaseClient
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { _, action in

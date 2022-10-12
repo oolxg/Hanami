@@ -38,11 +38,12 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         case sameScanlationGroupChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
     }
     
-    @Dependency(\.mangaClient) var mangaClient
-    @Dependency(\.hudClient) var hudClient
-    @Dependency(\.cacheClient) var cacheClient
-    @Dependency(\.imageClient) var imageClient
-    @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.imageClient) private var imageClient
+    @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.logger) private var logger
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
@@ -83,7 +84,10 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                         return .none
                         
                     case .failure(let error):
-                        print(error)
+                        logger.error(
+                            "Failed to retrieve from disk chapters from current scanlation group: \(error)",
+                            context: ["scanlationGroupID": "\(String(describing: state.chapter.scanlationGroupID))"]
+                        )
                         return .none
                 }
                 

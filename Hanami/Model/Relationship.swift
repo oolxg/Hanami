@@ -25,7 +25,7 @@ struct Relationship: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         type = try container.decode(ResponseDataType.self, forKey: .type)
-        related = try? container.decode(RelatedType?.self, forKey: .related)
+        related = try container.decodeIfPresent(RelatedType.self, forKey: .related)
         
         do {
             switch type {

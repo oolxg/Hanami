@@ -19,7 +19,8 @@ struct DownloadsFeature: ReducerProtocol {
         case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailFeature.Action)
     }
     
-    @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.logger) private var logger
     
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -46,7 +47,8 @@ struct DownloadsFeature: ReducerProtocol {
                             
                             return .none
                             
-                        case .failure:
+                        case .failure(let error):
+                            logger.error("Failed to retrieve all cached manga from disk: \(error)")
                             return .none
                     }
                     

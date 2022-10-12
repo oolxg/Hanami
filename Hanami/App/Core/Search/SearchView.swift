@@ -182,8 +182,8 @@ extension SearchView {
     }
     
     private struct SortPickerView: View {
-        @Binding var sortOption: QuerySortOption
-        @Binding var sortOptionOrder: QuerySortOption.Order
+        @Binding var sortOption: FilterFeature.QuerySortOption
+        @Binding var sortOptionOrder: FilterFeature.QuerySortOption.Order
         
         var body: some View {
             Menu {
@@ -265,7 +265,7 @@ extension SearchView {
             .accentColor(.white)
         }
         
-        @ViewBuilder private func makeButtonViewFor(sortOption: QuerySortOption, order: QuerySortOption.Order) -> some View {
+        @ViewBuilder private func makeButtonViewFor(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> some View {
             Button {
                 self.sortOptionOrder = order
                 self.sortOption = sortOption
@@ -281,7 +281,7 @@ extension SearchView {
         }
         
         // swiftlint:disable:next cyclomatic_complexity
-        private func getSortTypeName(sortOption: QuerySortOption, order: QuerySortOption.Order) -> String {
+        private func getSortTypeName(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> String {
             switch sortOption {
                 case .relevance:
                     return "Relevance"

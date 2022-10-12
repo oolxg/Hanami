@@ -17,30 +17,27 @@ enum AppUtil {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "null"
     }
     
-    static var decoder: JSONDecoder {
-        let decoder = JSONDecoder()
-        
+    static var dateFormatter: DateFormatter = {
         let fmt = DateFormatter()
+        
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
         fmt.timeZone = .init(identifier: "UTC")
         
-        decoder.dateDecodingStrategy = .formatted(fmt)
-        
-        return decoder
-    }
+        return fmt
+    }()
     
-    static var encoder: JSONEncoder {
+    static var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(AppUtil.dateFormatter)
+        return decoder
+    }()
+    
+    static var encoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        
-        let fmt = DateFormatter()
-        fmt.locale = Locale(identifier: "en_US_POSIX")
-        fmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+00:00"
-        fmt.timeZone = .autoupdatingCurrent
-        
-        encoder.dateEncodingStrategy = .formatted(fmt)
+        encoder.dateEncodingStrategy = .formatted(AppUtil.dateFormatter)
         return encoder
-    }
+    }()
     
     static var isIpad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad

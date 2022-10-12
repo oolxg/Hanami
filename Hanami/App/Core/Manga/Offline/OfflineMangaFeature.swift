@@ -49,10 +49,11 @@ struct OfflineMangaFeature: ReducerProtocol {
         case binding(BindingAction<State>)
     }
     
-    @Dependency(\.databaseClient) var databaseClient
-    @Dependency(\.mangaClient) var mangaClient
-    @Dependency(\.cacheClient) var cacheClient
-    @Dependency(\.hudClient) var hudClient
+    @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.logger) private var logger
 
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -66,8 +67,8 @@ struct OfflineMangaFeature: ReducerProtocol {
                 case .cachedChaptersRetrieved(let result):
                     switch result {
                         case .success(let chapters):
-                                // here we're checking if chapters, we've fetched, and chapters, we've fetched before are same
-                                // if yes, we should do nothing
+                            // here we're checking if chapters, we've fetched, and chapters, we've fetched before are same
+                            // if yes, we should do nothing
                             let chaptersIDsSet = Set(chapters.map(\.chapter.id))
                             guard state.lastRetrievedChapterIDs != chaptersIDsSet else {
                                 return .none
@@ -84,7 +85,13 @@ struct OfflineMangaFeature: ReducerProtocol {
                                 .fireAndForget()
                             
                         case .failure(let error):
-                            print("Error on retrieving chapters:", error)
+                            logger.error(
+                                "Failed to retrieve chapters from disk: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     
@@ -119,7 +126,13 @@ struct OfflineMangaFeature: ReducerProtocol {
                             return .merge(effects)
                             
                         case .failure(let error):
-                            print("Error on retrieving chapters:", error)
+                            logger.error(
+                                "Failed to retrieve chapters from disk for manga deletion: \(error)",
+                                context: [
+                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                                    "mangaName": "\(state.manga.title)"
+                                ]
+                            )
                             return .none
                     }
                     
