@@ -22,11 +22,9 @@ final class HUDClient: ObservableObject, DependencyKey {
     private(set) var hideAfter = 2.5
     private(set) var iconName: String?
     private(set) var backgroundColor: Color = .theme.red
+    private var workItem: DispatchWorkItem?
     
-    static var liveValue = HUDClient()
-    static var testValue: HUDClient {
-        fatalError("Unimplemented")
-    }
+    static let liveValue = HUDClient()
     
     private init () { }
     
@@ -35,8 +33,19 @@ final class HUDClient: ObservableObject, DependencyKey {
         self.hideAfter = hideAfter
         self.iconName = iconName
         self.backgroundColor = backgroundColor
+        
         withAnimation {
             isPresented = true
         }
+        
+        workItem?.cancel()
+        
+        workItem = DispatchWorkItem {
+            withAnimation {
+                self.isPresented = false
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + hideAfter, execute: workItem!)
     }
 }
