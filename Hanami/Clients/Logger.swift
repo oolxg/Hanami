@@ -14,16 +14,12 @@ struct Logger {
         let log = SwiftyBeaver.self
         let file = FileDestination()
         let console = ConsoleDestination()
-        let format = [
-            "$Dyyyy-MM-dd HH:mm:ss.SSS$d",
-            "$C$L$c $N.$F:$l - $M $X"
-        ].joined(separator: " ")
+        let format = "$Dyyyy.MM.dd HH:mm:ss.SSS$d $C$L$c - $M $X"
         
         file.format = format
         file.logFileAmount = 10
         file.calendar = Calendar(identifier: .gregorian)
-        file.logFileURL = FileUtil.logsDirectoryURL
-            .appendingPathComponent(Defaults.FilePath.hanamiLog)
+        file.logFileURL = FileUtil.logsDirectoryURL.appendingPathComponent(Defaults.FilePath.hanamiLog)
         
         console.format = format
         console.calendar = Calendar(identifier: .gregorian)
@@ -64,10 +60,7 @@ struct Logger {
 }
 
 extension Logger: DependencyKey {
-    static var liveValue = Logger()
-    static var testValue: Logger {
-        fatalError("Unimplemented")
-    }
+    static let liveValue = Logger()
 }
 
 extension DependencyValues {

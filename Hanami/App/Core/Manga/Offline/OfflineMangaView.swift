@@ -50,7 +50,7 @@ struct OfflineMangaView: View {
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
-            .accentColor(.theme.accent)
+            .tint(.theme.accent)
         }
     }
 }
@@ -212,7 +212,7 @@ extension OfflineMangaView {
             VStack(alignment: .leading, spacing: 15) {
                 if !viewStore.manga.authors.isEmpty {
                     VStack(alignment: .leading) {
-                        Text("Author")
+                        Text(viewStore.manga.authors.count > 1 ? "Authors" : "Author")
                             .font(.headline)
                             .fontWeight(.black)
                         
@@ -244,7 +244,6 @@ extension OfflineMangaView {
                 tags
             }
         }
-        .padding(.horizontal, 20)
     }
     
     private var tags: some View {

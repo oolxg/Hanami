@@ -27,7 +27,7 @@ struct DatabaseClient {
 }
 
 extension DatabaseClient: DependencyKey {
-    static var liveValue = DatabaseClient(
+    static let liveValue = DatabaseClient(
         prepareDatabase: {
             Future { promise in
                 PersistenceController.shared.prepare(completion: promise)
@@ -63,10 +63,6 @@ extension DatabaseClient: DependencyKey {
             return objects
         }
     )
-    
-    static var testValue: DatabaseClient {
-        fatalError("Unimplemented")
-    }
 }
 
 extension DatabaseClient {
@@ -284,7 +280,6 @@ extension DatabaseClient {
                 return promise(.success(manga.chapterDetailsList))
             }
         }
-        .receive(on: DispatchQueue.main)
         .eraseToEffect()
     }
     

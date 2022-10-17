@@ -17,9 +17,6 @@ enum FileUtil {
     static var logsDirectoryURL: URL {
         documentDirectory.appendingPathComponent(Defaults.FilePath.logs)
     }
-    static var temporaryDirectory: URL {
-        .init(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    }
     
     static func url(for searchPathDirectory: FileManager.SearchPathDirectory) -> URL? {
         try? FileManager.default.url(for: searchPathDirectory, in: .userDomainMask, appropriateFor: nil, create: true)

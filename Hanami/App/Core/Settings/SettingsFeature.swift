@@ -11,17 +11,28 @@ import ComposableArchitecture
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
+        @BindableState var autoLockPolicy: AutoLockPolicy = .never
     }
     
-    enum Action {
-        case test
+    enum Action: BindableAction {
+        case initSettings
+        case binding(BindingAction<State>)
     }
+    
+    @Dependency(\.settingsClient) private var settingsClient
     
     var body: some ReducerProtocol<State, Action> {
-        Reduce { _, action in
+        BindingReducer()
+        Reduce { state, action in
             switch action {
-                case .test:
-                    print("hello")
+                case .initSettings:
+                    state.autoLockPolicy = settingsClient.getAutoLockPolicy()
+                    return .none
+                    
+                case .binding(\.$autoLockPolicy):
+                    return settingsClient.setAutoLockPolicy(state.autoLockPolicy).fireAndForget()
+                    
+                case .binding:
                     return .none
             }
         }

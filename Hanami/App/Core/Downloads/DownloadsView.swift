@@ -43,7 +43,7 @@ struct DownloadsView: View {
                                 )
                             ) { thumbnailViewStore in
                                 MangaThumbnailView(store: thumbnailViewStore)
-                                    .padding()
+                                    .padding(5)
                             }
                         }
                         .transition(.opacity)

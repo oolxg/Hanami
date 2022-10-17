@@ -62,7 +62,7 @@ struct OnlineMangaView: View {
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: { mangaReadingView })
-            .accentColor(.theme.accent)
+            .tint(.theme.accent)
         }
     }
 }
@@ -266,7 +266,7 @@ extension OnlineMangaView {
                 
                 if !viewStore.manga.authors.isEmpty {
                     VStack(alignment: .leading) {
-                        Text("Author")
+                        Text(viewStore.manga.authors.count > 1 ? "Authors" : "Author")
                             .font(.headline)
                             .fontWeight(.black)
                         
@@ -275,10 +275,9 @@ extension OnlineMangaView {
                         FlexibleView(
                             data: viewStore.manga.authors.map(\.name),
                             spacing: 10,
-                            alignment: .leading
-                        ) { authorName in
-                            makeChipsView(text: authorName)
-                        }
+                            alignment: .leading,
+                            content: makeChipsView
+                        )
                         .padding(.horizontal, 5)
                     }
                 }

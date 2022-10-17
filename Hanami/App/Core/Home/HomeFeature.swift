@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct HomeFeature: ReducerProtocol {
     struct State: Equatable {
-        var lastUpdatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var latestUpdatesMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var awardWinningMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var mostFollowedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
@@ -33,8 +33,8 @@ struct HomeFeature: ReducerProtocol {
             Result<Response<[Manga]>, AppError>,
             WritableKeyPath<State, IdentifiedArrayOf<MangaThumbnailFeature.State>>
         )
-        
-        case adminUserListsFetched(Result<Response<[CustomMangaList]>, AppError>)
+
+        case allSeasonalListsFetched(Result<Response<[CustomMangaList]>, AppError>)
         case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
         
         case userOpenedAwardWinningView
@@ -56,16 +56,16 @@ struct HomeFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
                 case .onAppear:
-                    guard state.lastUpdatedMangaThumbnailStates.isEmpty else { return .none }
+                    guard state.latestUpdatesMangaThumbnailStates.isEmpty else { return .none }
                     
                     return .merge(
                         homeClient.fetchLastUpdates()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect { .mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
+                            .catchToEffect { .mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) },
                         
                         homeClient.fetchAllSeasonalTitlesLists()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect(Action.adminUserListsFetched)
+                            .catchToEffect(Action.allSeasonalListsFetched)
                     )
                     
                 case .refresh:
@@ -85,11 +85,13 @@ struct HomeFeature: ReducerProtocol {
                     
                     fetchedMangaIDs.append(contentsOf: state.awardWinningMangaThumbnailStates.map(\.id))
                     fetchedMangaIDs.append(contentsOf: state.mostFollowedMangaThumbnailStates.map(\.id))
-                    fetchedMangaIDs.append(contentsOf: state.lastUpdatedMangaThumbnailStates.map(\.id))
+                    fetchedMangaIDs.append(contentsOf: state.latestUpdatesMangaThumbnailStates.map(\.id))
                     fetchedMangaIDs.append(contentsOf: state.seasonalMangaThumbnailStates.map(\.id))
                     
                     state.awardWinningMangaThumbnailStates.removeAll()
                     state.mostFollowedMangaThumbnailStates.removeAll()
+                    
+                    struct UpdateDebounce: Hashable { }
                     
                     var effects = [
                         hapticClient.generateNotificationFeedback(.success).fireAndForget(),
@@ -98,7 +100,8 @@ struct HomeFeature: ReducerProtocol {
                         
                         homeClient.fetchLastUpdates()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect { Action.mangaListFetched($0, \.lastUpdatedMangaThumbnailStates) },
+                            .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
+                            .cancellable(id: UpdateDebounce(), cancelInFlight: true),
                         
                         .task { .refreshDelayCompleted }
                             .delay(for: .seconds(3), scheduler: DispatchQueue.main)
@@ -107,7 +110,7 @@ struct HomeFeature: ReducerProtocol {
                     
                     if let seasonalListID = state.seasonalMangaListID {
                         effects.append(
-                            homeClient.fetchSeasonalTitlesList(seasonalListID)
+                            homeClient.fetchCustomTitlesList(seasonalListID)
                                 .receive(on: DispatchQueue.main)
                                 .catchToEffect(Action.seasonalMangaListFetched)
                         )
@@ -133,17 +136,19 @@ struct HomeFeature: ReducerProtocol {
                         .receive(on: DispatchQueue.main)
                         .catchToEffect { Action.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
                     
-                case .adminUserListsFetched(let result):
+                case .allSeasonalListsFetched(let result):
                     switch result {
                         case .success(let response):
-                            let seasonalList = homeClient.getCurrentSeasonTitlesListID(response.data)
-                            state.seasonalMangaListID = seasonalList.id
-                            state.seasonalTabName = seasonalList.name
+                            let seasonaMangalList = homeClient.getCurrentSeasonTitlesListID(response.data)
+                            
+                            let seasonalMangaIDs = seasonaMangalList.relationships.filter { $0.type == .manga }.map(\.id)
+                            state.seasonalMangaListID = seasonaMangalList.id
+                            state.seasonalTabName = seasonaMangalList.attributes.name
                             
                             return homeClient
-                                .fetchSeasonalTitlesList(seasonalList.id)
+                                .fetchMangaByIDs(seasonalMangaIDs)
                                 .receive(on: DispatchQueue.main)
-                                .catchToEffect(Action.seasonalMangaListFetched)
+                                .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
                             
                         case .failure(let error):
                             logger.error("Failed to load list of seasonal titles: \(error)")
@@ -230,7 +235,7 @@ struct HomeFeature: ReducerProtocol {
                     return .none
             }
         }
-        .forEach(\.lastUpdatedMangaThumbnailStates, action: /Action.lastUpdatesMangaThumbnailAction) {
+        .forEach(\.latestUpdatesMangaThumbnailStates, action: /Action.lastUpdatesMangaThumbnailAction) {
             MangaThumbnailFeature()
         }
         .forEach(\.seasonalMangaThumbnailStates, action: /Action.seasonalMangaThumbnailAction) {

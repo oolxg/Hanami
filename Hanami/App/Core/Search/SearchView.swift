@@ -92,6 +92,7 @@ extension SearchView {
                 } else if viewStore.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .tint(.theme.accent)
                 } else {
                     mangaList
                 }
@@ -177,7 +178,7 @@ extension SearchView {
                 }
                 .font(.callout)
             }
-            .accentColor(.white)
+            .tint(.white)
         }
     }
     
@@ -262,7 +263,7 @@ extension SearchView {
                 }
                 .padding(.trailing)
             }
-            .accentColor(.white)
+            .tint(.white)
         }
         
         @ViewBuilder private func makeButtonViewFor(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> some View {

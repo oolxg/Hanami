@@ -46,6 +46,7 @@ struct OnlineMangaReadingView: View {
                             } else if state.isLoading || state.error != nil {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                    .tint(.theme.accent)
                             }
                         }
                     }
@@ -68,6 +69,7 @@ struct OnlineMangaReadingView: View {
                 if viewStore.pagesURLs.isEmpty {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .tint(.theme.accent)
                 }
             }
         }

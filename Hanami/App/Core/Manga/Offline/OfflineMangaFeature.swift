@@ -62,6 +62,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                 case .onAppear:
                     return databaseClient
                         .retrieveChaptersForManga(mangaID: state.manga.id)
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect(Action.cachedChaptersRetrieved)
                     
                 case .cachedChaptersRetrieved(let result):

@@ -69,6 +69,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                     effects.append(
                         databaseClient
                             .retrieveChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
+                            .receive(on: DispatchQueue.main)
                             .catchToEffect(Action.sameScanlationGroupChaptersRetrieved)
                     )
                 }

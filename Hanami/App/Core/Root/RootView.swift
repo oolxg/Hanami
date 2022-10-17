@@ -80,6 +80,6 @@ struct RootView: View {
             backgroundColor: hudState.backgroundColor
         )
         .accentColor(.theme.accent)
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(.stack)
     }
 }

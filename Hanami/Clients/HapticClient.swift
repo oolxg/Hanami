@@ -34,8 +34,4 @@ extension HapticClient: DependencyKey {
             }
         }
     )
-    
-    static var testValue: HapticClient {
-        fatalError("Unimplemented")
-    }
 }

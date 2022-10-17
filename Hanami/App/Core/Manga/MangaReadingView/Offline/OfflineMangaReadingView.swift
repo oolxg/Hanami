@@ -46,6 +46,7 @@ struct OfflineMangaReadingView: View {
                             } else if state.isLoading || state.error != nil {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                    .tint(.theme.accent)
                             }
                         }
                     }

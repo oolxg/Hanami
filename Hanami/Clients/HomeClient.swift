@@ -18,8 +18,8 @@ extension DependencyValues {
 struct HomeClient {
     let fetchLastUpdates: () -> Effect<Response<[Manga]>, AppError>
     let fetchAllSeasonalTitlesLists: () -> Effect<Response<[CustomMangaList]>, AppError>
-    let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> (id: UUID, name: String)
-    let fetchSeasonalTitlesList: (_ seasonalTitlesListID: UUID) -> Effect<Response<CustomMangaList>, AppError>
+    let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> CustomMangaList
+    let fetchCustomTitlesList: (_ seasonalTitlesListID: UUID) -> Effect<Response<CustomMangaList>, AppError>
     let fetchMangaByIDs: ([UUID]) -> Effect<Response<[Manga]>, AppError>
     let fetchAwardWinningManga: () -> Effect<Response<[Manga]>, AppError>
     let fetchMostFollowedManga: () -> Effect<Response<[Manga]>, AppError>
@@ -27,7 +27,7 @@ struct HomeClient {
 }
 
 extension HomeClient: DependencyKey {
-    static var liveValue = HomeClient(
+    static let liveValue = HomeClient(
         fetchLastUpdates: {
             var components = URLComponents()
             components.scheme = "https"
@@ -35,8 +35,6 @@ extension HomeClient: DependencyKey {
             components.path = "/manga"
             components.queryItems = [
                 URLQueryItem(name: "limit", value: "25"),
-                URLQueryItem(name: "includedTagsMode", value: "AND"),
-                URLQueryItem(name: "excludedTagsMode", value: "OR"),
                 URLQueryItem(name: "contentRating[]", value: "safe"),
                 URLQueryItem(name: "contentRating[]", value: "suggestive"),
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
@@ -48,7 +46,7 @@ extension HomeClient: DependencyKey {
             guard let url = components.url else {
                 return .none
             }
-                      
+            
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchAllSeasonalTitlesLists: {
@@ -61,8 +59,8 @@ extension HomeClient: DependencyKey {
         },
         getCurrentSeasonTitlesListID: { mangaLists in
             let sorted = mangaLists.sorted { lhs, rhs in
-                let lhsYear = String(lhs.attributes.name.suffix(4))
-                let rhsYear = String(rhs.attributes.name.suffix(4))
+                let lhsYear = lhs.attributes.name.suffix(4)
+                let rhsYear = rhs.attributes.name.suffix(4)
                 
                 if lhsYear != rhsYear {
                     return lhsYear < rhsYear
@@ -84,28 +82,23 @@ extension HomeClient: DependencyKey {
                 return lhsPriority < rhsPriority
             }
             
-            return (id: sorted.last!.id, name: sorted.last!.attributes.name)
+            return sorted.last!
         },
-        fetchSeasonalTitlesList: { seasonalTitlesListID in
-            // admin user has 'Seasonal' manga list
+        fetchCustomTitlesList: { seasonalTitlesListID in
             var components = URLComponents()
             components.scheme = "https"
             components.host = "api.mangadex.org"
             components.path = "/list/\(seasonalTitlesListID.uuidString.lowercased())"
             components.queryItems = [
                 URLQueryItem(name: "includes[]", value: "author"),
-                URLQueryItem(name: "includes[]", value: "cover_art"),
-                URLQueryItem(name: "includes[]", value: "user")
+                URLQueryItem(name: "includes[]", value: "cover_art")
             ]
 
-            guard let adminUserListsURL = components.url else {
+            guard let url = components.url else {
                 return .none
             }
             
-            return URLSession.shared.get(
-                url: adminUserListsURL,
-                decodeResponseAs: Response<CustomMangaList>.self
-            )
+            return URLSession.shared.get(url: url, decodeResponseAs: Response<CustomMangaList>.self)
         },
         fetchMangaByIDs: { mangaIDs in
             guard !mangaIDs.isEmpty else { return .none }
@@ -196,8 +189,4 @@ extension HomeClient: DependencyKey {
             return URLSession.shared.get(url: url, decodeResponseAs: MangaStatisticsContainer.self)
         }
     )
-    
-    static var testValue: HomeClient {
-        fatalError("Unimplemented")
-    }
 }

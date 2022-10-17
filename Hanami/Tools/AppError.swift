@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LocalAuthentication
 
 enum AppError: Error {
     case networkError(URLError)
@@ -15,6 +16,7 @@ enum AppError: Error {
     case databaseError(String)
     case cacheError(String)
     case imageError(String)
+    case biometryError(LAError)
 }
 
 extension AppError: Equatable {
@@ -39,6 +41,9 @@ extension AppError: Equatable {
                 return true
                 
             case (.imageError, .imageError):
+                return true
+                
+            case (.biometryError, .biometryError):
                 return true
                 
             default:
@@ -112,6 +117,30 @@ extension AppError: Equatable {
                 
             case .databaseError(let errorMessage):
                 return errorMessage
+                
+            case .biometryError(let error):
+                switch error {
+                    case LAError.appCancel:
+                        return "Authentication was cancelled by application"
+                    case LAError.authenticationFailed:
+                        return "The user failed to provide valid credentials"
+                    case LAError.invalidContext:
+                        return "The context is invalid"
+                    case LAError.passcodeNotSet:
+                        return "Passcode is not set on the device"
+                    case LAError.systemCancel:
+                        return "Authentication was cancelled by the system"
+                    case LAError.biometryLockout:
+                        return "Too many failed attempts."
+                    case LAError.biometryNotAvailable:
+                        return "Biometry is not available on the device"
+                    case LAError.userCancel:
+                        return "The user did cancel"
+                    case LAError.userFallback:
+                        return "The user chose to use the fallback"
+                    default:
+                        return "Did not find error code on LAError object"
+                }
         }
     }
 }

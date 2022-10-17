@@ -26,7 +26,7 @@ struct ImageClient {
 }
 
 extension ImageClient: DependencyKey {
-    static var liveValue = ImageClient(
+    static let liveValue = ImageClient(
         prefetchImages: { urls in
             .fireAndForget {
                 prefetcher.startPrefetching(with: urls)
@@ -48,12 +48,7 @@ extension ImageClient: DependencyKey {
                 }
             }
             .retry(3)
-            .receive(on: DispatchQueue.main)
             .catchToEffect()
         }
     )
-    
-    static var testValue: ImageClient {
-        fatalError("Unimplemented")
-    }
 }

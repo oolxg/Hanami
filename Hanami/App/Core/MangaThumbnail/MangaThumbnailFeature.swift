@@ -38,19 +38,19 @@ struct MangaThumbnailFeature: ReducerProtocol {
         }
         
         var online: Bool { onlineMangaState != nil }
-        
+        @BindableState var isNavigationLinkActive = false
         var id: UUID { manga.id }
     }
     
-    enum Action {
+    enum Action: BindableAction {
         case onAppear
         case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
         case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
-        case userOpenedMangaView
         case userLeftMangaView
         case userLeftMangaViewDelayCompleted
         case onlineMangaAction(OnlineMangaFeature.Action)
         case offlineMangaAction(OfflineMangaFeature.Action)
+        case binding(BindingAction<State>)
     }
     
     @Dependency(\.mangaClient) private var mangaClient
@@ -58,6 +58,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
                 case .onAppear:
@@ -113,26 +114,42 @@ struct MangaThumbnailFeature: ReducerProtocol {
                             return .none
                     }
                     
-                case .userOpenedMangaView:
-                    // when users enters the view, we must cancel clearing manga info
-                    return .cancel(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
+                case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
+                    state.isNavigationLinkActive = false
+                    return .none
                     
+                // action only to hijack it in DownloadsFeature
                 case .userLeftMangaView:
-                    // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
-                    // Can be cancelled if user returns wihing 60 sec.
-                    return .task { .userLeftMangaViewDelayCompleted }
-                        .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                        .cancellable(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
+                    return .none
                     
                 case .userLeftMangaViewDelayCompleted:
                     state.onlineMangaState!.reset()
                     return .none
                     
+                case .binding(\.$isNavigationLinkActive):
+                    if state.isNavigationLinkActive {
+                        // when users enters the view, we must cancel clearing manga info
+                        return .cancel(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
+                    }
+                    
+                    // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
+                    // Can be cancelled if user returns wihing 60 sec.
+                    return .merge(
+                        .task { .userLeftMangaViewDelayCompleted }
+                            .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
+                            .eraseToEffect()
+                            .cancellable(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id)),
+                        
+                            .task { .userLeftMangaView }
+                    )
+                    
                 case .onlineMangaAction:
                     return .none
                     
                 case .offlineMangaAction:
+                    return .none
+                    
+                case .binding:
                     return .none
             }
         }

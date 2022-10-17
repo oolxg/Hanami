@@ -11,7 +11,6 @@ import NukeUI
 
 struct MangaThumbnailView: View {
     let store: StoreOf<MangaThumbnailFeature>
-    @State private var isNavigationLinkActive = false
     
     private struct ViewState: Equatable {
         let online: Bool
@@ -41,14 +40,10 @@ struct MangaThumbnailView: View {
         }
         .frame(height: 170)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture { isNavigationLinkActive.toggle() }
-        .overlay {
-            NavigationLink(
-                isActive: $isNavigationLinkActive,
-                destination: { mangaView },
-                label: { EmptyView() }
-            )
+        .onTapGesture {
+            ViewStore(store).binding(\.$isNavigationLinkActive).wrappedValue.toggle()
         }
+        .overlay(navigationLink)
     }
 }
 
@@ -86,9 +81,6 @@ extension MangaThumbnailView {
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
-            .onChange(of: isNavigationLinkActive) { isNavLinkActive in
-                viewStore.send(isNavLinkActive ? .userOpenedMangaView : .userLeftMangaView)
-            }
         }
     }
     
@@ -105,6 +97,16 @@ extension MangaThumbnailView {
                         .frame(width: 120)
                 }
             }
+        }
+    }
+    
+    private var navigationLink: some View {
+        WithViewStore(store) { viewStore in
+            NavigationLink(
+                isActive: viewStore.binding(\.$isNavigationLinkActive),
+                destination: { mangaView },
+                label: { EmptyView() }
+            )
         }
     }
     

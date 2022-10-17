@@ -140,7 +140,7 @@ extension CacheClient: DependencyKey {
         },
         clearCache: {
             .fireAndForget {
-                DispatchQueue.main.async {
+                cacheQueue.async {
                     try? imageStorage.removeAll()
                 }
             }
@@ -155,7 +155,6 @@ extension CacheClient: DependencyKey {
                     promise(.success(size))
                 }
             }
-            .receive(on: DispatchQueue.main)
             .catchToEffect()
         },
         pathForImage: { fileName in
@@ -195,7 +194,6 @@ extension CacheClient: DependencyKey {
                     promise(.failure(.notFound))
                 }
             }
-            .receive(on: DispatchQueue.main)
             .eraseToEffect()
         },
         removeAllCachedChapterIDsFromMemory: { mangaID in
@@ -218,8 +216,4 @@ extension CacheClient: DependencyKey {
             }
         }
     )
-    
-    static var testValue: CacheClient {
-        fatalError("Unimplemented")
-    }
 }

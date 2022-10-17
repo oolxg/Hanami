@@ -12,15 +12,24 @@ struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-                .onAppear {
-                    viewStore.send(.test)
+        NavigationView {
+            WithViewStore(store) { viewStore in
+                List {
+                    Section {
+                        Picker("Auto-lock", selection: viewStore.binding(\.$autoLockPolicy)) {
+                            ForEach(AutoLockPolicy.allCases) { policy in
+                                Text(policy.value)
+                                    .tag(policy)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    } header: {
+                        Text("Privacy")
+                    }
                 }
-                .onTapGesture {
-                    print(1)
-                    viewStore.send(.test)
-                }
+            }
+            .navigationTitle("Settings")
+            .tint(Color.theme.accent)
         }
     }
 }

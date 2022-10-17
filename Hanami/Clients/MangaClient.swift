@@ -54,7 +54,7 @@ extension MangaClient {
 }
 
 extension MangaClient: DependencyKey {
-    static var liveValue = MangaClient(
+    static let liveValue = MangaClient(
         fetchMangaChapters: { mangaID, scanlationGroupID, translatedLanguage in
             var components = URLComponents()
             components.scheme = "https"
@@ -208,8 +208,4 @@ extension MangaClient: DependencyKey {
             cacheClient.pathForImage(getCoverArtName(mangaID: mangaID))
         }
     )
-    
-    static var testValue: MangaClient {
-        fatalError("Unimplemented")
-    }
 }

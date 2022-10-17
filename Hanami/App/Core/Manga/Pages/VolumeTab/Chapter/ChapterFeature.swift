@@ -115,6 +115,7 @@ struct ChapterFeature: ReducerProtocol {
                 var effects: [Effect<Action, Never>] = [
                     databaseClient
                         .retrieveChaptersForManga(mangaID: state.parentManga.id)
+                        .receive(on: DispatchQueue.main)
                         .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
                 ]
                 
@@ -300,6 +301,7 @@ struct ChapterFeature: ReducerProtocol {
             case .checkIfChaptersCached:
                 return cacheClient
                     .retrieveFromMemoryCachedChapters(state.parentManga.id)
+                    .receive(on: DispatchQueue.main)
                     .catchToEffect(Action.savedInMemoryChaptersRetrieved)
                 
             case .savedInMemoryChaptersRetrieved(let result):
@@ -364,6 +366,7 @@ struct ChapterFeature: ReducerProtocol {
                             .map { i, url in
                                 imageClient
                                     .downloadImage(url)
+                                    .receive(on: DispatchQueue.main)
                                     .eraseToEffect {
                                         Action.chapterPageForCachingFetched($0, pageIndex: i, chapter)
                                     }

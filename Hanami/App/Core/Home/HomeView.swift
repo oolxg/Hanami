@@ -26,7 +26,7 @@ struct HomeView: View {
         init(state: HomeFeature.State) {
             isRefreshActionInProgress = state.isRefreshActionInProgress
             areSeasonalTitlesFetched = !state.seasonalMangaThumbnailStates.isEmpty
-            areLatestUpdatesFetched = !state.lastUpdatedMangaThumbnailStates.isEmpty
+            areLatestUpdatesFetched = !state.latestUpdatesMangaThumbnailStates.isEmpty
             areAwardWinningTitlesFetched = !state.awardWinningMangaThumbnailStates.isEmpty
             areMostFollowedTitlesFetched = !state.mostFollowedMangaThumbnailStates.isEmpty
             seasonalMangaTabName = state.seasonalTabName ?? "Seasonal"
@@ -35,7 +35,7 @@ struct HomeView: View {
 
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if networkMonitor.isConnected || viewStore.areSeasonalTitlesFetched || viewStore.areLatestUpdatesFetched {
+            if networkMonitor.isConnected || viewStore.areLatestUpdatesFetched {
                 homeContent
             } else {
                 noInternetConnectionView
@@ -141,7 +141,7 @@ extension HomeView {
                     if viewStore.areLatestUpdatesFetched {
                         ForEachStore(
                             store.scope(
-                                state: \.lastUpdatedMangaThumbnailStates,
+                                state: \.latestUpdatesMangaThumbnailStates,
                                 action: HomeFeature.Action.lastUpdatesMangaThumbnailAction
                             )
                         ) { thumbnailViewStore in
@@ -156,24 +156,20 @@ extension HomeView {
                 }
             }
         } header: {
-            makeSectionHeader(title: "Latest Updates")
-        }
-    }
-    
-    @ViewBuilder private func makeSectionHeader(title: String) -> some View {
-        Text(title)
-            .font(.title3)
-            .fontWeight(.semibold)
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                LinearGradient(
-                    colors: [.theme.background, .theme.background, .theme.background, .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
+            Text("Latest updates")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.horizontal)
+                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    LinearGradient(
+                        colors: [.black, .black, .black, .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                 )
-            )
+        }
     }
 }
 

@@ -10,6 +10,9 @@
 		08200ABA28F6FACB009705D9 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 08200AB928F6FACB009705D9 /* SwiftyBeaver */; };
 		08200ABC28F70211009705D9 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08200ABB28F70211009705D9 /* FileUtil.swift */; };
 		08200ABE28F704AA009705D9 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08200ABD28F704AA009705D9 /* Defaults.swift */; };
+		0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20528F88AF30009A907 /* SettingsClient.swift */; };
+		0829E20828F896C30009A907 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20728F896C30009A907 /* AuthClient.swift */; };
+		0829E21E28FC243D0009A907 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E21D28FC243D0009A907 /* Settings.swift */; };
 		0859979528F4C4170095422C /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979428F4C4170095422C /* SettingsFeature.swift */; };
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
@@ -141,6 +144,9 @@
 /* Begin PBXFileReference section */
 		08200ABB28F70211009705D9 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		08200ABD28F704AA009705D9 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
+		0829E20528F88AF30009A907 /* SettingsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsClient.swift; sourceTree = "<group>"; };
+		0829E20728F896C30009A907 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
+		0829E21D28FC243D0009A907 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0859979B28F6DBE50095422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -270,6 +276,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0829E21C28FC23E10009A907 /* WebAPI */ = {
+			isa = PBXGroup;
+			children = (
+				2220E1612831B0300046F08A /* ResponseDataType.swift */,
+				228FA497288D86C800369529 /* CustomMangaList.swift */,
+				2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */,
+				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
+				2220E14E283074F10046F08A /* LocalizedString.swift */,
+				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
+				2220E16A2832B3910046F08A /* ChapterDetails.swift */,
+				22A7BF29283A74E4008EDD52 /* MangaVolume.swift */,
+				2220E15A2831355A0046F08A /* CoverArtInfo.swift */,
+				2224D3D6282ED6C200BBAC5D /* Relationship.swift */,
+				22A7BF2E283AB730008EDD52 /* Chapter.swift */,
+				22471E1D288E10A300223D35 /* Author.swift */,
+				224E6713282E9781001D214C /* Manga.swift */,
+				2224D3D8282ED6FA00BBAC5D /* Tag.swift */,
+			);
+			path = WebAPI;
+			sourceTree = "<group>";
+		};
 		0859979228F4C3EA0095422C /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -475,20 +502,8 @@
 		224E6710282E8E18001D214C /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2220E1612831B0300046F08A /* ResponseDataType.swift */,
-				228FA497288D86C800369529 /* CustomMangaList.swift */,
-				2220E16E2832CEE00046F08A /* ChapterPagesInfo.swift */,
-				22E385922857D5BE00F034BA /* ScanlationGroup.swift */,
-				2220E14E283074F10046F08A /* LocalizedString.swift */,
-				2205CB9D28569DDE00421888 /* MangaStatistics.swift */,
-				2220E16A2832B3910046F08A /* ChapterDetails.swift */,
-				22A7BF29283A74E4008EDD52 /* MangaVolume.swift */,
-				2220E15A2831355A0046F08A /* CoverArtInfo.swift */,
-				2224D3D6282ED6C200BBAC5D /* Relationship.swift */,
-				22A7BF2E283AB730008EDD52 /* Chapter.swift */,
-				22471E1D288E10A300223D35 /* Author.swift */,
-				224E6713282E9781001D214C /* Manga.swift */,
-				2224D3D8282ED6FA00BBAC5D /* Tag.swift */,
+				0829E21C28FC23E10009A907 /* WebAPI */,
+				0829E21D28FC243D0009A907 /* Settings.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -506,12 +521,14 @@
 			isa = PBXGroup;
 			children = (
 				222A03652871B9D800D5B588 /* DatabaseClient.swift */,
+				0829E20528F88AF30009A907 /* SettingsClient.swift */,
 				226C05B8287DD6EB00BA0E5C /* MangaClient.swift */,
 				22D0CA71287DE2D2005D06ED /* SearchClient.swift */,
 				228FA49C288DBB5500369529 /* CacheClient.swift */,
 				2225265E28B1627E009F6FA3 /* HapticClient.swift */,
 				22D0CA6F287DE15F005D06ED /* HomeClient.swift */,
 				228DD04D28A4746600F70162 /* ImageClient.swift */,
+				0829E20728F896C30009A907 /* AuthClient.swift */,
 				228DD04F28A5278300F70162 /* HUDClient.swift */,
 				0859979B28F6DBE50095422C /* Logger.swift */,
 			);
@@ -798,6 +815,7 @@
 				228DD04E28A4746600F70162 /* ImageClient.swift in Sources */,
 				22D0CA72287DE2D2005D06ED /* SearchClient.swift in Sources */,
 				222A036A2871BD7500D5B588 /* AppUtil.swift in Sources */,
+				0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */,
 				2220E1672832A9280046F08A /* OnlineMangaView.swift in Sources */,
 				22C2024D28BAC29600047E1C /* SearchBarView.swift in Sources */,
 				222A03742872330400D5B588 /* HUD.swift in Sources */,
@@ -838,6 +856,7 @@
 				228DD05028A5278300F70162 /* HUDClient.swift in Sources */,
 				228FA498288D86C800369529 /* CustomMangaList.swift in Sources */,
 				2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */,
+				0829E21E28FC243D0009A907 /* Settings.swift in Sources */,
 				229F8D90282DB5E400761054 /* RootFeature.swift in Sources */,
 				222ED96D28C01F99009C361E /* URLSession.swift in Sources */,
 				2220E16B2832B3910046F08A /* ChapterDetails.swift in Sources */,
@@ -870,6 +889,7 @@
 				0859979528F4C4170095422C /* SettingsFeature.swift in Sources */,
 				2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */,
 				229F9A3128BB0A290015BC8B /* URL.swift in Sources */,
+				0829E20828F896C30009A907 /* AuthClient.swift in Sources */,
 				22DA241F2839752800150C23 /* Double.swift in Sources */,
 				22E057E12843F201004CD4C3 /* UIApplication.swift in Sources */,
 				224E671B282EAA50001D214C /* AppError.swift in Sources */,
@@ -1039,12 +1059,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Hanami/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Hanami;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1077,12 +1097,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Hanami/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Hanami;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (

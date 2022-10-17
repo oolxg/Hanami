@@ -22,7 +22,7 @@ struct SearchClient {
 }
 
 extension SearchClient: DependencyKey {
-    static var liveValue = SearchClient(
+    static let liveValue = SearchClient(
         makeSearchRequest: { requestParams in
             var components = URLComponents()
             
@@ -100,9 +100,4 @@ extension SearchClient: DependencyKey {
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Tag]>.self)
         }
     )
-    
-    
-    static var testValue: SearchClient {
-        fatalError("Unimplemented")
-    }
 }

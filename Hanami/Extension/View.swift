@@ -30,13 +30,6 @@ extension View {
                     .zIndex(1)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.horizontal)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + hideInterval) {
-                            withAnimation {
-                                isPresented.wrappedValue = false
-                            }
-                        }
-                    }
                     .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .local)
                         .onEnded { value in
                             if value.translation.height < 0 {

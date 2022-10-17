@@ -166,6 +166,7 @@ struct PagesFeature: ReducerProtocol {
         case changePage(newPageIndex: Int)
         case changePageAfterEffectCancellation(newPageIndex: Int)
         case unlockPage
+        case userDeletedAllCachedChapters
         case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabFeature.Action)
     }
     
@@ -198,6 +199,18 @@ struct PagesFeature: ReducerProtocol {
                     
                 case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume):
                     state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
+                    
+                    if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
+                        state.currentPageIndex -= 1
+                    } else if state.volumeTabStatesOnCurrentPage.isEmpty {
+                        return .task { .userDeletedAllCachedChapters }
+                            .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                            .eraseToEffect()
+                    }
+                    
+                    return .none
+                    
+                case .userDeletedAllCachedChapters:
                     return .none
                     
                 case .volumeTabAction:
