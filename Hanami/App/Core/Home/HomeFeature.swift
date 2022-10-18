@@ -100,7 +100,7 @@ struct HomeFeature: ReducerProtocol {
                         
                         homeClient.fetchLastUpdates()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
+                            .catchToEffect { .mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
                             .cancellable(id: UpdateDebounce(), cancelInFlight: true),
                         
                         .task { .refreshDelayCompleted }
@@ -127,21 +127,24 @@ struct HomeFeature: ReducerProtocol {
                     
                     return homeClient.fetchAwardWinningManga()
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect { Action.mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
+                        .catchToEffect { .mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
                     
                 case .userOpenedMostFollowedView:
                     guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
                     
                     return homeClient.fetchMostFollowedManga()
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect { Action.mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
+                        .catchToEffect { .mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
                     
                 case .allSeasonalListsFetched(let result):
                     switch result {
                         case .success(let response):
                             let seasonaMangalList = homeClient.getCurrentSeasonTitlesListID(response.data)
                             
-                            let seasonalMangaIDs = seasonaMangalList.relationships.filter { $0.type == .manga }.map(\.id)
+                            let seasonalMangaIDs = seasonaMangalList.relationships
+                                .filter { $0.type == .manga }
+                                .map(\.id)
+                            
                             state.seasonalMangaListID = seasonaMangalList.id
                             state.seasonalTabName = seasonaMangalList.attributes.name
                             
@@ -174,7 +177,7 @@ struct HomeFeature: ReducerProtocol {
                             return .merge(
                                 homeClient.fetchStatistics(response.data.map(\.id))
                                     .receive(on: DispatchQueue.main)
-                                    .catchToEffect { Action.statisticsFetched($0, keyPath) },
+                                    .catchToEffect { .statisticsFetched($0, keyPath) },
                                 
                                 imageClient.prefetchImages(coverArtURLs)
                                     .fireAndForget()
@@ -215,7 +218,7 @@ struct HomeFeature: ReducerProtocol {
                             return homeClient
                                 .fetchMangaByIDs(mangaIDs)
                                 .receive(on: DispatchQueue.main)
-                                .catchToEffect { Action.mangaListFetched($0, \.seasonalMangaThumbnailStates) }
+                                .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
                             
                         case .failure(let error):
                             logger.error("Failed to load list of seasonal titles: \(error)")
