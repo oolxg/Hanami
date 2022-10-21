@@ -27,16 +27,16 @@ struct FilterFeature: ReducerProtocol {
             allTags.filter { $0.type == .content }
         }
         // MARK: - Options
-        var publicationDemographics: IdentifiedArrayOf<PublicationDemographic> = .init(uniqueElements: [
+        var publicationDemographics: IdentifiedArrayOf<PublicationDemographic> = [
             .init(tag: .josei), .init(tag: .seinen), .init(tag: .shoujo), .init(tag: .shounen)
-        ])
-        var contentRatings: IdentifiedArrayOf<ContentRatings> = .init(uniqueElements: [
+        ]
+        var contentRatings: IdentifiedArrayOf<ContentRatings> = [
             .init(tag: .erotica), .init(tag: .pornographic),
             .init(tag: .safe), .init(tag: .suggestive, state: .selected)
-        ])
-        var mangaStatuses: IdentifiedArrayOf<MangaStatus> = .init(uniqueElements: [
+        ]
+        var mangaStatuses: IdentifiedArrayOf<MangaStatus> = [
             .init(tag: .cancelled), .init(tag: .completed), .init(tag: .hiatus), .init(tag: .ongoing)
-        ])
+        ]
         
         var isAnyFilterApplied: Bool {
             !allTags.filter { $0.state == .selected || $0.state == .banned }.isEmpty ||

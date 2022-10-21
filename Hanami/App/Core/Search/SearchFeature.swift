@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import SwiftUI
+import class SwiftUI.UIApplication
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {

@@ -20,8 +20,22 @@ struct OfflineMangaView: View {
         headerOffset < -350
     }
     
+    private  struct ViewState: Equatable {
+        let manga: Manga
+        let currentPageIndex: Int?
+        let coverArtPath: URL?
+        let selectedTab: OfflineMangaFeature.Tab
+        
+        init(state: OfflineMangaFeature.State) {
+            manga = state.manga
+            currentPageIndex = state.pagesState?.currentPageIndex
+            coverArtPath = state.coverArtPath
+            selectedTab = state.selectedTab
+        }
+    }
+    
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ScrollView(showsIndicators: false) {
                 LazyVStack(pinnedViews: .sectionHeaders) {
                     header
@@ -37,7 +51,7 @@ struct OfflineMangaView: View {
                 }
             }
             .animation(.linear, value: isCoverArtDisappeared)
-            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
+            .animation(.default, value: viewStore.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -49,7 +63,7 @@ struct OfflineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: mangaReadingView)
+            .fullScreenCover(isPresented: ViewStore(store).binding(\.$isUserOnReadingView), content: mangaReadingView)
             .tint(.theme.accent)
         }
     }
@@ -87,7 +101,7 @@ extension OfflineMangaView {
     }
     
     @MainActor private var header: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
@@ -103,7 +117,7 @@ extension OfflineMangaView {
     }
     
     private var headerOverlay: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
                     colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
@@ -190,7 +204,7 @@ extension OfflineMangaView {
     }
     
     private var mangaBodyView: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
                 case .chapters:
                     IfLetStore(
@@ -208,7 +222,7 @@ extension OfflineMangaView {
     }
     
     private var aboutTab: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 if !viewStore.manga.authors.isEmpty {
                     VStack(alignment: .leading) {
@@ -219,7 +233,7 @@ extension OfflineMangaView {
                         Divider()
                         
                         FlexibleView(
-                            data: viewStore.manga.authors.map(\.name),
+                            data: viewStore.manga.authors.map(\.attributes.name),
                             spacing: 10,
                             alignment: .leading,
                             content: makeChipsView
@@ -247,7 +261,7 @@ extension OfflineMangaView {
     }
     
     private var tags: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading) {
                 Text("Tags")
                     .font(.headline)
@@ -326,7 +340,7 @@ extension OfflineMangaView {
     
     /// Makes label for navigation through MangaView
     private func makeTabLabel(for tab: OfflineMangaFeature.Tab) -> some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)

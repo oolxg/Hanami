@@ -27,6 +27,9 @@ struct OnlineMangaFeature: ReducerProtocol {
         @BindableState var isUserOnReadingView = false
         var mangaReadingViewState: OnlineMangaReadingFeature.State?
         
+        var authorViewState: AuthorFeature.State?
+        @BindableState var showAuthorView = false
+        
         var mainCoverArtURL: URL?
         var coverArtURL256: URL?
         var croppedCoverArtURLs: [URL] {
@@ -61,6 +64,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         // MARK: - Actions to be called from view
         case onAppear
         case mangaTabChanged(Tab)
+        case showAuthorPage(Author)
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
@@ -70,6 +74,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         // MARK: - Substate actions
         case mangaReadingViewAction(OnlineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
+        case authorViewAction(AuthorFeature.Action)
         
         // MARK: - Binding
         case binding(BindingAction<State>)
@@ -179,6 +184,11 @@ struct OnlineMangaFeature: ReducerProtocol {
                             return .none
                     }
                     
+                case .showAuthorPage(let author):
+                    state.showAuthorView = true
+                    state.authorViewState = AuthorFeature.State(author: author)
+                    return .none
+                    
                 case .mangaReadingViewAction:
                     return .none
                     
@@ -186,6 +196,9 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                     
                 case .coverArtForCachingFetched:
+                    return .none
+                    
+                case .authorViewAction:
                     return .none
                     
                 case .binding:
@@ -290,6 +303,9 @@ struct OnlineMangaFeature: ReducerProtocol {
         }
         .ifLet(\.mangaReadingViewState, action: /Action.mangaReadingViewAction) {
             OnlineMangaReadingFeature()
+        }
+        .ifLet(\.authorViewState, action: /Action.authorViewAction) {
+            AuthorFeature()
         }
     }
 }

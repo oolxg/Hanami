@@ -5,8 +5,7 @@
 //  Created by Oleg on 08/07/2022.
 //
 
-import Foundation
-import SwiftUI
+import struct SwiftUI.Color
 
 extension Manga.Attributes.Status {
     var color: Color {

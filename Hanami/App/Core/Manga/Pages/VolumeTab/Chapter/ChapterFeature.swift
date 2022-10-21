@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import SwiftUI
+import class SwiftUI.UIImage
 
 // swiftlint:disable:next type_body_length
 struct ChapterFeature: ReducerProtocol {
@@ -503,7 +503,7 @@ struct ChapterFeature: ReducerProtocol {
                 )
                 
                 return .none
-                    // MARK: - Caching END
+            // MARK: - Caching END
         }
     }
 }

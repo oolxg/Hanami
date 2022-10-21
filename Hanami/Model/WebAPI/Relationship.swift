@@ -81,7 +81,7 @@ struct Relationship: Codable {
         case scanlationGroup(ScanlationGroup.Attributes)
         case author(Author.Attributes)
         
-        func get() -> Any {
+        var value: Any {
             switch self {
                 case .coverArt(let coverArt):
                     return coverArt

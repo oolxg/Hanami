@@ -5,7 +5,6 @@
 //  Created by Oleg on 13/10/2022.
 //
 
-import Foundation
 import ComposableArchitecture
 import Combine
 import LocalAuthentication

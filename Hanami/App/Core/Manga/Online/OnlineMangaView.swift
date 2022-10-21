@@ -21,8 +21,30 @@ struct OnlineMangaView: View {
         headerOffset < -350
     }
     
+    private struct ViewState: Equatable {
+        let manga: Manga
+        let currentPageIndex: Int?
+        let selectedTab: OnlineMangaFeature.Tab
+        let coverArtURL: URL?
+        let thumbnailCoverArtURL: URL?
+        let allCoverArtURLs: [URL]
+        let allCoverArtsInfo: [CoverArtInfo]
+        let statistics: MangaStatistics?
+        
+        init(state: OnlineMangaFeature.State) {
+            manga = state.manga
+            currentPageIndex = state.pagesState?.currentPageIndex
+            selectedTab = state.selectedTab
+            coverArtURL = state.mainCoverArtURL
+            thumbnailCoverArtURL = state.coverArtURL256
+            allCoverArtURLs = state.croppedCoverArtURLs
+            allCoverArtsInfo = state.allCoverArtsInfo
+            statistics = state.statistics
+        }
+    }
+    
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ScrollView(showsIndicators: false) {
                 ScrollViewReader { proxy in
                     LazyVStack(pinnedViews: .sectionHeaders) {
@@ -49,7 +71,7 @@ struct OnlineMangaView: View {
                 }
             }
             .animation(.linear, value: isCoverArtDisappeared)
-            .animation(.default, value: viewStore.pagesState?.currentPageIndex)
+            .animation(.default, value: viewStore.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -61,7 +83,7 @@ struct OnlineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .fullScreenCover(isPresented: viewStore.binding(\.$isUserOnReadingView), content: { mangaReadingView })
+            .fullScreenCover(isPresented: ViewStore(store).binding(\.$isUserOnReadingView), content: mangaReadingView)
             .tint(.theme.accent)
         }
     }
@@ -92,7 +114,7 @@ extension OnlineMangaView {
         .padding(.bottom, 5)
     }
     
-    private var mangaReadingView: some View {
+    @ViewBuilder private func mangaReadingView() -> some View {
         IfLetStore(
             store.scope(
                 state: \.mangaReadingViewState,
@@ -103,17 +125,17 @@ extension OnlineMangaView {
     }
     
     @MainActor private var header: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
                 ZStack {
-                    LazyImage(url: viewStore.mainCoverArtURL) { state in
+                    LazyImage(url: viewStore.coverArtURL) { state in
                         if let image = state.image {
                             image.resizingMode(.aspectFill)
                         } else if state.isLoading || state.error != nil {
-                            LazyImage(url: viewStore.coverArtURL256, resizingMode: .aspectFill)
+                            LazyImage(url: viewStore.thumbnailCoverArtURL, resizingMode: .aspectFill)
                         }
                     }
                     .animation(nil)
@@ -128,7 +150,7 @@ extension OnlineMangaView {
     }
     
     private var headerOverlay: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
                     colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
@@ -185,7 +207,7 @@ extension OnlineMangaView {
     
     
     @MainActor private var mangaBodyView: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
                 case .chapters:
                     IfLetStore(
@@ -210,10 +232,10 @@ extension OnlineMangaView {
     }
     
     @MainActor private var coverArtTab: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160, maximum: 240), spacing: 10)]) {
-                ForEach(viewStore.croppedCoverArtURLs.indices, id: \.self) { coverArtIndex in
-                    LazyImage(url: viewStore.croppedCoverArtURLs[coverArtIndex]) { state in
+                ForEach(viewStore.allCoverArtURLs.indices, id: \.self) { coverArtIndex in
+                    LazyImage(url: viewStore.allCoverArtURLs[coverArtIndex]) { state in
                         if let image = state.image {
                             image
                                 .resizingMode(.aspectFit)
@@ -244,7 +266,7 @@ extension OnlineMangaView {
     }
     
     private var aboutTab: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 if let statistics = viewStore.statistics {
                     HStack(alignment: .top, spacing: 10) {
@@ -273,12 +295,25 @@ extension OnlineMangaView {
                         Divider()
                         
                         FlexibleView(
-                            data: viewStore.manga.authors.map(\.name),
+                            data: viewStore.manga.authors,
                             spacing: 10,
-                            alignment: .leading,
-                            content: makeChipsView
-                        )
+                            alignment: .leading
+                        ) { author in
+                            makeChipsView(text: author.attributes.name)
+                                .onTapGesture {
+                                    viewStore.send(.showAuthorPage(author))
+                                }
+                        }
                         .padding(.horizontal, 5)
+                        .fullScreenCover(isPresented: ViewStore(store).binding(\.$showAuthorView)) {
+                            IfLetStore(
+                                store.scope(
+                                    state: \.authorViewState,
+                                    action: OnlineMangaFeature.Action.authorViewAction
+                                ),
+                                then: AuthorView.init
+                            )
+                        }
                     }
                 }
                 
@@ -301,7 +336,7 @@ extension OnlineMangaView {
     }
     
     private var tags: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 Text("Tags")
                     .font(.headline)
@@ -381,7 +416,7 @@ extension OnlineMangaView {
     
     /// Makes label for navigation through MangaView
     private func makeTabLabel(for tab: OnlineMangaFeature.Tab) -> some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)

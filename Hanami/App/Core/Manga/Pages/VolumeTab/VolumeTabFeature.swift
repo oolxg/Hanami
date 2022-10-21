@@ -51,7 +51,7 @@ struct VolumeTabFeature: ReducerProtocol {
                     
                     return .none
                     
-                        // to be hijacked inside pagesReducer
+                // to be hijacked inside pagesReducer
                 case .userDeletedLastChapterInVolume:
                     return .none
                     

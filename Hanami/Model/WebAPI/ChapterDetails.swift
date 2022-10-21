@@ -141,9 +141,9 @@ extension ChapterDetails {
     
     var scanlationGroup: ScanlationGroup? {
         relationships
-            .filter { $0.type == .scanlationGroup && $0.attributes != nil }
+            .filter { $0.type == .scanlationGroup }
             .compactMap {
-                guard let attrs = $0.attributes!.get() as? ScanlationGroup.Attributes else {
+                guard let attrs = $0.attributes?.value as? ScanlationGroup.Attributes else {
                     return nil
                 }
                 

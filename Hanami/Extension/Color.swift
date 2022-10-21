@@ -5,8 +5,7 @@
 //  Created by Oleg on 29/05/2022.
 //
 
-import Foundation
-import SwiftUI
+import struct SwiftUI.Color
 
 extension Color {
     static let theme = ColorTheme()

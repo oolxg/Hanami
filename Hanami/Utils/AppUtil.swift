@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUI
+import class UIKit.UIDevice
 
 enum AppUtil {
     static var version: String {

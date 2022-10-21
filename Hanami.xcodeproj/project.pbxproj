@@ -17,6 +17,8 @@
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
 		085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DB65E28E11BD100AF5323 /* NukeUI */; };
+		08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45B290169FB001EECD9 /* AuthorFeature.swift */; };
+		08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45D2902A9F5001EECD9 /* AuthorView.swift */; };
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
 		08B1346B28D2A8D000D1C85B /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B1346A28D2A8D000D1C85B /* Set.swift */; };
 		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
@@ -150,6 +152,8 @@
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0859979B28F6DBE50095422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		08A8F45B290169FB001EECD9 /* AuthorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorFeature.swift; sourceTree = "<group>"; };
+		08A8F45D2902A9F5001EECD9 /* AuthorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorView.swift; sourceTree = "<group>"; };
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
 		08B1346A28D2A8D000D1C85B /* Set.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		08E23C7D28D34A3600149889 /* Hanami.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hanami.entitlements; sourceTree = "<group>"; };
@@ -304,6 +308,15 @@
 				0859979428F4C4170095422C /* SettingsFeature.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		08A8F45A290169E6001EECD9 /* Author */ = {
+			isa = PBXGroup;
+			children = (
+				08A8F45D2902A9F5001EECD9 /* AuthorView.swift */,
+				08A8F45B290169FB001EECD9 /* AuthorFeature.swift */,
+			);
+			path = Author;
 			sourceTree = "<group>";
 		};
 		22104828285B663900CE8CED /* MangaReadingView */ = {
@@ -547,6 +560,7 @@
 		2294E1E2288B55CB00829C48 /* Online */ = {
 			isa = PBXGroup;
 			children = (
+				08A8F45A290169E6001EECD9 /* Author */,
 				2220E1662832A9280046F08A /* OnlineMangaView.swift */,
 				2220E1642832A8D60046F08A /* OnlineMangaFeature.swift */,
 			);
@@ -849,6 +863,7 @@
 				2225266928B4F18E009F6FA3 /* OnlineMangaReadingFeature.swift in Sources */,
 				225AA5A8284D16D300B406DA /* LazyView.swift in Sources */,
 				2274193F2886EC6900ACAA24 /* DownloadsView.swift in Sources */,
+				08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */,
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,
 				2205CBA02856A91900421888 /* UINavigationController.swift in Sources */,
 				22F4A85628AB29C9008C11A7 /* ChapterFeature.swift in Sources */,
@@ -856,6 +871,7 @@
 				228DD05028A5278300F70162 /* HUDClient.swift in Sources */,
 				228FA498288D86C800369529 /* CustomMangaList.swift in Sources */,
 				2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */,
+				08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */,
 				0829E21E28FC243D0009A907 /* Settings.swift in Sources */,
 				229F8D90282DB5E400761054 /* RootFeature.swift in Sources */,
 				222ED96D28C01F99009C361E /* URLSession.swift in Sources */,

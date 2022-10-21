@@ -5,7 +5,6 @@
 //  Created by Oleg on 03/07/2022.
 //
 
-import Foundation
 import CoreData
 
 struct PersistenceController {

@@ -6,9 +6,7 @@
 //  https://stackoverflow.com/a/26962452/11090054
 //
 
-import Foundation
 import UIKit.UIDevice
-
 
 extension UIDevice {
     static let modelName: String = {

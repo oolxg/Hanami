@@ -100,7 +100,7 @@ struct HomeFeature: ReducerProtocol {
                         
                         homeClient.fetchLastUpdates()
                             .receive(on: DispatchQueue.main)
-                            .catchToEffect { .mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
+                            .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
                             .cancellable(id: UpdateDebounce(), cancelInFlight: true),
                         
                         .task { .refreshDelayCompleted }

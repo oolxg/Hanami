@@ -21,7 +21,6 @@ struct OfflineMangaFeature: ReducerProtocol {
         }
         
         var pagesState: PagesFeature.State?
-        
         var selectedTab: Tab = .chapters
         
         // MARK: - Props for MangaReadingView

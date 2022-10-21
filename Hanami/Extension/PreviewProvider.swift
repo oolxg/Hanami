@@ -25,6 +25,24 @@ class DeveloperPreview {
         others: [UUID(), UUID(), UUID()]
     )
     
+    let author = Author(
+        id: UUID(),
+        attributes: .init(
+            name: "",
+            imageURL: nil,
+            biography: nil,
+            twitter: nil,
+            pixiv: nil,
+            melonBook: nil,
+            fanBox: nil,
+            youtube: nil,
+            weibo: nil,
+            website: nil,
+            version: 1
+        ),
+        relationships: []
+    )
+    
     let manga = Manga(
         id: UUID(uuidString: "a30bb9f2-97db-45d3-b7f1-8e4b65e8b2d4")!,
         attributes: .init(

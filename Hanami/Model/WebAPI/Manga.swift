@@ -117,7 +117,7 @@ extension Manga {
         relationships
             .filter { $0.type == .author }
             .compactMap {
-                guard let attrs = $0.attributes?.get() as? Author.Attributes else {
+                guard let attrs = $0.attributes?.value as? Author.Attributes else {
                     return nil
                 }
                 
@@ -129,7 +129,7 @@ extension Manga {
     
     var coverArtInfo: CoverArtInfo? {
         if let relationship = relationships.first(where: { $0.type == .coverArt }),
-           let attributes = relationship.attributes?.get() as? CoverArtInfo.Attributes {
+           let attributes = relationship.attributes?.value as? CoverArtInfo.Attributes {
             return CoverArtInfo(
                 id: relationship.id, attributes: attributes, relationships: [
                     Relationship(id: self.id, type: .manga)
