@@ -29,6 +29,7 @@ struct SearchBarView: View {
     }
 }
 
+#if DEBUG
 struct SearchBarView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
@@ -41,3 +42,4 @@ struct SearchBarView_Previews: PreviewProvider {
         }
     }
 }
+#endif

@@ -35,6 +35,7 @@ struct FiltersView: View {
     }
 }
 
+#if DEBUG
 struct FiltersView_Previews: PreviewProvider {
     static var previews: some View {
         FiltersView(
@@ -46,6 +47,7 @@ struct FiltersView_Previews: PreviewProvider {
         .preferredColorScheme(.dark)
     }
 }
+#endif
 
 extension FiltersView {
     private func toolbar() -> some ToolbarContent {

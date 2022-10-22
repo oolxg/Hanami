@@ -56,6 +56,7 @@ struct VolumeTabView: View {
     }
 }
 
+#if DEBUG
 struct VolumeTabView_Previews: PreviewProvider {
     static var previews: some View {
         VolumeTabView(
@@ -68,6 +69,7 @@ struct VolumeTabView_Previews: PreviewProvider {
         )
     }
 }
+#endif
 
 extension VolumeTabView {
     var chapterIndexesList: some View {

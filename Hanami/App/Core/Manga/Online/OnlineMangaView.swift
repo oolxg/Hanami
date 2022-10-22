@@ -89,13 +89,13 @@ struct OnlineMangaView: View {
     }
 }
 
-
+#if DEBUG
 struct MangaView_Previews: PreviewProvider {
     static var previews: some View {
         EmptyView()
     }
 }
-
+#endif
 
 extension OnlineMangaView {
     private var footer: some View {

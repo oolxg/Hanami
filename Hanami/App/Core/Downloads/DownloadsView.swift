@@ -56,6 +56,7 @@ struct DownloadsView: View {
     }
 }
 
+#if DEBUG
 struct DownloadsView_Previews: PreviewProvider {
     static var previews: some View {
         DownloadsView(
@@ -66,3 +67,4 @@ struct DownloadsView_Previews: PreviewProvider {
         )
     }
 }
+#endif

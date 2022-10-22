@@ -24,7 +24,7 @@ struct AppFeature: ReducerProtocol {
             switch action {
                 case .initApp:
                     return .concatenate(
-//                        env.databaseClient.dropDatabase().fireAndForget(),
+//                        databaseClient.dropDatabase().fireAndForget(),
                         databaseClient.prepareDatabase().fireAndForget(),
                         
                         .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },

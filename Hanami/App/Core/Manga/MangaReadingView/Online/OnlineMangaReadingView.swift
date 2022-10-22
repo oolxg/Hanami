@@ -193,6 +193,7 @@ extension OnlineMangaReadingView {
     }
 }
 
+#if DEBUG
 struct OnlineMangaReadingView_Previews: PreviewProvider {
     static var previews: some View {
         OnlineMangaReadingView(
@@ -209,3 +210,4 @@ struct OnlineMangaReadingView_Previews: PreviewProvider {
         )
     }
 }
+#endif

@@ -46,6 +46,7 @@ struct PagesView: View {
     }
 }
 
+#if DEBUG
 struct PagesView_Previews: PreviewProvider {
     static var previews: some View {
         PagesView(
@@ -56,6 +57,7 @@ struct PagesView_Previews: PreviewProvider {
         )
     }
 }
+#endif
 
 extension PagesView {
     private var footer: some View {

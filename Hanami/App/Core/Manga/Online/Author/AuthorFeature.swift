@@ -17,7 +17,7 @@ struct AuthorFeature: ReducerProtocol {
     }
     
     // indirect because AuthorFeature is inside MangaFeauture
-    // AuthoreFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
+    // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
     indirect enum Action {
         case onAppear
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)
@@ -32,6 +32,10 @@ struct AuthorFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
                 case .onAppear:
+                    guard state.mangaThumbnailStates.isEmpty else {
+                        return .none
+                    }
+                    
                     let mangaIDs = state.author.relationships.filter { $0.type == .manga }.map(\.id)
                     return homeClient.fetchMangaByIDs(mangaIDs)
                         .receive(on: DispatchQueue.main)

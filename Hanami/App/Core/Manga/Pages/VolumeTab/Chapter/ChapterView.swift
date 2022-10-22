@@ -59,6 +59,7 @@ struct ChapterView: View {
     }
 }
 
+#if DEBUG
 struct ChapterView_Previews: PreviewProvider {
     static var previews: some View {
         ChapterView(
@@ -69,6 +70,7 @@ struct ChapterView_Previews: PreviewProvider {
         )
     }
 }
+#endif
 
 extension ChapterView {
     private var disclosureGroupLabel: some View {

@@ -22,33 +22,14 @@ struct AuthorView: View {
                         .foregroundColor(.clear)
                     
                     ScrollView {
-                        VStack {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.mangaThumbnailStates,
-                                    action: AuthorFeature.Action.mangaThumbnailAction
-                                )) { thumbnailStore in
-                                    MangaThumbnailView(store: thumbnailStore)
-                                        .padding(5)
-                                }
-                        }
+                       biograpySection
+
+                       mangaList
                     }
                 }
                 .navigationTitle(viewStore.author.attributes.name)
                 .navigationBarTitleDisplayMode(.large)
-                .navigationBarBackButtonHidden(true)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            self.dismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.title3)
-                                .foregroundColor(.white)
-                                .padding(.vertical)
-                        }
-                    }
-                }
+                .toolbar { backButton }
             }
             .onAppear {
                 viewStore.send(.onAppear)
@@ -57,6 +38,7 @@ struct AuthorView: View {
     }
 }
 
+#if DEBUG
 struct AuthorView_Previews: PreviewProvider {
     static var previews: some View {
         AuthorView(
@@ -65,5 +47,60 @@ struct AuthorView_Previews: PreviewProvider {
                 reducer: AuthorFeature()._printChanges()
             )
         )
+    }
+}
+#endif
+
+extension AuthorView {
+    private var backButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                self.dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                    .padding(.vertical)
+            }
+        }
+    }
+    
+    private var biograpySection: some View {
+        WithViewStore(store) { viewStore in
+            VStack(alignment: .leading, spacing: 15) {
+                if let bio = viewStore.author.attributes.biography?.languageInfo?.language {
+                    Text("Biography")
+                        .font(.headline)
+                        .fontWeight(.black)
+                    
+                    Text(LocalizedStringKey(bio))
+                        .padding(.horizontal, 10)
+                    
+                    Divider()
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 10)
+        }
+    }
+    
+    private var mangaList: some View {
+        VStack(alignment: .leading) {
+            Text("Works")
+                .font(.headline)
+                .fontWeight(.black)
+                .padding(.bottom, 10)
+                .padding(.leading, 10)
+            
+            ForEachStore(
+                store.scope(
+                    state: \.mangaThumbnailStates,
+                    action: AuthorFeature.Action.mangaThumbnailAction
+                )) { thumbnailStore in
+                    MangaThumbnailView(store: thumbnailStore)
+                        .padding(5)
+                }
+        }
+        .frame(maxWidth: .infinity)
     }
 }

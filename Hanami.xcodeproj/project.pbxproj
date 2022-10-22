@@ -67,7 +67,6 @@
 		224E6712282E91FF001D214C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6711282E91FF001D214C /* Response.swift */; };
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E671B282EAA50001D214C /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671A282EAA50001D214C /* AppError.swift */; };
-		225AA5A8284D16D300B406DA /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225AA5A7284D16D300B406DA /* LazyView.swift */; };
 		22655332287EFED400D61873 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22655331287EFED400D61873 /* Array.swift */; };
 		226C05B9287DD6EB00BA0E5C /* MangaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226C05B8287DD6EB00BA0E5C /* MangaClient.swift */; };
 		226DF79028652A3A007CF96A /* ZoomableScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */; };
@@ -205,7 +204,6 @@
 		224E6711282E91FF001D214C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
 		224E671A282EAA50001D214C /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
-		225AA5A7284D16D300B406DA /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		22655331287EFED400D61873 /* Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
 		226C05B8287DD6EB00BA0E5C /* MangaClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaClient.swift; sourceTree = "<group>"; };
 		226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomableScrollView.swift; sourceTree = "<group>"; };
@@ -355,7 +353,6 @@
 				226DF78F28652A3A007CF96A /* ZoomableScrollView.swift */,
 				221F59EB284530AC00B11D5D /* FlexibleView.swift */,
 				22C2024B28BAC29600047E1C /* SearchBarView.swift */,
-				225AA5A7284D16D300B406DA /* LazyView.swift */,
 				222A03732872330400D5B588 /* HUD.swift */,
 			);
 			path = Component;
@@ -861,7 +858,6 @@
 				22C49A7C288B57B1000A96B9 /* OfflineMangaView.swift in Sources */,
 				2291EF5D2880E15B007FE0B0 /* NetworkMonitor.swift in Sources */,
 				2225266928B4F18E009F6FA3 /* OnlineMangaReadingFeature.swift in Sources */,
-				225AA5A8284D16D300B406DA /* LazyView.swift in Sources */,
 				2274193F2886EC6900ACAA24 /* DownloadsView.swift in Sources */,
 				08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */,
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,

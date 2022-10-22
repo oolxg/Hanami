@@ -47,6 +47,7 @@ struct MangaThumbnailView: View {
     }
 }
 
+#if DEBUG
 struct MangaThumbnailView_Previews: PreviewProvider {
     static var previews: some View {
         MangaThumbnailView(
@@ -59,6 +60,7 @@ struct MangaThumbnailView_Previews: PreviewProvider {
         )
     }
 }
+#endif
 
 extension MangaThumbnailView {
     private var textBlock: some View {

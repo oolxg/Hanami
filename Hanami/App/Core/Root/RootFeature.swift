@@ -14,15 +14,15 @@ struct RootFeature: ReducerProtocol {
         var downloadsState = DownloadsFeature.State()
         var settingsState = SettingsFeature.State()
         
-        enum Tab: Equatable {
-            case home, search, downloads, settings
-        }
-        
         var selectedTab: Tab
     }
     
+    enum Tab: Equatable {
+        case home, search, downloads, settings
+    }
+    
     enum Action {
-        case tabChanged(RootFeature.State.Tab)
+        case tabChanged(Tab)
         case homeAction(HomeFeature.Action)
         case searchAction(SearchFeature.Action)
         case downloadsAction(DownloadsFeature.Action)
@@ -34,12 +34,7 @@ struct RootFeature: ReducerProtocol {
             switch action {
                 case .tabChanged(let newTab):
                     state.selectedTab = newTab
-                    
-                    if newTab == .downloads {
-                        return .task { .downloadsAction(.retrieveCachedManga) }
-                    }
-                    
-                    return .none
+                    return newTab != .downloads ? .none : .task { .downloadsAction(.retrieveCachedManga) }
                     
                 case .homeAction:
                     return .none

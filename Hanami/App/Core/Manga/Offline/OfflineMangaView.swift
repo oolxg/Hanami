@@ -69,12 +69,13 @@ struct OfflineMangaView: View {
     }
 }
 
+#if DEBUG
 struct OfflineMangaView_Previews: PreviewProvider {
     static var previews: some View {
         EmptyView()
     }
 }
-
+#endif
 
 extension OfflineMangaView {
     private func mangaReadingView() -> some View {

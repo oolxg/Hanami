@@ -71,6 +71,7 @@ struct SearchView: View {
     }
 }
 
+#if DEBUG
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
@@ -82,6 +83,7 @@ struct SearchView_Previews: PreviewProvider {
         .preferredColorScheme(.dark)
     }
 }
+#endif
 
 extension SearchView {
     private var searchResults: some View {

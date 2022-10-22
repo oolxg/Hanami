@@ -13,7 +13,7 @@ struct RootView: View {
     @StateObject private var hudState = HUDClient.liveValue
     
     private struct ViewState: Equatable {
-        let selectedTab: RootFeature.State.Tab
+        let selectedTab: RootFeature.Tab
         
         init(state: RootFeature.State) {
             selectedTab = state.selectedTab
@@ -33,7 +33,7 @@ struct RootView: View {
                     Image(systemName: "house")
                     Text("Home")
                 }
-                .tag(RootFeature.State.Tab.home)
+                .tag(RootFeature.Tab.home)
                 
                 DownloadsView(
                     store: store.scope(
@@ -45,7 +45,7 @@ struct RootView: View {
                     Image(systemName: "square.and.arrow.down")
                     Text("Downloads")
                 }
-                .tag(RootFeature.State.Tab.downloads)
+                .tag(RootFeature.Tab.downloads)
                 
                 SearchView(
                     store: store.scope(
@@ -57,7 +57,7 @@ struct RootView: View {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
-                .tag(RootFeature.State.Tab.search)
+                .tag(RootFeature.Tab.search)
                 
                 SettingsView(
                     store: store.scope(
@@ -69,7 +69,7 @@ struct RootView: View {
                     Image(systemName: "gear")
                     Text("Settings")
                 }
-                .tag(RootFeature.State.Tab.settings)
+                .tag(RootFeature.Tab.settings)
             }
         }
         .hud(
