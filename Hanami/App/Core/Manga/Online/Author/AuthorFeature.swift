@@ -10,36 +10,60 @@ import ComposableArchitecture
 
 struct AuthorFeature: ReducerProtocol {
     struct State: Equatable, Identifiable {
-        let author: Author
+        var author: Author?
         var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        let authorID: UUID
         
-        var id: UUID { author.id }
+        var id: UUID {
+            authorID
+        }
+        
+        init(authorID: UUID) {
+            self.authorID = authorID
+        }
     }
     
     // indirect because AuthorFeature is inside MangaFeauture
     // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
     indirect enum Action {
         case onAppear
+        case authorInfoFetched(Result<Response<Author>, AppError>)
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)
         case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
         case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     }
     
     @Dependency(\.homeClient) var homeClient
+    @Dependency(\.mangaClient) var mangaClient
     @Dependency(\.logger) var logger
     
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
                 case .onAppear:
-                    guard state.mangaThumbnailStates.isEmpty else {
-                        return .none
-                    }
+                    guard state.author == nil else { return .none }
                     
-                    let mangaIDs = state.author.relationships.filter { $0.type == .manga }.map(\.id)
-                    return homeClient.fetchMangaByIDs(mangaIDs)
+                    return mangaClient.fetchAuthorByID(state.authorID)
                         .receive(on: DispatchQueue.main)
-                        .catchToEffect(Action.authorsMangaFetched)
+                        .catchToEffect(Action.authorInfoFetched)
+                    
+                case .authorInfoFetched(let result):
+                    switch result {
+                        case .success(let response):
+                            state.author = response.data
+                            return homeClient.fetchMangaByIDs(state.author!.mangaIDs)
+                                .receive(on: DispatchQueue.main)
+                                .catchToEffect(Action.authorsMangaFetched)
+                            
+                        case .failure(let error):
+                            logger.error(
+                                "Failed to fetch Author info: \(error)",
+                                context: [
+                                    "authorID": state.authorID.uuidString.lowercased()
+                                ]
+                            )
+                            return .none
+                    }
                     
                 case .authorsMangaFetched(let result):
                     switch result {
@@ -59,7 +83,7 @@ struct AuthorFeature: ReducerProtocol {
                             logger.error(
                                 "Failed to fetch authors manga: \(error)",
                                 context: [
-                                    "authorID": state.author.id.uuidString.lowercased()
+                                    "authorID": state.authorID.uuidString.lowercased()
                                 ]
                             )
                             

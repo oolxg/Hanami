@@ -251,7 +251,7 @@ extension OfflineMangaView {
                         
                         Divider()
                         
-                        Text(LocalizedStringKey(description))
+                        Text(LocalizedStringKey(description.trimmingCharacters(in: .whitespacesAndNewlines)))
                             .padding(.horizontal, 10)
                     }
                 }

@@ -76,7 +76,7 @@ extension MangaThumbnailView {
                 }
                 
                 if let mangaDescription = viewStore.manga.description {
-                    Text(LocalizedStringKey(mangaDescription))
+                    Text(LocalizedStringKey(mangaDescription.trimmingCharacters(in: .whitespacesAndNewlines)))
                         .lineLimit(8)
                         .foregroundColor(.white)
                         .font(.footnote)

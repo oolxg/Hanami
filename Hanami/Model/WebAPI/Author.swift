@@ -85,3 +85,9 @@ extension Author: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension Author {
+    var mangaIDs: [UUID] {
+        relationships.filter { $0.type == .manga }.map(\.id)
+    }
+}

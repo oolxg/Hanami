@@ -166,12 +166,12 @@ struct ChapterFeature: ReducerProtocol {
                 // only to store all cached on device chapter ids(from parent manga)
                 // and update state on scroll as less as possible
                 switch result {
-                    case .success(let chaptersEntry):
-                        state.cachedChaptersStates.removeAll()
-                        let cachedChapterIDs = Set(chaptersEntry.map(\.chapter.id))
+                    case .success(let chapterEntries):
+                        state.cachedChaptersStates.removeAll(where: { $0.status == .cached })
+                        let cachedChapterIDs = Set(chapterEntries.map(\.chapter.id))
                         
                         for cachedChapterID in cachedChapterIDs {
-                            state.cachedChaptersStates.insertOrUpdate(
+                            state.cachedChaptersStates.insertOrUpdateByID(
                                 .init(
                                     id: cachedChapterID,
                                     status: .cached,
@@ -270,7 +270,7 @@ struct ChapterFeature: ReducerProtocol {
             case .chapterDeletionConfirmed(let chapterID):
                 state.confirmationDialog = nil
                 
-                state.cachedChaptersStates.remove(where: { $0.id == chapterID })
+                state.cachedChaptersStates.removeAll(where: { $0.id == chapterID })
                 
                 if !state.online {
                     state.chapterDetailsList.remove(id: chapterID)
@@ -307,11 +307,11 @@ struct ChapterFeature: ReducerProtocol {
             case .savedInMemoryChaptersRetrieved(let result):
                 switch result {
                     case .success(let cachedChapterIDs):
-                        state.cachedChaptersStates.remove(where: { !cachedChapterIDs.contains($0.id) })
+                        state.cachedChaptersStates.removeAll(where: { !cachedChapterIDs.contains($0.id) })
                         for cachedChapterID in cachedChapterIDs {
                             // have to check, because this state also contains chapters, whose download process is in progress
                             if !state.cachedChaptersStates.contains(where: { $0.id == cachedChapterID }) {
-                                state.cachedChaptersStates.insertOrUpdate(
+                                state.cachedChaptersStates.insertOrUpdateByID(
                                     .init(
                                         id: cachedChapterID,
                                         status: .cached,
@@ -335,7 +335,7 @@ struct ChapterFeature: ReducerProtocol {
                 }
                 
             case .downloadChapterForOfflineReading(let chapter):
-                state.cachedChaptersStates.insertOrUpdate(
+                state.cachedChaptersStates.insertOrUpdateByID(
                     .init(
                         id: chapter.id,
                         status: .downloadInProgress,
@@ -351,7 +351,7 @@ struct ChapterFeature: ReducerProtocol {
             case .pagesInfoForChapterCachingFetched(let result, let chapter):
                 switch result {
                     case .success(let pagesInfo):
-                        state.cachedChaptersStates.insertOrUpdate(
+                        state.cachedChaptersStates.insertOrUpdateByID(
                             .init(
                                 id: chapter.id,
                                 status: .downloadInProgress,
@@ -396,7 +396,7 @@ struct ChapterFeature: ReducerProtocol {
                         
                         hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
                         
-                        state.cachedChaptersStates.insertOrUpdate(
+                        state.cachedChaptersStates.insertOrUpdateByID(
                             .init(
                                 id: chapter.id,
                                 status: .downloadFailed,
@@ -423,7 +423,7 @@ struct ChapterFeature: ReducerProtocol {
                         let chapterPagesCount = chapterState.pagesCount
                         let fetchedPagesCount = chapterState.pagesFetched + 1
                         
-                        state.cachedChaptersStates.insertOrUpdate(
+                        state.cachedChaptersStates.insertOrUpdateByID(
                             .init(
                                 id: chapter.id,
                                 status: fetchedPagesCount == chapterPagesCount ? .cached : .downloadInProgress,
@@ -471,7 +471,7 @@ struct ChapterFeature: ReducerProtocol {
                             .cancel(id: CancelChapterCache(id: chapter.id))
                         ]
                         
-                        state.cachedChaptersStates.insertOrUpdate(
+                        state.cachedChaptersStates.insertOrUpdateByID(
                             .init(
                                 id: chapter.id,
                                 status: .downloadFailed,

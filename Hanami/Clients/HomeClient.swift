@@ -120,7 +120,7 @@ extension HomeClient: DependencyKey {
             guard let url = components.url else {
                 return .none
             }
-                
+            
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
         },
         fetchAwardWinningManga: {

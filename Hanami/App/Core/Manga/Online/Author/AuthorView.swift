@@ -26,8 +26,9 @@ struct AuthorView: View {
 
                        mangaList
                     }
+                    .animation(.linear, value: viewStore.author == nil)
                 }
-                .navigationTitle(viewStore.author.attributes.name)
+                .navigationTitle(viewStore.author?.attributes.name ?? "Loading...")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar { backButton }
             }
@@ -43,7 +44,7 @@ struct AuthorView_Previews: PreviewProvider {
     static var previews: some View {
         AuthorView(
             store: .init(
-                initialState: .init(author: dev.author),
+                initialState: .init(authorID: UUID()),
                 reducer: AuthorFeature()._printChanges()
             )
         )
@@ -68,12 +69,12 @@ extension AuthorView {
     private var biograpySection: some View {
         WithViewStore(store) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
-                if let bio = viewStore.author.attributes.biography?.languageInfo?.language {
+                if let bio = viewStore.author?.attributes.biography?.languageInfo?.language {
                     Text("Biography")
                         .font(.headline)
                         .fontWeight(.black)
                     
-                    Text(LocalizedStringKey(bio))
+                    Text(LocalizedStringKey(bio.trimmingCharacters(in: .whitespacesAndNewlines)))
                         .padding(.horizontal, 10)
                     
                     Divider()
@@ -85,21 +86,23 @@ extension AuthorView {
     }
     
     private var mangaList: some View {
-        VStack(alignment: .leading) {
-            Text("Works")
-                .font(.headline)
-                .fontWeight(.black)
-                .padding(.bottom, 10)
-                .padding(.leading, 10)
-            
-            ForEachStore(
-                store.scope(
-                    state: \.mangaThumbnailStates,
-                    action: AuthorFeature.Action.mangaThumbnailAction
-                )) { thumbnailStore in
-                    MangaThumbnailView(store: thumbnailStore)
-                        .padding(5)
-                }
+        WithViewStore(store) { viewStore in
+            VStack(alignment: .leading) {
+                Text("Works (\(viewStore.mangaThumbnailStates.count))")
+                    .font(.headline)
+                    .fontWeight(.black)
+                    .padding(.bottom, 10)
+                    .padding(.leading, 10)
+                
+                ForEachStore(
+                    store.scope(
+                        state: \.mangaThumbnailStates,
+                        action: AuthorFeature.Action.mangaThumbnailAction
+                    )) { thumbnailStore in
+                        MangaThumbnailView(store: thumbnailStore)
+                            .padding(5)
+                    }
+            }
         }
         .frame(maxWidth: .infinity)
     }

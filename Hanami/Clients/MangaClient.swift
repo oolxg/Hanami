@@ -26,6 +26,7 @@ struct MangaClient {
     let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError>
     let fetchPagesInfo: (_ chapterID: UUID) -> Effect<ChapterPagesInfo, AppError>
     let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
+    let fetchAuthorByID: (_ authorID: UUID) -> Effect<Response<Author>, AppError>
     
     // MARK: - Actions inside App
     let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabFeature.State]]) -> Int?
@@ -122,6 +123,13 @@ extension MangaClient: DependencyKey {
             }
             
             return URLSession.shared.get(url: url, decodeResponseAs: Response<CoverArtInfo>.self)
+        },
+        fetchAuthorByID: { authorID in
+            guard let url = URL(string: "https://api.mangadex.org/author/\(authorID.uuidString.lowercased())?includes[]=manga") else {
+                return .none
+            }
+            
+            return URLSession.shared.get(url: url, decodeResponseAs: Response<Author>.self)
         },
         getMangaPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter

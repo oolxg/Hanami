@@ -119,24 +119,3 @@ struct Relationship: Codable {
         case preserialization, colored, serialization
     }
 }
-
-extension Relationship.Attributes: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-            case (.coverArt, .coverArt):
-                return true
-                
-            case (.manga, .manga):
-                return true
-                
-            case (.scanlationGroup, .scanlationGroup):
-                return true
-                
-            case (.author, .author):
-                return true
-                
-            default:
-                return false
-        }
-    }
-}

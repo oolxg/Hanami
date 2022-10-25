@@ -187,8 +187,8 @@ struct OnlineMangaFeature: ReducerProtocol {
                 case .showAuthorPage(let author):
                     state.showAuthorView = true
                     
-                    if state.authorViewState?.author.id != author.id {
-                        state.authorViewState = AuthorFeature.State(author: author)
+                    if state.authorViewState?.authorID != author.id {
+                        state.authorViewState = AuthorFeature.State(authorID: author.id)
                     }
                     
                     return .none
