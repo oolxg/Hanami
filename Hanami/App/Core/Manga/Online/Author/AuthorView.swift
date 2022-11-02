@@ -74,7 +74,7 @@ extension AuthorView {
                         .font(.headline)
                         .fontWeight(.black)
                     
-                    Text(LocalizedStringKey(bio.trimmingCharacters(in: .whitespacesAndNewlines)))
+                    Text(LocalizedStringKey(bio))
                         .padding(.horizontal, 10)
                     
                     Divider()

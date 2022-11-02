@@ -30,8 +30,8 @@ struct LocalizedString: Codable {
 }
 
 extension LocalizedString {
-    init(localizedStrings langContent: [LocalizedString]) {
-        langContent.forEach { content in
+    init(localizedStrings: [LocalizedString]) {
+        localizedStrings.forEach { content in
             ar = ar == nil ? content.ar : ar
             cs = cs == nil ? content.cs : cs
             en = en == nil ? content.en : en
@@ -60,7 +60,7 @@ extension LocalizedString {
 extension LocalizedString: Equatable { }
 
 extension LocalizedString {
-    var languageInfo: (language: String, flag: String)? {
+    private var _languageInfo: (language: String, flag: String)? {
         if let en = en {
             return (language: en, flag: "🇬🇧")
         } else if let ar = ar {
@@ -105,6 +105,13 @@ extension LocalizedString {
             return (language: zhRo, flag: "🇨🇳")
         }
         
+        return nil
+    }
+    
+    var languageInfo: (language: String, flag: String)? {
+        if let info = _languageInfo {
+            return (language: info.language.trimmingCharacters(in: .whitespacesAndNewlines), flag: info.flag)
+        }
         return nil
     }
 }
