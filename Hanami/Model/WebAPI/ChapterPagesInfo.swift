@@ -13,7 +13,7 @@ struct ChapterPagesInfo: Decodable {
     let pagesInfo: PagesInfo
 
     // MARK: - PagesInfo
-    struct PagesInfo: Decodable, Equatable {
+    struct PagesInfo: Decodable {
         let hash: String
         let dataSaver: [String]
     }

@@ -98,8 +98,6 @@ extension Manga: Equatable {
     }
 }
 
-extension Manga: Identifiable { }
-
 extension Manga {
     var title: String {
         if let title = attributes.title.languageInfo?.language {

@@ -50,8 +50,6 @@ struct Author: Decodable {
     }
 }
 
-extension Manga: Identifiable { }
-
 extension Author {
     init(id: UUID, attributes: Author.Attributes, relationship: [Relationship]) {
         self.id = id
