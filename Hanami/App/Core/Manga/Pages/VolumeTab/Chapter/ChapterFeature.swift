@@ -308,18 +308,16 @@ struct ChapterFeature: ReducerProtocol {
                 switch result {
                     case .success(let cachedChapterIDs):
                         state.cachedChaptersStates.removeAll(where: { !cachedChapterIDs.contains($0.id) })
-                        for cachedChapterID in cachedChapterIDs {
+                        for cID in cachedChapterIDs where !state.cachedChaptersStates.contains(where: { $0.id == cID }) {
                             // have to check, because this state also contains chapters, whose download process is in progress
-                            if !state.cachedChaptersStates.contains(where: { $0.id == cachedChapterID }) {
-                                state.cachedChaptersStates.insertOrUpdateByID(
-                                    .init(
-                                        id: cachedChapterID,
-                                        status: .cached,
-                                        pagesCount: 0,
-                                        pagesFetched: 0
-                                    )
+                            state.cachedChaptersStates.insertOrUpdateByID(
+                                .init(
+                                    id: cID,
+                                    status: .cached,
+                                    pagesCount: 0,
+                                    pagesFetched: 0
                                 )
-                            }
+                            )
                         }
                         
                         return .none

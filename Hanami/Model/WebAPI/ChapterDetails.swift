@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Chapter
-struct ChapterDetails: Codable {
+struct ChapterDetails: Decodable {
     let attributes: Attributes
     let id: UUID
     let relationships: [Relationship]

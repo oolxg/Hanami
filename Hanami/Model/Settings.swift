@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AutoLockPolicy: Int, Identifiable, CaseIterable, Codable {
+enum AutoLockPolicy: Int {
     var id: Int { rawValue }
     
     // `never` set to 0 and `instantly` to 1 because of storing `rawValue` in UserDefaults
@@ -50,3 +50,9 @@ enum AutoLockPolicy: Int, Identifiable, CaseIterable, Codable {
         }
     }
 }
+
+extension AutoLockPolicy: Identifiable { }
+
+extension AutoLockPolicy: CaseIterable { }
+
+extension AutoLockPolicy: Codable { }

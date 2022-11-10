@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Chapter: Codable {
+struct Chapter: Decodable {
     // sometimes chapters can have number as double, e.g. 77.6 (for extras or oneshots),
     let chapterIndex: Double?
     let id: UUID

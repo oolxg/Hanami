@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Author: Codable, Identifiable {
+struct Author: Decodable {
     let id: UUID
     let attributes: Attributes
     let relationships: [Relationship]
@@ -49,6 +49,8 @@ struct Author: Codable, Identifiable {
         }
     }
 }
+
+extension Manga: Identifiable { }
 
 extension Author {
     init(id: UUID, attributes: Author.Attributes, relationship: [Relationship]) {

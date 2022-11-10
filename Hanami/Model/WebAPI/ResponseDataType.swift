@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - ResponseDataType
-enum ResponseDataType: String, Codable {
+enum ResponseDataType: String {
     case manga, chapter
     case coverArt = "cover_art"
     case author, artist
@@ -16,3 +16,5 @@ enum ResponseDataType: String, Codable {
     case tag, user, leader, member
     case customList = "custom_list"
 }
+
+extension ResponseDataType: Codable { }

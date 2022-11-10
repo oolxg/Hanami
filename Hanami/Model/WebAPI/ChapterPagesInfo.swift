@@ -8,12 +8,12 @@
 import Foundation
 
 // MARK: - Chapter
-struct ChapterPagesInfo: Codable {
+struct ChapterPagesInfo: Decodable {
     let baseURL: String
     let pagesInfo: PagesInfo
 
     // MARK: - PagesInfo
-    struct PagesInfo: Codable, Equatable {
+    struct PagesInfo: Decodable, Equatable {
         let hash: String
         let dataSaver: [String]
     }

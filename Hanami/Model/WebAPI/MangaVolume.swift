@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct VolumesContainer: Codable {
+struct VolumesContainer: Decodable {
     let volumes: [MangaVolume]
     
     init() {
@@ -43,7 +43,7 @@ struct VolumesContainer: Codable {
     }
 }
 
-struct MangaVolume: Codable {
+struct MangaVolume: Decodable {
     let chapters: [Chapter]
     // sometimes volumes can have number as double, e.g. 77.6 (for extras or oneshots),
     // if volume has no index(returns 'none'), 'volumeIndex' will be set to nil

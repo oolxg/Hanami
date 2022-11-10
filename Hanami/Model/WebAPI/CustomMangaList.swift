@@ -9,18 +9,18 @@ import Foundation
 
 
 // MARK: - CustomMangaList
-struct CustomMangaList: Codable {
+struct CustomMangaList: Decodable {
     let id: UUID
     let attributes: Attributes
     let relationships: [Relationship]
     
     // MARK: - Attributes
-    struct Attributes: Codable {
+    struct Attributes: Decodable {
         let name: String
         let visibility: Visibility
         let version: Int
         
-        enum Visibility: String, Codable {
+        enum Visibility: String, Decodable {
             case `public`, `private`
         }
     }

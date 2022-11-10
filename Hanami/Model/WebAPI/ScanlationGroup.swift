@@ -9,7 +9,7 @@ import Foundation
 
 
 // MARK: - ScanlationGroup
-struct ScanlationGroup: Codable {
+struct ScanlationGroup: Decodable {
     let id: UUID
     let attributes: Attributes
     let relationships: [Relationship]

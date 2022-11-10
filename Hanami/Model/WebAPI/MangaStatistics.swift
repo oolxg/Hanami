@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MangaStatisticsContainer: Codable {
+struct MangaStatisticsContainer: Decodable {
     let statistics: [UUID: MangaStatistics]
     
     private struct DynamicCodingKeys: CodingKey {
@@ -38,12 +38,12 @@ struct MangaStatisticsContainer: Codable {
     }
 }
 
-struct MangaStatistics: Codable {
+struct MangaStatistics: Decodable {
     let rating: MangaRating
     let follows: Int
     
     // MARK: - Rating
-    struct MangaRating: Codable {
+    struct MangaRating: Decodable {
         let average: Double?
         let bayesian: Double
     }

@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Manga
-struct Manga: Codable {
+struct Manga: Decodable {
     let id: UUID
     let attributes: Attributes
     let relationships: [Relationship]

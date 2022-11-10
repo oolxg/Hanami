@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct Response<ResponseData>: Codable, Equatable where ResponseData: Equatable & Codable {
+struct Response<ResponseData>: Decodable, Equatable where ResponseData: Equatable & Decodable {
     let result: String
     let response: `Type`
     let data: ResponseData
     let limit: Int?
     let total: Int?
     
-    enum `Type`: String, Codable {
+    enum `Type`: String, Decodable {
         case collection, entity
     }
 }
