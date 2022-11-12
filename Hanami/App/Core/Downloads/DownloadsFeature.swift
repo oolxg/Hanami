@@ -25,46 +25,46 @@ struct DownloadsFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-                case .retrieveCachedManga:
-                    return databaseClient.fetchAllCachedMangas()
-                        .catchToEffect(Action.cachedMangaFetched)
+            case .retrieveCachedManga:
+                return databaseClient.fetchAllCachedMangas()
+                    .catchToEffect(Action.cachedMangaFetched)
+                
+            case .cachedMangaFetched(let result):
+                switch result {
+                case .success(let retrievedMangas):
+                    let cachedMangaIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
+                    let retrievedMangaIDs = Set(retrievedMangas.map(\.id))
+                    let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
+                    let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
                     
-                case .cachedMangaFetched(let result):
-                    switch result {
-                        case .success(let retrievedMangas):
-                            let cachedMangaIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
-                            let retrievedMangaIDs = Set(retrievedMangas.map(\.id))
-                            let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
-                            let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
-                            
-                            state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
-                            
-                            for manga in retrievedMangas where newMangaIDs.contains(manga.id) {
-                                state.cachedMangaThumbnailStates.append(
-                                    MangaThumbnailFeature.State(manga: manga, online: false)
-                                )
-                            }
-                            
-                            return .none
-                            
-                        case .failure(let error):
-                            logger.error("Failed to retrieve all cached manga from disk: \(error)")
-                            return .none
+                    state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
+                    
+                    for manga in retrievedMangas where newMangaIDs.contains(manga.id) {
+                        state.cachedMangaThumbnailStates.append(
+                            MangaThumbnailFeature.State(manga: manga, online: false)
+                        )
                     }
                     
-                case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
-                    return .task { .retrieveCachedManga }
-                        .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                    
-                case .cachedMangaThumbnailAction(_, .userLeftMangaView):
-                    return .task { .retrieveCachedManga }
-                        .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
-                        .eraseToEffect()
-                    
-                    
-                case .cachedMangaThumbnailAction:
                     return .none
+                    
+                case .failure(let error):
+                    logger.error("Failed to retrieve all cached manga from disk: \(error)")
+                    return .none
+                }
+                
+            case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
+                return .task { .retrieveCachedManga }
+                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
+                
+            case .cachedMangaThumbnailAction(_, .userLeftMangaView):
+                return .task { .retrieveCachedManga }
+                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
+                
+                
+            case .cachedMangaThumbnailAction:
+                return .none
             }
         }
         .forEach(\.cachedMangaThumbnailStates, action: /Action.cachedMangaThumbnailAction) {

@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct SearchView: View {
     let store: StoreOf<SearchFeature>
+    let blurRadius: CGFloat
     @State private var showFilters = false
     @FocusState private var isSearchFieldFocused: Bool
     
@@ -63,7 +64,8 @@ struct SearchView: View {
                         store: store.scope(
                             state: \.filtersState,
                             action: SearchFeature.Action.filtersAction
-                        )
+                        ),
+                        blurRadius: blurRadius
                     )
                 })
             }
@@ -78,7 +80,8 @@ struct SearchView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(),
                 reducer: SearchFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
         .preferredColorScheme(.dark)
     }
@@ -127,8 +130,11 @@ extension SearchView {
                             action: SearchFeature.Action.mangaThumbnailAction
                         )
                     ) { thumbnailStore in
-                        MangaThumbnailView(store: thumbnailStore)
-                            .padding(5)
+                        MangaThumbnailView(
+                            store: thumbnailStore,
+                            blurRadius: blurRadius
+                        )
+                        .padding(5)
                     }
                     
                     if !viewStore.searchResults.isEmpty && viewStore.resultsCount != viewStore.searchResults.count {
@@ -286,44 +292,44 @@ extension SearchView {
         // swiftlint:disable:next cyclomatic_complexity
         private func getSortTypeName(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> String {
             switch sortOption {
-                case .relevance:
-                    return "Relevance"
-                case .latestUploadedChapter:
-                    if order == .desc {
-                        return "Latest upload"
-                    } else {
-                        return "Oldest upload"
-                    }
-                case .title:
-                    if order == .desc {
-                        return "Title descending"
-                    } else {
-                        return "Title ascending"
-                    }
-                case .createdAt:
-                    if order == .desc {
-                        return "Recently added"
-                    } else {
-                        return "Oldest added"
-                    }
-                case .followedCount:
-                    if order == .desc {
-                        return "Most followers"
-                    } else {
-                        return "Fewest followers"
-                    }
-                case .year:
-                    if order == .desc {
-                        return "Year descending"
-                    } else {
-                        return "Year ascending"
-                    }
-                case .rating:
-                    if order == .desc {
-                        return "Highest rating"
-                    } else {
-                        return "Lowest rating"
-                    }
+            case .relevance:
+                return "Relevance"
+            case .latestUploadedChapter:
+                if order == .desc {
+                    return "Latest upload"
+                } else {
+                    return "Oldest upload"
+                }
+            case .title:
+                if order == .desc {
+                    return "Title descending"
+                } else {
+                    return "Title ascending"
+                }
+            case .createdAt:
+                if order == .desc {
+                    return "Recently added"
+                } else {
+                    return "Oldest added"
+                }
+            case .followedCount:
+                if order == .desc {
+                    return "Most followers"
+                } else {
+                    return "Fewest followers"
+                }
+            case .year:
+                if order == .desc {
+                    return "Year descending"
+                } else {
+                    return "Year ascending"
+                }
+            case .rating:
+                if order == .desc {
+                    return "Highest rating"
+                } else {
+                    return "Lowest rating"
+                }
             }
         }
     }

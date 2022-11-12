@@ -12,7 +12,7 @@ struct PagesFeature: ReducerProtocol {
     struct State: Equatable {
         // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
         init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, online: Bool) {
-                // flattening all chapters into one array(but not forgetting to store 'volumeIndex'
+            // flattening all chapters into one array(but not forgetting to store 'volumeIndex'
             let allMangaChapters: [(chapter: Chapter, volumeIndex: Double?)] = mangaVolumes.flatMap { volume in
                 volume.chapters.map { (chapter: $0, volumeIndex: volume.volumeIndex) }
             }
@@ -173,48 +173,48 @@ struct PagesFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-                case .changePage(let newIndex):
-                    guard newIndex != state.currentPageIndex, newIndex >= 0, newIndex < state.pagesCount else {
-                        return .none
-                    }
+            case .changePage(let newIndex):
+                guard newIndex != state.currentPageIndex, newIndex >= 0, newIndex < state.pagesCount else {
+                    return .none
+                }
+                
+                let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childrenChapterDetailsIDs)
+                
+                return .concatenate(
+                    .cancel(ids: chapterIDs.map { ChapterFeature.CancelChapterFetch(id: $0) }),
                     
-                    let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childrenChapterDetailsIDs)
-                    
-                    return .concatenate(
-                        .cancel(ids: chapterIDs.map { ChapterFeature.CancelChapterFetch(id: $0) }),
-                        
                         .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
-                    )
-                    
-                case .changePageAfterEffectCancellation(let newPageIndex):
-                    state.lockPage = true
-                    state.currentPageIndex = newPageIndex
-                    return .task { .unlockPage }
+                )
+                
+            case .changePageAfterEffectCancellation(let newPageIndex):
+                state.lockPage = true
+                state.currentPageIndex = newPageIndex
+                return .task { .unlockPage }
+                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .eraseToEffect()
+                
+            case .unlockPage:
+                state.lockPage = false
+                return .none
+                
+            case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume):
+                state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
+                
+                if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
+                    state.currentPageIndex -= 1
+                } else if state.volumeTabStatesOnCurrentPage.isEmpty {
+                    return .task { .userDeletedAllCachedChapters }
                         .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
                         .eraseToEffect()
-                    
-                case .unlockPage:
-                    state.lockPage = false
-                    return .none
-                    
-                case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume):
-                    state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
-                    
-                    if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
-                        state.currentPageIndex -= 1
-                    } else if state.volumeTabStatesOnCurrentPage.isEmpty {
-                        return .task { .userDeletedAllCachedChapters }
-                            .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
-                            .eraseToEffect()
-                    }
-                    
-                    return .none
-                    
-                case .userDeletedAllCachedChapters:
-                    return .none
-                    
-                case .volumeTabAction:
-                    return .none
+                }
+                
+                return .none
+                
+            case .userDeletedAllCachedChapters:
+                return .none
+                
+            case .volumeTabAction:
+                return .none
             }
         }
         .forEach(\.volumeTabStatesOnCurrentPage, action: /Action.volumeTabAction) {

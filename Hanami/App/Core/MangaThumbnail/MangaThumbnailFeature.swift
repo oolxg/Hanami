@@ -14,7 +14,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
             if online {
                 onlineMangaState = OnlineMangaFeature.State(manga: manga)
                 
-                    // in some cases we can have coverArt included with manga as relationship
+                // in some cases we can have coverArt included with manga as relationship
                 if let coverArtInfo = manga.coverArtInfo {
                     onlineMangaState!.mainCoverArtURL = coverArtInfo.coverArtURL
                     onlineMangaState!.coverArtURL256 = coverArtInfo.coverArtURL256
@@ -56,101 +56,101 @@ struct MangaThumbnailFeature: ReducerProtocol {
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.logger) private var logger
-
+    
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
             switch action {
-                case .onAppear:
-                    if state.online, state.onlineMangaState!.coverArtURL256 == nil, let coverArtID = state.manga.coverArtID {
-                        return mangaClient
-                            .fetchCoverArtInfo(coverArtID)
-                            .catchToEffect(Action.thumbnailInfoLoaded)
-                    } else if !state.online {
-                        guard state.offlineMangaState!.coverArtPath == nil else {
-                            return .none
-                        }
-                        
-                        state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
-                            state.manga.id, cacheClient
-                        )
+            case .onAppear:
+                if state.online, state.onlineMangaState!.coverArtURL256 == nil, let coverArtID = state.manga.coverArtID {
+                    return mangaClient
+                        .fetchCoverArtInfo(coverArtID)
+                        .catchToEffect(Action.thumbnailInfoLoaded)
+                } else if !state.online {
+                    guard state.offlineMangaState!.coverArtPath == nil else {
+                        return .none
                     }
                     
-                    return .none
-                    
-                case .mangaStatisticsFetched(let result):
-                    switch result {
-                        case .success(let response):
-                            state.onlineMangaState!.statistics = response.statistics[state.manga.id]
-                            
-                            return .none
-                            
-                        case .failure(let error):
-                            logger.error(
-                                "Failed to load manga statistics: \(error)",
-                                context: [
-                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                                    "mangaName": "\(state.manga.title)"
-                                ]
-                            )
-                            return .none
-                    }
-                    
-                case .thumbnailInfoLoaded(let result):
-                    switch result {
-                        case .success(let response):
-                            state.onlineMangaState!.mainCoverArtURL = response.data.coverArtURL
-                            state.onlineMangaState!.coverArtURL256 = response.data.coverArtURL256
-                            return .none
-                            
-                        case .failure(let error):
-                            logger.error(
-                                "Failed to load thumbnail info: \(error)",
-                                context: [
-                                    "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                                    "mangaName": "\(state.manga.title)"
-                                ]
-                            )
-                            return .none
-                    }
-                    
-                case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
-                    state.isNavigationLinkActive = false
-                    return .none
-                    
-                // action only to hijack it in DownloadsFeature
-                case .userLeftMangaView:
-                    return .none
-                    
-                case .userLeftMangaViewDelayCompleted:
-                    state.onlineMangaState!.reset()
-                    return .none
-                    
-                case .binding(\.$isNavigationLinkActive):
-                    if state.isNavigationLinkActive {
-                        // when users enters the view, we must cancel clearing manga info
-                        return .cancel(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
-                    }
-                    
-                    // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
-                    // Can be cancelled if user returns wihing 60 sec.
-                    return .merge(
-                        .task { .userLeftMangaViewDelayCompleted }
-                            .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
-                            .eraseToEffect()
-                            .cancellable(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id)),
-                        
-                            .task { .userLeftMangaView }
+                    state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
+                        state.manga.id, cacheClient
                     )
+                }
+                
+                return .none
+                
+            case .mangaStatisticsFetched(let result):
+                switch result {
+                case .success(let response):
+                    state.onlineMangaState!.statistics = response.statistics[state.manga.id]
                     
-                case .onlineMangaAction:
                     return .none
                     
-                case .offlineMangaAction:
+                case .failure(let error):
+                    logger.error(
+                        "Failed to load manga statistics: \(error)",
+                        context: [
+                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                            "mangaName": "\(state.manga.title)"
+                        ]
+                    )
+                    return .none
+                }
+                
+            case .thumbnailInfoLoaded(let result):
+                switch result {
+                case .success(let response):
+                    state.onlineMangaState!.mainCoverArtURL = response.data.coverArtURL
+                    state.onlineMangaState!.coverArtURL256 = response.data.coverArtURL256
                     return .none
                     
-                case .binding:
+                case .failure(let error):
+                    logger.error(
+                        "Failed to load thumbnail info: \(error)",
+                        context: [
+                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                            "mangaName": "\(state.manga.title)"
+                        ]
+                    )
                     return .none
+                }
+                
+            case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
+                state.isNavigationLinkActive = false
+                return .none
+                
+            // action only to hijack it in DownloadsFeature
+            case .userLeftMangaView:
+                return .none
+                
+            case .userLeftMangaViewDelayCompleted:
+                state.onlineMangaState!.reset()
+                return .none
+                
+            case .binding(\.$isNavigationLinkActive):
+                if state.isNavigationLinkActive {
+                    // when users enters the view, we must cancel clearing manga info
+                    return .cancel(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
+                }
+                
+                // Runs a delay(60 sec.) when user leaves MangaView, after that all downloaded data will be deleted to save RAM
+                // Can be cancelled if user returns wihing 60 sec.
+                return .merge(
+                    .task { .userLeftMangaViewDelayCompleted }
+                        .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
+                        .eraseToEffect()
+                        .cancellable(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id)),
+                    
+                        .task { .userLeftMangaView }
+                )
+                
+            case .onlineMangaAction:
+                return .none
+                
+            case .offlineMangaAction:
+                return .none
+                
+            case .binding:
+                return .none
             }
         }
         .ifLet(\.offlineMangaState, action: /Action.offlineMangaAction) {

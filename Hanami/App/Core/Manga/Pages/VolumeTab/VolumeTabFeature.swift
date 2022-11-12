@@ -31,7 +31,7 @@ struct VolumeTabFeature: ReducerProtocol {
             chapterStates.compactMap(\.chapter.chapterIndex).map(Int.init).removeDuplicates()
         }
     }
-
+    
     enum Action {
         case chapterAction(id: UUID, action: ChapterFeature.Action)
         case userDeletedLastChapterInVolume
@@ -40,23 +40,23 @@ struct VolumeTabFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-                case .chapterAction(let chapterStateID, action: .chapterDeletionConfirmed):
-                    if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
-                        state.chapterStates.remove(id: chapterStateID)
-                        
-                        if state.chapterStates.isEmpty {
-                            return .task { .userDeletedLastChapterInVolume }
-                        }
+            case .chapterAction(let chapterStateID, action: .chapterDeletionConfirmed):
+                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
+                    state.chapterStates.remove(id: chapterStateID)
+                    
+                    if state.chapterStates.isEmpty {
+                        return .task { .userDeletedLastChapterInVolume }
                     }
-                    
-                    return .none
-                    
+                }
+                
+                return .none
+                
                 // to be hijacked inside pagesReducer
-                case .userDeletedLastChapterInVolume:
-                    return .none
-                    
-                case .chapterAction:
-                    return .none
+            case .userDeletedLastChapterInVolume:
+                return .none
+                
+            case .chapterAction:
+                return .none
             }
         }
         .forEach(\.chapterStates, action: /Action.chapterAction) {

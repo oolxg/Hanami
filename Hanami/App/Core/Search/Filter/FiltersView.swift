@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct FiltersView: View {
     let store: StoreOf<FilterFeature>
+    let blurRadius: CGFloat
     @State private var showFormatFiltersPage = false
     @State private var showThemesFiltersPage = false
     @State private var showGenresFiltersPage = false
@@ -28,6 +29,7 @@ struct FiltersView: View {
             }
             .transition(.opacity)
             .animation(.linear, value: viewStore.allTags.isEmpty)
+            .autoBlur(radius: blurRadius)
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -42,7 +44,8 @@ struct FiltersView_Previews: PreviewProvider {
             store: .init(
                 initialState: FilterFeature.State(),
                 reducer: FilterFeature()
-            )
+            ),
+            blurRadius: 0
         )
         .preferredColorScheme(.dark)
     }

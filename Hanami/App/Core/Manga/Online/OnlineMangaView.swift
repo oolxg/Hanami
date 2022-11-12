@@ -11,12 +11,13 @@ import NukeUI
 
 struct OnlineMangaView: View {
     let store: StoreOf<OnlineMangaFeature>
+    let blurRadius: CGFloat
     // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-
+    
     private var isCoverArtDisappeared: Bool {
         headerOffset < -350
     }
@@ -119,9 +120,13 @@ extension OnlineMangaView {
             store.scope(
                 state: \.mangaReadingViewState,
                 action: OnlineMangaFeature.Action.mangaReadingViewAction
-            ),
-            then: OnlineMangaReadingView.init
-        )
+            )
+        ) { readingStore in
+            OnlineMangaReadingView(
+                store: readingStore,
+                blurRadius: blurRadius
+            )
+        }
     }
     
     @MainActor private var header: some View {
@@ -172,7 +177,7 @@ extension OnlineMangaView {
                             Circle()
                                 .fill(viewStore.manga.attributes.status.color)
                                 .frame(width: 10, height: 10)
-                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
@@ -195,7 +200,7 @@ extension OnlineMangaView {
             .opacity(headerOverlayOpacity)
         }
     }
-
+    
     // when user scrolls up, we make all text and gradient on header slowly disappear
     private var headerOverlayOpacity: Double {
         if headerOffset < 0 { return 1 }
@@ -209,23 +214,23 @@ extension OnlineMangaView {
     @MainActor private var mangaBodyView: some View {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
-                case .chapters:
-                    IfLetStore(
-                        store.scope(
-                            state: \.pagesState,
-                            action: OnlineMangaFeature.Action.pagesAction
-                        ),
-                        then: PagesView.init,
-                        else: {
-                            ProgressView()
-                                .padding(.top, 50)
-                                .padding(.bottom, 20)
-                        }
-                    )
-                case .info:
-                    aboutTab
-                case .coverArt:
-                    coverArtTab
+            case .chapters:
+                IfLetStore(
+                    store.scope(
+                        state: \.pagesState,
+                        action: OnlineMangaFeature.Action.pagesAction
+                    ),
+                    then: PagesView.init,
+                    else: {
+                        ProgressView()
+                            .padding(.top, 50)
+                            .padding(.bottom, 20)
+                    }
+                )
+            case .info:
+                aboutTab
+            case .coverArt:
+                coverArtTab
             }
         }
         .padding(.horizontal, 5)
@@ -310,9 +315,13 @@ extension OnlineMangaView {
                                 store.scope(
                                     state: \.authorViewState,
                                     action: OnlineMangaFeature.Action.authorViewAction
-                                ),
-                                then: AuthorView.init
-                            )
+                                )
+                            ) { authorStore in
+                                AuthorView(
+                                    store: authorStore,
+                                    blurRadius: blurRadius
+                                )
+                            }
                         }
                     }
                 }
@@ -352,7 +361,7 @@ extension OnlineMangaView {
                     makeChipsView(text: tag.name.capitalized)
                 }
                 .padding(.horizontal, 5)
-
+                
                 if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {
                         Text("Demographic")
@@ -379,7 +388,7 @@ extension OnlineMangaView {
             .background(Color.theme.darkGray)
             .cornerRadius(10)
     }
-     
+    
     private var backButton: some View {
         Button {
             self.dismiss()

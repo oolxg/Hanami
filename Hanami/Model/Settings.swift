@@ -20,33 +20,33 @@ enum AutoLockPolicy: Int {
     
     var value: String {
         switch self {
-            case .never:
-                return "Never"
-            case .instantly:
-                return "Instantly"
-            case .sec15:
-                return "15 seconds"
-            case .min1:
-                return "1 minute"
-            case .min5:
-                return "5 minutes"
+        case .never:
+            return "Never"
+        case .instantly:
+            return "Instantly"
+        case .sec15:
+            return "15 seconds"
+        case .min1:
+            return "1 minute"
+        case .min5:
+            return "5 minutes"
         }
     }
     
     init(rawValue: Int) {
         switch rawValue {
-            case 0:
-                self = .never
-            case 1:
-                self = .instantly
-            case 15:
-                self = .sec15
-            case 60:
-                self = .min1
-            case 300:
-                self = .min5
-            default:
-                self = .never
+        case 0:
+            self = .never
+        case 1:
+            self = .instantly
+        case 15:
+            self = .sec15
+        case 60:
+            self = .min1
+        case 300:
+            self = .min5
+        default:
+            self = .never
         }
     }
 }

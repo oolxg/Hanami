@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct DownloadsView: View {
     let store: StoreOf<DownloadsFeature>
+    let blurRadius: CGFloat
     
     private struct ViewState: Equatable {
         let cachedMangaCount: Int
@@ -42,8 +43,11 @@ struct DownloadsView: View {
                                     action: DownloadsFeature.Action.cachedMangaThumbnailAction
                                 )
                             ) { thumbnailViewStore in
-                                MangaThumbnailView(store: thumbnailViewStore)
-                                    .padding(5)
+                                MangaThumbnailView(
+                                    store: thumbnailViewStore,
+                                    blurRadius: blurRadius
+                                )
+                                .padding(5)
                             }
                         }
                         .transition(.opacity)
@@ -63,7 +67,8 @@ struct DownloadsView_Previews: PreviewProvider {
             store: .init(
                 initialState: DownloadsFeature.State(),
                 reducer: DownloadsFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
     }
 }

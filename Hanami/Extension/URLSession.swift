@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import struct ComposableArchitecture.Effect
 
 extension URLSession {
     func get<T: Decodable>(url: URL, decodeResponseAs type: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> Effect<T, AppError> {

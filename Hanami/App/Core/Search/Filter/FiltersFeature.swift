@@ -61,86 +61,86 @@ struct FilterFeature: ReducerProtocol {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.searchClient) private var searchClient
     @Dependency(\.logger) private var logger
-
+    
     // swiftlint:disable:next cyclomatic_complexity
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
         switch action {
-            case .onAppear:
-                guard state.allTags.isEmpty else { return .none }
-                
-                return searchClient.fetchTags()
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect(Action.filterListDownloaded)
-                
-            case .filterListDownloaded(let result):
-                switch result {
-                    case .success(let response):
-                        state.allTags = .init(
-                            uniqueElements: response.data
-                                .map { FiltersTag(tag: $0, state: .notSelected) }
-                                .sorted(by: <)
-                        )
-                        
-                        return .none
-                        
-                    case .failure(let error):
-                        logger.error("Failed to load list of filters: \(error)")
-                        return .none
-                }
-                
-            case .filterTagButtonTapped(let tappedTag):
-                state.allTags[id: tappedTag.id]?.toggleState()
-                return hapticClient.generateFeedback(.light).fireAndForget()
-                
-            case .resetFilters:
-                for tagID in state.allTags.map(\.id) {
-                    state.allTags[id: tagID]!.state = .notSelected
-                }
-                
-                for tagID in state.mangaStatuses.map(\.id) {
-                    state.mangaStatuses[id: tagID]!.state = .notSelected
-                }
-                
-                for tagID in state.publicationDemographics.map(\.id) {
-                    state.publicationDemographics[id: tagID]!.state = .notSelected
-                }
-                
-                for tagID in state.contentRatings.map(\.id) {
-                    if state.contentRatings[id: tagID]!.tag != .suggestive {
-                        state.contentRatings[id: tagID]!.state = .notSelected
-                    } else {
-                        state.contentRatings[id: tagID]!.state = .selected
-                    }
-                }
+        case .onAppear:
+            guard state.allTags.isEmpty else { return .none }
+            
+            return searchClient.fetchTags()
+                .receive(on: DispatchQueue.main)
+                .catchToEffect(Action.filterListDownloaded)
+            
+        case .filterListDownloaded(let result):
+            switch result {
+            case .success(let response):
+                state.allTags = .init(
+                    uniqueElements: response.data
+                        .map { FiltersTag(tag: $0, state: .notSelected) }
+                        .sorted(by: <)
+                )
                 
                 return .none
                 
-            case .mangaStatusButtonTapped(let tag):
-                if tag.state == .selected {
-                    state.mangaStatuses[id: tag.id]!.state = .notSelected
+            case .failure(let error):
+                logger.error("Failed to load list of filters: \(error)")
+                return .none
+            }
+            
+        case .filterTagButtonTapped(let tappedTag):
+            state.allTags[id: tappedTag.id]?.toggleState()
+            return hapticClient.generateFeedback(.light).fireAndForget()
+            
+        case .resetFilters:
+            for tagID in state.allTags.map(\.id) {
+                state.allTags[id: tagID]!.state = .notSelected
+            }
+            
+            for tagID in state.mangaStatuses.map(\.id) {
+                state.mangaStatuses[id: tagID]!.state = .notSelected
+            }
+            
+            for tagID in state.publicationDemographics.map(\.id) {
+                state.publicationDemographics[id: tagID]!.state = .notSelected
+            }
+            
+            for tagID in state.contentRatings.map(\.id) {
+                if state.contentRatings[id: tagID]!.tag != .suggestive {
+                    state.contentRatings[id: tagID]!.state = .notSelected
                 } else {
-                    state.mangaStatuses[id: tag.id]!.state = .selected
+                    state.contentRatings[id: tagID]!.state = .selected
                 }
-                
-                return hapticClient.generateFeedback(.light).fireAndForget()
-                
-            case .contentRatingButtonTapped(let tag):
-                if tag.state == .selected {
-                    state.contentRatings[id: tag.id]!.state = .notSelected
-                } else {
-                    state.contentRatings[id: tag.id]!.state = .selected
-                }
-                
-                return hapticClient.generateFeedback(.light).fireAndForget()
-                
-            case .publicationDemographicButtonTapped(let tag):
-                if tag.state == .selected {
-                    state.publicationDemographics[id: tag.id]!.state = .notSelected
-                } else {
-                    state.publicationDemographics[id: tag.id]!.state = .selected
-                }
-                
-                return hapticClient.generateFeedback(.light).fireAndForget()
+            }
+            
+            return .none
+            
+        case .mangaStatusButtonTapped(let tag):
+            if tag.state == .selected {
+                state.mangaStatuses[id: tag.id]!.state = .notSelected
+            } else {
+                state.mangaStatuses[id: tag.id]!.state = .selected
+            }
+            
+            return hapticClient.generateFeedback(.light).fireAndForget()
+            
+        case .contentRatingButtonTapped(let tag):
+            if tag.state == .selected {
+                state.contentRatings[id: tag.id]!.state = .notSelected
+            } else {
+                state.contentRatings[id: tag.id]!.state = .selected
+            }
+            
+            return hapticClient.generateFeedback(.light).fireAndForget()
+            
+        case .publicationDemographicButtonTapped(let tag):
+            if tag.state == .selected {
+                state.publicationDemographics[id: tag.id]!.state = .notSelected
+            } else {
+                state.publicationDemographics[id: tag.id]!.state = .selected
+            }
+            
+            return hapticClient.generateFeedback(.light).fireAndForget()
         }
     }
     
@@ -163,12 +163,12 @@ struct FilterFeature: ReducerProtocol {
         
         mutating func toggleState() {
             switch state {
-                case .selected:
-                    state = .banned
-                case .notSelected:
-                    state = .selected
-                case .banned:
-                    state = .notSelected
+            case .selected:
+                state = .banned
+            case .notSelected:
+                state = .selected
+            case .banned:
+                state = .notSelected
             }
         }
     }

@@ -12,9 +12,7 @@ extension View {
     func redacted(if condition: @autoclosure () -> Bool) -> some View {
         redacted(reason: condition() ? .placeholder : [])
     }
-}
 
-extension View {
     func hud(
         isPresented: Binding<Bool>,
         message: String,
@@ -42,5 +40,11 @@ extension View {
                     )
             }
         }
+    }
+    
+    func autoBlur(radius: Double) -> some View {
+        blur(radius: radius)
+            .allowsHitTesting(radius < 1)
+            .animation(.linear(duration: 0.1), value: radius)
     }
 }

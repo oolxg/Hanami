@@ -6,6 +6,8 @@
 //
 
 import ComposableArchitecture
+import enum SwiftUI.ScenePhase
+import Foundation
 
 struct RootFeature: ReducerProtocol {
     struct State: Equatable {
@@ -15,6 +17,7 @@ struct RootFeature: ReducerProtocol {
         var settingsState = SettingsFeature.State()
         
         var selectedTab: Tab
+        var blurRadius: CGFloat = 0.0
     }
     
     enum Tab: Equatable {
@@ -23,6 +26,7 @@ struct RootFeature: ReducerProtocol {
     
     enum Action {
         case tabChanged(Tab)
+        case scenePhaseChanged(ScenePhase)
         case homeAction(HomeFeature.Action)
         case searchAction(SearchFeature.Action)
         case downloadsAction(DownloadsFeature.Action)
@@ -32,21 +36,26 @@ struct RootFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-                case .tabChanged(let newTab):
-                    state.selectedTab = newTab
-                    return newTab != .downloads ? .none : .task { .downloadsAction(.retrieveCachedManga) }
-                    
-                case .homeAction:
-                    return .none
-                    
-                case .searchAction:
-                    return .none
-                    
-                case .downloadsAction:
-                    return .none
-                    
-                case .settingsAction:
-                    return .none
+            case .tabChanged(let newTab):
+                state.selectedTab = newTab
+                return newTab != .downloads ? .none : .task { .downloadsAction(.retrieveCachedManga) }
+                
+            case .scenePhaseChanged(let newScenePhase):
+                state.blurRadius = newScenePhase == .active ? 0.00001 : 10
+                
+                return .none
+                
+            case .homeAction:
+                return .none
+                
+            case .searchAction:
+                return .none
+                
+            case .downloadsAction:
+                return .none
+                
+            case .settingsAction:
+                return .none
             }
         }
         Scope(state: \.homeState, action: /Action.homeAction) {

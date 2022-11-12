@@ -9,7 +9,6 @@
 import SwiftUI
 import AudioToolbox
 
-
 enum HapticUtil {
     static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard !isLegacyTapticEngine else {

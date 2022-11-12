@@ -29,22 +29,22 @@ struct Relationship: Codable {
         
         do {
             switch type {
-                case .coverArt:
-                    attributes = .coverArt(try container.decode(CoverArtInfo.Attributes.self, forKey: .attributes))
-                    
-                case .scanlationGroup:
-                    attributes = .scanlationGroup(
-                        try container.decode(ScanlationGroup.Attributes.self, forKey: .attributes)
-                    )
-                    
-                case .manga:
-                    attributes = .manga(try container.decode(Manga.Attributes.self, forKey: .attributes))
-                    
-                case .author:
-                    attributes = .author(try container.decode(Author.Attributes.self, forKey: .attributes))
-                    
-                default:
-                    attributes = nil
+            case .coverArt:
+                attributes = .coverArt(try container.decode(CoverArtInfo.Attributes.self, forKey: .attributes))
+                
+            case .scanlationGroup:
+                attributes = .scanlationGroup(
+                    try container.decode(ScanlationGroup.Attributes.self, forKey: .attributes)
+                )
+                
+            case .manga:
+                attributes = .manga(try container.decode(Manga.Attributes.self, forKey: .attributes))
+                
+            case .author:
+                attributes = .author(try container.decode(Author.Attributes.self, forKey: .attributes))
+                
+            default:
+                attributes = nil
             }
         } catch {
             attributes = nil
@@ -57,20 +57,20 @@ struct Relationship: Codable {
         try container.encode(type, forKey: .type)
         try container.encode(related, forKey: .related)
         switch attributes {
-            case .coverArt(let coverArt):
-                try container.encode(coverArt, forKey: .attributes)
-
-            case .manga(let manga):
-                try container.encode(manga, forKey: .attributes)
-
-            case .scanlationGroup(let scanlationGroup):
-                try container.encode(scanlationGroup, forKey: .attributes)
-
-            case .author(let author):
-                try container.encode(author, forKey: .attributes)
-                
-            case .none:
-                break
+        case .coverArt(let coverArt):
+            try container.encode(coverArt, forKey: .attributes)
+            
+        case .manga(let manga):
+            try container.encode(manga, forKey: .attributes)
+            
+        case .scanlationGroup(let scanlationGroup):
+            try container.encode(scanlationGroup, forKey: .attributes)
+            
+        case .author(let author):
+            try container.encode(author, forKey: .attributes)
+            
+        case .none:
+            break
         }
     }
     
@@ -83,17 +83,17 @@ struct Relationship: Codable {
         
         var value: Any {
             switch self {
-                case .coverArt(let coverArt):
-                    return coverArt
-                    
-                case .manga(let manga):
-                    return manga
-                    
-                case .scanlationGroup(let scanlationGroup):
-                    return scanlationGroup
-                    
-                case .author(let author):
-                    return author
+            case .coverArt(let coverArt):
+                return coverArt
+                
+            case .manga(let manga):
+                return manga
+                
+            case .scanlationGroup(let scanlationGroup):
+                return scanlationGroup
+                
+            case .author(let author):
+                return author
             }
         }
     }

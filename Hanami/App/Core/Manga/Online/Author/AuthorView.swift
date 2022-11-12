@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct AuthorView: View {
     let store: StoreOf<AuthorFeature>
+    let blurRadius: CGFloat
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -32,6 +33,7 @@ struct AuthorView: View {
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar { backButton }
             }
+            .autoBlur(radius: blurRadius)
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -46,7 +48,8 @@ struct AuthorView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(authorID: UUID()),
                 reducer: AuthorFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
     }
 }
@@ -99,8 +102,11 @@ extension AuthorView {
                         state: \.mangaThumbnailStates,
                         action: AuthorFeature.Action.mangaThumbnailAction
                     )) { thumbnailStore in
-                        MangaThumbnailView(store: thumbnailStore)
-                            .padding(5)
+                        MangaThumbnailView(
+                            store: thumbnailStore,
+                            blurRadius: blurRadius
+                        )
+                        .padding(5)
                     }
             }
         }

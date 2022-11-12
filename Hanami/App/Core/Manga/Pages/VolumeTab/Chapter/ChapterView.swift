@@ -31,7 +31,7 @@ struct ChapterView: View {
             scanlationGroups = state.scanlationGroups
         }
     }
-
+    
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             DisclosureGroup(
@@ -164,39 +164,39 @@ extension ChapterView {
                     .padding(5)
             } else if let chapterState = viewStore.cachedChaptersStates.first(where: { $0.id == chapter.id }) {
                 switch chapterState.status {
-                    case .cached:
-                        Button {
-                            viewStore.send(.deleteChapter(chapterID: chapter.id))
-                        } label: {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.callout)
-                                .foregroundColor(.green)
-                                .padding(5)
-                        }
-                        
-                    case .downloadInProgress:
-                            ProgressView(
-                                value: Double(chapterState.pagesFetched),
-                                total: Double(chapterState.pagesCount)
-                            )
-                            .progressViewStyle(.linear)
-                            .padding(.top, 5)
+                case .cached:
+                    Button {
+                        viewStore.send(.deleteChapter(chapterID: chapter.id))
+                    } label: {
+                        Image(systemName: "checkmark.seal.fill")
+                            .font(.callout)
+                            .foregroundColor(.green)
                             .padding(5)
-                            .frame(width: 40)
-                            .tint(.white)
-                            .onTapGesture {
-                                viewStore.send(.cancelChapterDownload(chapterID: chapter.id), animation: .linear)
-                            }
-                        
-                    case .downloadFailed:
-                        Button {
-                            viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.callout)
-                                .foregroundColor(.red)
-                                .padding(5)
-                        }
+                    }
+                    
+                case .downloadInProgress:
+                    ProgressView(
+                        value: Double(chapterState.pagesFetched),
+                        total: Double(chapterState.pagesCount)
+                    )
+                    .progressViewStyle(.linear)
+                    .padding(.top, 5)
+                    .padding(5)
+                    .frame(width: 40)
+                    .tint(.white)
+                    .onTapGesture {
+                        viewStore.send(.cancelChapterDownload(chapterID: chapter.id), animation: .linear)
+                    }
+                    
+                case .downloadFailed:
+                    Button {
+                        viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.callout)
+                            .foregroundColor(.red)
+                            .padding(5)
+                    }
                 }
             } else if viewStore.online {
                 Button {

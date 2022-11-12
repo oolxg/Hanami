@@ -11,6 +11,7 @@ import NukeUI
 
 struct OfflineMangaReadingView: View {
     let store: StoreOf<OfflineMangaReadingFeature>
+    let blurRadius: CGFloat
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
@@ -60,6 +61,7 @@ struct OfflineMangaReadingView: View {
             .navigationBarHidden(true)
             .gesture(tapGesture)
             .gesture(swipeGesture)
+            .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.chapterID) { _ in
                 if viewStore.startFromLastPage {
                     currentPageIndex = viewStore.pagesCount - 1

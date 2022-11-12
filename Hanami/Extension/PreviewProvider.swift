@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+#if DEBUG
 extension PreviewProvider {
     static var dev: DeveloperPreview {
         DeveloperPreview.shared
@@ -103,3 +104,4 @@ class DeveloperPreview {
         relationships: [ ]
     )
 }
+#endif

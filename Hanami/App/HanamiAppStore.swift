@@ -22,18 +22,18 @@ struct AppFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { _, action in
             switch action {
-                case .initApp:
-                    return .concatenate(
-//                        databaseClient.dropDatabase().fireAndForget(),
-                        databaseClient.prepareDatabase().fireAndForget(),
-                        
-                        .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
-                        
-                        .task { .rootAction(.settingsAction(.initSettings)) }
-                    )
+            case .initApp:
+                return .concatenate(
+//                    databaseClient.dropDatabase().fireAndForget(),
+                    databaseClient.prepareDatabase().fireAndForget(),
                     
-                case .rootAction:
-                    return .none
+                        .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
+                    
+                        .task { .rootAction(.settingsAction(.initSettings)) }
+                )
+                
+            case .rootAction:
+                return .none
             }
         }
         Scope(state: \.rootState, action: /Action.rootAction) {

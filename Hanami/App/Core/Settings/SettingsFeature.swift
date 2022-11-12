@@ -25,15 +25,15 @@ struct SettingsFeature: ReducerProtocol {
         BindingReducer()
         Reduce { state, action in
             switch action {
-                case .initSettings:
-                    state.autoLockPolicy = settingsClient.getAutoLockPolicy()
-                    return .none
-                    
-                case .binding(\.$autoLockPolicy):
-                    return settingsClient.setAutoLockPolicy(state.autoLockPolicy).fireAndForget()
-                    
-                case .binding:
-                    return .none
+            case .initSettings:
+                state.autoLockPolicy = settingsClient.getAutoLockPolicy()
+                return .none
+                
+            case .binding(\.$autoLockPolicy):
+                return settingsClient.setAutoLockPolicy(state.autoLockPolicy).fireAndForget()
+                
+            case .binding:
+                return .none
             }
         }
     }

@@ -10,14 +10,14 @@ import struct SwiftUI.Color
 extension Manga.Attributes.Status {
     var color: Color {
         switch self {
-            case .completed:
-                return .blue
-            case .ongoing:
-                return .green
-            case .cancelled:
-                return .red
-            case .hiatus:
-                return .red
+        case .completed:
+            return .blue
+        case .ongoing:
+            return .green
+        case .cancelled:
+            return .red
+        case .hiatus:
+            return .red
         }
     }
 }

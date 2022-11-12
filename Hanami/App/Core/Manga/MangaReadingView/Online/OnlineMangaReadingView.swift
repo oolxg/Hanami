@@ -11,6 +11,7 @@ import NukeUI
 
 struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
+    let blurRadius: CGFloat
     @State private var shouldShowNavBar = true
     @State private var currentPageIndex = 0
     
@@ -55,6 +56,7 @@ struct OnlineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.afterLastPageIndex)
             }
+            .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.pagesCount) { _ in
                 if viewStore.startFromLastPage && viewStore.pagesCount != nil {
                     currentPageIndex = viewStore.pagesCount! - 1
@@ -206,7 +208,8 @@ struct OnlineMangaReadingView_Previews: PreviewProvider {
                     translatedLanguage: ""
                 ),
                 reducer: OnlineMangaReadingFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
     }
 }

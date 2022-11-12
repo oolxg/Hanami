@@ -11,6 +11,7 @@ import NukeUI
 
 struct OfflineMangaView: View {
     let store: StoreOf<OfflineMangaFeature>
+    let blurRadius: CGFloat
     @State private var headerOffset: CGFloat = 0
     @State private var showMangaDeletionDialog = false
     @Namespace private var tabAnimationNamespace
@@ -83,9 +84,13 @@ extension OfflineMangaView {
             store.scope(
                 state: \.mangaReadingViewState,
                 action: OfflineMangaFeature.Action.mangaReadingViewAction
-            ),
-            then: OfflineMangaReadingView.init
-        )
+            )
+        ) { readingStore in
+            OfflineMangaReadingView(
+                store: readingStore,
+                blurRadius: blurRadius
+            )
+        }
     }
     
     private var footer: some View {
@@ -146,7 +151,7 @@ extension OfflineMangaView {
                             Circle()
                                 .fill(viewStore.manga.attributes.status.color)
                                 .frame(width: 10, height: 10)
-                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
@@ -207,16 +212,16 @@ extension OfflineMangaView {
     private var mangaBodyView: some View {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
-                case .chapters:
-                    IfLetStore(
-                        store.scope(
-                            state: \.pagesState,
-                            action: OfflineMangaFeature.Action.pagesAction
-                        ),
-                        then: PagesView.init
-                    )
-                case .info:
-                    aboutTab
+            case .chapters:
+                IfLetStore(
+                    store.scope(
+                        state: \.pagesState,
+                        action: OfflineMangaFeature.Action.pagesAction
+                    ),
+                    then: PagesView.init
+                )
+            case .info:
+                aboutTab
             }
         }
         .padding(.horizontal, 5)
@@ -294,7 +299,7 @@ extension OfflineMangaView {
             }
         }
     }
-
+    
     @ViewBuilder private func makeChipsView(text: String) -> some View {
         Text(text)
             .font(.callout)

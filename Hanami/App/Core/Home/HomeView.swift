@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct HomeView: View {
     let store: StoreOf<HomeFeature>
+    let blurRadius: CGFloat
     @State private var showSeasonal = false
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
@@ -129,7 +130,8 @@ struct HomeView_Previews: PreviewProvider {
             store: .init(
                 initialState: HomeFeature.State(),
                 reducer: HomeFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
     }
 }
@@ -147,8 +149,11 @@ extension HomeView {
                                 action: HomeFeature.Action.lastUpdatesMangaThumbnailAction
                             )
                         ) { thumbnailViewStore in
-                            MangaThumbnailView(store: thumbnailViewStore)
-                                .padding(5)
+                            MangaThumbnailView(
+                                store: thumbnailViewStore,
+                                blurRadius: blurRadius
+                            )
+                            .padding(5)
                         }
                     } else {
                         ForEach(0..<10) { _ in
@@ -219,7 +224,10 @@ extension HomeView {
                                 state: \.seasonalMangaThumbnailStates,
                                 action: HomeFeature.Action.seasonalMangaThumbnailAction
                             )) { thumbnailStore in
-                                MangaThumbnailView(store: thumbnailStore)
+                                MangaThumbnailView(
+                                    store: thumbnailStore,
+                                    blurRadius: blurRadius
+                                )
                                     .padding(5)
                             }
                     } else {
@@ -286,7 +294,10 @@ extension HomeView {
                                     state: \.mostFollowedMangaThumbnailStates,
                                     action: HomeFeature.Action.mostFollowedMangaThumbnailAction
                                 )) { thumbnailStore in
-                                    MangaThumbnailView(store: thumbnailStore)
+                                    MangaThumbnailView(
+                                        store: thumbnailStore,
+                                        blurRadius: blurRadius
+                                    )
                                         .padding(5)
                                 }
                         } else {
@@ -357,7 +368,10 @@ extension HomeView {
                                     state: \.awardWinningMangaThumbnailStates,
                                     action: HomeFeature.Action.awardWinningMangaThumbnailAction
                                 )) { thumbnailStore in
-                                    MangaThumbnailView(store: thumbnailStore)
+                                    MangaThumbnailView(
+                                        store: thumbnailStore,
+                                        blurRadius: blurRadius
+                                    )
                                         .padding(5)
                                 }
                         } else {

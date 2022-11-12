@@ -11,12 +11,15 @@ import ComposableArchitecture
 struct RootView: View {
     let store: StoreOf<RootFeature>
     @StateObject private var hudState = HUDClient.liveValue
+    @Environment(\.scenePhase) private var scenePhase
     
     private struct ViewState: Equatable {
         let selectedTab: RootFeature.Tab
+        let blurRadius: CGFloat
         
         init(state: RootFeature.State) {
             selectedTab = state.selectedTab
+            blurRadius = state.blurRadius
         }
     }
     
@@ -27,7 +30,8 @@ struct RootView: View {
                     store: store.scope(
                         state: \.homeState,
                         action: RootFeature.Action.homeAction
-                    )
+                    ),
+                    blurRadius: viewStore.blurRadius
                 )
                 .tabItem {
                     Image(systemName: "house")
@@ -39,7 +43,8 @@ struct RootView: View {
                     store: store.scope(
                         state: \.downloadsState,
                         action: RootFeature.Action.downloadsAction
-                    )
+                    ),
+                    blurRadius: viewStore.blurRadius
                 )
                 .tabItem {
                     Image(systemName: "square.and.arrow.down")
@@ -51,7 +56,8 @@ struct RootView: View {
                     store: store.scope(
                         state: \.searchState,
                         action: RootFeature.Action.searchAction
-                    )
+                    ),
+                    blurRadius: viewStore.blurRadius
                 )
                 .tabItem {
                     Image(systemName: "magnifyingglass")
@@ -70,6 +76,10 @@ struct RootView: View {
                     Text("Settings")
                 }
                 .tag(RootFeature.Tab.settings)
+            }
+            .autoBlur(radius: viewStore.blurRadius)
+            .onChange(of: scenePhase) { newScenePhase in
+                viewStore.send(.scenePhaseChanged(newScenePhase))
             }
         }
         .hud(

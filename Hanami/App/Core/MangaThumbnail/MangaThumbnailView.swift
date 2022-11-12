@@ -11,6 +11,7 @@ import NukeUI
 
 struct MangaThumbnailView: View {
     let store: StoreOf<MangaThumbnailFeature>
+    let blurRadius: CGFloat
     
     private struct ViewState: Equatable {
         let online: Bool
@@ -56,7 +57,8 @@ struct MangaThumbnailView_Previews: PreviewProvider {
                     manga: dev.manga
                 ),
                 reducer: MangaThumbnailFeature()._printChanges()
-            )
+            ),
+            blurRadius: 0
         )
     }
 }
@@ -119,14 +121,16 @@ extension MangaThumbnailView {
                     store: store.scope(
                         state: \.onlineMangaState!,
                         action: MangaThumbnailFeature.Action.onlineMangaAction
-                    )
+                    ),
+                    blurRadius: blurRadius
                 )
             } else {
                 OfflineMangaView(
                     store: store.scope(
                         state: \.offlineMangaState!,
                         action: MangaThumbnailFeature.Action.offlineMangaAction
-                    )
+                    ),
+                    blurRadius: blurRadius
                 )
             }
         }
