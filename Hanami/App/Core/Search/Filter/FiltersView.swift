@@ -226,7 +226,7 @@ extension FiltersView {
         isActive: Binding<Bool>? = nil
     ) -> some View {
         ZStack(alignment: .topLeading) {
-            if let navTitle = navTitle {
+            if let navTitle {
                 Color.clear
                     .navigationTitle(navTitle)
             }

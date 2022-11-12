@@ -17,6 +17,7 @@ enum AppError: Error {
     case cacheError(String)
     case imageError(String)
     case biometryError(LAError)
+    case authError(String)
 }
 
 extension AppError: Equatable {
@@ -44,6 +45,9 @@ extension AppError: Equatable {
             return true
             
         case (.biometryError, .biometryError):
+            return true
+            
+        case (.authError, .authError):
             return true
             
         default:
@@ -117,6 +121,9 @@ extension AppError: Equatable {
             
         case .databaseError(let errorMessage):
             return errorMessage
+            
+        case .authError(let errorMsg):
+            return errorMsg
             
         case .biometryError(let error):
             switch error {

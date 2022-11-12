@@ -77,18 +77,16 @@ struct RootView: View {
                 }
                 .tag(RootFeature.Tab.settings)
             }
+            .hud(
+                isPresented: $hudState.isPresented,
+                message: hudState.message,
+                iconName: hudState.iconName,
+                hideAfter: hudState.hideAfter,
+                backgroundColor: hudState.backgroundColor
+            )
             .autoBlur(radius: viewStore.blurRadius)
-            .onChange(of: scenePhase) { newScenePhase in
-                viewStore.send(.scenePhaseChanged(newScenePhase))
-            }
+            .onChange(of: scenePhase) { viewStore.send(.scenePhaseChanged($0)) }
         }
-        .hud(
-            isPresented: $hudState.isPresented,
-            message: hudState.message,
-            iconName: hudState.iconName,
-            hideAfter: hudState.hideAfter,
-            backgroundColor: hudState.backgroundColor
-        )
         .accentColor(.theme.accent)
         .navigationViewStyle(.stack)
     }

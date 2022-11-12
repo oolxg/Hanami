@@ -39,6 +39,7 @@ extension CoverArtInfo {
         
         return "https://uploads.mangadex.org/covers/\(lowercased)/\(fileName)"
     }
+    
     var coverArtURL: URL? {
         coverArtURLString != nil ? URL(string: coverArtURLString!) : nil
     }

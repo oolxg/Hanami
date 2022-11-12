@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import Combine
 import LocalAuthentication
+import Foundation
 
 extension DependencyValues {
     var authClient: AuthClient {
@@ -24,19 +25,30 @@ extension AuthClient: DependencyKey {
     static let liveValue = AuthClient(
         makeAuth: {
             Future { promise in
-                let scanner = LAContext()
+                let context = LAContext()
                 
-                scanner.evaluatePolicy(
-                    .deviceOwnerAuthenticationWithBiometrics,
-                    localizedReason: "To unlock the app"
-                ) { success, error in
-                    if success {
-                        return promise(.success(()))
-                    } else if let error = error as? LAError {
-                        return promise(.failure(.biometryError(error)))
-                    } else {
-                        return promise(.failure(.unknownError(error!)))
+                var error: NSError?
+                
+                if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+                    context.evaluatePolicy(
+                        .deviceOwnerAuthenticationWithBiometrics,
+                        localizedReason: "To unlock the app"
+                    ) { success, authError in
+                        if success {
+                            return promise(.success(()))
+                        } else if let authError = authError as? LAError {
+                            return promise(.failure(.biometryError(authError)))
+                        } else if let authError {
+                            return promise(.failure(.unknownError(authError)))
+                        } else {
+                            return promise(.failure(.authError("User closed the app")))
+                        }
                     }
+                } else if let error = error as? LAError {
+                    return promise(.failure(.biometryError(error)))
+                } else {
+                    // we will return success because user turned off FaceID or TouchID
+                    return promise(.success(()))
                 }
             }
             .catchToEffect()

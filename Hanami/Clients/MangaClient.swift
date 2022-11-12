@@ -64,13 +64,13 @@ extension MangaClient: DependencyKey {
             
             components.queryItems = []
             
-            if let scanlationGroupID = scanlationGroupID {
+            if let scanlationGroupID {
                 components.queryItems!.append(
                     URLQueryItem(name: "groups[]", value: scanlationGroupID.uuidString.lowercased())
                 )
             }
             
-            if let translatedLanguage = translatedLanguage {
+            if let translatedLanguage {
                 components.queryItems!.append(
                     URLQueryItem(name: "translatedLanguage[]", value: translatedLanguage)
                 )

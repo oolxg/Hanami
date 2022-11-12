@@ -12,6 +12,7 @@ enum Defaults {
         static let logs = "logs"
         static let hanamiLog = "Hanami.log"
     }
+    
     enum Security {
         static let autolockPolicy = "autolockPolicy"
     }

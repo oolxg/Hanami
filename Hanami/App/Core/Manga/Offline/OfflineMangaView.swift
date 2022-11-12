@@ -316,7 +316,7 @@ extension OfflineMangaView {
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)
-                .padding(.vertical)
+                .padding(.top)
         }
         .transition(.opacity)
     }

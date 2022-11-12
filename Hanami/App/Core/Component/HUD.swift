@@ -21,7 +21,7 @@ struct HUD: View {
     
     var body: some View {
         HStack(alignment: .center) {
-            if let iconName = iconName {
+            if let iconName {
                 Image(systemName: iconName)
             }
             

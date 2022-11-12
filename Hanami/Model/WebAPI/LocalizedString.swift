@@ -61,47 +61,47 @@ extension LocalizedString: Equatable { }
 
 extension LocalizedString {
     private var _languageInfo: (language: String, flag: String)? {
-        if let en = en {
+        if let en {
             return (language: en, flag: "🇬🇧")
-        } else if let ar = ar {
+        } else if let ar {
             return (language: ar, flag: "🇦🇷")
-        } else if let cs = cs {
+        } else if let cs {
             return (language: cs, flag: "🇨🇿")
-        } else if let es = es {
+        } else if let es {
             return (language: es, flag: "🇪🇸")
-        } else if let esLa = esLa {
+        } else if let esLa {
             return (language: esLa, flag: "🇧🇷")
-        } else if let hi = hi {
+        } else if let hi {
             return (language: hi, flag: "🇮🇳")
-        } else if let hu = hu {
+        } else if let hu {
             return (language: hu, flag: "🇭🇺")
-        } else if let fa = fa {
+        } else if let fa {
             return (language: fa, flag: "🇮🇷")
-        } else if let fr = fr {
+        } else if let fr {
             return (language: fr, flag: "🇫🇷")
-        } else if let it = it {
+        } else if let it {
             return (language: it, flag: "🇮🇹")
-        } else if let jp = jp {
+        } else if let jp {
             return (language: jp, flag: "🇯🇵")
-        } else if let jpRo = jpRo {
+        } else if let jpRo {
             return (language: jpRo, flag: "🇯🇵")
-        } else if let ko = ko {
+        } else if let ko {
             return (language: ko, flag: "🇰🇷")
-        } else if let mn = mn {
+        } else if let mn {
             return (language: mn, flag: "🇲🇳")
-        } else if let ms = ms {
+        } else if let ms {
             return (language: ms, flag: "🇲🇾")
-        } else if let nl = nl {
+        } else if let nl {
             return (language: nl, flag: "🇳🇱")
-        } else if let ru = ru {
+        } else if let ru {
             return (language: ru, flag: "🇷🇺")
-        } else if let th = th {
+        } else if let th {
             return (language: th, flag: "🇹🇭")
-        } else if let uk = uk {
+        } else if let uk {
             return (language: uk, flag: "🇺🇦")
-        } else if let zh = zh {
+        } else if let zh {
             return (language: zh, flag: "🇨🇳")
-        } else if let zhRo = zhRo {
+        } else if let zhRo {
             return (language: zhRo, flag: "🇨🇳")
         }
         

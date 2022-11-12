@@ -116,7 +116,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 newChapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
-            guard let chapterIndex = chapterIndex else { fatalError("Here must be chapterIndex!") }
+            guard let chapterIndex else { fatalError("Here must be chapterIndex!") }
             
             let chapter = state.sameScanlationGroupChapters[chapterIndex]
             
@@ -144,7 +144,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
-            guard let nextChapterIndex = nextChapterIndex else {
+            guard let nextChapterIndex else {
                 hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
                 return .task { .userLeftMangaReadingView }
             }
@@ -173,7 +173,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
-            guard let previousChapterIndex = previousChapterIndex else {
+            guard let previousChapterIndex else {
                 hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
                 return .task { .userLeftMangaReadingView }
             }
