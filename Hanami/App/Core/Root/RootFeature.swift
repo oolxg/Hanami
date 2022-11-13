@@ -19,7 +19,7 @@ struct RootFeature: ReducerProtocol {
         var selectedTab: Tab
         var blurRadius: CGFloat = 0.0
         var isAppLocked = true
-        var appLastTimeUsedAt: Date?
+        var appLastUsedAt: Date?
     }
     
     enum Tab: Equatable {
@@ -51,7 +51,7 @@ struct RootFeature: ReducerProtocol {
                 
                 switch newScenePhase {
                 case .background:
-                    state.appLastTimeUsedAt = .now
+                    state.appLastUsedAt = .now
                     state.isAppLocked = true
                     return .none
                     
@@ -71,7 +71,7 @@ struct RootFeature: ReducerProtocol {
                     
                     let now = Date()
                     
-                    if let appLastUsed = state.appLastTimeUsedAt, Int(now - appLastUsed) < autolockPolicy.rawValue {
+                    if let appLastUsed = state.appLastUsedAt, Int(now - appLastUsed) < autolockPolicy.rawValue {
                         state.isAppLocked = false
                         return .none
                     }
@@ -87,7 +87,7 @@ struct RootFeature: ReducerProtocol {
             case .appAuthCompleted(let result):
                 switch result {
                 case .success:
-                    state.appLastTimeUsedAt = .now
+                    state.appLastUsedAt = .now
                     state.isAppLocked = false
                     state.blurRadius = 0.00001
                     return .none

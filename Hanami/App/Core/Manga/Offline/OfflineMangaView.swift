@@ -316,7 +316,7 @@ extension OfflineMangaView {
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)
-                .padding(.top)
+                .padding(.vertical)
         }
         .transition(.opacity)
     }
@@ -336,7 +336,7 @@ extension OfflineMangaView {
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.black)
-        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 15)
+        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
         .modifier(
             MangaViewOffsetModifier(
                 offset: $headerOffset

@@ -307,7 +307,7 @@ struct ChapterFeature: ReducerProtocol {
         case .savedInMemoryChaptersRetrieved(let result):
             switch result {
             case .success(let cachedChapterIDs):
-                state.cachedChaptersStates.removeAll(where: { !cachedChapterIDs.contains($0.id) })
+                state.cachedChaptersStates.removeAll(where: { !cachedChapterIDs.contains($0.id) && $0.status == .cached })
                 for cID in cachedChapterIDs where !state.cachedChaptersStates.contains(where: { $0.id == cID }) {
                     // have to check, because this state also contains chapters, whose download process is in progress
                     state.cachedChaptersStates.insertOrUpdateByID(
