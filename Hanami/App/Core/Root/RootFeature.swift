@@ -68,7 +68,7 @@ struct RootFeature: ReducerProtocol {
                     
                     let now = Date()
                     
-                    if let appLastUsed = state.appLastUsedAt, Int(now - appLastUsed) < autolockPolicy.rawValue {
+                    if let appLastUsed = state.appLastUsedAt, Int(now - appLastUsed) < autolockPolicy.autolockDelay {
                         state.isAppLocked = false
                         return .none
                     }

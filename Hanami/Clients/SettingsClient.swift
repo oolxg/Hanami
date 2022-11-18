@@ -41,7 +41,8 @@ extension SettingsClient: DependencyKey {
             }
         },
         getBlurRadius: {
-            UserDefaults.standard.double(forKey: Defaults.Security.blurRadius)
+            let fetched = UserDefaults.standard.double(forKey: Defaults.Security.blurRadius)
+            return fetched == 0 ? Defaults.Security.minBlurRadius : fetched
         }
     )
 }

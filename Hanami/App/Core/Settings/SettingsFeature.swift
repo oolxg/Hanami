@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
         @BindableState var autoLockPolicy: AutoLockPolicy = .never
-        @BindableState var blurRadius = 0.0
+        @BindableState var blurRadius = Defaults.Security.minBlurRadius
     }
     
     enum Action: BindableAction {
