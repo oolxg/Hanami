@@ -164,7 +164,13 @@ extension OnlineMangaView {
                 )
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    backButton
+                    HStack {
+                        backButton
+                        
+                        Spacer()
+                        
+                        refreshButton
+                    }
                     
                     Spacer()
                     
@@ -177,7 +183,7 @@ extension OnlineMangaView {
                             Circle()
                                 .fill(viewStore.manga.attributes.status.color)
                                 .frame(width: 10, height: 10)
-                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
@@ -395,7 +401,18 @@ extension OnlineMangaView {
         } label: {
             Image(systemName: "arrow.left")
                 .foregroundColor(.white)
-            .padding(.vertical)
+                .padding(.vertical)
+        }
+        .transition(.opacity)
+    }
+    
+    private var refreshButton: some View {
+        Button {
+            ViewStore(store).send(.refreshManga)
+        } label: {
+            Image(systemName: "arrow.clockwise")
+                .foregroundColor(.white)
+                .padding(.vertical)
         }
         .transition(.opacity)
     }

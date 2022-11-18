@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIImage
 
+// swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: ReducerProtocol {
     struct State: Equatable {
         let manga: Manga
@@ -29,6 +30,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         
         var authorViewState: AuthorFeature.State?
         @BindableState var showAuthorView = false
+        var lastRefreshedAt: Date?
         
         var mainCoverArtURL: URL?
         var coverArtURL256: URL?
@@ -65,6 +67,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         case onAppear
         case mangaTabChanged(Tab)
         case showAuthorPage(Author)
+        case refreshManga
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
@@ -87,6 +90,7 @@ struct OnlineMangaFeature: ReducerProtocol {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
     
     var body: some ReducerProtocol<State, Action> {
@@ -117,6 +121,12 @@ struct OnlineMangaFeature: ReducerProtocol {
             case .volumesRetrieved(let result):
                 switch result {
                 case .success(let response):
+                    let allowHaptic = state.pagesState != nil
+                    
+                    if state.pagesState != nil {
+                        hudClient.show(message: "Updated!", backgroundColor: .green)
+                    }
+                    
                     state.pagesState = PagesFeature.State(
                         manga: state.manga,
                         mangaVolumes: response.volumes,
@@ -124,7 +134,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                         online: true
                     )
                     
-                    return .none
+                    return allowHaptic ? hapticClient.generateNotificationFeedback(.success).fireAndForget() : .none
                     
                 case .failure(let error):
                     logger.error(
@@ -184,6 +194,18 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
+            case .refreshManga:
+                if let lastRefreshAt = state.lastRefreshedAt, (.now - lastRefreshAt) < 10 {
+                    hudClient.show(message: "Wait a little to refresh this page", backgroundColor: .yellow)
+                    return .none
+                }
+                
+                state.lastRefreshedAt = .now
+                
+                return mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.volumesRetrieved)
+                
             case .showAuthorPage(let author):
                 state.showAuthorView = true
                 
@@ -230,7 +252,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     
                 case .failure(let error):
                     logger.error(
-                        "Failed to fetch main cover art for cachin: \(error)",
+                        "Failed to fetch main cover art for caching: \(error)",
                         context: [
                             "mangaID": "\(state.manga.id.uuidString.lowercased())",
                             "mangaName": "\(state.manga.title)"

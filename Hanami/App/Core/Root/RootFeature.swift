@@ -17,7 +17,6 @@ struct RootFeature: ReducerProtocol {
         var settingsState = SettingsFeature.State()
         
         var selectedTab: Tab
-        var blurRadius: CGFloat = 0.0
         var isAppLocked = true
         var appLastUsedAt: Date?
     }
@@ -47,8 +46,6 @@ struct RootFeature: ReducerProtocol {
                 return newTab != .downloads ? .none : .task { .downloadsAction(.retrieveCachedManga) }
                 
             case .scenePhaseChanged(let newScenePhase):
-                defer { state.blurRadius = state.isAppLocked ? 10 : 0.00001 }
-                
                 switch newScenePhase {
                 case .background:
                     state.appLastUsedAt = .now
@@ -89,7 +86,6 @@ struct RootFeature: ReducerProtocol {
                 case .success:
                     state.appLastUsedAt = .now
                     state.isAppLocked = false
-                    state.blurRadius = 0.00001
                     return .none
                     
                 case .failure:

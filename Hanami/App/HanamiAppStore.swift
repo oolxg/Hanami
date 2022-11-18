@@ -27,9 +27,9 @@ struct AppFeature: ReducerProtocol {
 //                    databaseClient.dropDatabase().fireAndForget(),
                     databaseClient.prepareDatabase().fireAndForget(),
                     
-                        .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
+                    .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
                     
-                        .task { .rootAction(.settingsAction(.initSettings)) }
+                    .task { .rootAction(.settingsAction(.initSettings)) }
                 )
                 
             case .rootAction:

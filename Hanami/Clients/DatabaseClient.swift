@@ -75,7 +75,7 @@ extension DatabaseClient {
         var results: [MO] = []
         let context = PersistenceController.shared.container.viewContext
         DatabaseClient.queue.sync {
-            if findBeforeFetch, let predicate = predicate {
+            if findBeforeFetch, let predicate {
                 if let objects = materializedObjects(context, predicate) as? [MO], !objects.isEmpty {
                     results = objects
                     return

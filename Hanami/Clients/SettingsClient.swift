@@ -19,6 +19,8 @@ extension DependencyValues {
 struct SettingsClient {
     let setAutoLockPolicy: (_ policy: AutoLockPolicy) -> Effect<Never, Never>
     let getAutoLockPolicy: () -> AutoLockPolicy
+    let setBlurRadius: (_ newRadius: Double) -> Effect<Never, Never>
+    let getBlurRadius: () -> Double
 }
 
 extension SettingsClient: DependencyKey {
@@ -32,6 +34,14 @@ extension SettingsClient: DependencyKey {
             let rawValue = UserDefaults.standard.integer(forKey: Defaults.Security.autolockPolicy)
             
             return AutoLockPolicy(rawValue: rawValue)
+        },
+        setBlurRadius: { newBlurRadius in
+            .fireAndForget {
+                UserDefaults.standard.set(newBlurRadius, forKey: Defaults.Security.blurRadius)
+            }
+        },
+        getBlurRadius: {
+            UserDefaults.standard.double(forKey: Defaults.Security.blurRadius)
         }
     )
 }

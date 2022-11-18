@@ -23,6 +23,15 @@ struct SettingsView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        
+                        Slider(
+                            value: viewStore.binding(\.$blurRadius),
+                            in: Defaults.Security.minBlurRadius...Defaults.Security.maxBlurRadius,
+                            step: Defaults.Security.blurRadiusStep,
+                            minimumValueLabel: Image(systemName: "eye"),
+                            maximumValueLabel: Image(systemName: "eye.slash"),
+                            label: EmptyView.init
+                        )
                     } header: {
                         Text("Privacy")
                     }
