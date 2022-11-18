@@ -63,10 +63,12 @@ struct OfflineMangaReadingView: View {
             .gesture(swipeGesture)
             .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.chapterID) { _ in
-                if viewStore.startFromLastPage {
-                    currentPageIndex = viewStore.pagesCount - 1
-                } else {
-                    currentPageIndex = 0
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    if viewStore.startFromLastPage {
+                        currentPageIndex = viewStore.pagesCount - 1
+                    } else {
+                        currentPageIndex = 0
+                    }
                 }
             }
             .onChange(of: currentPageIndex) {
@@ -95,8 +97,7 @@ struct OfflineMangaReadingView: View {
                                 }
                                 
                                 if let pagesCount = viewStore.pagesCount,
-                                   currentPageIndex < pagesCount,
-                                    currentPageIndex + 1 > 0 {
+                                   currentPageIndex < pagesCount && currentPageIndex + 1 > 0 {
                                     Text("\(currentPageIndex + 1)/\(pagesCount)")
                                 }
                             }

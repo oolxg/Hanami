@@ -52,14 +52,17 @@ struct OnlineMangaReadingView: View {
                         }
                     }
                 }
+                .opacity(viewStore.pagesCount != nil ? 1 : 0)
                 
                 Color.clear
                     .tag(viewStore.afterLastPageIndex)
             }
             .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.pagesCount) { _ in
-                if viewStore.startFromLastPage && viewStore.pagesCount != nil {
-                    currentPageIndex = viewStore.pagesCount! - 1
+                guard let pagesCount = viewStore.pagesCount else { return }
+                
+                if viewStore.startFromLastPage {
+                    currentPageIndex = pagesCount - 1
                 } else {
                     currentPageIndex = 0
                 }
