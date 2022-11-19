@@ -43,7 +43,15 @@ struct RootFeature: ReducerProtocol {
             switch action {
             case .tabChanged(let newTab):
                 state.selectedTab = newTab
-                return newTab != .downloads ? .none : .task { .downloadsAction(.retrieveCachedManga) }
+                
+                switch newTab {
+                case .settings:
+                    return .task { .settingsAction(.recomputeCacheSize) }
+                case .downloads:
+                    return .task { .downloadsAction(.retrieveCachedManga) }
+                default:
+                    return .none
+                }
                 
             case .scenePhaseChanged(let newScenePhase):
                 switch newScenePhase {
@@ -57,7 +65,7 @@ struct RootFeature: ReducerProtocol {
                     return .none
                     
                 case .active:
-                    let autolockPolicy = settingsClient.getAutoLockPolicy()
+                    let autolockPolicy = state.settingsState.autolockPolicy
                     
                     if autolockPolicy == .never {
                         state.isAppLocked = false

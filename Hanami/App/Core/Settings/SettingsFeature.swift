@@ -11,16 +11,26 @@ import ComposableArchitecture
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
-        @BindableState var autoLockPolicy: AutoLockPolicy = .never
+        @BindableState var autolockPolicy: AutoLockPolicy = .never
         @BindableState var blurRadius = Defaults.Security.minBlurRadius
+        @BindableState var useHighResImagesForCaching = false
+        @BindableState var useHighResImagesForOnlineReading = false
+        // size of all loaded mangas and coverArts, excluding cache and info in DB
+        var usedStorageSize = 0.0
     }
     
     enum Action: BindableAction {
         case initSettings
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+        case recomputeCacheSize
+        case clearMangaCache
+        case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
     }
     
     @Dependency(\.settingsClient) private var settingsClient
+    @Dependency(\.logger) private var logger
+    @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.hapticClient) private var hapticClient
 
     var body: some ReducerProtocol<State, Action> {
@@ -28,35 +38,80 @@ struct SettingsFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .initSettings:
-                state.autoLockPolicy = settingsClient.getAutoLockPolicy()
-                state.blurRadius = settingsClient.getBlurRadius()
-                return .none
+                return settingsClient.getSettingsConfig()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.settingsConfigRetrieved)
                 
-            case .binding(\.$autoLockPolicy):
-                var effects: [Effect<Action, Never>] = [
-                    settingsClient.setAutoLockPolicy(state.autoLockPolicy).fireAndForget()
-                ]
+            case .settingsConfigRetrieved(let result):
+                switch result {
+                case .success(let config):
+                    state.blurRadius = config.blurRadius
+                    state.autolockPolicy = config.autolockPolicy
+                    state.useHighResImagesForCaching = config.useHighResImagesForCaching
+                    state.useHighResImagesForOnlineReading = config.useHighResImagesForOnlineReading
+                    return .none
+                    
+                case .failure(let error):
+                    logger.error("Failed to retrieve settings config: \(error)")
+                    return .none
+                }
                 
-                if state.autoLockPolicy != .never && state.blurRadius == Defaults.Security.minBlurRadius {
+            case .recomputeCacheSize:
+                return cacheClient.computeCacheSize()
+                    .receive(on: DispatchQueue.main)
+                    .eraseToEffect(Action.cacheSizeComputed)
+                
+            case .clearMangaCache:
+                return .concatenate(
+                    cacheClient.clearCache().fireAndForget(),
+                    
+                    .task { .recomputeCacheSize }
+                )
+                
+            case .cacheSizeComputed(let result):
+                switch result {
+                case .success(let size):
+                    state.usedStorageSize = size
+                    return .none
+                    
+                case .failure(let error):
+                    logger.error("Failed to compute cache size: \(error)")
+                    return .none
+                }
+                
+            case .binding(\.$autolockPolicy):
+                if state.autolockPolicy != .never && state.blurRadius == Defaults.Security.minBlurRadius {
                     state.blurRadius = Defaults.Security.blurRadiusStep
-                    effects.append(settingsClient.setBlurRadius(state.blurRadius).fireAndForget())
                 }
                 
-                return .merge(effects)
-
-            case .binding(\.$blurRadius):
-                var effects: [Effect<Action, Never>] = [
-                    settingsClient.setBlurRadius(state.blurRadius).fireAndForget()
-                ]
-                
-                if state.blurRadius == Defaults.Security.minBlurRadius {
-                    state.autoLockPolicy = .never
-                    effects.append(
-                        settingsClient.setAutoLockPolicy(state.autoLockPolicy).fireAndForget()
+                return settingsClient.saveSettingsConfig(
+                    SettingsConfig(
+                        autolockPolicy: state.autolockPolicy,
+                        blurRadius: state.blurRadius,
+                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
+                        useHighResImagesForCaching: state.useHighResImagesForCaching
                     )
+                )
+                .fireAndForget()
+                
+            case .binding(\.$blurRadius):
+                if state.blurRadius == Defaults.Security.minBlurRadius {
+                    state.autolockPolicy = .never
                 }
                 
-                return .merge(effects)
+                return settingsClient.saveSettingsConfig(
+                    SettingsConfig(
+                        autolockPolicy: state.autolockPolicy,
+                        blurRadius: state.blurRadius,
+                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
+                        useHighResImagesForCaching: state.useHighResImagesForCaching
+                    )
+                )
+                .fireAndForget()
+                
+            case .binding(\.$useHighResImagesForCaching):
+                
+                return .none
                 
             case .binding:
                 return .none

@@ -13,29 +13,10 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
-                List {
-                    Section {
-                        Picker("Auto-lock", selection: viewStore.binding(\.$autoLockPolicy)) {
-                            ForEach(AutoLockPolicy.allCases) { policy in
-                                Text(policy.value)
-                                    .tag(policy)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        
-                        Slider(
-                            value: viewStore.binding(\.$blurRadius),
-                            in: Defaults.Security.minBlurRadius...Defaults.Security.maxBlurRadius,
-                            step: Defaults.Security.blurRadiusStep,
-                            minimumValueLabel: Image(systemName: "eye"),
-                            maximumValueLabel: Image(systemName: "eye.slash"),
-                            label: EmptyView.init
-                        )
-                    } header: {
-                        Text("Privacy")
-                    }
-                }
+            List {
+                privacySection
+                
+                storageSection
             }
             .navigationTitle("Settings")
             .tint(Color.theme.accent)
@@ -55,3 +36,59 @@ struct SettingsView_Previews: PreviewProvider {
     }
 }
 #endif
+
+extension SettingsView {
+    private var privacySection: some View {
+        Section {
+            WithViewStore(store) { viewStore in
+                Picker("Auto-lock", selection: viewStore.binding(\.$autolockPolicy)) {
+                    ForEach(AutoLockPolicy.allCases) { policy in
+                        Text(policy.value)
+                            .tag(policy)
+                    }
+                }
+                .pickerStyle(.menu)
+                
+                Slider(
+                    value: viewStore.binding(\.$blurRadius),
+                    in: Defaults.Security.minBlurRadius...Defaults.Security.maxBlurRadius,
+                    step: Defaults.Security.blurRadiusStep,
+                    minimumValueLabel: Image(systemName: "eye"),
+                    maximumValueLabel: Image(systemName: "eye.slash"),
+                    label: EmptyView.init
+                )
+            }
+        } header: {
+            Text("Privacy")
+        }
+    }
+    
+    private var storageSection: some View {
+        Section {
+            WithViewStore(store) { viewStore in
+                Toggle("Save manga in high resolution", isOn: viewStore.binding(\.$useHighResImagesForCaching))
+                
+                Toggle(
+                    "Read online manga in high resolution",
+                    isOn: viewStore.binding(\.$useHighResImagesForOnlineReading)
+                )
+                
+                HStack {
+                    Text("Hanami cache")
+                    
+                    Spacer()
+                    
+                    Text("\(viewStore.usedStorageSize.clean()) MB")
+                }
+                
+                Button(role: .destructive) {
+                    viewStore.send(.clearMangaCache)
+                } label: {
+                    Label("Clear cache", systemImage: "trash")
+                }
+            }
+        } header: {
+            Text("Storage Usage")
+        }
+    }
+}

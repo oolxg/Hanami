@@ -17,32 +17,26 @@ extension DependencyValues {
 }
 
 struct SettingsClient {
-    let setAutoLockPolicy: (_ policy: AutoLockPolicy) -> Effect<Never, Never>
-    let getAutoLockPolicy: () -> AutoLockPolicy
-    let setBlurRadius: (_ newRadius: Double) -> Effect<Never, Never>
-    let getBlurRadius: () -> Double
+    let saveSettingsConfig: (_ config: SettingsConfig) -> Effect<Never, Never>
+    let getSettingsConfig: () -> Effect<SettingsConfig, AppError>
 }
 
 extension SettingsClient: DependencyKey {
     static let liveValue = SettingsClient(
-        setAutoLockPolicy: { policy in
+        saveSettingsConfig: { config in
             .fireAndForget {
-                UserDefaults.standard.set(policy.rawValue, forKey: Defaults.Security.autolockPolicy)
+                UserDefaults.standard.set(config.toData(), forKey: Defaults.Security.settingsConfig)
             }
         },
-        getAutoLockPolicy: {
-            let rawValue = UserDefaults.standard.integer(forKey: Defaults.Security.autolockPolicy)
-            
-            return AutoLockPolicy(rawValue: rawValue)
-        },
-        setBlurRadius: { newBlurRadius in
-            .fireAndForget {
-                UserDefaults.standard.set(newBlurRadius, forKey: Defaults.Security.blurRadius)
+        getSettingsConfig: {
+            Future { promise in
+                guard let cfgData = UserDefaults.standard.object(forKey: Defaults.Security.settingsConfig) as? Data,
+                      let config = try? JSONDecoder().decode(SettingsConfig.self, from: cfgData) else {
+                    return promise(.failure(AppError.notFound))
+                }
+                
+                promise(.success(config))
             }
-        },
-        getBlurRadius: {
-            let fetched = UserDefaults.standard.double(forKey: Defaults.Security.blurRadius)
-            return fetched == 0 ? Defaults.Security.minBlurRadius : fetched
-        }
-    )
+            .eraseToEffect()
+        })
 }

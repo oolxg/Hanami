@@ -70,3 +70,5 @@ extension AutoLockPolicy: Identifiable {
 }
 
 extension AutoLockPolicy: CaseIterable { }
+
+extension AutoLockPolicy: Codable { }

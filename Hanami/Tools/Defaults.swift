@@ -14,6 +14,8 @@ enum Defaults {
     }
     
     enum Security {
+        static let settingsConfig = "settingsConfig"
+        
         static let autolockPolicy = "autolockPolicy"
         static let blurRadius = "blurRadius"
         
@@ -21,5 +23,9 @@ enum Defaults {
         static let minBlurRadius = 0.1
         static let maxBlurRadius = 15.0
         static let blurRadiusStep = 0.5
+    }
+    
+    enum Storage {
+        static let shouldUseHigherResoultionImages = "shouldUseHigherResoultionImages"
     }
 }
