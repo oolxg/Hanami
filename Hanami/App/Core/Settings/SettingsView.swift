@@ -41,7 +41,7 @@ extension SettingsView {
     private var privacySection: some View {
         Section {
             WithViewStore(store) { viewStore in
-                Picker("Auto-lock", selection: viewStore.binding(\.$autolockPolicy)) {
+                Picker("Auto-lock", selection: viewStore.binding(\.$config.autolockPolicy)) {
                     ForEach(AutoLockPolicy.allCases) { policy in
                         Text(policy.value)
                             .tag(policy)
@@ -50,7 +50,7 @@ extension SettingsView {
                 .pickerStyle(.menu)
                 
                 Slider(
-                    value: viewStore.binding(\.$blurRadius),
+                    value: viewStore.binding(\.$config.blurRadius),
                     in: Defaults.Security.minBlurRadius...Defaults.Security.maxBlurRadius,
                     step: Defaults.Security.blurRadiusStep,
                     minimumValueLabel: Image(systemName: "eye"),
@@ -66,11 +66,14 @@ extension SettingsView {
     private var storageSection: some View {
         Section {
             WithViewStore(store) { viewStore in
-                Toggle("Save manga in high resolution", isOn: viewStore.binding(\.$useHighResImagesForCaching))
+                Toggle(
+                    "Save manga in high resolution",
+                    isOn: viewStore.binding(\.$config.useHighResImagesForCaching)
+                )
                 
                 Toggle(
                     "Read online manga in high resolution",
-                    isOn: viewStore.binding(\.$useHighResImagesForOnlineReading)
+                    isOn: viewStore.binding(\.$config.useHighResImagesForOnlineReading)
                 )
                 
                 HStack {

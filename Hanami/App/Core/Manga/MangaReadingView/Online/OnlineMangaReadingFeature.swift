@@ -53,7 +53,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         
         case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
 
-        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+        case settingsConfigRetrieved(Result<SettingsFeature.Config, AppError>)
 
         case moveToNextChapter
         case moveToPreviousChapter

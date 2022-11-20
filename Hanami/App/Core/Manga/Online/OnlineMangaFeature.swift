@@ -127,12 +127,18 @@ struct OnlineMangaFeature: ReducerProtocol {
                         hudClient.show(message: "Updated!", backgroundColor: .green)
                     }
                     
+                    let currentPageIndex = state.pagesState?.currentPageIndex
+                    
                     state.pagesState = PagesFeature.State(
                         manga: state.manga,
                         mangaVolumes: response.volumes,
                         chaptersPerPage: 10,
                         online: true
                     )
+                    
+                    if let currentPageIndex {
+                        state.pagesState?.currentPageIndex = currentPageIndex
+                    }
                     
                     return allowHaptic ? hapticClient.generateNotificationFeedback(.success).fireAndForget() : .none
                     
@@ -195,9 +201,11 @@ struct OnlineMangaFeature: ReducerProtocol {
                 }
                 
             case .refreshManga:
-                if let lastRefreshAt = state.lastRefreshedAt, (.now - lastRefreshAt) < 10 {
+                if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
                     hudClient.show(message: "Wait a little to refresh this page", backgroundColor: .yellow)
-                    return .none
+                    return hapticClient
+                        .generateNotificationFeedback(.error)
+                        .fireAndForget()
                 }
                 
                 state.lastRefreshedAt = .now

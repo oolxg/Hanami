@@ -17,7 +17,6 @@
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
 		085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DB65E28E11BD100AF5323 /* NukeUI */; };
-		087E5E832928F8970073D0D7 /* SettingsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 087E5E822928F8970073D0D7 /* SettingsConfig.swift */; };
 		08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45B290169FB001EECD9 /* AuthorFeature.swift */; };
 		08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45D2902A9F5001EECD9 /* AuthorView.swift */; };
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
@@ -152,7 +151,6 @@
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0859979B28F6DBE50095422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		087E5E822928F8970073D0D7 /* SettingsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConfig.swift; sourceTree = "<group>"; };
 		08A8F45B290169FB001EECD9 /* AuthorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorFeature.swift; sourceTree = "<group>"; };
 		08A8F45D2902A9F5001EECD9 /* AuthorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorView.swift; sourceTree = "<group>"; };
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
@@ -516,7 +514,6 @@
 			children = (
 				0829E21C28FC23E10009A907 /* WebAPI */,
 				0829E21D28FC243D0009A907 /* AutolockPolicy.swift */,
-				087E5E822928F8970073D0D7 /* SettingsConfig.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -836,7 +833,6 @@
 				22F4A85528AB29C9008C11A7 /* ChapterView.swift in Sources */,
 				22C49A7A288B579F000A96B9 /* OfflineMangaFeature.swift in Sources */,
 				2245D4BE284109AF005B1C83 /* SearchFeature.swift in Sources */,
-				087E5E832928F8970073D0D7 /* SettingsConfig.swift in Sources */,
 				229F8D95282DBD9400761054 /* HomeFeature.swift in Sources */,
 				22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */,
 				226C05B9287DD6EB00BA0E5C /* MangaClient.swift in Sources */,

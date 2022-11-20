@@ -21,11 +21,11 @@ struct SettingsClient {
     ///
     /// - Parameter config: `SettingsConfig` to be saved
     /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
-    let saveSettingsConfig: (_ config: SettingsConfig) -> Effect<Never, Never>
+    let saveSettingsConfig: (_ config: SettingsFeature.Config) -> Effect<Never, Never>
     /// Retrieve `SettingsConfig` from `UserDefaults`
     ///
     /// - Returns: `Effect<SettingsConfig, AppError>` - returns either `SettingsConfig` or `AppError.notFound`
-    let getSettingsConfig: () -> Effect<SettingsConfig, AppError>
+    let getSettingsConfig: () -> Effect<SettingsFeature.Config, AppError>
 }
 
 extension SettingsClient: DependencyKey {
@@ -37,9 +37,9 @@ extension SettingsClient: DependencyKey {
         },
         getSettingsConfig: {
             Future { promise in
-                let cfgData = UserDefaults.standard.object(forKey: Defaults.Storage.settingsConfig) as? Data
+                let data = UserDefaults.standard.object(forKey: Defaults.Storage.settingsConfig) as? Data
                 
-                guard let cfgData, let config = try? AppUtil.decoder.decode(SettingsConfig.self, from: cfgData) else {
+                guard let data, let config = try? AppUtil.decoder.decode(SettingsFeature.Config.self, from: data) else {
                     return promise(.failure(.notFound))
                 }
                 

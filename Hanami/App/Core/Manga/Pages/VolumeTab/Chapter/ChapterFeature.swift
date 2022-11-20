@@ -89,7 +89,7 @@ struct ChapterFeature: ReducerProtocol {
         case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
         case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
 
-        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+        case settingsConfigRetrieved(Result<SettingsFeature.Config, AppError>)
 
         case checkIfChaptersCached
         case savedInMemoryChaptersRetrieved(Result<Set<UUID>, AppError>)

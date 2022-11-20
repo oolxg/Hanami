@@ -11,21 +11,29 @@ import Nuke
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
-        @BindableState var autolockPolicy: AutoLockPolicy = .never
-        @BindableState var blurRadius = Defaults.Security.minBlurRadius
-        @BindableState var useHighResImagesForCaching = false
-        @BindableState var useHighResImagesForOnlineReading = false
+        @BindableState var config = Config(
+            autolockPolicy: .never,
+            blurRadius: Defaults.Security.minBlurRadius,
+            useHighResImagesForOnlineReading: false,
+            useHighResImagesForCaching: false
+        )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0
         var confirmationDialog: ConfirmationDialogState<Action>?
     }
     
+    struct Config: Codable, Equatable {
+        var autolockPolicy: AutoLockPolicy
+        var blurRadius: Double
+        var useHighResImagesForOnlineReading: Bool
+        var useHighResImagesForCaching: Bool
+    }
+    
     enum Action: BindableAction, Equatable {
         case initSettings
-        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+        case settingsConfigRetrieved(Result<Config, AppError>)
         case recomputeCacheSize
         case clearMangaCache
-        
         case clearMangaCacheConfirmed
         case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
@@ -50,10 +58,7 @@ struct SettingsFeature: ReducerProtocol {
             case .settingsConfigRetrieved(let result):
                 switch result {
                 case .success(let config):
-                    state.blurRadius = config.blurRadius
-                    state.autolockPolicy = config.autolockPolicy
-                    state.useHighResImagesForCaching = config.useHighResImagesForCaching
-                    state.useHighResImagesForOnlineReading = config.useHighResImagesForOnlineReading
+                    state.config = config
                     return .none
                     
                 case .failure(let error):
@@ -105,57 +110,25 @@ struct SettingsFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .binding(\.$autolockPolicy):
-                if state.autolockPolicy != .never && state.blurRadius == Defaults.Security.minBlurRadius {
-                    state.blurRadius = Defaults.Security.blurRadiusStep
+            case .binding(\.$config.autolockPolicy):
+                if state.config.autolockPolicy != .never && state.config.blurRadius == Defaults.Security.minBlurRadius {
+                    state.config.blurRadius = Defaults.Security.blurRadiusStep
                 }
                 
-                return settingsClient.saveSettingsConfig(
-                    SettingsConfig(
-                        autolockPolicy: state.autolockPolicy,
-                        blurRadius: state.blurRadius,
-                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
-                        useHighResImagesForCaching: state.useHighResImagesForCaching
-                    )
-                )
-                .fireAndForget()
+                return settingsClient.saveSettingsConfig(state.config).fireAndForget()
                 
-            case .binding(\.$blurRadius):
-                if state.blurRadius == Defaults.Security.minBlurRadius {
-                    state.autolockPolicy = .never
+            case .binding(\.$config.blurRadius):
+                if state.config.blurRadius == Defaults.Security.minBlurRadius {
+                    state.config.autolockPolicy = .never
                 }
                 
-                return settingsClient.saveSettingsConfig(
-                    SettingsConfig(
-                        autolockPolicy: state.autolockPolicy,
-                        blurRadius: state.blurRadius,
-                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
-                        useHighResImagesForCaching: state.useHighResImagesForCaching
-                    )
-                )
-                .fireAndForget()
+                return settingsClient.saveSettingsConfig(state.config).fireAndForget()
                 
-            case .binding(\.$useHighResImagesForCaching):
-                return settingsClient.saveSettingsConfig(
-                    SettingsConfig(
-                        autolockPolicy: state.autolockPolicy,
-                        blurRadius: state.blurRadius,
-                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
-                        useHighResImagesForCaching: state.useHighResImagesForCaching
-                    )
-                )
-                .fireAndForget()
+            case .binding(\.$config.useHighResImagesForCaching):
+                return settingsClient.saveSettingsConfig(state.config).fireAndForget()
                 
-            case .binding(\.$useHighResImagesForOnlineReading):
-                return settingsClient.saveSettingsConfig(
-                    SettingsConfig(
-                        autolockPolicy: state.autolockPolicy,
-                        blurRadius: state.blurRadius,
-                        useHighResImagesForOnlineReading: state.useHighResImagesForOnlineReading,
-                        useHighResImagesForCaching: state.useHighResImagesForCaching
-                    )
-                )
-                .fireAndForget()
+            case .binding(\.$config.useHighResImagesForOnlineReading):
+                return settingsClient.saveSettingsConfig(state.config).fireAndForget()
         
             case .binding:
                 return .none

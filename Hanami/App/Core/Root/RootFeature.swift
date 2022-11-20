@@ -37,7 +37,8 @@ struct RootFeature: ReducerProtocol {
     
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.authClient) private var authClient
-    
+    @Dependency(\.logger) private var logger
+
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
@@ -65,7 +66,7 @@ struct RootFeature: ReducerProtocol {
                     return .none
                     
                 case .active:
-                    let autolockPolicy = state.settingsState.autolockPolicy
+                    let autolockPolicy = state.settingsState.config.autolockPolicy
                     
                     if autolockPolicy == .never {
                         state.isAppLocked = false
@@ -74,9 +75,7 @@ struct RootFeature: ReducerProtocol {
 
                     guard state.isAppLocked else { return .none }
                     
-                    let now = Date()
-                    
-                    if let appLastUsed = state.appLastUsedAt, Int(now - appLastUsed) < autolockPolicy.autolockDelay {
+                    if let appLastUsed = state.appLastUsedAt, Int(.now - appLastUsed) < autolockPolicy.autolockDelay {
                         state.isAppLocked = false
                         return .none
                     }
@@ -86,6 +85,7 @@ struct RootFeature: ReducerProtocol {
                         .eraseToEffect(Action.appAuthCompleted)
                     
                 @unknown default:
+                    logger.info("New ScenePhase arrived!")
                     return .none
                 }
                 
