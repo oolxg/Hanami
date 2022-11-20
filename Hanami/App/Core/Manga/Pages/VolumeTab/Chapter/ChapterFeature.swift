@@ -62,16 +62,19 @@ struct ChapterFeature: ReducerProtocol {
         
         var confirmationDialog: ConfirmationDialogState<Action>?
         
+        var useHighResImagesForCaching: Bool?
+        
         var cachedChaptersStates = Set<CachedChapterState>()
-        struct CachedChapterState: Equatable, Hashable, Identifiable {
-            let id: UUID
-            let status: Status
-            let pagesCount: Int
-            let pagesFetched: Int
-            
-            enum Status {
-                case cached, downloadInProgress, downloadFailed
-            }
+    }
+    
+    struct CachedChapterState: Equatable, Hashable, Identifiable {
+        let id: UUID
+        let status: Status
+        let pagesCount: Int
+        let pagesFetched: Int
+        
+        enum Status {
+            case cached, downloadInProgress, downloadFailed
         }
     }
     
@@ -85,7 +88,9 @@ struct ChapterFeature: ReducerProtocol {
         case userTappedOnChapterDetails(chapter: ChapterDetails)
         case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
         case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
-        
+
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+
         case checkIfChaptersCached
         case savedInMemoryChaptersRetrieved(Result<Set<UUID>, AppError>)
         case downloadChapterForOfflineReading(chapter: ChapterDetails)
@@ -100,6 +105,7 @@ struct ChapterFeature: ReducerProtocol {
     
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.databaseClient) private var databaseClient
@@ -114,7 +120,7 @@ struct ChapterFeature: ReducerProtocol {
         case .fetchChapterDetailsIfNeeded:
             var effects: [Effect<Action, Never>] = [
                 databaseClient
-                    .retrieveChaptersForManga(mangaID: state.parentManga.id)
+                    .retrieveAllChaptersForManga(mangaID: state.parentManga.id)
                     .receive(on: DispatchQueue.main)
                     .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
             ]
@@ -122,7 +128,7 @@ struct ChapterFeature: ReducerProtocol {
             let allChapterIDs = [state.chapter.id] + state.chapter.others
             
             for chapterID in allChapterIDs {
-                let possiblyCachedChapterEntry = databaseClient.fetchChapter(chapterID: chapterID)
+                let possiblyCachedChapterEntry = databaseClient.retrieveChapter(chapterID: chapterID)
                 
                 if state.chapterDetailsList[id: chapterID] == nil {
                     // if chapter is cached - no need to fetch it from API
@@ -288,7 +294,7 @@ struct ChapterFeature: ReducerProtocol {
                 .cancel(id: CancelChapterCache(id: chapterID))
             ]
             
-            if let pagesCount = databaseClient.fetchChapter(chapterID: chapterID)?.pagesCount {
+            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
                 effects.append(
                     mangaClient
                         .removeCachedPagesForChapter(chapterID, pagesCount, cacheClient)
@@ -311,12 +317,7 @@ struct ChapterFeature: ReducerProtocol {
                 for cID in cachedChapterIDs where !state.cachedChaptersStates.contains(where: { $0.id == cID }) {
                     // have to check, because this state also contains chapters, whose download process is in progress
                     state.cachedChaptersStates.insertOrUpdateByID(
-                        .init(
-                            id: cID,
-                            status: .cached,
-                            pagesCount: 0,
-                            pagesFetched: 0
-                        )
+                        .init(id: cID, status: .cached, pagesCount: 0, pagesFetched: 0)
                     )
                 }
                 
@@ -328,7 +329,7 @@ struct ChapterFeature: ReducerProtocol {
                     context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
                 )
                 return databaseClient
-                    .retrieveChaptersForManga(mangaID: state.parentManga.id)
+                    .retrieveAllChaptersForManga(mangaID: state.parentManga.id)
                     .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
             }
             
@@ -342,24 +343,42 @@ struct ChapterFeature: ReducerProtocol {
                 )
             )
             
-            return mangaClient.fetchPagesInfo(chapter.id)
-                .receive(on: DispatchQueue.main)
-                .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
+            return .concatenate(
+                // need to retrieve `SettingsConfig` each time, because use can update it and we have no listeners on this updates
+                settingsClient.getSettingsConfig()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.settingsConfigRetrieved),
+                
+                mangaClient.fetchPagesInfo(chapter.id)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { Action.pagesInfoForChapterCachingFetched($0, chapter) }
+            )
+            
+        case .settingsConfigRetrieved(let result):
+            switch result {
+            case .success(let config):
+                state.useHighResImagesForCaching = config.useHighResImagesForCaching
+                return .none
+            case .failure(let error):
+                logger.error("Failed to retrieve SettingsConfig: \(error)")
+                return .none
+            }
             
         case .pagesInfoForChapterCachingFetched(let result, let chapter):
             switch result {
             case .success(let pagesInfo):
+                let pagesURLs = pagesInfo.getPagesURLs(highResolution: state.useHighResImagesForCaching ?? false)
+                
                 state.cachedChaptersStates.insertOrUpdateByID(
                     .init(
                         id: chapter.id,
                         status: .downloadInProgress,
-                        pagesCount: pagesInfo.pagesURLs.count,
+                        pagesCount: pagesURLs.count,
                         pagesFetched: 0
                     )
                 )
                 
-                var effects = pagesInfo
-                    .pagesURLs
+                var effects = pagesURLs
                     .enumerated()
                     .map { i, url in
                         imageClient
@@ -374,7 +393,7 @@ struct ChapterFeature: ReducerProtocol {
                     databaseClient
                         .saveChapterDetails(
                             chapter,
-                            pagesCount: pagesInfo.pagesURLs.count,
+                            pagesCount: pagesURLs.count,
                             parentManga: state.parentManga
                         )
                         .fireAndForget()
@@ -478,7 +497,7 @@ struct ChapterFeature: ReducerProtocol {
                     )
                 )
                 
-                if let pagesCount = databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount {
+                if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
                     effects.append(
                         mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount, cacheClient).fireAndForget()
                     )

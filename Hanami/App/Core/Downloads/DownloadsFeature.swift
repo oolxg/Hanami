@@ -26,7 +26,7 @@ struct DownloadsFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .retrieveCachedManga:
-                return databaseClient.fetchAllCachedMangas()
+                return databaseClient.retrieveAllCachedMangas()
                     .catchToEffect(Action.cachedMangaFetched)
                 
             case .cachedMangaFetched(let result):

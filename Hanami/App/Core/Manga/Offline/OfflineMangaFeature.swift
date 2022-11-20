@@ -60,7 +60,7 @@ struct OfflineMangaFeature: ReducerProtocol {
             switch action {
             case .onAppear:
                 return databaseClient
-                    .retrieveChaptersForManga(mangaID: state.manga.id)
+                    .retrieveAllChaptersForManga(mangaID: state.manga.id)
                     .receive(on: DispatchQueue.main)
                     .catchToEffect(Action.cachedChaptersRetrieved)
                 
@@ -101,18 +101,23 @@ struct OfflineMangaFeature: ReducerProtocol {
                 
             case .deleteManga:
                 return databaseClient
-                    .retrieveChaptersForManga(mangaID: state.manga.id)
+                    .retrieveAllChaptersForManga(mangaID: state.manga.id)
                     .catchToEffect(Action.chaptersForMangaDeletionRetrieved)
                 
             case .chaptersForMangaDeletionRetrieved(let result):
                 switch result {
                 case .success(let chapters):
                     var effects: [Effect<Action, Never>] = [
-                        databaseClient.deleteManga(mangaID: state.manga.id)
+                        databaseClient
+                            .deleteManga(mangaID: state.manga.id)
                             .fireAndForget(),
                         
                         cacheClient
                             .removeAllCachedChapterIDsFromMemory(state.manga.id)
+                            .fireAndForget(),
+                        
+                        mangaClient
+                            .deleteCoverArt(state.manga.id, cacheClient)
                             .fireAndForget()
                     ]
                     
@@ -150,7 +155,7 @@ struct OfflineMangaFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
-                guard let retrievedChapter = databaseClient.fetchChapter(chapterID: chapter.id) else {
+                guard let retrievedChapter = databaseClient.retrieveChapter(chapterID: chapter.id) else {
                     hudClient.show(message: "😢 Error on retrieving saved chapter")
                     return .none
                 }

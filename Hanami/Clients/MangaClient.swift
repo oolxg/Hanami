@@ -19,16 +19,54 @@ extension DependencyValues {
 struct MangaClient {
     // swiftlint:disable line_length
     // MARK: - Networking
+    /// Fetch from MangaDex API aggregated manga chapters
+    ///
+    /// - Parameter mangaID: Manga's `UUID`, whose chapter are need to be fetched
+    /// - Parameter scanlationGroupID: (Optional) Scanlation Group's 'UUID' of chapters
+    /// - Parameter translatedLang: (Optional) Language of chapters
+    /// - Returns: `Effect<...>` with either `Chapter` splitted in `Volumes` or `AppError`
     let fetchMangaChapters: (_ mangaID: UUID, _ scanlationGroupID: UUID?, _ translatedLang: String?) -> Effect<VolumesContainer, AppError>
+    /// Fetch statistics for manga(bookmarks and rating)
+    ///
+    /// - Parameter mangaID: Manga's `UUID`, whose statistic are need to be fetched
+    /// - Returns: `Effect<...>` with either Container of UUID - `MangaStatistics` or `AppError`
     let fetchMangaStatistics: (_ mangaID: UUID) -> Effect<MangaStatisticsContainer, AppError>
+    /// Fetch all `CoverArtInfo` for given MangaID
+    ///
+    /// - Parameter mangaID: Manga's `UUID`, whose `CoverArtInfo` are need to be fetched
+    /// - Returns: `Effect<...>` with either sorted array(by `createdAt`, desc) of all `CoverArtInfo` or `AppError`
     let fetchAllCoverArtsForManga: (_ mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
+    /// Fetch  `ChapterDetails` for given chapter ID
+    ///
+    /// - Parameter chapterID: Chapter ID of `ChapterDetails`, that need to be fetched
+    /// - Returns: `Effect<...>` with either `Response<ChapterDetails>` or `AppError`
     let fetchChapterDetails: (_ chapterID: UUID) -> Effect<Response<ChapterDetails>, AppError>
+    /// Fetch `ScanlationGroup` for given chapter ID
+    ///
+    /// - Parameter scanlationGroupID: ID of ScanlationGroup, can be found in `ChapterDetails`'s `Relationship`
+    /// - Returns: `Effect<...>` with either `Response<ScanlationGroup>` or `AppError`
     let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError>
+    /// Fetch `PagesInfo` for given chapter
+    ///
+    /// - Parameter chapterID: ID of Chapter, can be found in `ChapterDetails`'s `Relationship`
+    /// - Returns: `Effect<ScanlationGroup>` or AppError
     let fetchPagesInfo: (_ chapterID: UUID) -> Effect<ChapterPagesInfo, AppError>
+    /// Fetch `CoverArtInfo` with given coverArtID
+    ///
+    /// - Parameter coverArtID: ID of CoverArt to be fetched
+    /// - Returns: `Effect<...>` with either `Response<CoverArtInfo>` or `AppError`
     let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
+    /// Fetch `Author` with given ID
+    ///
+    /// - Parameter authorID: ID of Author to be fetched
+    /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
     let fetchAuthorByID: (_ authorID: UUID) -> Effect<Response<Author>, AppError>
     
     // MARK: - Actions inside App
+    /// Fetch `Author` with given ID
+    ///
+    /// - Parameter authorID: ID of Author to be fetched
+    /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
     let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabFeature.State]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
@@ -36,10 +74,27 @@ struct MangaClient {
     let findDidReadChapterOnMangaPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabFeature.State>) -> (volumeID: UUID, chapterID: UUID)?
     
     let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    let deleteCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
     let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    /// Check whether cover art for manga cached or not
+    ///
+    /// - Parameter mangaID: ID of manga, whose cover art need to be checked
+    /// - Parameter cacheClient: `CacheClient`
+    /// - Returns: `Bool` - if cached `true`, otherwise - `false`
     let isCoverArtCached: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
+    /// Get all pathes for cached chapter's pages
+    ///
+    /// - Parameter chapterID: ID of chapter, whose pages's paths are need to be found
+    /// - Parameter pagesCount: Count of pages in the chapter, whose ID was given
+    /// - Parameter cacheClient: `CacheClient`
+    /// - Returns: `[URL?]` - array of `Optional(URL)` leading to cached pages
     let getPathsForCachedChapterPages: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> [URL?]
+    /// Get path on disk for manga's cover art
+    ///
+    /// - Parameter mangaID: ID of manga, whose cover art is need to be found
+    /// - Parameter cacheClient: `CacheClient`
+    /// - Returns: `URL`, leading to cover art or `nil`
     let getCoverArtPath: (_ mangaID: UUID, _ cacheClient: CacheClient) -> URL?
     // swiftlint:enable line_length
 }
@@ -188,6 +243,11 @@ extension MangaClient: DependencyKey {
             let imageName = getCoverArtName(mangaID: mangaID)
             
             return cacheClient.cacheImage(coverArt, imageName).fireAndForget()
+        },
+        deleteCoverArt: { mangaID, cacheClient in
+            let imageName = getCoverArtName(mangaID: mangaID)
+            
+            return cacheClient.removeImage(imageName).fireAndForget()
         },
         saveChapterPage: { chapterPage, pageIndex, chapterID, cacheClient in
             let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)

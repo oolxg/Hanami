@@ -24,7 +24,7 @@ struct OnlineMangaReadingView: View {
         let afterLastPageIndex: Int
         
         init(state: OnlineMangaReadingFeature.State) {
-            pagesURLs = state.pagesInfo?.pagesURLs ?? []
+            pagesURLs = state.pagesURLs ?? []
             pagesCount = state.pagesCount
             startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex

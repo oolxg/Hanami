@@ -78,17 +78,23 @@ extension SettingsView {
                     
                     Spacer()
                     
-                    Text("\(viewStore.usedStorageSize.clean()) MB")
+                    Text("\(viewStore.usedStorageSpace.clean()) MB")
                 }
                 
-                Button(role: .destructive) {
-                    viewStore.send(.clearMangaCache)
-                } label: {
-                    Label("Clear cache", systemImage: "trash")
+                if viewStore.usedStorageSpace > 0 {
+                    Button(role: .destructive) {
+                        viewStore.send(.clearMangaCache)
+                    } label: {
+                        Label("Delete all manga", systemImage: "trash")
+                            .confirmationDialog(
+                                store.scope(state: \.confirmationDialog),
+                                dismiss: .cancelTapped
+                            )
+                    }
                 }
             }
         } header: {
-            Text("Storage Usage")
+            Text("Storage and Network")
         }
     }
 }

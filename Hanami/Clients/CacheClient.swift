@@ -133,10 +133,8 @@ extension CacheClient: DependencyKey {
             }
         },
         isCached: { imageName in
-            // force try can be used, because the function 'existsObject(forKey: )' is only marked as `throws`,
-            // but it does not throw
-            // swiftlint:disable:next force_try
-            try! imageStorage.existsObject(forKey: imageName)
+            guard let result = try? imageStorage.existsObject(forKey: imageName) else { return false }
+            return result
         },
         clearCache: {
             .fireAndForget {

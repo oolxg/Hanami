@@ -24,12 +24,12 @@ extension URLSession {
             .decode(type: T.self, decoder: decoder)
             .mapError { err -> AppError in
                 if let err = err as? URLError {
-                    return AppError.networkError(err)
+                    return .networkError(err)
                 } else if let err = err as? DecodingError {
-                    return AppError.decodingError(err)
+                    return .decodingError(err)
                 }
                 
-                return AppError.unknownError(err)
+                return .unknownError(err)
             }
             .eraseToEffect()
     }

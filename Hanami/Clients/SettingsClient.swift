@@ -17,7 +17,14 @@ extension DependencyValues {
 }
 
 struct SettingsClient {
+    /// Save `SettingsConfig` in `UserDefaults`
+    ///
+    /// - Parameter config: `SettingsConfig` to be saved
+    /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
     let saveSettingsConfig: (_ config: SettingsConfig) -> Effect<Never, Never>
+    /// Retrieve `SettingsConfig` from `UserDefaults`
+    ///
+    /// - Returns: `Effect<SettingsConfig, AppError>` - returns either `SettingsConfig` or `AppError.notFound`
     let getSettingsConfig: () -> Effect<SettingsConfig, AppError>
 }
 
@@ -25,14 +32,15 @@ extension SettingsClient: DependencyKey {
     static let liveValue = SettingsClient(
         saveSettingsConfig: { config in
             .fireAndForget {
-                UserDefaults.standard.set(config.toData(), forKey: Defaults.Security.settingsConfig)
+                UserDefaults.standard.set(config.toData(), forKey: Defaults.Storage.settingsConfig)
             }
         },
         getSettingsConfig: {
             Future { promise in
-                guard let cfgData = UserDefaults.standard.object(forKey: Defaults.Security.settingsConfig) as? Data,
-                      let config = try? JSONDecoder().decode(SettingsConfig.self, from: cfgData) else {
-                    return promise(.failure(AppError.notFound))
+                let cfgData = UserDefaults.standard.object(forKey: Defaults.Storage.settingsConfig) as? Data
+                
+                guard let cfgData, let config = try? AppUtil.decoder.decode(SettingsConfig.self, from: cfgData) else {
+                    return promise(.failure(.notFound))
                 }
                 
                 promise(.success(config))

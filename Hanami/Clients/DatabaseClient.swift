@@ -149,7 +149,7 @@ extension DatabaseClient {
             } else {
                 storedMO = fetch(entityType: entityType, predicate: predicate)
             }
-            if let storedMO = storedMO {
+            if let storedMO {
                 commitChanges(storedMO)
                 saveContext()
             }
@@ -190,7 +190,7 @@ extension DatabaseClient {
             } else {
                 storedMO = fetch(entityType: entityType, id: id)
             }
-            if let storedMO = storedMO {
+            if let storedMO {
                 commitChanges(storedMO)
                 saveContext()
             }
@@ -200,14 +200,17 @@ extension DatabaseClient {
     private func remove<MO: IdentifiableMO>(entityType: MO.Type, id: UUID) {
         let storedMO = fetch(entityType: entityType, id: id)
         
-        if let storedMO = storedMO {
+        if let storedMO {
             PersistenceController.shared.container.viewContext.delete(storedMO)
         }
     }
 }
 
 extension DatabaseClient {
-    func fetchAllCachedMangas() -> Effect<[Manga], Never> {
+    /// Retrieve all saved in DB manga
+    ///
+    /// - Returns: `Effect<[Manga], Never>` - Effect with either array of saved on device manga or nothing
+    func retrieveAllCachedMangas() -> Effect<[Manga], Never> {
         Future { promise in
             promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
         }
@@ -215,20 +218,46 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
+    /// Delete manga with given ID from DB synchronically
+    ///
+    /// - Parameter mangaID: Manga's id, to be deleted from DB
     private func _deleteManga(mangaID: UUID) {
         remove(entityType: MangaMO.self, id: mangaID)
         
         saveContext()
     }
     
+    /// Delete manga with given ID from DB
+    ///
+    /// - Parameter mangaID: Manga's id, to be deleted from DB
+    /// - Returns: `Effect<Never, Never>` - returns nothing
     func deleteManga(mangaID: UUID) -> Effect<Never, Never> {
         .fireAndForget {
             _deleteManga(mangaID: mangaID)
         }
     }
+    
+    /// Delete all mangas from DB
+    ///
+    /// - Returns: `Effect<Never, Never>` - returns nothing
+    func deleteAllMangas() -> Effect<Never, Never> {
+        .fireAndForget {
+            let mangas = batchFetch(entityType: MangaMO.self)
+            
+            for manga in mangas {
+                _deleteManga(mangaID: manga.id)
+            }
+        }
+    }
 }
 
 extension DatabaseClient {
+    /// Save `ChapterDetails` in DB
+    ///
+    /// - Parameter chapterDetails: `ChapterDetails` to be saved in DB
+    /// - Parameter pagesCount: count of pages in chapter
+    /// - Parameter parentManga: Manga, whom belongs chapter
+    /// - Returns: `Effect<Never, Never>` - returns nothing
     func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
@@ -263,7 +292,12 @@ extension DatabaseClient {
         }
     }
     
-    func retrieveChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CachedChapterEntry], AppError> {
+    /// Retrieve all chapters from manga with given ID from DB
+    ///
+    /// - Parameter mangaID: manga's ID, whose chapter need to be retrieved
+    /// - Parameter scanlationGroupID: ID of scanlation group - need this if we need to fetch only chapters from specific Scanlation Group
+    /// - Returns: `Effect` either with array of `CachedChapterEntry` or `AppError.notFound`
+    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CachedChapterEntry], AppError> {
         Future { promise in
             DispatchQueue.main.async {
                 guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
@@ -271,7 +305,7 @@ extension DatabaseClient {
                     return
                 }
                 
-                if let scanlationGroupID = scanlationGroupID {
+                if let scanlationGroupID {
                     let filtered = manga.chapterDetailsList.filter { $0.chapter.scanlationGroupID == scanlationGroupID }
                     return promise(.success(filtered))
                 }
@@ -282,7 +316,11 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func fetchChapter(chapterID: UUID) -> CachedChapterEntry? {
+    /// Retrieve chapter with given ID from DB
+    ///
+    /// - Parameter chapterID: chapter's `UUID` to be found in DB
+    /// - Returns: `CachedChapterEntry?` - nil if nothing was found or struct with `ChapterDetails` and number of pages in this chapter
+    func retrieveChapter(chapterID: UUID) -> CachedChapterEntry? {
         guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
             return nil
         }
@@ -290,6 +328,10 @@ extension DatabaseClient {
         return CachedChapterEntry(chapter: chapterMO.toEntity(), pagesCount: chapterMO.pagesCount)
     }
     
+    /// Delete chapter with given ID from DB
+    ///
+    /// - Parameter chapterID: chapter's `UUID` to be delete
+    /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
     func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {

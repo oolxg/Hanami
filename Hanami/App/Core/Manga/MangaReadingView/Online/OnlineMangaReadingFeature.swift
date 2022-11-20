@@ -36,11 +36,12 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         // if user reaches this index, means we have to send him to the next chapter
         let afterLastPageIndex = 999
         
-        var pagesInfo: ChapterPagesInfo?
+        var pagesURLs: [URL]?
         
         var pagesCount: Int? {
-            pagesInfo?.pagesURLs.count
+            pagesURLs?.count
         }
+        var useHighResImages = false
         
         var sameScanlationGroupChapters: [Chapter] = []
     }
@@ -51,7 +52,9 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case userChangedPage(newPageIndex: Int)
         
         case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
-        
+
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+
         case moveToNextChapter
         case moveToPreviousChapter
         case changeChapter(newChapterIndex: Double)
@@ -59,6 +62,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     }
     
     @Dependency(\.mangaClient) private var mangaClient
+    @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
@@ -67,9 +71,13 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
         switch action {
         case .userStartedReadingChapter:
-            var effects: [Effect<Action, Never>] = []
+            var effects = [
+                settingsClient.getSettingsConfig()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.settingsConfigRetrieved)
+            ]
             
-            if state.pagesInfo == nil {
+            if state.pagesURLs == nil {
                 effects.append(
                     mangaClient.fetchPagesInfo(state.chapterID)
                         .receive(on: DispatchQueue.main)
@@ -89,15 +97,27 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 )
             }
             
-            return .merge(effects)
+            return .concatenate(effects)
+            
+        case .settingsConfigRetrieved(let result):
+            switch result {
+            case .success(let config):
+                state.useHighResImages = config.useHighResImagesForOnlineReading
+                return .none
+                
+            case .failure(let error):
+                logger.error("Failed to retrieve settingsConfig: \(error)")
+                return .none
+            }
+            
             
         case .chapterPagesInfoFetched(let result):
             switch result {
             case .success(let chapterPagesInfo):
-                state.pagesInfo = chapterPagesInfo
+                state.pagesURLs = chapterPagesInfo.getPagesURLs(highResolution: state.useHighResImages)
                 
                 return imageClient
-                    .prefetchImages(chapterPagesInfo.pagesURLs)
+                    .prefetchImages(state.pagesURLs!)
                     .fireAndForget()
                 
             case .failure(let error):
@@ -109,7 +129,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             }
             
         case .userChangedPage(let newPageIndex):
-            guard state.pagesInfo != nil else { return .none }
+            guard state.pagesURLs != nil else { return .none }
             
             if newPageIndex == -1 {
                 return .task { .moveToPreviousChapter }

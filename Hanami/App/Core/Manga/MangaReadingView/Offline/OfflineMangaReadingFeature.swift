@@ -68,7 +68,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 let scanlationGroupID = state.chapter.scanlationGroupID
                 effects.append(
                     databaseClient
-                        .retrieveChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
+                        .retrieveAllChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
                         .receive(on: DispatchQueue.main)
                         .catchToEffect(Action.sameScanlationGroupChaptersRetrieved)
                 )
@@ -121,7 +121,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             let chapter = state.sameScanlationGroupChapters[chapterIndex]
             
             
-            guard let pagesCount = databaseClient.fetchChapter(chapterID: chapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount else {
                 hudClient.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }
@@ -150,7 +150,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             }
             
             let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
-            guard let pagesCount = databaseClient.fetchChapter(chapterID: nextChapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(chapterID: nextChapter.id)?.pagesCount else {
                 hudClient.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }
@@ -180,7 +180,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
             let previousChapter = state.sameScanlationGroupChapters[previousChapterIndex]
             
-            guard let pagesCount = databaseClient.fetchChapter(chapterID: previousChapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(chapterID: previousChapter.id)?.pagesCount else {
                 hudClient.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }

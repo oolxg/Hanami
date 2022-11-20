@@ -15,6 +15,7 @@ struct ChapterPagesInfo: Decodable {
     // MARK: - PagesInfo
     struct PagesInfo: Decodable {
         let hash: String
+        let data: [String]
         let dataSaver: [String]
     }
     
@@ -31,9 +32,9 @@ extension ChapterPagesInfo: Equatable {
 }
 
 extension ChapterPagesInfo {
-    var pagesURLs: [URL] {
-        pagesInfo.dataSaver.map { fileName in
-            URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(fileName)")!
-        }
+    func getPagesURLs(highResolution: Bool) -> [URL] {
+        highResolution ?
+            pagesInfo.data.map { file in URL(string: "\(baseURL)/data/\(pagesInfo.hash)/\(file)")! } :
+            pagesInfo.dataSaver.map { file in URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(file)")! }
     }
 }

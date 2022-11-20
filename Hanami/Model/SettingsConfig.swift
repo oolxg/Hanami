@@ -13,3 +13,5 @@ struct SettingsConfig: Codable {
     let useHighResImagesForOnlineReading: Bool
     let useHighResImagesForCaching: Bool
 }
+
+extension SettingsConfig: Equatable { }
