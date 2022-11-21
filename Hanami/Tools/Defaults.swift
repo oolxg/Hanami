@@ -14,9 +14,6 @@ enum Defaults {
     }
     
     enum Security {
-        static let autolockPolicy = "autolockPolicy"
-        static let blurRadius = "blurRadius"
-        
         // set `minBlurRadius` to 0.1 because setting it lower value causes UI bug
         static let minBlurRadius = 0.1
         static let maxBlurRadius = 20.1

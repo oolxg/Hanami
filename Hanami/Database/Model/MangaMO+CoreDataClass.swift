@@ -13,7 +13,7 @@ public class MangaMO: NSManagedObject { }
 
 extension MangaMO: IdentifiableMO { }
 
-extension MangaMO: ManagedObjectProtocol {
+extension MangaMO {
     func toEntity() -> Manga {
         Manga(
             id: id,
@@ -23,7 +23,7 @@ extension MangaMO: ManagedObjectProtocol {
     }
 }
 
-extension Manga: ManagedObjectConvertible {
+extension Manga {
     @discardableResult
     func toManagedObject(in context: NSManagedObjectContext, withRelationships chapters: Set<ChapterDetailsMO>? = []) -> MangaMO {
         let mangaMO = MangaMO(context: context)

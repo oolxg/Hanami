@@ -17,7 +17,6 @@ extension View {
         isPresented: Binding<Bool>,
         message: String,
         iconName: String? = nil,
-        hideAfter hideInterval: Double,
         backgroundColor: Color
     ) -> some View {
         ZStack(alignment: .top) {

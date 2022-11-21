@@ -13,7 +13,7 @@ public class ChapterDetailsMO: NSManagedObject { }
 
 extension ChapterDetailsMO: IdentifiableMO { }
 
-extension ChapterDetailsMO: ManagedObjectProtocol {
+extension ChapterDetailsMO {
     func toEntity() -> ChapterDetails {
         ChapterDetails(
             attributes: attributes.decodeToObject()!,
@@ -23,7 +23,7 @@ extension ChapterDetailsMO: ManagedObjectProtocol {
     }
 }
 
-extension ChapterDetails: ManagedObjectConvertible {
+extension ChapterDetails {
     @discardableResult
     func toManagedObject(in context: NSManagedObjectContext, withRelationships manga: MangaMO?) -> ChapterDetailsMO {
         let chapterDetailsMO = ChapterDetailsMO(context: context)

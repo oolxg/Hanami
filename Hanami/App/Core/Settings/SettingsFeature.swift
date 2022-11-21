@@ -37,7 +37,6 @@ struct SettingsFeature: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
     @Dependency(\.cacheClient) private var cacheClient
-    @Dependency(\.hapticClient) private var hapticClient
 
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()

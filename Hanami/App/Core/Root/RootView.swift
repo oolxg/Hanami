@@ -81,7 +81,6 @@ struct RootView: View {
                 isPresented: $hudState.isPresented,
                 message: hudState.message,
                 iconName: hudState.iconName,
-                hideAfter: hudState.hideAfter,
                 backgroundColor: hudState.backgroundColor
             )
             .autoBlur(radius: viewStore.blurRadius)

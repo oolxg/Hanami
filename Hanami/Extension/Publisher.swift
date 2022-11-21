@@ -9,7 +9,8 @@ import Foundation
 import Combine
 
 extension Publisher {
-    func debugDecode<Item: Decodable>(type: Item.Type, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<Output, Never> where Self.Output == Data {
+    #if DEBUG
+    func debugDecode<Item: Decodable>(type: Item.Type, decoder: JSONDecoder = AppUtil.decoder) -> AnyPublisher<Output, Never> where Self.Output == Data {
         map { data in
             var isError = true
             
@@ -40,6 +41,7 @@ extension Publisher {
         .catch { _ in Empty() }
         .eraseToAnyPublisher()
     }
+    #endif
     
     func validateResponseCode() -> AnyPublisher<Output, Error> where Output == URLSession.DataTaskPublisher.Output {
         tryMap { output in

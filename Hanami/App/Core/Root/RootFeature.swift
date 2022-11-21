@@ -35,7 +35,6 @@ struct RootFeature: ReducerProtocol {
         case settingsAction(SettingsFeature.Action)
     }
     
-    @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.authClient) private var authClient
     @Dependency(\.logger) private var logger
 
