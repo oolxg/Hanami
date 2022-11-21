@@ -10,8 +10,10 @@ import Foundation
 extension Data {
     func decodeToObject<O: Decodable>(decoder: JSONDecoder = AppUtil.decoder) -> O? {
         var isError = true
+        var result: O?
+        
         do {
-            _ = try decoder.decode(O.self, from: self)
+            result = try decoder.decode(O.self, from: self)
             isError = false
         } catch let DecodingError.dataCorrupted(context) {
             print(context)
@@ -32,6 +34,6 @@ extension Data {
             print(String(data: self, encoding: .utf8)!)
         }
         
-        return try? decoder.decode(O.self, from: self)
+        return result
     }
 }

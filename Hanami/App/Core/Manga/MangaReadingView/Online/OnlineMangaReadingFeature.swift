@@ -41,7 +41,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         var pagesCount: Int? {
             pagesURLs?.count
         }
-        var useHighResImages = false
+        var useHighQualityImages = false
         
         var sameScanlationGroupChapters: [Chapter] = []
     }
@@ -53,7 +53,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         
         case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
 
-        case settingsConfigRetrieved(Result<SettingsFeature.Config, AppError>)
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
 
         case moveToNextChapter
         case moveToPreviousChapter
@@ -102,7 +102,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case .settingsConfigRetrieved(let result):
             switch result {
             case .success(let config):
-                state.useHighResImages = config.useHighResImagesForOnlineReading
+                state.useHighQualityImages = config.useHigherQualityImagesForOnlineReading
                 return .none
                 
             case .failure(let error):
@@ -114,7 +114,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case .chapterPagesInfoFetched(let result):
             switch result {
             case .success(let chapterPagesInfo):
-                state.pagesURLs = chapterPagesInfo.getPagesURLs(highResolution: state.useHighResImages)
+                state.pagesURLs = chapterPagesInfo.getPagesURLs(highQuality: state.useHighQualityImages)
                 
                 return imageClient
                     .prefetchImages(state.pagesURLs!)

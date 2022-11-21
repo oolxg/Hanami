@@ -67,13 +67,13 @@ extension SettingsView {
         Section {
             WithViewStore(store) { viewStore in
                 Toggle(
-                    "Save manga in high resolution",
-                    isOn: viewStore.binding(\.$config.useHighResImagesForCaching)
+                    "Save manga in higher quality",
+                    isOn: viewStore.binding(\.$config.useHigherQualityImagesForCaching)
                 )
                 
                 Toggle(
-                    "Read online manga in high resolution",
-                    isOn: viewStore.binding(\.$config.useHighResImagesForOnlineReading)
+                    "Read online manga in higher quality",
+                    isOn: viewStore.binding(\.$config.useHigherQualityImagesForOnlineReading)
                 )
                 
                 HStack {

@@ -89,7 +89,7 @@ struct ChapterFeature: ReducerProtocol {
         case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
         case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
 
-        case settingsConfigRetrieved(Result<SettingsFeature.Config, AppError>)
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
 
         case checkIfChaptersCached
         case savedInMemoryChaptersRetrieved(Result<Set<UUID>, AppError>)
@@ -357,7 +357,7 @@ struct ChapterFeature: ReducerProtocol {
         case .settingsConfigRetrieved(let result):
             switch result {
             case .success(let config):
-                state.useHighResImagesForCaching = config.useHighResImagesForCaching
+                state.useHighResImagesForCaching = config.useHigherQualityImagesForCaching
                 return .none
             case .failure(let error):
                 logger.error("Failed to retrieve SettingsConfig: \(error)")
@@ -367,7 +367,7 @@ struct ChapterFeature: ReducerProtocol {
         case .pagesInfoForChapterCachingFetched(let result, let chapter):
             switch result {
             case .success(let pagesInfo):
-                let pagesURLs = pagesInfo.getPagesURLs(highResolution: state.useHighResImagesForCaching ?? false)
+                let pagesURLs = pagesInfo.getPagesURLs(highQuality: state.useHighResImagesForCaching ?? false)
                 
                 state.cachedChaptersStates.insertOrUpdateByID(
                     .init(

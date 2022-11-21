@@ -32,8 +32,8 @@ extension ChapterPagesInfo: Equatable {
 }
 
 extension ChapterPagesInfo {
-    func getPagesURLs(highResolution: Bool) -> [URL] {
-        highResolution ?
+    func getPagesURLs(highQuality: Bool) -> [URL] {
+        highQuality ?
             pagesInfo.data.map { file in URL(string: "\(baseURL)/data/\(pagesInfo.hash)/\(file)")! } :
             pagesInfo.dataSaver.map { file in URL(string: "\(baseURL)/data-saver/\(pagesInfo.hash)/\(file)")! }
     }
