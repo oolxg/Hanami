@@ -10,7 +10,6 @@ import ComposableArchitecture
 
 struct ChapterView: View {
     let store: StoreOf<ChapterFeature>
-    @Environment(\.openURL) private var openURL
     
     private struct ViewState: Equatable {
         let chapter: Chapter
@@ -147,12 +146,7 @@ extension ChapterView {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            // if manga has externalURL, means we can only read it on some other website, not in app
-            if let url = chapter.attributes.externalURL {
-                openURL(url)
-            } else {
-                ViewStore(store).send(.userTappedOnChapterDetails(chapter: chapter))
-            }
+            ViewStore(store).send(.userTappedOnChapterDetails(chapter: chapter))
         }
     }
     

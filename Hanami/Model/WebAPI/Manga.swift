@@ -100,15 +100,15 @@ extension Manga: Equatable {
 
 extension Manga {
     var title: String {
-        if let title = attributes.title.languageInfo?.language {
+        if let title = attributes.title.availableText {
             return title
         } else {
-            return attributes.altTitles.languageInfo?.language ?? "No title available"
+            return attributes.altTitles.availableText ?? "No title available"
         }
     }
     
     var description: String? {
-        attributes.description.languageInfo?.language
+        attributes.description.availableText
     }
     
     var authors: [Author] {

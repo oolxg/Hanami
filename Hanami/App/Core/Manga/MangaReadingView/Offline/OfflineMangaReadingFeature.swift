@@ -94,7 +94,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
         case .userChangedPage(let newPageIndex):
             // this checks for some shitty bug(appears rare, but anyway) when user changes chapter(`.userHitLastPage` or `.userHitTheMostFirstPage`)
-            // if page is not retrived yet `newPageIndex` is equal to -1 and Effect(value:) will be returned
+            // if page is not retrived yet `newPageIndex` is equal to -1 and `.task { .moveToPreviousChapter }` will be returned
             guard !state.cachedPagesPaths.isEmpty else {
                 return .none
             }

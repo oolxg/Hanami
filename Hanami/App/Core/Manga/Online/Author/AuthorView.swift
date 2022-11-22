@@ -72,7 +72,7 @@ extension AuthorView {
     private var biograpySection: some View {
         WithViewStore(store) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
-                if let bio = viewStore.author?.attributes.biography?.languageInfo?.language {
+                if let bio = viewStore.author?.attributes.biography?.availableText {
                     Text("Biography")
                         .font(.headline)
                         .fontWeight(.black)

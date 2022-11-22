@@ -61,58 +61,51 @@ extension LocalizedString {
 extension LocalizedString: Equatable { }
 
 extension LocalizedString {
-    private var _languageInfo: (language: String, flag: String)? {
+    var availableText: String? {
         if let en {
-            return (language: en, flag: "🇬🇧")
+            return en
         } else if let ar {
-            return (language: ar, flag: "🇦🇷")
+            return ar
         } else if let cs {
-            return (language: cs, flag: "🇨🇿")
+            return cs
         } else if let es {
-            return (language: es, flag: "🇪🇸")
+            return es
         } else if let esLa {
-            return (language: esLa, flag: "🇧🇷")
+            return esLa
         } else if let hi {
-            return (language: hi, flag: "🇮🇳")
+            return hi
         } else if let hu {
-            return (language: hu, flag: "🇭🇺")
+            return hu
         } else if let fa {
-            return (language: fa, flag: "🇮🇷")
+            return fa
         } else if let fr {
-            return (language: fr, flag: "🇫🇷")
+            return fr
         } else if let it {
-            return (language: it, flag: "🇮🇹")
+            return it
         } else if let jp {
-            return (language: jp, flag: "🇯🇵")
+            return jp
         } else if let jpRo {
-            return (language: jpRo, flag: "🇯🇵")
+            return jpRo
         } else if let ko {
-            return (language: ko, flag: "🇰🇷")
+            return ko
         } else if let mn {
-            return (language: mn, flag: "🇲🇳")
+            return mn
         } else if let ms {
-            return (language: ms, flag: "🇲🇾")
+            return ms
         } else if let nl {
-            return (language: nl, flag: "🇳🇱")
+            return nl
         } else if let ru {
-            return (language: ru, flag: "🇷🇺")
+            return ru
         } else if let th {
-            return (language: th, flag: "🇹🇭")
+            return th
         } else if let uk {
-            return (language: uk, flag: "🇺🇦")
+            return uk
         } else if let zh {
-            return (language: zh, flag: "🇨🇳")
+            return zh
         } else if let zhRo {
-            return (language: zhRo, flag: "🇨🇳")
+            return zhRo
         }
         
-        return nil
-    }
-    
-    var languageInfo: (language: String, flag: String)? {
-        if let info = _languageInfo {
-            return (language: info.language.trimmingCharacters(in: .whitespacesAndNewlines), flag: info.flag)
-        }
         return nil
     }
 }

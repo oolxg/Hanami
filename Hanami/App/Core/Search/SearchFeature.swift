@@ -177,7 +177,7 @@ struct SearchFeature: ReducerProtocol {
                 return .merge(
                     .cancel(id: CancelSearch()),
                     
-                        .task { .searchForManga }
+                    .task { .searchForManga }
                         .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
                         .eraseToEffect()
                 )

@@ -90,6 +90,7 @@ struct OnlineMangaFeature: ReducerProtocol {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.openURL) private var openURL
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
     
@@ -276,6 +277,10 @@ struct OnlineMangaFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
+                if let url = chapter.attributes.externalURL {
+                    return .fireAndForget { await openURL(url) }
+                }
+                
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(
                     mangaID: state.manga.id,
                     chapterID: chapter.id,
