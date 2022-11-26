@@ -42,32 +42,22 @@ extension SearchClient: DependencyKey {
                 URLQueryItem(name: "order[\(requestParams.sortOption)]", value: "\(requestParams.sortOptionOrder)")
             ]
             
-            components.queryItems!.append(
-                contentsOf: requestParams.tags
-                    .filter { $0.state == .banned }
-                    .map { URLQueryItem(name: "excludedTags[]", value: $0.id.uuidString.lowercased()) }
-            )
+            components.queryItems! += requestParams.tags
+                .filter { $0.state == .banned }
+                .map { URLQueryItem(name: "excludedTags[]", value: $0.id.uuidString.lowercased()) }
             
-            components.queryItems!.append(
-                contentsOf: requestParams.tags
-                    .filter { $0.state == .selected }
-                    .map { URLQueryItem(name: "includedTags[]", value: $0.id.uuidString.lowercased()) }
-            )
+            components.queryItems! += requestParams.tags
+                .filter { $0.state == .selected }
+                .map { URLQueryItem(name: "includedTags[]", value: $0.id.uuidString.lowercased()) }
             
-            components.queryItems?.append(
-                contentsOf: requestParams.publicationDemographic.filter { $0.state == .selected }
-                    .map { URLQueryItem(name: "publicationDemographic[]", value: $0.name) }
-            )
+            components.queryItems! += requestParams.publicationDemographic.filter { $0.state == .selected }
+                .map { URLQueryItem(name: "publicationDemographic[]", value: $0.name) }
             
-            components.queryItems?.append(
-                contentsOf: requestParams.contentRatings.filter { $0.state == .selected }
-                    .map { URLQueryItem(name: "contentRating[]", value: $0.name) }
-            )
+            components.queryItems! += requestParams.contentRatings.filter { $0.state == .selected }
+                .map { URLQueryItem(name: "contentRating[]", value: $0.name) }
             
-            components.queryItems?.append(
-                contentsOf: requestParams.mangaStatuses.filter { $0.state == .selected }
-                    .map { URLQueryItem(name: "status[]", value: $0.name) }
-            )
+            components.queryItems! += requestParams.mangaStatuses.filter { $0.state == .selected }
+                .map { URLQueryItem(name: "status[]", value: $0.name) }
             
             guard let url = components.url else {
                 return .none

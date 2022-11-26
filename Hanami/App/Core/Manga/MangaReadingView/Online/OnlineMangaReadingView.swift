@@ -57,7 +57,6 @@ struct OnlineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.afterLastPageIndex)
             }
-            .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.pagesCount) { _ in
                 guard let pagesCount = viewStore.pagesCount else { return }
                 
@@ -83,6 +82,7 @@ struct OnlineMangaReadingView: View {
         .overlay(navigationBlock)
         .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationBarHidden(true)
+        .autoBlur(radius: blurRadius)
     }
 }
 

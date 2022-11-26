@@ -26,8 +26,10 @@ struct SettingsFeature: ReducerProtocol {
         case initSettings
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case recomputeCacheSize
+        case clearImageCache
         case clearMangaCache
         case clearMangaCacheConfirmed
+        case cachedMangaRetrieved(Result<[Manga], Never>)
         case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
@@ -65,8 +67,8 @@ struct SettingsFeature: ReducerProtocol {
                 
             case .clearMangaCache:
                 state.confirmationDialog = ConfirmationDialogState(
-                    title: TextState("Delete all manga and cached images from device?"),
-                    message: TextState("Delete all manga and cached images from device?"),
+                    title: TextState("Delete all manga from device?"),
+                    message: TextState("Delete all manga from device?"),
                     buttons: [
                         .destructive(TextState("Delete"), action: .send(.clearMangaCacheConfirmed)),
                         .cancel(TextState("Cancel"), action: .send(.cancelTapped))
@@ -75,12 +77,16 @@ struct SettingsFeature: ReducerProtocol {
                 
                 return .none
                 
-            case .clearMangaCacheConfirmed:
+            case .clearImageCache:
                 Nuke.DataLoader.sharedUrlCache.removeAllCachedResponses()
                 Nuke.ImageCache.shared.removeAll()
-
+                return .none
+                
+            case .clearMangaCacheConfirmed:
                 return .concatenate(
-                    databaseClient.deleteAllMangas().fireAndForget(),
+                    databaseClient.retrieveAllCachedMangas()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(Action.cachedMangaRetrieved),
                     
                     cacheClient.clearCache().fireAndForget(),
                     
@@ -91,6 +97,25 @@ struct SettingsFeature: ReducerProtocol {
                 state.confirmationDialog = nil
                 return .none
                 
+            case .cachedMangaRetrieved(let result):
+                switch result {
+                case .success(let mangaList):
+                    var effects: [Effect<Action, Never>] = [
+                        databaseClient.deleteAllMangas().fireAndForget()
+                    ]
+                    
+                    effects += mangaList.map { manga in
+                        cacheClient
+                            .removeAllCachedChapterIDsFromMemory(manga.id)
+                            .fireAndForget()
+                    }
+                    
+                    return .merge(effects)
+                    
+                case .failure:
+                    return .none
+                }
+                
             case .cacheSizeComputed(let result):
                 switch result {
                 case .success(let size):
@@ -98,6 +123,7 @@ struct SettingsFeature: ReducerProtocol {
                     return .none
                     
                 case .failure(let error):
+                    state.usedStorageSpace = 0
                     logger.error("Failed to compute cache size: \(error)")
                     return .none
                 }

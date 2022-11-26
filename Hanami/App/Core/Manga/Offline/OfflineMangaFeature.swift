@@ -121,13 +121,12 @@ struct OfflineMangaFeature: ReducerProtocol {
                             .fireAndForget()
                     ]
                     
-                    effects.append(
-                        contentsOf: chapters.map { chapterEntity in
-                            mangaClient
-                                .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, cacheClient)
-                                .fireAndForget()
-                        }
-                    )
+                    effects += chapters.map { chapterEntity in
+                        mangaClient
+                            .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, cacheClient)
+                            .fireAndForget()
+                    }
+                    
                     return .merge(effects)
                     
                 case .failure(let error):

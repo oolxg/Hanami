@@ -13,13 +13,20 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                privacySection
+            VStack {
+                Text("by oolxg")
+                    .font(.caption2)
+                    .frame(height: 0)
+                    .foregroundColor(.clear)
                 
-                storageSection
+                List {
+                    privacySection
+                    
+                    storageSection
+                }
+                .navigationTitle("Settings")
+                .tint(Color.theme.accent)
             }
-            .navigationTitle("Settings")
-            .tint(Color.theme.accent)
         }
     }
 }
@@ -66,22 +73,29 @@ extension SettingsView {
     private var storageSection: some View {
         Section {
             WithViewStore(store) { viewStore in
-                Toggle(
-                    "Save manga in higher quality",
-                    isOn: viewStore.binding(\.$config.useHigherQualityImagesForCaching)
-                )
+                Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForOnlineReading)) {
+                    Label("Read online manga in higher quality", systemImage: "antenna.radiowaves.left.and.right")
+                        .foregroundColor(.white)
+                }
                 
-                Toggle(
-                    "Read online manga in higher quality",
-                    isOn: viewStore.binding(\.$config.useHigherQualityImagesForOnlineReading)
-                )
-                
+                Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForCaching)) {
+                    Label("Save manga in higher quality", systemImage: "antenna.radiowaves.left.and.right.slash")
+                        .foregroundColor(.white)
+                }
+
                 HStack {
-                    Text("Hanami cache")
-                    
+                    Label("Saved manga size", systemImage: "folder.fill")
+                        .foregroundColor(.white)
+
                     Spacer()
                     
                     Text("\(viewStore.usedStorageSpace.clean()) MB")
+                }
+                
+                Button(role: .destructive) {
+                    viewStore.send(.clearImageCache)
+                } label: {
+                    Label("Clear image cache", systemImage: "photo.stack")
                 }
                 
                 if viewStore.usedStorageSpace > 0 {

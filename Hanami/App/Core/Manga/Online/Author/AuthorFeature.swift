@@ -51,9 +51,17 @@ struct AuthorFeature: ReducerProtocol {
                 switch result {
                 case .success(let response):
                     state.author = response.data
-                    return homeClient.fetchMangaByIDs(state.author!.mangaIDs)
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(Action.authorsMangaFetched)
+                    let mangaIDs = state.author!.mangaIDs
+
+                    return .merge(
+                        homeClient.fetchMangaByIDs(mangaIDs)
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(Action.authorsMangaFetched),
+                        
+                        homeClient.fetchStatistics(mangaIDs)
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(Action.mangaStatisticsFetched)
+                    )
                     
                 case .failure(let error):
                     logger.error(
@@ -74,10 +82,7 @@ struct AuthorFeature: ReducerProtocol {
                         }
                     )
                     
-                    let mangaIDs = response.data.map(\.id)
-                    return homeClient.fetchStatistics(mangaIDs)
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(Action.mangaStatisticsFetched)
+                    return .none
                     
                 case .failure(let error):
                     logger.error(

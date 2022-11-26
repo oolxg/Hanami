@@ -113,9 +113,7 @@ extension HomeClient: DependencyKey {
                 URLQueryItem(name: "includes[]", value: "author")
             ]
             
-            components.queryItems!.append(
-                contentsOf: mangaIDs.map { URLQueryItem(name: "ids[]", value: $0.uuidString.lowercased()) }
-            )
+            components.queryItems! += mangaIDs.map { URLQueryItem(name: "ids[]", value: $0.uuidString.lowercased()) }
             
             guard let url = components.url else {
                 return .none
@@ -178,9 +176,7 @@ extension HomeClient: DependencyKey {
             components.path = "/statistics/manga"
             components.queryItems = []
             
-            components.queryItems!.append(
-                contentsOf: mangaIDs.map { URLQueryItem(name: "manga[]", value: $0.uuidString.lowercased()) }
-            )
+            components.queryItems! += mangaIDs.map { URLQueryItem(name: "manga[]", value: $0.uuidString.lowercased()) }
             
             guard let url = components.url else {
                 return .none

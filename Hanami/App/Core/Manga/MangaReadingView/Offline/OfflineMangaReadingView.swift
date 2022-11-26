@@ -13,6 +13,8 @@ struct OfflineMangaReadingView: View {
     let store: StoreOf<OfflineMangaReadingFeature>
     let blurRadius: CGFloat
     @State private var shouldShowNavBar = true
+    // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
+    @State private var mainBlockOpacity = 1.0
     @State private var currentPageIndex = 0
     
     private struct ViewState: Equatable {
@@ -52,6 +54,7 @@ struct OfflineMangaReadingView: View {
                         }
                     }
                 }
+                .opacity(mainBlockOpacity)
                 
                 Color.clear
                     .tag(viewStore.pagesCount)
@@ -61,19 +64,23 @@ struct OfflineMangaReadingView: View {
             .navigationBarHidden(true)
             .gesture(tapGesture)
             .gesture(swipeGesture)
-            .autoBlur(radius: blurRadius)
             .onChange(of: viewStore.chapterID) { _ in
+                mainBlockOpacity = 0
+                
+                if viewStore.startFromLastPage {
+                    currentPageIndex = viewStore.pagesCount - 1
+                } else {
+                    currentPageIndex = 0
+                }
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    if viewStore.startFromLastPage {
-                        currentPageIndex = viewStore.pagesCount - 1
-                    } else {
-                        currentPageIndex = 0
-                    }
+                    mainBlockOpacity = 1
                 }
             }
             .onChange(of: currentPageIndex) {
                 viewStore.send(.userChangedPage(newPageIndex: $0))
             }
+            .autoBlur(radius: blurRadius)
         }
     }
     
@@ -104,7 +111,8 @@ struct OfflineMangaReadingView: View {
                             .font(.callout)
                             .padding(.horizontal)
                             .animation(.linear, value: viewStore.pagesCount)
-                            
+                            .animation(.linear, value: viewStore.chapterIndex)
+
                             Spacer()
                             
                             // to align VStack in center

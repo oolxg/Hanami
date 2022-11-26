@@ -280,6 +280,12 @@ extension OnlineMangaView {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 if let statistics = viewStore.statistics {
+                    Text("Rating")
+                        .font(.headline)
+                        .fontWeight(.black)
+                    
+                    Divider()
+                    
                     HStack(alignment: .top, spacing: 10) {
                         HStack(alignment: .top, spacing: 0) {
                             Image(systemName: "star.fill")
@@ -293,7 +299,7 @@ extension OnlineMangaView {
                             Text(statistics.follows.abbreviation)
                         }
                     }
-                    .padding(.vertical)
+                    .padding(.horizontal)
                     .font(.subheadline)
                 }
                 

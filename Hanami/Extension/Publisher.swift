@@ -12,11 +12,9 @@ extension Publisher {
     #if DEBUG
     func debugDecode<Item: Decodable>(type: Item.Type, decoder: JSONDecoder = AppUtil.decoder) -> AnyPublisher<Output, Never> where Self.Output == Data {
         map { data in
-            var isError = true
-            
             do {
                 _ = try decoder.decode(type, from: data)
-                isError = false
+                return data
             } catch let DecodingError.dataCorrupted(context) {
                 Swift.print(context)
             } catch let DecodingError.keyNotFound(key, context) {
@@ -32,9 +30,7 @@ extension Publisher {
                 Swift.print("error: ", error)
             }
             
-            if isError {
-                Swift.print(String(data: data, encoding: .utf8)!)
-            }
+            Swift.print(String(data: data, encoding: .utf8)!)
             
             return data
         }

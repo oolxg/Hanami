@@ -214,7 +214,6 @@ extension DatabaseClient {
         Future { promise in
             promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
         }
-        .receive(on: DispatchQueue.main)
         .eraseToEffect()
     }
     
@@ -260,35 +259,23 @@ extension DatabaseClient {
     /// - Returns: `Effect<Never, Never>` - returns nothing
     func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> Effect<Never, Never> {
         .fireAndForget {
-            DispatchQueue.main.async {
-                var mangaMO = fetch(entityType: MangaMO.self, id: manga.id) { mangaManagedObject in
-                    mangaManagedObject?.id = manga.id
-                    mangaManagedObject?.relationships = manga.relationships.toData()!
-                    mangaManagedObject?.attributes = manga.attributes.toData()!
-                }
-                
-                if mangaMO == nil {
-                    mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
-                }
-                
-                var chapterDetailsMO = fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) { chapterDetailsManagedObject in
-                    chapterDetailsManagedObject?.id = chapterDetails.id
-                    chapterDetailsManagedObject?.pagesCount = pagesCount
-                    chapterDetailsManagedObject?.relationships = chapterDetails.relationships.toData()!
-                    chapterDetailsManagedObject?.attributes = chapterDetails.attributes.toData()!
-                    chapterDetailsManagedObject?.parentManga = mangaMO!
-                }
-                
-                if chapterDetailsMO == nil {
-                    chapterDetailsMO = chapterDetails.toManagedObject(
-                        in: PersistenceController.shared.container.viewContext, withRelationships: mangaMO
-                    )
-                    
-                    chapterDetailsMO!.pagesCount = pagesCount
-                }
-                
-                saveContext()
+            guard fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) == nil else {
+                return
             }
+            
+            var mangaMO = fetch(entityType: MangaMO.self, id: manga.id)
+            
+            if mangaMO == nil {
+                mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+            }
+            
+            let chapterDetailsMO = chapterDetails.toManagedObject(
+                in: PersistenceController.shared.container.viewContext, withRelationships: mangaMO
+            )
+            
+            chapterDetailsMO.pagesCount = pagesCount
+            
+            saveContext()
         }
     }
     
@@ -299,19 +286,17 @@ extension DatabaseClient {
     /// - Returns: `Effect` either with array of `CachedChapterEntry` or `AppError.notFound`
     func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CachedChapterEntry], AppError> {
         Future { promise in
-            DispatchQueue.main.async {
-                guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
-                    promise(.failure(.notFound))
-                    return
-                }
-                
-                if let scanlationGroupID {
-                    let filtered = manga.chapterDetailsList.filter { $0.chapter.scanlationGroupID == scanlationGroupID }
-                    return promise(.success(filtered))
-                }
-                
-                return promise(.success(manga.chapterDetailsList))
+            guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
+                promise(.failure(.notFound))
+                return
             }
+            
+            if let scanlationGroupID {
+                let filtered = manga.chapterDetailsList.filter { $0.chapter.scanlationGroupID == scanlationGroupID }
+                return promise(.success(filtered))
+            }
+            
+            return promise(.success(manga.chapterDetailsList))
         }
         .eraseToEffect()
     }
@@ -334,19 +319,19 @@ extension DatabaseClient {
     /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
     func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {
         .fireAndForget {
-            DispatchQueue.main.async {
-                guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
-                    return
-                }
-
-                let leftChaptersCount = chapterMO.parentManga.chapterDetailsSet.count - 1
-                
-                if leftChaptersCount == 0 {
-                    _deleteManga(mangaID: chapterMO.parentManga.id)
-                } else {
-                    remove(entityType: ChapterDetailsMO.self, id: chapterID)
-                    saveContext()
-                }
+            guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
+                return
+            }
+            
+            let parentMangaID = chapterMO.parentManga.id
+            let leftChaptersCount = chapterMO.parentManga.chapterDetailsSet.count - 1
+            
+            remove(entityType: ChapterDetailsMO.self, id: chapterID)
+            
+            saveContext()
+            
+            if leftChaptersCount == 0 {
+                _deleteManga(mangaID: parentMangaID)
             }
         }
     }
