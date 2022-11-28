@@ -93,14 +93,14 @@ struct ChapterFeature: ReducerProtocol {
 
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
 
-        case checkIfChaptersCached
+        case onAppear
         case savedInMemoryChaptersRetrieved(Result<Set<UUID>, AppError>)
-        case downloadChapterForOfflineReading(chapter: ChapterDetails)
+        case downloadChapterButtonTapped(chapter: ChapterDetails)
         case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, ChapterDetails)
         case chapterPageForCachingFetched(Result<UIImage, AppError>, pageIndex: Int, ChapterDetails)
-        case cancelChapterDownload(chapterID: UUID)
+        case cancelChapterDownloadButtonTapped(chapterID: UUID)
         
-        case deleteChapter(chapterID: UUID)
+        case chapterDeleteButtonTapped(chapterID: UUID)
         case chapterDeletionConfirmed(chapterID: UUID)
         case cancelTapped
     }
@@ -255,7 +255,7 @@ struct ChapterFeature: ReducerProtocol {
                 return .none
             }
             // MARK: - Caching
-        case .deleteChapter(let chapterID):
+        case .chapterDeleteButtonTapped(let chapterID):
             state.confirmationDialog = ConfirmationDialogState(
                 title: TextState("Delete this chapter from device?"),
                 message: TextState("Delete this chapter from device?"),
@@ -268,7 +268,7 @@ struct ChapterFeature: ReducerProtocol {
                 ]
             )
             
-            // this cancel for the case, when action was called from '.cancelChapterDownload'
+            // this cancel for the case, when action was called from '.cancelChapterDownloadButtonTapped'
             return .cancel(id: CancelChapterCache(id: chapterID))
             
         case .cancelTapped:
@@ -306,7 +306,7 @@ struct ChapterFeature: ReducerProtocol {
             
             return .merge(effects)
             
-        case .checkIfChaptersCached:
+        case .onAppear:
             return cacheClient
                 .retrieveFromMemoryCachedChapters(state.parentManga.id)
                 .receive(on: DispatchQueue.main)
@@ -335,7 +335,7 @@ struct ChapterFeature: ReducerProtocol {
                     .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
             }
             
-        case .downloadChapterForOfflineReading(let chapter):
+        case .downloadChapterButtonTapped(let chapter):
             state.cachedChaptersStates.insertOrUpdateByID(
                 .init(
                     id: chapter.id,
@@ -508,7 +508,7 @@ struct ChapterFeature: ReducerProtocol {
                 return .merge(effects)
             }
             
-        case .cancelChapterDownload(let chapterID):
+        case .cancelChapterDownloadButtonTapped(let chapterID):
             state.confirmationDialog = ConfirmationDialogState(
                 title: TextState("Stop chapter download?"),
                 message: TextState("Stop chapter download?"),

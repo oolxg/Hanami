@@ -52,7 +52,7 @@ struct DownloadsFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteManga)):
+            case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteMangaButtonTapped)):
                 return .task { .retrieveCachedManga }
                     .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
                     .eraseToEffect()

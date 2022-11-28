@@ -50,7 +50,7 @@ struct ChapterView: View {
                 dismiss: .cancelTapped
             )
             .onAppear {
-                viewStore.send(.checkIfChaptersCached)
+                viewStore.send(.onAppear)
             }
             
             Divider()
@@ -160,7 +160,7 @@ extension ChapterView {
                 switch chapterState.status {
                 case .cached:
                     Button {
-                        viewStore.send(.deleteChapter(chapterID: chapter.id))
+                        viewStore.send(.chapterDeleteButtonTapped(chapterID: chapter.id))
                     } label: {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.callout)
@@ -179,12 +179,12 @@ extension ChapterView {
                     .frame(width: 40)
                     .tint(.white)
                     .onTapGesture {
-                        viewStore.send(.cancelChapterDownload(chapterID: chapter.id), animation: .linear)
+                        viewStore.send(.cancelChapterDownloadButtonTapped(chapterID: chapter.id), animation: .linear)
                     }
                     
                 case .downloadFailed:
                     Button {
-                        viewStore.send(.downloadChapterForOfflineReading(chapter: chapter))
+                        viewStore.send(.downloadChapterButtonTapped(chapter: chapter))
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.callout)
@@ -194,7 +194,7 @@ extension ChapterView {
                 }
             } else if viewStore.online {
                 Button {
-                    viewStore.send(.downloadChapterForOfflineReading(chapter: chapter), animation: .linear)
+                    viewStore.send(.downloadChapterButtonTapped(chapter: chapter), animation: .linear)
                 } label: {
                     Image(systemName: "arrow.down.to.line.circle")
                         .font(.callout)

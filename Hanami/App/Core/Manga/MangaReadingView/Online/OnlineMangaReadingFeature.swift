@@ -49,7 +49,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     enum Action {
         case userStartedReadingChapter
         case chapterPagesInfoFetched(Result<ChapterPagesInfo, AppError>)
-        case userChangedPage(newPageIndex: Int)
+        case currentPageIndexChanged(newPageIndex: Int)
         
         case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
 
@@ -57,7 +57,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
 
         case moveToNextChapter
         case moveToPreviousChapter
-        case changeChapter(newChapterIndex: Double)
+        case chapterCarouselButtonTapped(newChapterIndex: Double)
         case userLeftMangaReadingView
     }
     
@@ -128,7 +128,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-        case .userChangedPage(let newPageIndex):
+        case .currentPageIndexChanged(let newPageIndex):
             guard state.pagesURLs != nil else { return .none }
             
             if newPageIndex == -1 {
@@ -153,7 +153,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-        case .changeChapter(let newChapterIndex):
+        case .chapterCarouselButtonTapped(let newChapterIndex):
             guard newChapterIndex != state.chapterIndex else {
                 return .none
             }

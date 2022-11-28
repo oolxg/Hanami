@@ -23,7 +23,7 @@ struct HomeFeature: ReducerProtocol {
     
     enum Action {
         case onAppear
-        case refresh
+        case refreshButtonTapped
         case refreshDelayCompleted
         case statisticsFetched(
             Result<MangaStatisticsContainer, AppError>,
@@ -37,8 +37,8 @@ struct HomeFeature: ReducerProtocol {
         case allSeasonalListsFetched(Result<Response<[CustomMangaList]>, AppError>)
         case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
         
-        case userOpenedAwardWinningView
-        case userOpenedMostFollowedView
+        case onAppearAwardWinningManga
+        case onAppearMostFollewedManga
         
         case lastUpdatesMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
         case seasonalMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
@@ -68,7 +68,7 @@ struct HomeFeature: ReducerProtocol {
                         .catchToEffect(Action.allSeasonalListsFetched)
                 )
                 
-            case .refresh:
+            case .refreshButtonTapped:
                 let now = Date()
                 
                 guard state.lastRefreshDate == nil || now - state.lastRefreshDate! > 10 else {
@@ -122,14 +122,14 @@ struct HomeFeature: ReducerProtocol {
                 state.isRefreshActionInProgress = false
                 return .none
                 
-            case .userOpenedAwardWinningView:
+            case .onAppearAwardWinningManga:
                 guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
                 
                 return homeClient.fetchAwardWinningManga()
                     .receive(on: DispatchQueue.main)
                     .catchToEffect { .mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
                 
-            case .userOpenedMostFollowedView:
+            case .onAppearMostFollewedManga:
                 guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
                 
                 return homeClient.fetchMostFollowedManga()

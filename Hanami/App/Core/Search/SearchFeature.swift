@@ -47,7 +47,7 @@ struct SearchFeature: ReducerProtocol {
     
     enum Action: BindableAction {
         case searchForManga
-        case resetSearch
+        case resetSearchButtonTapped
         case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchParams)
         case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
         
@@ -67,7 +67,7 @@ struct SearchFeature: ReducerProtocol {
         Reduce { state, action in
             struct CancelSearch: Hashable { }
             switch action {
-            case .resetSearch:
+            case .resetSearchButtonTapped:
                 // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
                 let mangaIDs = state.searchResults.map(\.id)
                 
@@ -88,7 +88,7 @@ struct SearchFeature: ReducerProtocol {
                 // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
                 // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
                 guard isAnySearchParamApplied else {
-                    return .task { .resetSearch }
+                    return .task { .resetSearchButtonTapped }
                 }
                 
                 let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }

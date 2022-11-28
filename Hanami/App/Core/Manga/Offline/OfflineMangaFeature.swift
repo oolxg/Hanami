@@ -38,8 +38,8 @@ struct OfflineMangaFeature: ReducerProtocol {
     enum Action: BindableAction {
         case onAppear
         case cachedChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
-        case mangaTabChanged(Tab)
-        case deleteManga
+        case mangaTabButtonTapped(Tab)
+        case deleteMangaButtonTapped
         case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
         
         case mangaReadingViewAction(OfflineMangaReadingFeature.Action)
@@ -95,11 +95,11 @@ struct OfflineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .mangaTabChanged(let tab):
+            case .mangaTabButtonTapped(let tab):
                 state.selectedTab = tab
                 return .none
                 
-            case .deleteManga:
+            case .deleteMangaButtonTapped:
                 return databaseClient
                     .retrieveAllChaptersForManga(mangaID: state.manga.id)
                     .catchToEffect(Action.chaptersForMangaDeletionRetrieved)
@@ -175,7 +175,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                     state.mangaReadingViewState?.chapter.attributes.chapterIndex,
                     state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
+                    return .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
                 }
                 
                 return .none

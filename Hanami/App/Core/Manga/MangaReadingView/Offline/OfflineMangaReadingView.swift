@@ -78,7 +78,7 @@ struct OfflineMangaReadingView: View {
                 }
             }
             .onChange(of: currentPageIndex) {
-                viewStore.send(.userChangedPage(newPageIndex: $0))
+                viewStore.send(.currentPageIndexChanged(newPageIndex: $0))
             }
             .autoBlur(radius: blurRadius)
         }
@@ -150,7 +150,7 @@ struct OfflineMangaReadingView: View {
                                 .overlay { Text(chapterIndex.clean()) }
                                 .id(chapterIndex)
                                 .onTapGesture {
-                                    viewStore.send(.changeChapter(newChapterIndex: chapterIndex))
+                                    viewStore.send(.chapterCarouselButtonTapped(newChapterIndex: chapterIndex))
                                 }
                         }
                         

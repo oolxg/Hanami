@@ -65,9 +65,9 @@ struct OnlineMangaFeature: ReducerProtocol {
     enum Action: BindableAction {
         // MARK: - Actions to be called from view
         case onAppear
-        case mangaTabChanged(Tab)
-        case showAuthorPage(Author)
-        case refreshManga
+        case mangaTabButtonTapped(Tab)
+        case authorNameTapped(Author)
+        case refreshButtonTapped
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
@@ -155,7 +155,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .mangaTabChanged(let newTab):
+            case .mangaTabButtonTapped(let newTab):
                 state.selectedTab = newTab
                 
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
@@ -201,7 +201,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .refreshManga:
+            case .refreshButtonTapped:
                 if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
                     hudClient.show(message: "Wait a little to refresh this page", backgroundColor: .yellow)
                     return hapticClient
@@ -219,7 +219,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     hapticClient.generateFeedback(.medium).fireAndForget()
                 )
                 
-            case .showAuthorPage(let author):
+            case .authorNameTapped(let author):
                 state.showAuthorView = true
                 
                 if state.authorViewState?.authorID != author.id {
@@ -246,7 +246,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         }
         Reduce { state, action in
             switch action {
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterForOfflineReading))):
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterButtonTapped))):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !mangaClient.isCoverArtCached(state.manga.id, cacheClient), let coverArtURL = state.mainCoverArtURL {
                     return imageClient.downloadImage(coverArtURL)
@@ -302,7 +302,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 let volumes = state.pagesState!.splitIntoPagesVolumeTabStates
                 
                 if let pageIndex = mangaClient.getMangaPageForReadingChapter(chapterIndex, volumes) {
-                    return .task { .pagesAction(.changePage(newPageIndex: pageIndex)) }
+                    return .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
                 }
                 
                 return .none

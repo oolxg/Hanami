@@ -67,7 +67,7 @@ struct OnlineMangaReadingView: View {
                 }
             }
             .onChange(of: currentPageIndex) {
-                viewStore.send(.userChangedPage(newPageIndex: $0))
+                viewStore.send(.currentPageIndexChanged(newPageIndex: $0))
             }
             .overlay {
                 if viewStore.pagesURLs.isEmpty {
@@ -164,7 +164,7 @@ extension OnlineMangaReadingView {
                                 .overlay(Text(chapterIndex.clean()))
                                 .id(chapterIndex)
                                 .onTapGesture {
-                                    viewStore.send(.changeChapter(newChapterIndex: chapterIndex))
+                                    viewStore.send(.chapterCarouselButtonTapped(newChapterIndex: chapterIndex))
                                 }
                         }
                         

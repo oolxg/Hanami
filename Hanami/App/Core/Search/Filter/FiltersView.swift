@@ -58,7 +58,7 @@ extension FiltersView {
             WithViewStore(store) { viewStore in
                 if viewStore.isAnyFilterApplied {
                     Button {
-                        viewStore.send(.resetFilters)
+                        viewStore.send(.resetFilterButtonPressed)
                     } label: {
                         Image(systemName: "trash")
                             .foregroundColor(.white)

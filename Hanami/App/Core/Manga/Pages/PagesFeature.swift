@@ -163,7 +163,7 @@ struct PagesFeature: ReducerProtocol {
     
     
     enum Action {
-        case changePage(newPageIndex: Int)
+        case pageIndexButtonTapped(newPageIndex: Int)
         case changePageAfterEffectCancellation(newPageIndex: Int)
         case unlockPage
         case userDeletedAllCachedChapters
@@ -173,7 +173,7 @@ struct PagesFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-            case .changePage(let newIndex):
+            case .pageIndexButtonTapped(let newIndex):
                 guard newIndex != state.currentPageIndex, newIndex >= 0, newIndex < state.pagesCount else {
                     return .none
                 }

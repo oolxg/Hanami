@@ -51,7 +51,7 @@ struct FilterFeature: ReducerProtocol {
         case onAppear
         case filterListDownloaded(Result<Response<[Tag]>, AppError>)
         case filterTagButtonTapped(FiltersTag)
-        case resetFilters
+        case resetFilterButtonPressed
         
         case mangaStatusButtonTapped(MangaStatus)
         case contentRatingButtonTapped(ContentRatings)
@@ -92,7 +92,7 @@ struct FilterFeature: ReducerProtocol {
             state.allTags[id: tappedTag.id]?.toggleState()
             return hapticClient.generateFeedback(.light).fireAndForget()
             
-        case .resetFilters:
+        case .resetFilterButtonPressed:
             for tagID in state.allTags.map(\.id) {
                 state.allTags[id: tagID]!.state = .notSelected
             }

@@ -28,11 +28,11 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     
     enum Action {
         case userStartedReadingChapter
-        case userChangedPage(newPageIndex: Int)
+        case currentPageIndexChanged(newPageIndex: Int)
         
         case moveToNextChapter
         case moveToPreviousChapter
-        case changeChapter(newChapterIndex: Double)
+        case chapterCarouselButtonTapped(newChapterIndex: Double)
         case userLeftMangaReadingView
         
         case sameScanlationGroupChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
@@ -92,7 +92,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-        case .userChangedPage(let newPageIndex):
+        case .currentPageIndexChanged(let newPageIndex):
             // this checks for some shitty bug(appears rare, but anyway) when user changes chapter(`.userHitLastPage` or `.userHitTheMostFirstPage`)
             // if page is not retrived yet `newPageIndex` is equal to -1 and `.task { .moveToPreviousChapter }` will be returned
             guard !state.cachedPagesPaths.isEmpty else {
@@ -107,7 +107,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
             return .none
             
-        case .changeChapter(let newChapterIndex):
+        case .chapterCarouselButtonTapped(let newChapterIndex):
             guard newChapterIndex != state.chapter.attributes.chapterIndex else {
                 return .none
             }

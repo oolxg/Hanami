@@ -93,7 +93,7 @@ struct HomeView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            viewStore.send(.refresh, animation: .linear(duration: 1.5))
+                            viewStore.send(.refreshButtonTapped, animation: .linear(duration: 1.5))
                         } label: {
                             Image(systemName: "arrow.clockwise")
                                 .foregroundColor(.white)
@@ -316,7 +316,7 @@ extension HomeView {
             toolbar { showMostFollowed = false }
         }
         .onAppear {
-            ViewStore(store).send(.userOpenedMostFollowedView)
+            ViewStore(store).send(.onAppearMostFollewedManga)
         }
     }
 }
@@ -390,7 +390,7 @@ extension HomeView {
             toolbar { showAwardWinning = false }
         }
         .onAppear {
-            ViewStore(store).send(.userOpenedAwardWinningView)
+            ViewStore(store).send(.onAppearAwardWinningManga)
         }
     }
 }

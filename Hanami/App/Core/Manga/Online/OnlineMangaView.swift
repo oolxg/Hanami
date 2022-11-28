@@ -318,7 +318,7 @@ extension OnlineMangaView {
                         ) { author in
                             makeChipsView(text: author.attributes.name)
                                 .onTapGesture {
-                                    viewStore.send(.showAuthorPage(author))
+                                    viewStore.send(.authorNameTapped(author))
                                 }
                         }
                         .padding(.horizontal, 5)
@@ -414,7 +414,7 @@ extension OnlineMangaView {
     
     private var refreshButton: some View {
         Button {
-            ViewStore(store).send(.refreshManga)
+            ViewStore(store).send(.refreshButtonTapped)
         } label: {
             Image(systemName: "arrow.clockwise")
                 .foregroundColor(.white)
@@ -466,7 +466,7 @@ extension OnlineMangaView {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                viewStore.send(.mangaTabChanged(tab), animation: .easeInOut)
+                viewStore.send(.mangaTabButtonTapped(tab), animation: .easeInOut)
             }
         }
     }

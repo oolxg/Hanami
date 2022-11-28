@@ -198,7 +198,7 @@ extension OfflineMangaView {
         ) {
             Button("Delete", role: .destructive) {
                 self.dismiss()
-                ViewStore(store).send(.deleteManga)
+                ViewStore(store).send(.deleteMangaButtonTapped)
             }
             
             Button("Cancel", role: .cancel) {
@@ -364,7 +364,7 @@ extension OfflineMangaView {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                viewStore.send(.mangaTabChanged(tab), animation: .easeInOut)
+                viewStore.send(.mangaTabButtonTapped(tab), animation: .easeInOut)
             }
         }
     }

@@ -26,8 +26,8 @@ struct SettingsFeature: ReducerProtocol {
         case initSettings
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case recomputeCacheSize
-        case clearImageCache
-        case clearMangaCache
+        case clearImageCacheButtonTapped
+        case clearMangaCacheButtonTapped
         case clearMangaCacheConfirmed
         case cachedMangaRetrieved(Result<[Manga], Never>)
         case cancelTapped
@@ -65,7 +65,7 @@ struct SettingsFeature: ReducerProtocol {
                     .receive(on: DispatchQueue.main)
                     .eraseToEffect(Action.cacheSizeComputed)
                 
-            case .clearMangaCache:
+            case .clearMangaCacheButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState(
                     title: TextState("Delete all manga from device?"),
                     message: TextState("Delete all manga from device?"),
@@ -77,7 +77,7 @@ struct SettingsFeature: ReducerProtocol {
                 
                 return .none
                 
-            case .clearImageCache:
+            case .clearImageCacheButtonTapped:
                 Nuke.DataLoader.sharedUrlCache.removeAllCachedResponses()
                 Nuke.ImageCache.shared.removeAll()
                 return .none

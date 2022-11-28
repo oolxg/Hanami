@@ -63,7 +63,7 @@ extension PagesView {
     private var footer: some View {
         HStack {
             Button {
-                viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex - 1))
+                viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex - 1))
             } label: {
                 Image(systemName: "arrow.left")
                     .foregroundColor(.white)
@@ -95,7 +95,7 @@ extension PagesView {
                 .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
             
             Button {
-                viewStore.send(.changePage(newPageIndex: viewStore.currentPageIndex + 1))
+                viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex + 1))
             } label: {
                 Image(systemName: "arrow.right")
                     .foregroundColor(.white)
@@ -112,7 +112,7 @@ extension PagesView {
             Picker(
                 selection: viewStore.binding(
                     get: \.currentPageIndex,
-                    send: PagesFeature.Action.changePage
+                    send: PagesFeature.Action.pageIndexButtonTapped
                 )
             ) {
                 ForEach(0..<viewStore.pagesCount, id: \.self) { pageIndex in
@@ -148,7 +148,7 @@ extension PagesView {
             .background(bgColor)
             .clipShape(RoundedRectangle(cornerRadius: 6))
             .onTapGesture {
-                viewStore.send(.changePage(newPageIndex: pageIndex - 1))
+                viewStore.send(.pageIndexButtonTapped(newPageIndex: pageIndex - 1))
             }
     }
 }
