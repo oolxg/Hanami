@@ -19,7 +19,7 @@ struct OnlineMangaView: View {
     @Environment(\.openURL) private var openURL
     
     private var isCoverArtDisappeared: Bool {
-        headerOffset < -350
+        headerOffset <= -350
     }
     
     private struct ViewState: Equatable {

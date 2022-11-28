@@ -69,15 +69,13 @@ struct RootFeature: ReducerProtocol {
                     
                     if autolockPolicy == .never {
                         state.isAppLocked = false
-                        return .none
                     }
-
-                    guard state.isAppLocked else { return .none }
                     
                     if let appLastUsed = state.appLastUsedAt, Int(.now - appLastUsed) < autolockPolicy.autolockDelay {
                         state.isAppLocked = false
-                        return .none
                     }
+
+                    guard state.isAppLocked else { return .none }
                     
                     return authClient.makeAuth()
                         .receive(on: DispatchQueue.main)

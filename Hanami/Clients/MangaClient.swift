@@ -63,10 +63,10 @@ struct MangaClient {
     let fetchAuthorByID: (_ authorID: UUID) -> Effect<Response<Author>, AppError>
     
     // MARK: - Actions inside App
-    /// Fetch `Author` with given ID
+    /// Find in pages exact page with last read chapter index
     ///
-    /// - Parameter authorID: ID of Author to be fetched
-    /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
+    /// - Parameter chapterIndex: index of chapter, that user has read
+    /// - Returns: `Int?` - if page found, than index of that page, otherwise `nil`
     let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabFeature.State]]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?

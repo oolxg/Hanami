@@ -18,7 +18,7 @@ struct OfflineMangaView: View {
     @Environment(\.dismiss) private var dismiss
     
     private var isCoverArtDisappeared: Bool {
-        headerOffset < -350
+        headerOffset <= -350
     }
     
     private  struct ViewState: Equatable {

@@ -211,9 +211,13 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 state.lastRefreshedAt = .now
                 
-                return mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect(Action.volumesRetrieved)
+                return .merge(
+                    mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(Action.volumesRetrieved),
+                    
+                    hapticClient.generateFeedback(.medium).fireAndForget()
+                )
                 
             case .showAuthorPage(let author):
                 state.showAuthorView = true

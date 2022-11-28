@@ -43,14 +43,16 @@ struct VolumeTabView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 5)
             
-            ForEachStore(
-                store.scope(
-                    state: \.chapterStates,
-                    action: VolumeTabFeature.Action.chapterAction
-                ),
-                content: ChapterView.init
-            )
-            .padding(.leading, 5)
+            VStack {
+                ForEachStore(
+                    store.scope(
+                        state: \.chapterStates,
+                        action: VolumeTabFeature.Action.chapterAction
+                    ),
+                    content: ChapterView.init
+                )
+                .padding(.leading, 5)
+            }
         }
         .padding(.leading, 10)
     }

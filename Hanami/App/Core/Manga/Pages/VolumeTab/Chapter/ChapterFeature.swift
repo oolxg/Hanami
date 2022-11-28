@@ -53,7 +53,9 @@ struct ChapterFeature: ReducerProtocol {
         }
         var scanlationGroups: [UUID: ScanlationGroup] = [:]
         var chaptersCount: Int {
-            chapter.others.count + 1
+            // need this for offline reading
+            // when user deletes chapter, `chapter.others.count` doesn't change himself, only `chapterDetailsList.count`
+            chapterDetailsList.isEmpty ? chapter.others.count + 1 : chapterDetailsList.count
         }
         
         var id: UUID { chapter.id }
@@ -224,7 +226,7 @@ struct ChapterFeature: ReducerProtocol {
                     .receive(on: DispatchQueue.main)
                     .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapter.id) }
                     .cancellable(
-                        id: CancelChapterFetch(id: response.data.id),
+                        id: CancelChapterFetch(id: chapter.id),
                         cancelInFlight: true
                     )
                 
