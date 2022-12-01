@@ -170,8 +170,15 @@ extension OnlineMangaReadingView {
                         
                         Color.clear.frame(width: 10)
                     }
+                    .onChange(of: viewStore.chapterIndexes.isEmpty) { _ in
+                        withAnimation(.easeInOut) {
+                            proxy.scrollTo(viewStore.chapterIndex)
+                        }
+                    }
                     .onAppear {
-                        proxy.scrollTo(viewStore.chapterIndex)
+                        withAnimation(.easeInOut) {
+                            proxy.scrollTo(viewStore.chapterIndex)
+                        }
                     }
                 }
             }

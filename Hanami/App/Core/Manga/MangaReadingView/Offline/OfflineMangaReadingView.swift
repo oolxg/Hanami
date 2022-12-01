@@ -156,6 +156,11 @@ struct OfflineMangaReadingView: View {
                         
                         Color.clear.frame(width: 10)
                     }
+                    .onChange(of: viewStore.chapterIndexes.isEmpty) { _ in
+                        withAnimation(.easeInOut) {
+                            proxy.scrollTo(viewStore.chapterIndex)
+                        }
+                    }
                     .onAppear {
                         withAnimation(.easeInOut) {
                             proxy.scrollTo(viewStore.chapterIndex)

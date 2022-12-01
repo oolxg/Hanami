@@ -25,11 +25,11 @@ struct AuthorFeature: ReducerProtocol {
     
     // indirect because AuthorFeature is inside MangaFeauture
     // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
-    indirect enum Action {
+    enum Action {
         case onAppear
         case authorInfoFetched(Result<Response<Author>, AppError>)
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)
-        case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+        indirect case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
         case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
     }
     

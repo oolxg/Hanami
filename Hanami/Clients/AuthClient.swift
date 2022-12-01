@@ -47,7 +47,7 @@ extension AuthClient: DependencyKey {
                 } else if let error = error as? LAError {
                     return promise(.failure(.biometryError(error)))
                 } else {
-                    // we will return success because user turned off FaceID or TouchID
+                    // we will return success because user turned off Biometry Auth
                     return promise(.success(()))
                 }
             }

@@ -2,7 +2,7 @@
 //  SettingsConfig.swift
 //  Hanami
 //
-//  Created by Oleg Mihajlov on 21.11.22.
+//  Created by Oleg on 21.11.22.
 //
 
 import Foundation
