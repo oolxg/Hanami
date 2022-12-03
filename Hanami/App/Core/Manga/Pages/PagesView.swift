@@ -130,7 +130,7 @@ extension PagesView {
             } label: { EmptyView() }
         } label: {
             Text("\(viewStore.currentPageIndex + 1)")
-                .foregroundColor(.theme.foreground)
+                .foregroundColor(.black)
                 .font(.subheadline)
                 .frame(width: 30, height: 30, alignment: .center)
                 .padding(7)

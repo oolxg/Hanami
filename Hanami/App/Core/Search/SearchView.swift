@@ -83,7 +83,6 @@ struct SearchView_Previews: PreviewProvider {
             ),
             blurRadius: 0
         )
-        .preferredColorScheme(.dark)
     }
 }
 #endif

@@ -17,6 +17,7 @@ struct OnlineMangaView: View {
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
     
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -350
@@ -126,6 +127,7 @@ extension OnlineMangaView {
                 store: readingStore,
                 blurRadius: blurRadius
             )
+            .environment(\.colorScheme, colorScheme)
         }
     }
     
@@ -333,6 +335,7 @@ extension OnlineMangaView {
                                     store: authorStore,
                                     blurRadius: blurRadius
                                 )
+                                .environment(\.colorScheme, colorScheme)
                             }
                         }
                     }

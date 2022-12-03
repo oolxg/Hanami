@@ -16,7 +16,8 @@ struct OfflineMangaView: View {
     @State private var showMangaDeletionDialog = false
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.colorScheme) private var colorScheme
+
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -350
     }
@@ -90,6 +91,7 @@ extension OfflineMangaView {
                 store: readingStore,
                 blurRadius: blurRadius
             )
+            .environment(\.colorScheme, colorScheme)
         }
     }
     

@@ -53,7 +53,7 @@ struct MangaThumbnailView: View {
         .overlay(navigationLink)
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(lineWidth: 2.5)
+                .stroke(lineWidth: 1.5)
                 .fill(colorScheme == .light ? .black : .clear)
         }
     }
@@ -115,7 +115,7 @@ extension MangaThumbnailView {
         }
         .overlay {
             Rectangle()
-                .stroke(lineWidth: 2.5)
+                .stroke(lineWidth: 1.5)
                 .fill(colorScheme == .light ? .black : .clear)
         }
     }
@@ -243,7 +243,7 @@ extension MangaThumbnailView {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(lineWidth: 2.5)
+                .stroke(lineWidth: 1.5)
                 .fill(colorScheme == .light ? .black : .clear)
         }
     }
@@ -254,7 +254,7 @@ extension MangaThumbnailView {
             .frame(width: 120)
             .overlay {
                 Rectangle()
-                    .stroke(lineWidth: 2.5)
+                    .stroke(lineWidth: 1.5)
                     .fill(colorScheme == .light ? .black : .clear)
             }
     }

@@ -15,8 +15,6 @@ struct HanamiApp: App {
         reducer: AppFeature()
     )
     
-    @Environment(\.colorScheme) private var colorScheme
-    
     init() {
         let appearance = UITabBarAppearance()
         appearance.backgroundEffect = UIBlurEffect(style: .systemThinMaterial)
@@ -40,7 +38,12 @@ struct HanamiApp: App {
             case 2:
                 colorScheme = .dark
             default:
-                colorScheme = .dark
+                // `@Environment(\.colorScheme)` doesn't work here, so using `UITraitCollection.current.userInterfaceStyle`
+                if UITraitCollection.current.userInterfaceStyle == .dark {
+                    colorScheme = .dark
+                } else {
+                    colorScheme = .light
+                }
             }
         }
     }

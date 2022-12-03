@@ -47,7 +47,6 @@ struct FiltersView_Previews: PreviewProvider {
             ),
             blurRadius: 0
         )
-        .preferredColorScheme(.dark)
     }
 }
 #endif

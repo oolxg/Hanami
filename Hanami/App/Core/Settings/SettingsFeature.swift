@@ -8,7 +8,6 @@
 import Foundation
 import ComposableArchitecture
 import Nuke
-import class UIKit.UIApplication
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
@@ -47,9 +46,13 @@ struct SettingsFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .initSettings:
-                return settingsClient.getSettingsConfig()
-                    .receive(on: DispatchQueue.main)
-                    .catchToEffect(Action.settingsConfigRetrieved)
+                return .merge(
+                    .task { .recomputeCacheSize },
+
+                    settingsClient.getSettingsConfig()
+                        .receive(on: DispatchQueue.main)
+                        .catchToEffect(Action.settingsConfigRetrieved)
+                )
                 
             case .settingsConfigRetrieved(let result):
                 switch result {
@@ -80,9 +83,10 @@ struct SettingsFeature: ReducerProtocol {
                 return .none
                 
             case .clearImageCacheButtonTapped:
-                Nuke.DataLoader.sharedUrlCache.removeAllCachedResponses()
-                Nuke.ImageCache.shared.removeAll()
-                return .none
+                return .fireAndForget {
+                    Nuke.DataLoader.sharedUrlCache.removeAllCachedResponses()
+                    Nuke.ImageCache.shared.removeAll()
+                }
                 
             case .clearMangaCacheConfirmed:
                 return .concatenate(
