@@ -13,6 +13,8 @@ struct MangaThumbnailView: View {
     let store: StoreOf<MangaThumbnailFeature>
     let blurRadius: CGFloat
     
+    @Environment(\.colorScheme) private var colorScheme
+    
     private struct ViewState: Equatable {
         let online: Bool
         let manga: Manga
@@ -30,10 +32,14 @@ struct MangaThumbnailView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             coverArt
-
+            
             ZStack(alignment: .topLeading) {
-                Color.theme.darkGray
-                    .opacity(0.6)
+                if colorScheme == .dark {
+                    Color.theme.darkGray
+                        .opacity(0.6)
+                } else {
+                    Color.clear
+                }
 
                 textBlock
                     .padding(10)
@@ -45,6 +51,11 @@ struct MangaThumbnailView: View {
             ViewStore(store).binding(\.$isNavigationLinkActive).wrappedValue.toggle()
         }
         .overlay(navigationLink)
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(lineWidth: 2.5)
+                .fill(colorScheme == .light ? .black : .clear)
+        }
     }
 }
 
@@ -70,7 +81,7 @@ extension MangaThumbnailView {
             VStack(alignment: .leading, spacing: 10) {
                 Text(viewStore.manga.title)
                     .lineLimit(2)
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
                     .font(.headline)
                 
                 if viewStore.online {
@@ -80,7 +91,7 @@ extension MangaThumbnailView {
                 if let mangaDescription = viewStore.manga.description {
                     Text(LocalizedStringKey(mangaDescription))
                         .lineLimit(8)
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .font(.footnote)
                 }
             }
@@ -101,6 +112,11 @@ extension MangaThumbnailView {
                         .frame(width: 120)
                 }
             }
+        }
+        .overlay {
+            Rectangle()
+                .stroke(lineWidth: 2.5)
+                .fill(colorScheme == .light ? .black : .clear)
         }
     }
     
@@ -174,7 +190,7 @@ extension MangaThumbnailView {
                         .padding(0)
                     
                     Text(status.rawValue.capitalized)
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .fontWeight(.semibold)
                 }
             }
@@ -185,19 +201,23 @@ extension MangaThumbnailView {
 }
 
 extension MangaThumbnailView {
-    static var skeleton: some View {
+    @ViewBuilder static func skeleton(colorScheme: ColorScheme) -> some View {
         HStack(alignment: .top, spacing: 0) {
-            skeletonCoverArt
+            skeletonCoverArt(colorScheme: colorScheme)
             
             ZStack(alignment: .topLeading) {
-                Color.theme.darkGray
-                    .opacity(0.6)
+                if colorScheme == .dark {
+                    Color.theme.darkGray
+                        .opacity(0.6)
+                } else {
+                    Color.clear
+                }
                 
                 VStack(alignment: .leading, spacing: 10) {
                     // manga title
                     Text(String.placeholder(length: 20))
                         .lineLimit(3)
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .font(.callout)
                         .redacted(reason: .placeholder)
                     
@@ -221,12 +241,22 @@ extension MangaThumbnailView {
         }
         .frame(height: 170)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(lineWidth: 2.5)
+                .fill(colorScheme == .light ? .black : .clear)
+        }
     }
     
-    private static var skeletonCoverArt: some View {
+    @ViewBuilder private static func skeletonCoverArt(colorScheme: ColorScheme) -> some View {
         Color.theme.darkGray
             .redacted(reason: .placeholder)
             .frame(width: 120)
+            .overlay {
+                Rectangle()
+                    .stroke(lineWidth: 2.5)
+                    .fill(colorScheme == .light ? .black : .clear)
+            }
     }
     
     private static var skeletonRating: some View {

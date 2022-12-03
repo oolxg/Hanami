@@ -30,7 +30,7 @@ struct SearchView: View {
                                 viewStore.send(.resetSearchButtonTapped)
                                 UIApplication.shared.endEditing()
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(.theme.foreground)
                             .padding(.leading, 10)
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
@@ -53,7 +53,7 @@ struct SearchView: View {
                             UIApplication.shared.endEditing()
                         } label: {
                             Image(systemName: "slider.horizontal.3")
-                                .foregroundColor(.white)
+                                .foregroundColor(.theme.foreground)
                         }
                     }
                 }
@@ -146,6 +146,10 @@ extension SearchView {
                 }
                 .animation(.linear, value: viewStore.searchResults.isEmpty)
                 .transition(.opacity)
+                
+                if viewStore.areSearchResultsDownloaded {
+                    footer
+                }
             }
         }
     }
@@ -186,8 +190,21 @@ extension SearchView {
                 }
                 .font(.callout)
             }
-            .tint(.white)
+            .tint(.theme.foreground)
         }
+    }
+    
+    private var footer: some View {
+        HStack(spacing: 0) {
+            Text("All information on this page provided by ")
+            
+            Text("MANGADEX")
+                .fontWeight(.semibold)
+        }
+        .font(.caption2)
+        .foregroundColor(.gray)
+        .padding(.horizontal)
+        .padding(.bottom, 5)
     }
     
     private struct SortPickerView: View {
@@ -271,7 +288,7 @@ extension SearchView {
                 }
                 .padding(.trailing)
             }
-            .tint(.white)
+            .tint(.theme.foreground)
         }
         
         @ViewBuilder private func makeButtonViewFor(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> some View {

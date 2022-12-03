@@ -89,7 +89,7 @@ struct OfflineMangaReadingView: View {
             if shouldShowNavBar {
                 VStack {
                     ZStack {
-                        Color.black
+                        Color.theme.background
                             .ignoresSafeArea(.all, edges: .top)
                         
                         HStack(spacing: 15) {
@@ -141,10 +141,10 @@ struct OfflineMangaReadingView: View {
                         
                         ForEach(viewStore.chapterIndexes, id: \.self) { chapterIndex in
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(viewStore.chapterIndex == chapterIndex ? Color.theme.accent : .white)
+                                .stroke(viewStore.chapterIndex == chapterIndex ? Color.theme.accent : .theme.foreground)
                                 .background(
                                     RoundedRectangle(cornerRadius: 4)
-                                        .fill(.black)
+                                        .fill(Color.theme.background)
                                 )
                                 .frame(width: 50, height: 50)
                                 .overlay { Text(chapterIndex.clean()) }
@@ -196,7 +196,7 @@ struct OfflineMangaReadingView: View {
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
                 .padding(.vertical)
         }
     }

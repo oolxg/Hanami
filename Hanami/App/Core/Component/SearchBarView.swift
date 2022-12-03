@@ -13,18 +13,18 @@ struct SearchBarView: View {
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(searchText.isEmpty ? .theme.secondaryText : .white)
+                .foregroundColor(searchText.isEmpty ? .theme.secondaryText : .theme.foreground)
             
             TextField("Search", text: $searchText)
-                .foregroundColor(.white)
-                .accentColor(.white)
+                .foregroundColor(.theme.foreground)
+                .accentColor(.theme.foreground)
                 .disableAutocorrection(true)
         }
         .font(.headline)
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white, lineWidth: 1)
+                .stroke(Color.theme.foreground, lineWidth: 1)
         )
     }
 }

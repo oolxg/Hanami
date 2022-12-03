@@ -76,7 +76,7 @@ struct OnlineMangaView: View {
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
-                    .fill(.black)
+                    .fill(Color.theme.background)
                     .frame(height: 50)
                     .frame(maxHeight: .infinity, alignment: .top)
                     .opacity(isCoverArtDisappeared ? 1 : 0)
@@ -158,7 +158,7 @@ extension OnlineMangaView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
-                    colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
+                    colors: [ .theme.background.opacity(0.1), .theme.background.opacity(0.8) ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -187,7 +187,7 @@ extension OnlineMangaView {
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.theme.foreground)
                                 .fontWeight(.semibold)
                         }
                         .font(.subheadline)
@@ -254,7 +254,7 @@ extension OnlineMangaView {
                                     ZStack(alignment: .bottom) {
                                         if let volume = viewStore.allCoverArtsInfo[coverArtIndex].attributes.volume {
                                             LinearGradient(
-                                                colors: [.clear, .clear, .black],
+                                                colors: [.clear, .clear, .theme.background],
                                                 startPoint: .top,
                                                 endPoint: .bottom
                                             )
@@ -406,7 +406,7 @@ extension OnlineMangaView {
             self.dismiss()
         } label: {
             Image(systemName: "arrow.left")
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.foreground)
                 .padding(.vertical)
         }
         .transition(.opacity)
@@ -417,7 +417,7 @@ extension OnlineMangaView {
             ViewStore(store).send(.refreshButtonTapped)
         } label: {
             Image(systemName: "arrow.clockwise")
-                .foregroundColor(.white)
+                .foregroundColor(Color.theme.foreground)
                 .padding(.vertical)
         }
         .transition(.opacity)
@@ -437,7 +437,7 @@ extension OnlineMangaView {
             .padding(.bottom, 5)
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
-        .background(Color.black)
+        .background(Color.theme.background)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
         .modifier(
             MangaViewOffsetModifier(
@@ -452,12 +452,12 @@ extension OnlineMangaView {
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)
-                    .foregroundColor(viewStore.selectedTab == tab ? .white : .gray)
+                    .foregroundColor(viewStore.selectedTab == tab ? .theme.foreground : .gray)
                 
                 ZStack {
                     if viewStore.selectedTab == tab {
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(.white)
+                            .fill(Color.theme.foreground)
                             .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)
                     }
                 }

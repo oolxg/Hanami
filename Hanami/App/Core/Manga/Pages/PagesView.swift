@@ -66,7 +66,7 @@ extension PagesView {
                 viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex - 1))
             } label: {
                 Image(systemName: "arrow.left")
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
             }
             .padding(.horizontal, 5)
             .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
@@ -98,7 +98,7 @@ extension PagesView {
                 viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex + 1))
             } label: {
                 Image(systemName: "arrow.right")
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
             }
             .padding(.horizontal, 5)
             .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
@@ -130,7 +130,7 @@ extension PagesView {
             } label: { EmptyView() }
         } label: {
             Text("\(viewStore.currentPageIndex + 1)")
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
                 .font(.subheadline)
                 .frame(width: 30, height: 30, alignment: .center)
                 .padding(7)

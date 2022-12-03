@@ -76,7 +76,7 @@ extension ChapterView {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack {
                 Circle()
-                    .fill(.white)
+                    .fill(Color.theme.foreground)
                     .frame(width: 5, height: 5)
                     .padding(.trailing, 5)
                 
@@ -141,7 +141,7 @@ extension ChapterView {
             makeScanlationGroupView(for: chapter)
             
             Rectangle()
-                .fill(.white)
+                .fill(Color.theme.foreground)
                 .frame(height: 1.5)
         }
         .contentShape(Rectangle())
@@ -177,7 +177,7 @@ extension ChapterView {
                     .padding(.top, 5)
                     .padding(5)
                     .frame(width: 40)
-                    .tint(.white)
+                    .tint(.theme.accent)
                     .onTapGesture {
                         viewStore.send(.cancelChapterDownloadButtonTapped(chapterID: chapter.id), animation: .linear)
                     }
@@ -198,7 +198,7 @@ extension ChapterView {
                 } label: {
                     Image(systemName: "arrow.down.to.line.circle")
                         .font(.callout)
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .padding(5)
                 }
             }

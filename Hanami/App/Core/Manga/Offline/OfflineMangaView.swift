@@ -56,7 +56,7 @@ struct OfflineMangaView: View {
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
-                    .fill(.black)
+                    .fill(Color.theme.background)
                     .frame(height: 50)
                     .frame(maxHeight: .infinity, alignment: .top)
                     .opacity(isCoverArtDisappeared ? 1 : 0)
@@ -126,7 +126,7 @@ extension OfflineMangaView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
-                    colors: [ .black.opacity(0.1), .black.opacity(0.8) ],
+                    colors: [ .theme.background.opacity(0.1), .theme.background.opacity(0.8) ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -155,7 +155,7 @@ extension OfflineMangaView {
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
-                                .foregroundColor(.white)
+                                .foregroundColor(.theme.foreground)
                                 .fontWeight(.semibold)
                         }
                         .font(.subheadline)
@@ -190,7 +190,7 @@ extension OfflineMangaView {
             showMangaDeletionDialog = true
         } label: {
             Image(systemName: "trash")
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
         }
         .confirmationDialog(
             "Are you sure you want delete this manga and all chapters from device?",
@@ -305,7 +305,7 @@ extension OfflineMangaView {
             .font(.callout)
             .lineLimit(1)
             .padding(10)
-            .foregroundColor(.white)
+            .foregroundColor(.theme.foreground)
             .background(Color.theme.darkGray)
             .cornerRadius(10)
     }
@@ -335,7 +335,7 @@ extension OfflineMangaView {
             .padding(.bottom, 5)
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
-        .background(Color.black)
+        .background(Color.theme.background)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
         .modifier(
             MangaViewOffsetModifier(
@@ -350,12 +350,12 @@ extension OfflineMangaView {
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)
-                    .foregroundColor(viewStore.selectedTab == tab ? .white : .gray)
+                    .foregroundColor(viewStore.selectedTab == tab ? .theme.foreground : .gray)
                 
                 ZStack {
                     if viewStore.selectedTab == tab {
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(.white)
+                            .fill(Color.theme.foreground)
                             .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)
                     }
                 }

@@ -61,7 +61,7 @@ extension FiltersView {
                         viewStore.send(.resetFilterButtonPressed)
                     } label: {
                         Image(systemName: "trash")
-                            .foregroundColor(.white)
+                            .foregroundColor(.theme.foreground)
                             .padding(8)
                     }
                 }
@@ -173,7 +173,7 @@ extension FiltersView {
     
     private func makeTitle(_ title: String) -> some View {
         Text(title)
-            .foregroundColor(.white)
+            .foregroundColor(.theme.foreground)
             .font(.title3)
             .fontWeight(.semibold)
             .padding(.horizontal)
@@ -192,7 +192,7 @@ extension FiltersView {
             } label: {
                 HStack {
                     Text(title)
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .font(.callout)
                     
                     Spacer()
@@ -205,13 +205,13 @@ extension FiltersView {
                     }
                     
                     Image(systemName: "arrow.right")
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                         .font(.headline)
                 }
                 .padding()
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.white, lineWidth: 1.5)
+                        .stroke(Color.theme.foreground, lineWidth: 1.5)
                 )
             }
             .frame(height: 20, alignment: .leading)
@@ -250,7 +250,7 @@ extension FiltersView {
                         isActive?.wrappedValue = false
                     } label: {
                         Image(systemName: "arrow.left")
-                            .foregroundColor(.white)
+                            .foregroundColor(.theme.foreground)
                             .padding(.vertical)
                     }
                     .opacity(isActive == nil ? 0 : 1)

@@ -26,6 +26,7 @@ struct SettingsView: View {
                 }
                 .navigationTitle("Settings")
                 .tint(Color.theme.accent)
+                .listStyle(.plain)
             }
         }
     }
@@ -75,17 +76,17 @@ extension SettingsView {
             WithViewStore(store) { viewStore in
                 Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForOnlineReading)) {
                     Label("Read online manga in higher quality", systemImage: "antenna.radiowaves.left.and.right")
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                 }
                 
                 Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForCaching)) {
                     Label("Save manga in higher quality", systemImage: "antenna.radiowaves.left.and.right.slash")
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
                 }
 
                 HStack {
                     Label("Saved manga size", systemImage: "folder.fill")
-                        .foregroundColor(.white)
+                        .foregroundColor(.theme.foreground)
 
                     Spacer()
                     

@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var showSeasonal = false
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
+    @Environment(\.colorScheme) private var colorScheme
     @StateObject private var networkMonitor = NetworkMonitor.shared
     
     private struct ViewState: Equatable {
@@ -96,7 +97,7 @@ struct HomeView: View {
                             viewStore.send(.refreshButtonTapped, animation: .linear(duration: 1.5))
                         } label: {
                             Image(systemName: "arrow.clockwise")
-                                .foregroundColor(.white)
+                                .foregroundColor(.theme.foreground)
                                 .font(.title3)
                                 .rotationEffect(
                                     Angle(degrees: viewStore.isRefreshActionInProgress ? 360 : 0),
@@ -116,7 +117,7 @@ struct HomeView: View {
             } label: {
                 Image(systemName: "arrow.left")
                     .font(.title3)
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
                     .padding(.vertical)
             }
         }
@@ -140,7 +141,7 @@ struct HomeView_Previews: PreviewProvider {
 extension HomeView {
     private var latestUpdates: some View {
         Section {
-            VStack {
+            VStack(alignment: .center) {
                 WithViewStore(store, observe: ViewState.init) { viewStore in
                     if viewStore.areLatestUpdatesFetched {
                         ForEachStore(
@@ -157,10 +158,12 @@ extension HomeView {
                         }
                     } else {
                         ForEach(0..<10) { _ in
-                            MangaThumbnailView.skeleton.padding(5)
+                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                         }
                     }
                 }
+                
+                footer
             }
         } header: {
             Text("Latest updates")
@@ -171,7 +174,7 @@ extension HomeView {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     LinearGradient(
-                        colors: [.black, .black, .black, .clear],
+                        colors: [.theme.background, .theme.background, .theme.background, .clear],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -199,7 +202,7 @@ extension HomeView {
                     )
                 
                 Text("Seasonal")
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
                     .multilineTextAlignment(.leading)
                     .font(.headline)
                     .padding(.bottom, 10)
@@ -232,7 +235,7 @@ extension HomeView {
                             }
                     } else {
                         ForEach(0..<20) { _ in
-                            MangaThumbnailView.skeleton.padding(5)
+                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                         }
                     }
                 }
@@ -268,7 +271,7 @@ extension HomeView {
                     Text("Most")
                     Text("Followed")
                 }
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
                 .multilineTextAlignment(.leading)
                 .font(.headline)
                 .padding(.bottom, 10)
@@ -302,7 +305,7 @@ extension HomeView {
                                 }
                         } else {
                             ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton.padding(5)
+                                MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                             }
                         }
                     }
@@ -342,7 +345,7 @@ extension HomeView {
                     Text("Award")
                     Text("Winning")
                 }
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
                 .multilineTextAlignment(.leading)
                 .font(.headline)
                 .padding(.bottom, 10)
@@ -376,7 +379,7 @@ extension HomeView {
                                 }
                         } else {
                             ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton.padding(5)
+                                MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                             }
                         }
                     }
@@ -392,5 +395,18 @@ extension HomeView {
         .onAppear {
             ViewStore(store).send(.onAppearAwardWinningManga)
         }
+    }
+    
+    private var footer: some View {
+        HStack(spacing: 0) {
+            Text("All information on this page provided by ")
+            
+            Text("MANGADEX")
+                .fontWeight(.semibold)
+        }
+        .font(.caption2)
+        .foregroundColor(.gray)
+        .padding(.horizontal)
+        .padding(.bottom, 5)
     }
 }

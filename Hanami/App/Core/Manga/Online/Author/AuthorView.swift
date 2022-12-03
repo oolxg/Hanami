@@ -63,7 +63,7 @@ extension AuthorView {
             } label: {
                 Image(systemName: "xmark")
                     .font(.title3)
-                    .foregroundColor(.white)
+                    .foregroundColor(.theme.foreground)
                     .padding(.vertical)
             }
         }
