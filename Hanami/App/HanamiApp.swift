@@ -30,16 +30,34 @@ struct HanamiApp: App {
         }
     }
     
+    struct ViewState: Equatable {
+        let colorScheme: ColorScheme
+        
+        init(state: AppFeature.State) {
+            switch state.rootState.settingsState.config.colorScheme {
+            case 1:
+                colorScheme = .light
+            case 2:
+                colorScheme = .dark
+            default:
+                colorScheme = .dark
+            }
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
-            RootView(
-                store: store.scope(
-                    state: \.rootState,
-                    action: AppFeature.Action.rootAction
+            WithViewStore(store, observe: ViewState.init) { viewStore in
+                RootView(
+                    store: store.scope(
+                        state: \.rootState,
+                        action: AppFeature.Action.rootAction
+                    )
                 )
-            )
-            .onAppear {
-                ViewStore(store).send(.initApp)
+                .environment(\.colorScheme, viewStore.colorScheme)
+                .onAppear {
+                    viewStore.send(.initApp)
+                }
             }
         }
     }

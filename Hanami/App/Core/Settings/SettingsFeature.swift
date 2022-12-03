@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import Nuke
+import class UIKit.UIApplication
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
@@ -15,7 +16,8 @@ struct SettingsFeature: ReducerProtocol {
             autolockPolicy: .never,
             blurRadius: Defaults.Security.minBlurRadius,
             useHigherQualityImagesForOnlineReading: false,
-            useHigherQualityImagesForCaching: false
+            useHigherQualityImagesForCaching: false,
+            colorScheme: 0
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0

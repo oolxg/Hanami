@@ -21,6 +21,8 @@ struct SettingsView: View {
                 
                 List {
                     privacySection
+
+                    appearanceSection
                     
                     storageSection
                 }
@@ -115,6 +117,23 @@ extension SettingsView {
             }
         } header: {
             Text("Storage and Network")
+        }
+    }
+    
+    private var appearanceSection: some View {
+        Section {
+            WithViewStore(store) { viewStore in
+                Picker("Theme", selection: viewStore.binding(\.$config.colorScheme)) {
+                    Text("System").tag(0)
+                    
+                    Text("Light").tag(1)
+                    
+                    Text("Dark").tag(2)
+                }
+                .pickerStyle(.menu)
+            }
+        } header: {
+            Text("Appearance")
         }
     }
 }
