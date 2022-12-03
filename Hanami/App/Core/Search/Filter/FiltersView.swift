@@ -269,6 +269,7 @@ extension FiltersView {
             }
             
             Text(filterTag.name.capitalized)
+                .foregroundColor(filterTag.state == .selected ? .black : nil)
                 .padding(.horizontal, 5)
                 .font(.callout)
                 .lineLimit(1)

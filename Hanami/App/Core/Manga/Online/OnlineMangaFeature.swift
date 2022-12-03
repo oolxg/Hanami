@@ -125,7 +125,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     let allowHaptic = state.pagesState != nil
                     
                     if state.pagesState != nil {
-                        hudClient.show(message: "Updated!", backgroundColor: .green)
+                        hudClient.show(message: "Updated!", backgroundColor: .theme.green)
                     }
                     
                     let currentPageIndex = state.pagesState?.currentPageIndex
@@ -203,7 +203,11 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
             case .refreshButtonTapped:
                 if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
-                    hudClient.show(message: "Wait a little to refresh this page", backgroundColor: .yellow)
+                    hudClient.show(
+                        message: "Wait a little to refresh this page",
+                        iconName: "clock",
+                        backgroundColor: .theme.yellow
+                    )
                     return hapticClient
                         .generateNotificationFeedback(.error)
                         .fireAndForget()

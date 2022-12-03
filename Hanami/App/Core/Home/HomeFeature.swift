@@ -72,7 +72,11 @@ struct HomeFeature: ReducerProtocol {
                 let now = Date()
                 
                 guard state.lastRefreshDate == nil || now - state.lastRefreshDate! > 10 else {
-                    hudClient.show(message: "Wait a little to refresh home page", backgroundColor: .yellow)
+                    hudClient.show(
+                        message: "Wait a little to refresh home page",
+                        iconName: "clock",
+                        backgroundColor: .theme.yellow
+                    )
                     return hapticClient
                         .generateNotificationFeedback(.error)
                         .fireAndForget()

@@ -57,6 +57,7 @@ struct OnlineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.afterLastPageIndex)
             }
+            .background(Color.theme.background)
             .onChange(of: viewStore.pagesCount) { _ in
                 guard let pagesCount = viewStore.pagesCount else { return }
                 

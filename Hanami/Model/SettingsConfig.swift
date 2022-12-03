@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import enum SwiftUI.ColorScheme
 
 struct SettingsConfig: Codable, Equatable {
     var autolockPolicy: AutoLockPolicy

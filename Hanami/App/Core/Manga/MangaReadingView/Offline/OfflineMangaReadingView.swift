@@ -59,6 +59,7 @@ struct OfflineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.pagesCount)
             }
+            .background(Color.theme.background)
             .overlay(navigationBlock)
             .tabViewStyle(.page(indexDisplayMode: .never))
             .navigationBarHidden(true)
