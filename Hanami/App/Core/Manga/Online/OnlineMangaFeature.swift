@@ -214,6 +214,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 return .merge(
                     mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
                         .receive(on: DispatchQueue.main)
+                        .delay(for: .seconds(0.7), scheduler: DispatchQueue.main)
                         .catchToEffect(Action.volumesRetrieved),
                     
                     hapticClient.generateFeedback(.medium).fireAndForget()

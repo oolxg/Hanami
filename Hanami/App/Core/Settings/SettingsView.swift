@@ -96,13 +96,15 @@ extension SettingsView {
                     viewStore.send(.clearImageCacheButtonTapped)
                 } label: {
                     Label("Clear image cache", systemImage: "photo.stack")
+                        .foregroundColor(.red)
                 }
-                
+
                 if viewStore.usedStorageSpace > 0 {
                     Button(role: .destructive) {
                         viewStore.send(.clearMangaCacheButtonTapped)
                     } label: {
                         Label("Delete all manga", systemImage: "trash")
+                            .foregroundColor(.red)
                             .confirmationDialog(
                                 store.scope(state: \.confirmationDialog),
                                 dismiss: .cancelTapped
