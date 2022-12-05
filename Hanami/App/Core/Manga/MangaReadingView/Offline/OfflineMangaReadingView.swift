@@ -15,31 +15,41 @@ struct OfflineMangaReadingView: View {
     @State private var shouldShowNavBar = true
     // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
     @State private var mainBlockOpacity = 1.0
-    @State private var currentPageIndex = 0
     
     private struct ViewState: Equatable {
         let chapterIndex: Double?
         let chapterID: UUID
         let pagesCount: Int
         let cachedPagesPaths: [URL?]
-        let startFromLastPage: Bool
         let chapterIndexes: [Double]
+        let pageIndex: Int
+        let pageIndexToDisplay: Int?
+        let mostLeftPageIndex: Int
+        let mostRightPageIndex: Int
         
         init(state: OfflineMangaReadingFeature.State) {
             chapterIndex = state.chapter.attributes.chapterIndex
             chapterID = state.chapter.id
             pagesCount = state.pagesCount
-            startFromLastPage = state.startFromLastPage
             chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.chapterIndex)
             cachedPagesPaths = state.cachedPagesPaths
+            pageIndex = state.pageIndex
+            pageIndexToDisplay = state.pageIndexToDisplay
+            mostLeftPageIndex = state.mostLeftPageIndex
+            mostRightPageIndex = state.mostRightPageIndex
         }
     }
     
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            TabView(selection: $currentPageIndex) {
+            TabView(
+                selection: viewStore.binding(
+                    get: \.pageIndex,
+                    send: OfflineMangaReadingFeature.Action.currentPageIndexChanged
+                )
+            ) {
                 Color.clear
-                    .tag(-1)
+                    .tag(viewStore.mostLeftPageIndex)
                 
                 ForEach(viewStore.cachedPagesPaths.indices, id: \.self) { pagePathIndex in
                     ZoomableScrollView {
@@ -57,7 +67,7 @@ struct OfflineMangaReadingView: View {
                 .opacity(mainBlockOpacity)
                 
                 Color.clear
-                    .tag(viewStore.pagesCount)
+                    .tag(viewStore.mostRightPageIndex)
             }
             .background(Color.theme.background)
             .overlay(navigationBlock)
@@ -68,18 +78,9 @@ struct OfflineMangaReadingView: View {
             .onChange(of: viewStore.chapterID) { _ in
                 mainBlockOpacity = 0
                 
-                if viewStore.startFromLastPage {
-                    currentPageIndex = viewStore.pagesCount - 1
-                } else {
-                    currentPageIndex = 0
-                }
-                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     mainBlockOpacity = 1
                 }
-            }
-            .onChange(of: currentPageIndex) {
-                viewStore.send(.currentPageIndexChanged(newPageIndex: $0))
             }
             .autoBlur(radius: blurRadius)
         }
@@ -104,9 +105,8 @@ struct OfflineMangaReadingView: View {
                                     Text("Chapter \(chapterIndex.clean())")
                                 }
                                 
-                                if let pagesCount = viewStore.pagesCount,
-                                   currentPageIndex < pagesCount && currentPageIndex + 1 > 0 {
-                                    Text("\(currentPageIndex + 1)/\(pagesCount)")
+                                if let pageIndex = viewStore.pageIndexToDisplay {
+                                    Text("\(pageIndex)/\(viewStore.pagesCount)")
                                 }
                             }
                             .font(.callout)

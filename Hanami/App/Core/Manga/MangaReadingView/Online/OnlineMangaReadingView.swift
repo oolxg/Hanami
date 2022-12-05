@@ -43,7 +43,8 @@ struct OnlineMangaReadingView: View {
             TabView(
                 selection: viewStore.binding(
                     get: \.pageIndex,
-                    send: OnlineMangaReadingFeature.Action.currentPageIndexChanged)
+                    send: OnlineMangaReadingFeature.Action.currentPageIndexChanged
+                )
             ) {
                 Color.clear
                     .tag(viewStore.mostLeftPageIndex)

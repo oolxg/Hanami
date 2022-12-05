@@ -150,7 +150,6 @@ struct SettingsFeature: ReducerProtocol {
                 fallthrough
                 
             case .binding:
-                dump(state.config)
                 return settingsClient.saveSettingsConfig(state.config).fireAndForget()
             }
         }

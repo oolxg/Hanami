@@ -43,7 +43,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         // need this var for avoiding computations of page index when `readMangaRightToLeft` is set to true
         var pageIndexToDisplay: Int? {
             if let pagesCount, pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
-                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex
+                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex + 1
             }
             return nil
         }
@@ -134,9 +134,9 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 }
                 
                 if state.readMangaRightToLeft {
-                    state.pageIndex = state.startFromLastPage ? 0 : state.pagesURLs!.count - 1
+                    state.pageIndex = state.startFromLastPage ? 0 : state.pagesCount! - 1
                 } else {
-                    state.pageIndex = state.startFromLastPage ? state.pagesURLs!.count - 1 : 0
+                    state.pageIndex = state.startFromLastPage ? state.pagesCount! - 1 : 0
                 }
                 
                 return imageClient

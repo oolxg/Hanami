@@ -20,7 +20,19 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         let mangaID: UUID
         let chapter: ChapterDetails
         let startFromLastPage: Bool
+        
         let pagesCount: Int
+        var pageIndex = 0
+        var pageIndexToDisplay: Int? {
+            if pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
+                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex + 1
+            }
+            return nil
+        }
+        var readMangaRightToLeft = true
+        
+        let mostLeftPageIndex = -1
+        var mostRightPageIndex: Int { pagesCount }
         
         var cachedPagesPaths: [URL?] = []
         var sameScanlationGroupChapters: [ChapterDetails] = []
@@ -35,6 +47,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         case chapterCarouselButtonTapped(newChapterIndex: Double)
         case userLeftMangaReadingView
         
+        case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case sameScanlationGroupChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
     }
     
@@ -42,6 +55,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
+    @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
     
@@ -52,10 +66,6 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             guard state.cachedPagesPaths.isEmpty else {
                 return .none
             }
-            
-            state.cachedPagesPaths = mangaClient.getPathsForCachedChapterPages(
-                state.chapter.id, state.pagesCount, cacheClient
-            )
             
             var effects: [Effect<Action, Never>] = [
                 imageClient
@@ -74,7 +84,36 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 )
             }
             
-            return .merge(effects)
+            return .concatenate(
+                settingsClient.getSettingsConfig()
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.settingsConfigRetrieved),
+                
+                .merge(effects)
+            )
+            
+        case .settingsConfigRetrieved(let result):
+            switch result {
+            case .success(let config):
+                state.readMangaRightToLeft = config.readMangaRightToLeft
+                
+                state.cachedPagesPaths = mangaClient.getPathsForCachedChapterPages(
+                    state.chapter.id, state.pagesCount, cacheClient
+                )
+                
+                if state.readMangaRightToLeft {
+                    state.cachedPagesPaths.reverse()
+                    state.pageIndex = state.startFromLastPage ? 0 : state.pagesCount - 1
+                } else {
+                    state.pageIndex = state.startFromLastPage ? state.pagesCount - 1 : 0
+                }
+                
+                return .none
+                
+            case .failure(let error):
+                logger.error("Failed to retrieve settingsConfig: \(error)")
+                return .none
+            }
             
         case .sameScanlationGroupChaptersRetrieved(let result):
             switch result {
@@ -99,10 +138,22 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-            if newPageIndex == -1 {
-                return .task { .moveToPreviousChapter }
-            } else if newPageIndex == state.pagesCount {
-                return .task { .moveToNextChapter }
+            state.pageIndex = newPageIndex
+            
+            // we reached most left page of chapter
+            if newPageIndex == state.mostLeftPageIndex {
+                if state.readMangaRightToLeft {
+                    return .task { .moveToNextChapter }
+                } else {
+                    return .task { .moveToPreviousChapter }
+                }
+            // we reached most right book of chapter
+            } else if newPageIndex == state.mostRightPageIndex {
+                if state.readMangaRightToLeft {
+                    return .task { .moveToPreviousChapter }
+                } else {
+                    return .task { .moveToNextChapter }
+                }
             }
             
             return .none
