@@ -12,6 +12,7 @@ struct SearchView: View {
     let store: StoreOf<SearchFeature>
     let blurRadius: CGFloat
     @State private var showFilters = false
+    @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
@@ -67,6 +68,7 @@ struct SearchView: View {
                         ),
                         blurRadius: blurRadius
                     )
+                    .environment(\.colorScheme, colorScheme)
                 })
             }
         }

@@ -14,4 +14,5 @@ struct SettingsConfig: Codable, Equatable {
     var useHigherQualityImagesForCaching: Bool
     // 0 - system, 1 - light, 2 - dark
     var colorScheme: Int
+    var readMangaRightToLeft: Bool
 }

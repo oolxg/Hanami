@@ -25,6 +25,8 @@ struct SettingsView: View {
                     appearanceSection
                     
                     storageSection
+                    
+                    readingSection
                 }
                 .navigationTitle("Settings")
                 .tint(Color.theme.accent)
@@ -134,6 +136,21 @@ extension SettingsView {
             }
         } header: {
             Text("Appearance")
+        }
+    }
+    
+    private var readingSection: some View {
+        Section {
+            WithViewStore(store) { viewStore in
+                Picker("Reading format", selection: viewStore.binding(\.$config.readMangaRightToLeft)) {
+                    Text("Right-to-left").tag(true)
+                    
+                    Text("Left-to-right").tag(false)
+                }
+                .pickerStyle(.menu)
+            }
+        } header: {
+            Text("Reading")
         }
     }
 }

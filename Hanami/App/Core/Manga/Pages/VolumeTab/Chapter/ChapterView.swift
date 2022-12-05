@@ -42,7 +42,7 @@ struct ChapterView: View {
             } label: {
                 disclosureGroupLabel
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
             .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             .padding(5)
             .confirmationDialog(

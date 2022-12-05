@@ -16,7 +16,8 @@ struct SettingsFeature: ReducerProtocol {
             blurRadius: Defaults.Security.minBlurRadius,
             useHigherQualityImagesForOnlineReading: false,
             useHigherQualityImagesForCaching: false,
-            colorScheme: 0
+            colorScheme: 0,
+            readMangaRightToLeft: true
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0
@@ -149,6 +150,7 @@ struct SettingsFeature: ReducerProtocol {
                 fallthrough
                 
             case .binding:
+                dump(state.config)
                 return settingsClient.saveSettingsConfig(state.config).fireAndForget()
             }
         }
