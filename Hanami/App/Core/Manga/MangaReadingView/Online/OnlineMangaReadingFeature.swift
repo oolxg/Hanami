@@ -33,15 +33,27 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         let scanlationGroupID: UUID?
         let startFromLastPage: Bool
         
-        // if user reaches this index, means we have to send him to the next chapter
-        let afterLastPageIndex = 999
+        // if user reaches one of this indexes, means we have to send him to the next or prev chapter chapter
+        let mostRightPageIndex = 9999
+        let mostLeftPageIndex = -1
         
         var pagesURLs: [URL]?
+        
+        var pageIndex = 0
+        // need this var for avoiding computations of page index when `readMangaRightToLeft` is set to true
+        var pageIndexToDisplay: Int? {
+            if let pagesCount, pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
+                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex
+            }
+            return nil
+        }
         
         var pagesCount: Int? {
             pagesURLs?.count
         }
+        
         var useHighQualityImages = false
+        var readMangaRightToLeft = true
         
         var sameScanlationGroupChapters: [Chapter] = []
     }
@@ -103,6 +115,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             switch result {
             case .success(let config):
                 state.useHighQualityImages = config.useHigherQualityImagesForOnlineReading
+                state.readMangaRightToLeft = config.readMangaRightToLeft
                 return .none
                 
             case .failure(let error):
@@ -115,6 +128,16 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             switch result {
             case .success(let chapterPagesInfo):
                 state.pagesURLs = chapterPagesInfo.getPagesURLs(highQuality: state.useHighQualityImages)
+                
+                if state.readMangaRightToLeft {
+                    state.pagesURLs!.reverse()
+                }
+                
+                if state.readMangaRightToLeft {
+                    state.pageIndex = state.startFromLastPage ? 0 : state.pagesURLs!.count - 1
+                } else {
+                    state.pageIndex = state.startFromLastPage ? state.pagesURLs!.count - 1 : 0
+                }
                 
                 return imageClient
                     .prefetchImages(state.pagesURLs!)
@@ -131,10 +154,22 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case .currentPageIndexChanged(let newPageIndex):
             guard state.pagesURLs != nil else { return .none }
             
-            if newPageIndex == -1 {
-                return .task { .moveToPreviousChapter }
-            } else if newPageIndex == state.afterLastPageIndex {
-                return .task { .moveToNextChapter }
+            state.pageIndex = newPageIndex
+            
+            // we reached most left page of chapter
+            if newPageIndex == state.mostLeftPageIndex {
+                if state.readMangaRightToLeft {
+                    return .task { .moveToNextChapter }
+                } else {
+                    return .task { .moveToPreviousChapter }
+                }
+            // we reached most right book of chapter
+            } else if newPageIndex == state.mostRightPageIndex {
+                if state.readMangaRightToLeft {
+                    return .task { .moveToPreviousChapter }
+                } else {
+                    return .task { .moveToNextChapter }
+                }
             }
             
             return .none

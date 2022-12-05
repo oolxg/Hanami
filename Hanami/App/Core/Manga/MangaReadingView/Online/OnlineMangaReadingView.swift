@@ -13,7 +13,6 @@ struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
     let blurRadius: CGFloat
     @State private var shouldShowNavBar = true
-    @State private var currentPageIndex = 0
     
     private struct ViewState: Equatable {
         let pagesURLs: [URL]
@@ -21,7 +20,10 @@ struct OnlineMangaReadingView: View {
         let startFromLastPage: Bool
         let chapterIndex: Double?
         let chapterIndexes: [Double]
-        let afterLastPageIndex: Int
+        let mostRightPageIndex: Int
+        let mostLeftPageIndex: Int
+        let pageIndex: Int
+        let pageIndexToDisplay: Int?
         
         init(state: OnlineMangaReadingFeature.State) {
             pagesURLs = state.pagesURLs ?? []
@@ -29,15 +31,22 @@ struct OnlineMangaReadingView: View {
             startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex
             chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex)
-            afterLastPageIndex = state.afterLastPageIndex
+            mostRightPageIndex = state.mostRightPageIndex
+            mostLeftPageIndex = state.mostLeftPageIndex
+            pageIndex = state.pageIndex
+            pageIndexToDisplay = state.pageIndexToDisplay
         }
     }
     
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            TabView(selection: $currentPageIndex) {
+            TabView(
+                selection: viewStore.binding(
+                    get: \.pageIndex,
+                    send: OnlineMangaReadingFeature.Action.currentPageIndexChanged)
+            ) {
                 Color.clear
-                    .tag(-1)
+                    .tag(viewStore.mostLeftPageIndex)
                 
                 ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
                     ZoomableScrollView {
@@ -55,21 +64,9 @@ struct OnlineMangaReadingView: View {
                 .opacity(viewStore.pagesCount != nil ? 1 : 0)
                 
                 Color.clear
-                    .tag(viewStore.afterLastPageIndex)
+                    .tag(viewStore.mostRightPageIndex)
             }
             .background(Color.theme.background)
-            .onChange(of: viewStore.pagesCount) { _ in
-                guard let pagesCount = viewStore.pagesCount else { return }
-                
-                if viewStore.startFromLastPage {
-                    currentPageIndex = pagesCount - 1
-                } else {
-                    currentPageIndex = 0
-                }
-            }
-            .onChange(of: currentPageIndex) {
-                viewStore.send(.currentPageIndexChanged(newPageIndex: $0))
-            }
             .overlay {
                 if viewStore.pagesURLs.isEmpty {
                     ProgressView()
@@ -118,10 +115,8 @@ extension OnlineMangaReadingView {
                                     Text("Chapter \(chapterIndex.clean())")
                                 }
                                 
-                                if let pagesCount = viewStore.pagesCount,
-                                   currentPageIndex != viewStore.afterLastPageIndex,
-                                   currentPageIndex + 1 > 0 {
-                                    Text("\(currentPageIndex + 1)/\(pagesCount)")
+                                if let pagesCount = viewStore.pagesCount, let pageIndex = viewStore.pageIndexToDisplay {
+                                    Text("\(pageIndex)/\(pagesCount)")
                                 }
                             }
                             .font(.callout)
