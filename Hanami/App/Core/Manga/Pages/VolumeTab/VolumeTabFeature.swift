@@ -40,8 +40,9 @@ struct VolumeTabFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-            case .chapterAction(let chapterStateID, action: .chapterDeletionConfirmed):
-                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
+            case .chapterAction(let chapterStateID, action: .downloaderAction(.chapterDeletionConfirmed)):
+                // we compare it to 1 because this action will fire before chapter deletion from `chapterDetailsList`
+                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.count == 1 {
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
@@ -51,7 +52,7 @@ struct VolumeTabFeature: ReducerProtocol {
                 
                 return .none
                 
-                // to be hijacked inside pagesReducer
+            // to be hijacked inside pagesReducer
             case .userDeletedLastChapterInVolume:
                 return .none
                 

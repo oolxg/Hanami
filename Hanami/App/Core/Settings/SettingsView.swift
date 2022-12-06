@@ -20,13 +20,13 @@ struct SettingsView: View {
                     .foregroundColor(.clear)
                 
                 List {
+                    readingSection
+
                     privacySection
 
                     appearanceSection
                     
                     storageSection
-                    
-                    readingSection
                 }
                 .navigationTitle("Settings")
                 .tint(Color.theme.accent)

@@ -40,7 +40,8 @@ extension HomeClient: DependencyKey {
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "order[latestUploadedChapter]", value: "desc"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),
-                URLQueryItem(name: "includes[]", value: "author")
+                URLQueryItem(name: "includes[]", value: "author"),
+                URLQueryItem(name: "hasAvailableChapters", value: "true")
             ]
             
             guard let url = components.url else {
@@ -110,7 +111,8 @@ extension HomeClient: DependencyKey {
             components.queryItems = [
                 URLQueryItem(name: "limit", value: "\(mangaIDs.count)"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),
-                URLQueryItem(name: "includes[]", value: "author")
+                URLQueryItem(name: "includes[]", value: "author"),
+                URLQueryItem(name: "hasAvailableChapters", value: "true")
             ]
             
             components.queryItems! += mangaIDs.map { URLQueryItem(name: "ids[]", value: $0.uuidString.lowercased()) }
@@ -136,7 +138,8 @@ extension HomeClient: DependencyKey {
                 URLQueryItem(name: "includedTags[]", value: "0a39b5a1-b235-4886-a747-1d05d216532d"),
                 URLQueryItem(name: "order[rating]", value: "desc"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),
-                URLQueryItem(name: "includes[]", value: "author")
+                URLQueryItem(name: "includes[]", value: "author"),
+                URLQueryItem(name: "hasAvailableChapters", value: "true")
             ]
             
             guard let url = components.url else {
@@ -158,7 +161,8 @@ extension HomeClient: DependencyKey {
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "order[followedCount]", value: "desc"),
                 URLQueryItem(name: "includes[]", value: "author"),
-                URLQueryItem(name: "includes[]", value: "cover_art")
+                URLQueryItem(name: "includes[]", value: "cover_art"),
+                URLQueryItem(name: "hasAvailableChapters", value: "true")
             ]
             
             guard let url = components.url else {

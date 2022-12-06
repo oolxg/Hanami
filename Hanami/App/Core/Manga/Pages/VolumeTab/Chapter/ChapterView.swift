@@ -16,7 +16,7 @@ struct ChapterView: View {
         let chaptersCount: Int
         let online: Bool
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
-        let cachedChaptersStates: Set<ChapterFeature.CachedChapterState>
+        let cachedChaptersStates: Set<ChapterLoaderFeature.CachedChapterState>
         let areChaptersShown: Bool
         let scanlationGroups: [UUID: ScanlationGroup]
         
@@ -25,7 +25,7 @@ struct ChapterView: View {
             chaptersCount = state.chaptersCount
             online = state.online
             chapterDetailsList = state.chapterDetailsList
-            cachedChaptersStates = state.cachedChaptersStates
+            cachedChaptersStates = state.downloaderState.cachedChaptersStates
             areChaptersShown = state.areChaptersShown
             scanlationGroups = state.scanlationGroups
         }
