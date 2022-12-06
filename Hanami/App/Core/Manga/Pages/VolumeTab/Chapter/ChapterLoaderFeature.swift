@@ -166,7 +166,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
                 
                 mangaClient.fetchPagesInfo(chapter.id)
                     .receive(on: DispatchQueue.main)
-                    .catchToEffect { Action.pagesInfoForChapterCachingFetched($0, chapter) }
+                    .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
             )
             
         case .settingsConfigRetrieved(let result):

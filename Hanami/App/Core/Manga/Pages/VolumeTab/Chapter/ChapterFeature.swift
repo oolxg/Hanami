@@ -20,10 +20,10 @@ struct ChapterFeature: ReducerProtocol {
             self.chapter = chapter
             self.online = online
             self.parentManga = parentManga
-            downloaderState = ChapterLoaderFeature.State(parentManga: parentManga, online: online)
+            downloader = ChapterLoaderFeature.State(parentManga: parentManga, online: online)
         }
         
-        var downloaderState: ChapterLoaderFeature.State
+        var downloader: ChapterLoaderFeature.State
         
         // we can have many 'chapterDetailsList' in one ChapterState because one chapter can be translated by different scanlation groups
         var chapterDetailsList: IdentifiedArrayOf<ChapterDetails> = []
@@ -94,9 +94,6 @@ struct ChapterFeature: ReducerProtocol {
     // swiftlint:disable:
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
-            // for caching actions
-            struct CancelChapterCache: Hashable { let id: UUID }
-            
             switch action {
             case .onAppear:
                 return .task { .downloaderAction(.retrieveCachedChaptersFromMemory) }
@@ -252,7 +249,7 @@ struct ChapterFeature: ReducerProtocol {
                 return .none
             }
         }
-        Scope(state: \.downloaderState, action: /Action.downloaderAction) {
+        Scope(state: \.downloader, action: /Action.downloaderAction) {
             ChapterLoaderFeature()
         }
     }

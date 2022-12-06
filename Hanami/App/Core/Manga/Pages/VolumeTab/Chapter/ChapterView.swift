@@ -25,7 +25,7 @@ struct ChapterView: View {
             chaptersCount = state.chaptersCount
             online = state.online
             chapterDetailsList = state.chapterDetailsList
-            cachedChaptersStates = state.downloaderState.cachedChaptersStates
+            cachedChaptersStates = state.downloader.cachedChaptersStates
             areChaptersShown = state.areChaptersShown
             scanlationGroups = state.scanlationGroups
         }

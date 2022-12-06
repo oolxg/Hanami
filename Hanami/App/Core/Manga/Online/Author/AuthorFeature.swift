@@ -53,7 +53,7 @@ struct AuthorFeature: ReducerProtocol {
                     state.author = response.data
                     let mangaIDs = state.author!.mangaIDs
 
-                    return .merge(
+                    return .concatenate(
                         homeClient.fetchMangaByIDs(mangaIDs)
                             .receive(on: DispatchQueue.main)
                             .catchToEffect(Action.authorsMangaFetched),
