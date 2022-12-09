@@ -19,6 +19,10 @@ struct SearchBarView: View {
                 .foregroundColor(.theme.foreground)
                 .accentColor(.theme.foreground)
                 .disableAutocorrection(true)
+            
+             Image(systemName: "xmark")
+                .opacity(searchText.isEmpty ? 0 : 1)
+                .onTapGesture { searchText = "" }
         }
         .font(.headline)
         .padding(10)

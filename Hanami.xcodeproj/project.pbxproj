@@ -11,6 +11,7 @@
 		08200ABA28F6FACB009705D9 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 08200AB928F6FACB009705D9 /* SwiftyBeaver */; };
 		08200ABC28F70211009705D9 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08200ABB28F70211009705D9 /* FileUtil.swift */; };
 		08200ABE28F704AA009705D9 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08200ABD28F704AA009705D9 /* Defaults.swift */; };
+		0827CF8B2943C86700D68C93 /* GaugeProgressViewStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0827CF8A2943C86700D68C93 /* GaugeProgressViewStyle.swift */; };
 		0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20528F88AF30009A907 /* SettingsClient.swift */; };
 		0829E20828F896C30009A907 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20728F896C30009A907 /* AuthClient.swift */; };
 		0829E21E28FC243D0009A907 /* AutolockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E21D28FC243D0009A907 /* AutolockPolicy.swift */; };
@@ -148,6 +149,7 @@
 		080E9F25292B9867006296FB /* SettingsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConfig.swift; sourceTree = "<group>"; };
 		08200ABB28F70211009705D9 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		08200ABD28F704AA009705D9 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
+		0827CF8A2943C86700D68C93 /* GaugeProgressViewStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaugeProgressViewStyle.swift; sourceTree = "<group>"; };
 		0829E20528F88AF30009A907 /* SettingsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsClient.swift; sourceTree = "<group>"; };
 		0829E20728F896C30009A907 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
 		0829E21D28FC243D0009A907 /* AutolockPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutolockPolicy.swift; sourceTree = "<group>"; };
@@ -358,6 +360,7 @@
 				221F59EB284530AC00B11D5D /* FlexibleView.swift */,
 				22C2024B28BAC29600047E1C /* SearchBarView.swift */,
 				222A03732872330400D5B588 /* HUD.swift */,
+				0827CF8A2943C86700D68C93 /* GaugeProgressViewStyle.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -876,6 +879,7 @@
 				2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */,
 				08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */,
 				0829E21E28FC243D0009A907 /* AutolockPolicy.swift in Sources */,
+				0827CF8B2943C86700D68C93 /* GaugeProgressViewStyle.swift in Sources */,
 				229F8D90282DB5E400761054 /* RootFeature.swift in Sources */,
 				08E0B078293EC0C60021D5EC /* ChapterLoaderFeature.swift in Sources */,
 				222ED96D28C01F99009C361E /* URLSession.swift in Sources */,
@@ -1098,6 +1102,7 @@
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1138,6 +1143,7 @@
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

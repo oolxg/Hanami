@@ -205,13 +205,13 @@ struct ChapterFeature: ReducerProtocol {
                     buttons: [
                         .destructive(
                             TextState("Delete"),
-                            action: .send(.downloaderAction(.chapterDeletionConfirmed(chapterID: chapterID)))
+                            action: .send(.chapterDeletionConfirmed(chapterID: chapterID))
                         ),
                         .cancel(TextState("Cancel"), action: .send(.cancelTapped))
                     ]
                 )
                 
-                return .task { .downloaderAction(.chapterDeleteButtonTapped(chapterID: chapterID)) }
+                return .none
                 
             case .cancelTapped:
                 state.confirmationDialog = nil

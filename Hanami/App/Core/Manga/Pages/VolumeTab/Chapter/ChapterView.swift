@@ -153,45 +153,43 @@ extension ChapterView {
     private func cacheStatusLabel(for chapter: ChapterDetails) -> some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             if chapter.attributes.externalURL != nil {
-                Image(systemName: "arrow.up.forward.square")
-                    .font(.callout)
-                    .padding(5)
+                Image("ExternalLinkIcon")
+                    .resizable()
+                    .frame(width: 20, height: 20)
             } else if let chapterState = viewStore.cachedChaptersStates.first(where: { $0.id == chapter.id }) {
-                switch chapterState.status {
-                case .cached:
-                    Button {
-                        viewStore.send(.chapterDeleteButtonTapped(chapterID: chapter.id))
-                    } label: {
-                        Image(systemName: "checkmark.seal.fill")
-                            .font(.callout)
-                            .foregroundColor(.green)
-                            .padding(5)
-                    }
-                    
-                case .downloadInProgress:
-                    ProgressView(
-                        value: Double(chapterState.pagesFetched),
-                        total: Double(chapterState.pagesCount)
-                    )
-                    .progressViewStyle(.linear)
-                    .padding(.top, 5)
-                    .padding(5)
-                    .frame(width: 40)
-                    .tint(.theme.accent)
-                    .onTapGesture {
-                        viewStore.send(.cancelChapterDownloadButtonTapped(chapterID: chapter.id), animation: .linear)
-                    }
-                    
-                case .downloadFailed:
-                    Button {
-                        viewStore.send(.downloadChapterButtonTapped(chapter: chapter))
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.callout)
-                            .foregroundColor(.red)
-                            .padding(5)
+                ZStack {
+                    switch chapterState.status {
+                    case .cached:
+                        Button {
+                            viewStore.send(.chapterDeleteButtonTapped(chapterID: chapter.id))
+                        } label: {
+                            Image(systemName: "checkmark.circle")
+                                .font(.callout)
+                                .foregroundColor(.green)
+                        }
+                        
+                    case .downloadInProgress:
+                        ProgressView(
+                            value: Double(chapterState.pagesFetched),
+                            total: Double(chapterState.pagesCount)
+                        )
+                        .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
+                        .frame(width: 20)
+                        .onTapGesture {
+                            viewStore.send(.cancelChapterDownloadButtonTapped(chapterID: chapter.id), animation: .linear)
+                        }
+                        
+                    case .downloadFailed:
+                        Button {
+                            viewStore.send(.downloadChapterButtonTapped(chapter: chapter))
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.callout)
+                                .foregroundColor(.red)
+                        }
                     }
                 }
+                .animation(.linear, value: chapterState.status)
             } else if viewStore.online {
                 Button {
                     viewStore.send(.downloadChapterButtonTapped(chapter: chapter), animation: .linear)
@@ -199,10 +197,10 @@ extension ChapterView {
                     Image(systemName: "arrow.down.to.line.circle")
                         .font(.callout)
                         .foregroundColor(.theme.foreground)
-                        .padding(5)
                 }
             }
         }
+        .padding(5)
     }
     
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
@@ -213,10 +211,17 @@ extension ChapterView {
                         .fontWeight(.light)
                     
                     if viewStore.chapterDetailsList[id: chapter.id]?.scanlationGroupID != nil {
-                        Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
-                            .fontWeight(.bold)
-                            .lineLimit(1)
-                            .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                        HStack {
+                            Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                                .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                            
+                            if viewStore.scanlationGroups[chapter.id]?.attributes.isOfficial == true {
+                                Image(systemName: "person.badge.shield.checkmark")
+                                    .foregroundColor(.green)
+                            }
+                        }
                     } else {
                         Text("No group")
                             .fontWeight(.bold)

@@ -1,0 +1,28 @@
+{
+  "images" : [
+    {
+      "filename" : "ExternalLinkIcon(@1x).png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "ExternalLinkIcon(@2x).png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "ExternalLinkIcon(@3x).png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "compression-type" : "lossless",
+    "preserves-vector-representation" : true,
+    "template-rendering-intent" : "template"
+  }
+}

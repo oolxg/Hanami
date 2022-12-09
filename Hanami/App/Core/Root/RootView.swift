@@ -47,7 +47,8 @@ struct RootView: View {
                     blurRadius: viewStore.blurRadius
                 )
                 .tabItem {
-                    Image(systemName: "square.and.arrow.down")
+                    Image("DownloadsFolderIcon")
+                        .resizable()
                     Text("Downloads")
                 }
                 .tag(RootFeature.Tab.downloads)

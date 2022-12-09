@@ -32,7 +32,6 @@ struct ChapterLoaderFeature: ReducerProtocol {
     }
     
     enum Action: Equatable {
-        case chapterDeleteButtonTapped(chapterID: UUID)
         case chapterDeletionConfirmed(chapterID: UUID)
         
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
@@ -118,10 +117,6 @@ struct ChapterLoaderFeature: ReducerProtocol {
                 )
                 return .none
             }
-            
-        case .chapterDeleteButtonTapped(let chapterID):
-            // this cancel for the case, when action was called from '.cancelChapterDownloadButtonTapped'
-            return .cancel(id: CancelChapterCache(id: chapterID))
             
         case .chapterDeletionConfirmed(let chapterID):
             state.cachedChaptersStates.removeAll(where: { $0.id == chapterID })

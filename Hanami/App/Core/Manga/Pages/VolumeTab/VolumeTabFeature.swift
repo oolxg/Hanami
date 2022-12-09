@@ -42,7 +42,7 @@ struct VolumeTabFeature: ReducerProtocol {
             switch action {
             case .chapterAction(let chapterStateID, action: .downloaderAction(.chapterDeletionConfirmed)):
                 // we compare it to 1 because this action will fire before chapter deletion from `chapterDetailsList`
-                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.count == 1 {
+                if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
