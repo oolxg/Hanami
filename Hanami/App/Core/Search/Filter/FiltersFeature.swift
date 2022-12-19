@@ -144,7 +144,7 @@ struct FilterFeature: ReducerProtocol {
         }
     }
     
-    enum TagState {
+    enum TagState: String, Codable {
         case selected, notSelected, banned
     }
     
@@ -206,20 +206,20 @@ struct FilterFeature: ReducerProtocol {
         }
     }
     
-    enum QuerySortOption: String {
+    enum QuerySortOption: String, Codable {
         // can only be desc
         case relevance
         // can be desc and asc
         case latestUploadedChapter, title, rating
         case createdAt, followedCount, year
         
-        enum Order: String {
+        enum Order: String, Codable {
             case asc, desc
         }
     }
 }
 
-protocol FiltersTagProtocol: Identifiable, Equatable, Hashable {
+protocol FiltersTagProtocol: Identifiable, Equatable, Hashable, Codable {
     var state: FilterFeature.TagState { get set }
     var name: String { get }
 }

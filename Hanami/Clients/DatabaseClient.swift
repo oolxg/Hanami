@@ -206,6 +206,7 @@ extension DatabaseClient {
     }
 }
 
+// MARK: - Manga
 extension DatabaseClient {
     /// Retrieve all saved in DB manga
     ///
@@ -250,6 +251,7 @@ extension DatabaseClient {
     }
 }
 
+// MARK: - Chapters
 extension DatabaseClient {
     /// Save `ChapterDetails` in DB
     ///
@@ -334,5 +336,37 @@ extension DatabaseClient {
                 _deleteManga(mangaID: parentMangaID)
             }
         }
+    }
+}
+
+// MARK: - Search
+extension DatabaseClient {
+    func saveSearchRequest(_ searchRequest: SearchRequest) -> Effect<Never, Never> {
+        .fireAndForget {
+            searchRequest.toManagedObject(in: PersistenceController.shared.container.viewContext)
+            
+            saveContext()
+        }
+    }
+    
+    func deleteOldSearchRequests(keepLastN: Int) -> Effect<Never, Never> {
+        .fireAndForget {
+            let allRequests = batchFetch(entityType: SearchRequestMO.self)
+            let requestsToStay = allRequests.sorted { $0.date < $1.date }.prefix(keepLastN)
+            
+            allRequests.forEach { req in
+                if !requestsToStay.contains(req) {
+                    remove(entityType: SearchRequestMO.self, id: req.id)
+                }
+            }
+        }
+    }
+    
+    func retrieveAllSearchRequests() -> Effect<[SearchRequest], Never> {
+        Future { promise in
+            print(batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() })
+            promise(.success(batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() }))
+        }
+        .eraseToEffect()
     }
 }

@@ -14,6 +14,7 @@ extension MangaMO {
     @NSManaged public var id: UUID
     @NSManaged public var relationships: Data
     @NSManaged public var chapterDetailsSet: Set<ChapterDetailsMO>
+    @NSManaged public var addedAt: Date
 }
 
 extension MangaMO: Identifiable { }

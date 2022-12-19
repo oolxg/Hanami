@@ -12,6 +12,10 @@
 		080D1DB8294FDD99008B813C /* CoreDataVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB7294FDD99008B813C /* CoreDataVersion.swift */; };
 		080D1DBE294FDF92008B813C /* NSManagedObjectModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DBD294FDF92008B813C /* NSManagedObjectModel.swift */; };
 		080D1DC0294FDFE0008B813C /* NSManagedObjectModel+Compatbile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DBF294FDFE0008B813C /* NSManagedObjectModel+Compatbile.swift */; };
+		080D1DC8294FF685008B813C /* SearchRequestMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DC6294FF685008B813C /* SearchRequestMO+CoreDataClass.swift */; };
+		080D1DC9294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DC7294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift */; };
+		080D1DCB294FF879008B813C /* SearchParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DCA294FF879008B813C /* SearchParams.swift */; };
+		080D1DCE294FFAE6008B813C /* SearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DCD294FFAE6008B813C /* SearchRequest.swift */; };
 		080E9F26292B9867006296FB /* SettingsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080E9F25292B9867006296FB /* SettingsConfig.swift */; };
 		08200ABA28F6FACB009705D9 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 08200AB928F6FACB009705D9 /* SwiftyBeaver */; };
 		08200ABC28F70211009705D9 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08200ABB28F70211009705D9 /* FileUtil.swift */; };
@@ -156,6 +160,11 @@
 		080D1DB7294FDD99008B813C /* CoreDataVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataVersion.swift; sourceTree = "<group>"; };
 		080D1DBD294FDF92008B813C /* NSManagedObjectModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSManagedObjectModel.swift; sourceTree = "<group>"; };
 		080D1DBF294FDFE0008B813C /* NSManagedObjectModel+Compatbile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectModel+Compatbile.swift"; sourceTree = "<group>"; };
+		080D1DC1294FF115008B813C /* Model2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model2.xcdatamodel; sourceTree = "<group>"; };
+		080D1DC6294FF685008B813C /* SearchRequestMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchRequestMO+CoreDataClass.swift"; sourceTree = "<group>"; };
+		080D1DC7294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchRequestMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		080D1DCA294FF879008B813C /* SearchParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchParams.swift; sourceTree = "<group>"; };
+		080D1DCD294FFAE6008B813C /* SearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRequest.swift; sourceTree = "<group>"; };
 		080E9F25292B9867006296FB /* SettingsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConfig.swift; sourceTree = "<group>"; };
 		08200ABB28F70211009705D9 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		08200ABD28F704AA009705D9 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
@@ -353,6 +362,19 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
+		080D1DCC294FFAD6008B813C /* CoreDataGenerated+Extension */ = {
+			isa = PBXGroup;
+			children = (
+				22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */,
+				228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */,
+				080D1DC6294FF685008B813C /* SearchRequestMO+CoreDataClass.swift */,
+				080D1DC7294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift */,
+				22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */,
+				228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */,
+			);
+			path = "CoreDataGenerated+Extension";
+			sourceTree = "<group>";
+		};
 		0829E21C28FC23E10009A907 /* WebAPI */ = {
 			isa = PBXGroup;
 			children = (
@@ -486,6 +508,7 @@
 		222A03612871AF9900D5B588 /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				080D1DCC294FFAD6008B813C /* CoreDataGenerated+Extension */,
 				222A03632871AFC400D5B588 /* PersistenceController.swift */,
 				080D1DB4294FDD66008B813C /* Migration */,
 				222A03622871AFA400D5B588 /* Model */,
@@ -496,11 +519,8 @@
 		222A03622871AFA400D5B588 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */,
-				228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */,
-				22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */,
-				228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */,
 				222A033E2870F6E200D5B588 /* Model.xcdatamodeld */,
+				080D1DCD294FFAE6008B813C /* SearchRequest.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -577,6 +597,7 @@
 				0829E21D28FC243D0009A907 /* AutolockPolicy.swift */,
 				080E9F25292B9867006296FB /* SettingsConfig.swift */,
 				224E6711282E91FF001D214C /* Response.swift */,
+				080D1DCA294FF879008B813C /* SearchParams.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -904,6 +925,7 @@
 				229F8D95282DBD9400761054 /* HomeFeature.swift in Sources */,
 				22E385932857D5BE00F034BA /* ScanlationGroup.swift in Sources */,
 				226C05B9287DD6EB00BA0E5C /* MangaClient.swift in Sources */,
+				080D1DC8294FF685008B813C /* SearchRequestMO+CoreDataClass.swift in Sources */,
 				2245D4BB2840EC40005B1C83 /* Publisher.swift in Sources */,
 				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,
@@ -933,6 +955,7 @@
 				2205CBA02856A91900421888 /* UINavigationController.swift in Sources */,
 				22F4A85628AB29C9008C11A7 /* ChapterFeature.swift in Sources */,
 				22D0CA70287DE15F005D06ED /* HomeClient.swift in Sources */,
+				080D1DCB294FF879008B813C /* SearchParams.swift in Sources */,
 				228DD05028A5278300F70162 /* HUDClient.swift in Sources */,
 				228FA498288D86C800369529 /* CustomMangaList.swift in Sources */,
 				2220E16F2832CEE00046F08A /* ChapterPagesInfo.swift in Sources */,
@@ -942,6 +965,7 @@
 				229F8D90282DB5E400761054 /* RootFeature.swift in Sources */,
 				08E0B078293EC0C60021D5EC /* ChapterLoaderFeature.swift in Sources */,
 				222ED96D28C01F99009C361E /* URLSession.swift in Sources */,
+				080D1DC9294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift in Sources */,
 				2220E16B2832B3910046F08A /* ChapterDetails.swift in Sources */,
 				222A03682871BB0500D5B588 /* NSPersistentStoreCoordinator.swift in Sources */,
 				22F4A85928AB29C9008C11A7 /* PagesView.swift in Sources */,
@@ -971,6 +995,7 @@
 				2273E2BA285BFB9000A40C0B /* Date.swift in Sources */,
 				2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */,
 				0859979528F4C4170095422C /* SettingsFeature.swift in Sources */,
+				080D1DCE294FFAE6008B813C /* SearchRequest.swift in Sources */,
 				2224D3D7282ED6C200BBAC5D /* Relationship.swift in Sources */,
 				229F9A3128BB0A290015BC8B /* URL.swift in Sources */,
 				0829E20828F896C30009A907 /* AuthClient.swift in Sources */,
@@ -1388,9 +1413,10 @@
 		222A033E2870F6E200D5B588 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				080D1DC1294FF115008B813C /* Model2.xcdatamodel */,
 				222A033F2870F6E200D5B588 /* Model.xcdatamodel */,
 			);
-			currentVersion = 222A033F2870F6E200D5B588 /* Model.xcdatamodel */;
+			currentVersion = 080D1DC1294FF115008B813C /* Model2.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -16,7 +16,7 @@ extension DependencyValues {
 }
 
 struct SearchClient {
-    let makeSearchRequest: (SearchFeature.SearchParams) -> Effect<Response<[Manga]>, AppError>
+    let makeSearchRequest: (SearchParams) -> Effect<Response<[Manga]>, AppError>
     let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
     let fetchTags: () -> Effect<Response<[Tag]>, AppError>
 }

@@ -30,21 +30,6 @@ struct SearchFeature: ReducerProtocol {
         var lastSuccessfulRequestParams: SearchParams?
     }
     
-    // need this struct because of two things
-    // 1) pass in search function one object, not bunch of arrays, string, enums, etc.
-    // 2) to check, when going to make request, if the last request was with the same params,
-    //      if yes - we don't need to make another request
-    struct SearchParams: Equatable {
-        let searchQuery: String
-        let resultsCount: Int
-        let tags: IdentifiedArrayOf<FilterFeature.FiltersTag>
-        let publicationDemographic: IdentifiedArrayOf<FilterFeature.PublicationDemographic>
-        let contentRatings: IdentifiedArrayOf<FilterFeature.ContentRatings>
-        let mangaStatuses: IdentifiedArrayOf<FilterFeature.MangaStatus>
-        let sortOption: FilterFeature.QuerySortOption
-        let sortOptionOrder: FilterFeature.QuerySortOption.Order
-    }
-    
     enum Action: BindableAction {
         case searchForManga
         case resetSearchButtonTapped
@@ -58,6 +43,7 @@ struct SearchFeature: ReducerProtocol {
     }
     
     @Dependency(\.searchClient) private var searchClient
+    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.logger) private var logger
@@ -122,6 +108,12 @@ struct SearchFeature: ReducerProtocol {
                             OnlineMangaFeature.CancelClearCache(mangaID: $0.id)
                         }
                     ),
+                    
+                    databaseClient.saveSearchRequest(SearchRequest(params: searchParams))
+                        .fireAndForget(),
+                    
+                    databaseClient.deleteOldSearchRequests(keepLastN: 10)
+                        .fireAndForget(),
                     
                     searchClient.makeSearchRequest(searchParams)
                         .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
