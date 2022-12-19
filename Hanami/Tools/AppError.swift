@@ -13,7 +13,7 @@ enum AppError: Error {
     case decodingError(DecodingError)
     case unknownError(Error)
     case notFound
-    case databaseError(String)
+    case databaseError(String?)
     case cacheError(String)
     case imageError(String)
     case biometryError(LAError)
@@ -120,7 +120,7 @@ extension AppError: Equatable {
             return "Failed to decode image: \(errorMessage)"
             
         case .databaseError(let errorMessage):
-            return errorMessage
+            return errorMessage ?? "Database error"
             
         case .authError(let errorMsg):
             return errorMsg

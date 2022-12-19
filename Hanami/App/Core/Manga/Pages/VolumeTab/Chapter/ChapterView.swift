@@ -207,7 +207,7 @@ extension ChapterView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             HStack {
                 VStack(alignment: .leading) {
-                    Text("Translated by:")
+                    Text("Translated by")
                         .fontWeight(.light)
                     
                     if viewStore.chapterDetailsList[id: chapter.id]?.scanlationGroupID != nil {

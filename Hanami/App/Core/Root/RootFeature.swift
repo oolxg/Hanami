@@ -33,6 +33,8 @@ struct RootFeature: ReducerProtocol {
         case searchAction(SearchFeature.Action)
         case downloadsAction(DownloadsFeature.Action)
         case settingsAction(SettingsFeature.Action)
+        
+        case makeAuthIfNeeded
     }
     
     @Dependency(\.authClient) private var authClient
@@ -85,6 +87,15 @@ struct RootFeature: ReducerProtocol {
                     logger.info("New ScenePhase arrived!")
                     return .none
                 }
+                
+            case .makeAuthIfNeeded:
+                guard state.settingsState.config.autolockPolicy != .never else {
+                    return .none
+                }
+                
+                return authClient.makeAuth()
+                    .receive(on: DispatchQueue.main)
+                    .eraseToEffect(Action.appAuthCompleted)
                 
             case .appAuthCompleted(let result):
                 switch result {

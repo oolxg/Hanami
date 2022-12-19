@@ -12,12 +12,11 @@ import NukeUI
 struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
     let blurRadius: CGFloat
-    @State private var shouldShowNavBar = true
+    @State private var showNavBar = true
     
     private struct ViewState: Equatable {
         let pagesURLs: [URL]
         let pagesCount: Int?
-        let startFromLastPage: Bool
         let chapterIndex: Double?
         let chapterIndexes: [Double]
         let mostRightPageIndex: Int
@@ -28,7 +27,6 @@ struct OnlineMangaReadingView: View {
         init(state: OnlineMangaReadingFeature.State) {
             pagesURLs = state.pagesURLs ?? []
             pagesCount = state.pagesCount
-            startFromLastPage = state.startFromLastPage
             chapterIndex = state.chapterIndex
             chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex)
             mostRightPageIndex = state.mostRightPageIndex
@@ -55,7 +53,9 @@ struct OnlineMangaReadingView: View {
                             if let image = state.image {
                                 image.resizingMode(.aspectFit)
                             } else if state.isLoading || state.error != nil {
-                                ProgressView()
+                                ProgressView(value: state.progress.fraction)
+                                    .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
+                                    .frame(width: 50, height: 50)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                                     .tint(.theme.accent)
                             }
@@ -99,7 +99,7 @@ extension OnlineMangaReadingView {
     
     private var navigationBlock: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if shouldShowNavBar {
+            if showNavBar {
                 VStack {
                     ZStack {
                         Color.theme.background
@@ -196,7 +196,7 @@ extension OnlineMangaReadingView {
     private var tapGesture: some Gesture {
         TapGesture().onEnded {
             withAnimation(.linear) {
-                shouldShowNavBar.toggle()
+                showNavBar.toggle()
             }
         }
     }

@@ -31,7 +31,9 @@ struct AppFeature: ReducerProtocol {
                         .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
                         
                         .task { .rootAction(.settingsAction(.initSettings)) }
-                    )
+                    ),
+                    
+                    .task { .rootAction(.makeAuthIfNeeded) }
                 )
                 
             case .rootAction:
