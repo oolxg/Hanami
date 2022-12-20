@@ -281,12 +281,12 @@ struct ChapterLoaderFeature: ReducerProtocol {
                     ]
                 )
                 
-                var msg = ""
+                let msg: String
                 
                 if let chapterIndex = chapter.attributes.chapterIndex?.clean() {
                     msg = "Failed to cache chapter \(chapterIndex) \(chapter.chapterName)\n\(error.description)"
                 } else {
-                    msg = "Failed to cache chapter \(chapter.chapterName)\n \(error.description)"
+                    msg = "Failed to cache chapter \(chapter.chapterName)\n\(error.description)"
                 }
                 
                 hudClient.show(message: msg)

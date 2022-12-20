@@ -148,3 +148,10 @@ extension Tag: Hashable {
         hasher.combine(id)
     }
 }
+
+struct CoreDateMangaEntry: Decodable {
+    let manga: Manga
+    let addedAt: Date
+}
+
+extension CoreDateMangaEntry: Equatable { }

@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct FilterFeature: ReducerProtocol {
+struct FiltersFeature: ReducerProtocol {
     struct State: Equatable {
         // MARK: - Tags
         var allTags: IdentifiedArrayOf<FiltersTag> = []
@@ -220,7 +220,7 @@ struct FilterFeature: ReducerProtocol {
 }
 
 protocol FiltersTagProtocol: Identifiable, Equatable, Hashable, Codable {
-    var state: FilterFeature.TagState { get set }
+    var state: FiltersFeature.TagState { get set }
     var name: String { get }
 }
 

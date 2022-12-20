@@ -14,9 +14,11 @@ struct DownloadsView: View {
     
     private struct ViewState: Equatable {
         let cachedMangaCount: Int
+        let currentSortOrder: DownloadsFeature.SortOrder
         
         init(state: DownloadsFeature.State) {
             cachedMangaCount = state.cachedMangaThumbnailStates.count
+            currentSortOrder = state.currentSortOrder
         }
     }
     
@@ -56,6 +58,7 @@ struct DownloadsView: View {
                 }
             }
             .navigationTitle("Downloads")
+            .toolbar(content: toolbar)
         }
     }
 }
@@ -73,3 +76,30 @@ struct DownloadsView_Previews: PreviewProvider {
     }
 }
 #endif
+
+extension DownloadsView {
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            WithViewStore(store, observe: ViewState.init) { viewStore in
+                Menu {
+                    ForEach(DownloadsFeature.SortOrder.allCases, id: \.self) { sortOrder in
+                        if viewStore.currentSortOrder == sortOrder {
+                            Button {
+                                viewStore.send(.sortOrderChanged(sortOrder))
+                            } label: {
+                                Label(sortOrder.rawValue, systemImage: "checkmark")
+                            }
+                        } else {
+                            Button(sortOrder.rawValue) {
+                                viewStore.send(.sortOrderChanged(sortOrder))
+                            }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "arrow.up.arrow.down")
+                        .accentColor(.theme.foreground)
+                }
+            }
+        }
+    }
+}

@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FiltersView: View {
-    let store: StoreOf<FilterFeature>
+    let store: StoreOf<FiltersFeature>
     let blurRadius: CGFloat
     @State private var showFormatFiltersPage = false
     @State private var showThemesFiltersPage = false
@@ -42,8 +42,8 @@ struct FiltersView_Previews: PreviewProvider {
     static var previews: some View {
         FiltersView(
             store: .init(
-                initialState: FilterFeature.State(),
-                reducer: FilterFeature()
+                initialState: FiltersFeature.State(),
+                reducer: FiltersFeature()
             ),
             blurRadius: 0
         )
@@ -181,7 +181,7 @@ extension FiltersView {
     
     @ViewBuilder private func makeNavigationLinkLabel<T, Content>(
         title: String,
-        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<T>>,
+        _ path: KeyPath<FiltersFeature.State, IdentifiedArrayOf<T>>,
         isActive: Binding<Bool>,
         _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FiltersTagProtocol {
@@ -220,7 +220,7 @@ extension FiltersView {
     }
     
     @ViewBuilder private func makeFiltersViewFor(
-        _ path: KeyPath<FilterFeature.State, IdentifiedArrayOf<FilterFeature.FiltersTag>>,
+        _ path: KeyPath<FiltersFeature.State, IdentifiedArrayOf<FiltersFeature.FiltersTag>>,
         navTitle: String? = nil,
         isActive: Binding<Bool>? = nil
     ) -> some View {

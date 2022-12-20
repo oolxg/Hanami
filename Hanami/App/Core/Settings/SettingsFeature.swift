@@ -31,7 +31,7 @@ struct SettingsFeature: ReducerProtocol {
         case clearImageCacheButtonTapped
         case clearMangaCacheButtonTapped
         case clearMangaCacheConfirmed
-        case cachedMangaRetrieved(Result<[Manga], Never>)
+        case cachedMangaRetrieved(Result<[CoreDateMangaEntry], Never>)
         case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
@@ -111,9 +111,9 @@ struct SettingsFeature: ReducerProtocol {
                         databaseClient.deleteAllMangas().fireAndForget()
                     ]
                     
-                    effects += mangaList.map { manga in
+                    effects += mangaList.map { entry in
                         cacheClient
-                            .removeAllCachedChapterIDsFromMemory(manga.id)
+                            .removeAllCachedChapterIDsFromMemory(entry.manga.id)
                             .fireAndForget()
                     }
                     

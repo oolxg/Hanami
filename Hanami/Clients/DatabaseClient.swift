@@ -211,9 +211,14 @@ extension DatabaseClient {
     /// Retrieve all saved in DB manga
     ///
     /// - Returns: `Effect<[Manga], Never>` - Effect with either array of saved on device manga or nothing
-    func retrieveAllCachedMangas() -> Effect<[Manga], Never> {
+    func retrieveAllCachedMangas() -> Effect<[CoreDateMangaEntry], Never> {
         Future { promise in
-            promise(.success(batchFetch(entityType: MangaMO.self).map { $0.toEntity() }))
+            promise(
+                .success(
+                    batchFetch(entityType: MangaMO.self)
+                        .map { CoreDateMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
+                )
+            )
         }
         .eraseToEffect()
     }
@@ -269,6 +274,7 @@ extension DatabaseClient {
             
             if mangaMO == nil {
                 mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+                mangaMO!.addedAt = .now
             }
             
             let chapterDetailsMO = chapterDetails.toManagedObject(

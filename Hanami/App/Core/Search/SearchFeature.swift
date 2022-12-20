@@ -11,21 +11,17 @@ import class SwiftUI.UIApplication
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {
-        var searchResults: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
-        var filtersState = FilterFeature.State()
+        var foundManga: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var filtersState = FiltersFeature.State()
         
-        var areSearchResultsDownloaded = false
+        var searchResultsFetched = false
         var isLoading = false
         
-        var shouldShowEmptyResultsMessage: Bool {
-            areSearchResultsDownloaded && !searchText.isEmpty && searchResults.isEmpty
-        }
-        
-        @BindableState var searchSortOption: FilterFeature.QuerySortOption = .relevance
-        @BindableState var searchSortOptionOrder: FilterFeature.QuerySortOption.Order = .desc
+        @BindableState var searchSortOption = FiltersFeature.QuerySortOption.relevance
+        @BindableState var searchSortOptionOrder = FiltersFeature.QuerySortOption.Order.desc
         @BindableState var resultsCount = 10
         
-        @BindableState var searchText: String = ""
+        @BindableState var searchText = ""
         
         var lastSuccessfulRequestParams: SearchParams?
     }
@@ -37,7 +33,7 @@ struct SearchFeature: ReducerProtocol {
         case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
         
         case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
-        case filtersAction(FilterFeature.Action)
+        case filtersAction(FiltersFeature.Action)
         
         case binding(BindingAction<State>)
     }
@@ -55,11 +51,11 @@ struct SearchFeature: ReducerProtocol {
             switch action {
             case .resetSearchButtonTapped:
                 // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
-                let mangaIDs = state.searchResults.map(\.id)
+                let mangaIDs = state.foundManga.map(\.id)
                 
                 state.searchText = ""
-                state.searchResults.removeAll()
-                state.areSearchResultsDownloaded = false
+                state.foundManga.removeAll()
+                state.searchResultsFetched = false
                 state.lastSuccessfulRequestParams = nil
                 state.isLoading = false
                 
@@ -98,13 +94,13 @@ struct SearchFeature: ReducerProtocol {
                     return .none
                 }
                 
-                state.areSearchResultsDownloaded = false
+                state.searchResultsFetched = false
                 state.isLoading = true
-                state.searchResults.removeAll()
+                state.foundManga.removeAll()
                 
                 return .concatenate(
                     .cancel(
-                        ids: state.searchResults.map {
+                        ids: state.foundManga.map {
                             OnlineMangaFeature.CancelClearCache(mangaID: $0.id)
                         }
                     ),
@@ -128,12 +124,12 @@ struct SearchFeature: ReducerProtocol {
                 switch result {
                 case .success(let response):
                     state.lastSuccessfulRequestParams = requestParams
-                    state.areSearchResultsDownloaded = true
-                    state.searchResults = .init(
+                    state.searchResultsFetched = true
+                    state.foundManga = .init(
                         uniqueElements: response.data.map { MangaThumbnailFeature.State(manga: $0) }
                     )
                     
-                    if !state.searchResults.isEmpty {
+                    if !state.foundManga.isEmpty {
                         UIApplication.shared.endEditing()
                     }
                     
@@ -151,7 +147,7 @@ struct SearchFeature: ReducerProtocol {
                 switch result {
                 case .success(let response):
                     for stat in response.statistics {
-                        state.searchResults[id: stat.key]?.onlineMangaState!.statistics = stat.value
+                        state.foundManga[id: stat.key]?.onlineMangaState!.statistics = stat.value
                     }
                     
                     return .none
@@ -164,7 +160,7 @@ struct SearchFeature: ReducerProtocol {
             case .binding(\.$searchText):
                 struct DebounceForSearch: Hashable { }
                 
-                state.areSearchResultsDownloaded = false
+                state.searchResultsFetched = false
                 
                 return .merge(
                     .cancel(id: CancelSearch()),
@@ -184,11 +180,11 @@ struct SearchFeature: ReducerProtocol {
                 return .none
             }
         }
-        .forEach(\.searchResults, action: /Action.mangaThumbnailAction) {
+        .forEach(\.foundManga, action: /Action.mangaThumbnailAction) {
             MangaThumbnailFeature()
         }
         Scope(state: \.filtersState, action: /Action.filtersAction) {
-            FilterFeature()
+            FiltersFeature()
         }
     }
 }

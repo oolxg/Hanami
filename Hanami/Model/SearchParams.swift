@@ -7,17 +7,16 @@
 
 import Foundation
 import typealias IdentifiedCollections.IdentifiedArrayOf
-import CoreData
 
 struct SearchParams: Equatable {
     let searchQuery: String
     let resultsCount: Int
-    let tags: IdentifiedArrayOf<FilterFeature.FiltersTag>
-    let publicationDemographic: IdentifiedArrayOf<FilterFeature.PublicationDemographic>
-    let contentRatings: IdentifiedArrayOf<FilterFeature.ContentRatings>
-    let mangaStatuses: IdentifiedArrayOf<FilterFeature.MangaStatus>
-    let sortOption: FilterFeature.QuerySortOption
-    let sortOptionOrder: FilterFeature.QuerySortOption.Order
+    let tags: IdentifiedArrayOf<FiltersFeature.FiltersTag>
+    let publicationDemographic: IdentifiedArrayOf<FiltersFeature.PublicationDemographic>
+    let contentRatings: IdentifiedArrayOf<FiltersFeature.ContentRatings>
+    let mangaStatuses: IdentifiedArrayOf<FiltersFeature.MangaStatus>
+    let sortOption: FiltersFeature.QuerySortOption
+    let sortOptionOrder: FiltersFeature.QuerySortOption.Order
 }
 
 extension SearchParams: Codable { }

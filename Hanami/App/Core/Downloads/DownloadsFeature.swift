@@ -11,12 +11,22 @@ import ComposableArchitecture
 struct DownloadsFeature: ReducerProtocol {
     struct State: Equatable {
         var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var mangaEntries: [UUID: CoreDateMangaEntry] = [:]
+        var currentSortOrder = SortOrder.firstAdded
     }
     
     enum Action {
         case retrieveCachedManga
-        case cachedMangaFetched(Result<[Manga], Never>)
+        case cachedMangaFetched(Result<[CoreDateMangaEntry], Never>)
         case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailFeature.Action)
+        case sortOrderChanged(SortOrder)
+    }
+    
+    enum SortOrder: String, CaseIterable {
+        case alphabeticallyAsc = "Title Ascending"
+        case alphabeticallyDesc = "Title Descending"
+        case lastAdded = "Latest Added"
+        case firstAdded = "Oldest Added"
     }
     
     @Dependency(\.databaseClient) private var databaseClient
@@ -31,18 +41,20 @@ struct DownloadsFeature: ReducerProtocol {
                 
             case .cachedMangaFetched(let result):
                 switch result {
-                case .success(let retrievedMangas):
+                case .success(let retrievedMangaEntries):
                     let cachedMangaIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
-                    let retrievedMangaIDs = Set(retrievedMangas.map(\.id))
+                    let retrievedMangaIDs = Set(retrievedMangaEntries.map(\.manga.id))
                     let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
                     let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
                     
                     state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
                     
-                    for manga in retrievedMangas where newMangaIDs.contains(manga.id) {
+                    for entry in retrievedMangaEntries where newMangaIDs.contains(entry.manga.id) {
                         state.cachedMangaThumbnailStates.append(
-                            MangaThumbnailFeature.State(manga: manga, online: false)
+                            MangaThumbnailFeature.State(manga: entry.manga, online: false)
                         )
+                        
+                        state.mangaEntries[entry.manga.id] = entry
                     }
                     
                     return .none
@@ -61,6 +73,26 @@ struct DownloadsFeature: ReducerProtocol {
                 return .task { .retrieveCachedManga }
                     .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
                     .eraseToEffect()
+                
+            case .sortOrderChanged(let newSortOrder):
+                state.currentSortOrder = newSortOrder
+                
+                switch newSortOrder {
+                case .alphabeticallyAsc:
+                    state.cachedMangaThumbnailStates.sort(by: { $0.manga.title < $1.manga.title })
+                case .alphabeticallyDesc:
+                    state.cachedMangaThumbnailStates.sort(by: { $0.manga.title > $1.manga.title })
+                case .firstAdded:
+                    state.cachedMangaThumbnailStates.sort(
+                        by: { state.mangaEntries[$0.manga.id]!.addedAt < state.mangaEntries[$1.manga.id]!.addedAt }
+                    )
+                case .lastAdded:
+                    state.cachedMangaThumbnailStates.sort(
+                        by: { state.mangaEntries[$0.manga.id]!.addedAt > state.mangaEntries[$1.manga.id]!.addedAt }
+                    )
+                }
+                
+                return .none
                 
                 
             case .cachedMangaThumbnailAction:

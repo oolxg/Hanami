@@ -15,18 +15,32 @@ struct SearchView: View {
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isSearchFieldFocused: Bool
     
+    private struct ViewState: Equatable {
+        let searchTextEmpty: Bool
+        let foundMangaCount: Int
+        let searchResultsCount: Int
+        let searchResultsFetched: Bool
+        let showEmptyResultsMessage: Bool
+        let isLoading: Bool
+        
+        init(state: SearchFeature.State) {
+            searchTextEmpty = state.searchText.isEmpty
+            foundMangaCount = state.foundManga.count
+            searchResultsCount = state.resultsCount
+            searchResultsFetched = state.searchResultsFetched
+            showEmptyResultsMessage = searchResultsFetched && !searchTextEmpty && foundMangaCount == 0
+            isLoading = state.isLoading
+        }
+    }
+    
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: ViewState.init) { viewStore in
                 VStack {
                     HStack {
-                        SearchBarView(searchText: viewStore.binding(\.$searchText))
-                            .focused($isSearchFieldFocused)
-                            .onTapGesture {
-                                isSearchFieldFocused = true
-                            }
+                        searchBar
                         
-                        if isSearchFieldFocused || !viewStore.searchText.isEmpty {
+                        if isSearchFieldFocused || !viewStore.searchTextEmpty {
                             Button("Cancel") {
                                 viewStore.send(.resetSearchButtonTapped)
                                 UIApplication.shared.endEditing()
@@ -36,7 +50,7 @@ struct SearchView: View {
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                         }
                     }
-                    .animation(.easeInOut, value: isSearchFieldFocused || !viewStore.searchText.isEmpty)
+                    .animation(.easeInOut, value: isSearchFieldFocused || !viewStore.searchTextEmpty)
                     .padding(.horizontal)
                     .padding(.top)
                     .padding(.bottom, 10)
@@ -90,10 +104,20 @@ struct SearchView_Previews: PreviewProvider {
 #endif
 
 extension SearchView {
-    private var searchResults: some View {
+    private var searchBar: some View {
         WithViewStore(store) { viewStore in
+            SearchBarView(searchText: viewStore.binding(\.$searchText))
+                .focused($isSearchFieldFocused)
+                .onTapGesture {
+                    isSearchFieldFocused = true
+                }
+        }
+    }
+    
+    private var searchResults: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack {
-                if viewStore.shouldShowEmptyResultsMessage {
+                if viewStore.showEmptyResultsMessage {
                     noFoundMangaView
                 } else if viewStore.isLoading {
                     ProgressView()
@@ -122,12 +146,12 @@ extension SearchView {
     }
     
     private var mangaList: some View {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ScrollView {
                 VStack(spacing: 0) {
                     ForEachStore(
                         store.scope(
-                            state: \.searchResults,
+                            state: \.foundManga,
                             action: SearchFeature.Action.mangaThumbnailAction
                         )
                     ) { thumbnailStore in
@@ -138,17 +162,17 @@ extension SearchView {
                         .padding(5)
                     }
                     
-                    if !viewStore.searchResults.isEmpty && viewStore.resultsCount != viewStore.searchResults.count {
-                        Text("Only \(viewStore.searchResults.count) titles available")
+                    if viewStore.foundMangaCount > 0 && viewStore.searchResultsCount != viewStore.foundMangaCount {
+                        Text("Only \(viewStore.foundMangaCount) titles available")
                             .font(.headline)
                             .fontWeight(.black)
                             .padding()
                     }
                 }
-                .animation(.linear, value: viewStore.searchResults.isEmpty)
+                .animation(.linear, value: viewStore.searchResultsCount)
                 .transition(.opacity)
                 
-                if viewStore.areSearchResultsDownloaded {
+                if viewStore.searchResultsFetched {
                     footer
                 }
             }
@@ -209,8 +233,8 @@ extension SearchView {
     }
     
     private struct SortPickerView: View {
-        @Binding var sortOption: FilterFeature.QuerySortOption
-        @Binding var sortOptionOrder: FilterFeature.QuerySortOption.Order
+        @Binding var sortOption: FiltersFeature.QuerySortOption
+        @Binding var sortOptionOrder: FiltersFeature.QuerySortOption.Order
         
         var body: some View {
             Menu {
@@ -292,7 +316,7 @@ extension SearchView {
             .tint(.theme.foreground)
         }
         
-        @ViewBuilder private func makeButtonViewFor(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> some View {
+        @ViewBuilder private func makeButtonViewFor(sortOption: FiltersFeature.QuerySortOption, order: FiltersFeature.QuerySortOption.Order) -> some View {
             Button {
                 self.sortOptionOrder = order
                 self.sortOption = sortOption
@@ -308,7 +332,7 @@ extension SearchView {
         }
         
         // swiftlint:disable:next cyclomatic_complexity
-        private func getSortTypeName(sortOption: FilterFeature.QuerySortOption, order: FilterFeature.QuerySortOption.Order) -> String {
+        private func getSortTypeName(sortOption: FiltersFeature.QuerySortOption, order: FiltersFeature.QuerySortOption.Order) -> String {
             switch sortOption {
             case .relevance:
                 return "Relevance"
