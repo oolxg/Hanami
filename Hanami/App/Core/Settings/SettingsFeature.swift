@@ -31,7 +31,7 @@ struct SettingsFeature: ReducerProtocol {
         case clearImageCacheButtonTapped
         case clearMangaCacheButtonTapped
         case clearMangaCacheConfirmed
-        case cachedMangaRetrieved(Result<[CoreDateMangaEntry], Never>)
+        case cachedMangaRetrieved(Result<[CoreDataMangaEntry], Never>)
         case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
@@ -107,7 +107,7 @@ struct SettingsFeature: ReducerProtocol {
             case .cachedMangaRetrieved(let result):
                 switch result {
                 case .success(let mangaList):
-                    var effects: [Effect<Action, Never>] = [
+                    var effects: [EffectTask<Action>] = [
                         databaseClient.deleteAllMangas().fireAndForget()
                     ]
                     

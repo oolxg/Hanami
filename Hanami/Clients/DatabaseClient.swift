@@ -17,8 +17,8 @@ extension DependencyValues {
 }
 
 struct DatabaseClient {
-    let prepareDatabase: () -> Effect<Result<Void, AppError>, Never>
-    let dropDatabase: () -> Effect<Result<Void, AppError>, Never>
+    let prepareDatabase: () -> EffectTask<Never>
+    let dropDatabase: () -> EffectTask<Never>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
     
@@ -33,14 +33,14 @@ extension DatabaseClient: DependencyKey {
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .fireAndForget()
         }, dropDatabase: {
             Future { promise in
                 PersistenceController.shared.rebuild(completion: promise)
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .fireAndForget()
         }, saveContext: {
             let context = PersistenceController.shared.container.viewContext
             DatabaseClient.queue.sync {
@@ -210,13 +210,13 @@ extension DatabaseClient {
 extension DatabaseClient {
     /// Retrieve all saved in DB manga
     ///
-    /// - Returns: `Effect<[Manga], Never>` - Effect with either array of saved on device manga or nothing
-    func retrieveAllCachedMangas() -> Effect<[CoreDateMangaEntry], Never> {
+    /// - Returns: `EffectTask<[CoreDataMangaEntry]>` - Effect with either array of saved on device manga(with date of download) or nothing
+    func retrieveAllCachedMangas() -> EffectTask<[CoreDataMangaEntry]> {
         Future { promise in
             promise(
                 .success(
                     batchFetch(entityType: MangaMO.self)
-                        .map { CoreDateMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
+                        .map { CoreDataMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
                 )
             )
         }
@@ -235,8 +235,8 @@ extension DatabaseClient {
     /// Delete manga with given ID from DB
     ///
     /// - Parameter mangaID: Manga's id, to be deleted from DB
-    /// - Returns: `Effect<Never, Never>` - returns nothing
-    func deleteManga(mangaID: UUID) -> Effect<Never, Never> {
+    /// - Returns: `EffectTask<Never>` - returns nothing
+    func deleteManga(mangaID: UUID) -> EffectTask<Never> {
         .fireAndForget {
             _deleteManga(mangaID: mangaID)
         }
@@ -244,8 +244,8 @@ extension DatabaseClient {
     
     /// Delete all mangas from DB
     ///
-    /// - Returns: `Effect<Never, Never>` - returns nothing
-    func deleteAllMangas() -> Effect<Never, Never> {
+    /// - Returns: ` EffectTask<Never>` - returns nothing
+    func deleteAllMangas() -> EffectTask<Never> {
         .fireAndForget {
             let mangas = batchFetch(entityType: MangaMO.self)
             
@@ -263,8 +263,8 @@ extension DatabaseClient {
     /// - Parameter chapterDetails: `ChapterDetails` to be saved in DB
     /// - Parameter pagesCount: count of pages in chapter
     /// - Parameter parentManga: Manga, whom belongs chapter
-    /// - Returns: `Effect<Never, Never>` - returns nothing
-    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> Effect<Never, Never> {
+    /// - Returns: `EffectTask<Never>` - returns nothing
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> EffectTask<Never> {
         .fireAndForget {
             guard fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) == nil else {
                 return
@@ -324,8 +324,8 @@ extension DatabaseClient {
     /// Delete chapter with given ID from DB
     ///
     /// - Parameter chapterID: chapter's `UUID` to be delete
-    /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
-    func deleteChapter(chapterID: UUID) -> Effect<Never, Never> {
+    /// - Returns: `EffectTask<Never>` - returns nothing, basically...
+    func deleteChapter(chapterID: UUID) -> EffectTask<Never> {
         .fireAndForget {
             guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
                 return
@@ -347,7 +347,7 @@ extension DatabaseClient {
 
 // MARK: - Search
 extension DatabaseClient {
-    func saveSearchRequest(_ searchRequest: SearchRequest) -> Effect<Never, Never> {
+    func saveSearchRequest(_ searchRequest: SearchRequest) -> EffectTask<Never> {
         .fireAndForget {
             searchRequest.toManagedObject(in: PersistenceController.shared.container.viewContext)
             
@@ -355,23 +355,30 @@ extension DatabaseClient {
         }
     }
     
-    func deleteOldSearchRequests(keepLastN: Int) -> Effect<Never, Never> {
+    func deleteOldSearchRequests(keepLast: Int) -> EffectTask<Never> {
         .fireAndForget {
             let allRequests = batchFetch(entityType: SearchRequestMO.self)
-            let requestsToStay = allRequests.sorted { $0.date < $1.date }.prefix(keepLastN)
-            
+            let requestsToStay = allRequests.sorted { $0.date < $1.date }.suffix(keepLast)
+
             allRequests.forEach { req in
                 if !requestsToStay.contains(req) {
                     remove(entityType: SearchRequestMO.self, id: req.id)
                 }
             }
+            
+            saveContext()
         }
     }
     
-    func retrieveAllSearchRequests() -> Effect<[SearchRequest], Never> {
+    func retrieveSearchRequests(suffixLength: Int? = nil) -> EffectTask<[SearchRequest]> {
         Future { promise in
-            print(batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() })
-            promise(.success(batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() }))
+            var requests = batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() }
+            
+            if let suffixLength {
+                requests = requests.sorted { $0.date < $1.date }.suffix(suffixLength)
+            }
+            
+            promise(.success(requests))
         }
         .eraseToEffect()
     }

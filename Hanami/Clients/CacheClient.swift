@@ -54,13 +54,13 @@ struct CacheClient {
     ///
     /// - Parameter image: `UIImaga` to be cached
     /// - Parameter imageName: `imageName` name of the image
-    /// - Returns: `Effect<Never, Never>`
-    let cacheImage: (_ image: UIImage, _ imageName: String) -> Effect<Never, Never>
+    /// - Returns: ` EffectTask<Never>`
+    let cacheImage: (_ image: UIImage, _ imageName: String) ->  EffectTask<Never>
     /// Removes image with `imageName` from disk
     ///
     /// - Parameter imageName: `imageName` name of the image to be removed
-    /// - Returns: `Effect<Never, Never>`
-    let removeImage: (String) -> Effect<Never, Never>
+    /// - Returns: ` EffectTask<Never>`
+    let removeImage: (String) ->  EffectTask<Never>
     /// Checks whether image is cached on disk or not
     ///
     /// - Parameter imageName: name of the image to be checked
@@ -70,14 +70,14 @@ struct CacheClient {
     ///
     /// - Note: Doesn't affect Nuke cache
     ///
-    /// - Returns: `Effect<Never, Never>`
-    let clearCache: () -> Effect<Never, Never>
+    /// - Returns: ` EffectTask<Never>`
+    let clearCache: () ->  EffectTask<Never>
     /// Computes cache for all save on disk images
     ///
     /// - Note: Doesn't compute Nuke cache
     ///
-    /// - Returns: `Effect<Result<Double, AppError>, Never>`: `Double` - cached size in Megabytes
-    let computeCacheSize: () -> Effect<Swift.Result<Double, AppError>, Never>
+    /// - Returns: `EffectTask<Swift.Result<Double, AppError>>`: `Double` - cached size in Megabytes
+    let computeCacheSize: () ->  EffectTask<Swift.Result<Double, AppError>>
     /// Returns path for image with given `imageName`
     ///
     /// - Note: Doesn't affect cached images in Nuke
@@ -90,14 +90,14 @@ struct CacheClient {
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
     /// - Parameter chapterIDs: `Set<UUID>` of the chapters to be cached in memory
-    /// - Returns: `Effect<Never, Never>`
-    let saveCachedChaptersInMemory: (_ mangaID: UUID, _ chapterIDs: Set<UUID>) -> Effect<Never, Never>
+    /// - Returns: `EffectTask<Never>`
+    let saveCachedChaptersInMemory: (_ mangaID: UUID, _ chapterIDs: Set<UUID>) -> EffectTask<Never>
     /// Saves id of cached chapter for manga in memory
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
     /// - Parameter chapterID: `UUID` of the chapter to be cached in memory
-    /// - Returns: `Effect<Never, Never>`
-    let saveCachedChapterInMemory: (_ mangaID: UUID, _ chapterIDs: UUID) -> Effect<Never, Never>
+    /// - Returns: `EffectTask<Never>`
+    let saveCachedChapterInMemory: (_ mangaID: UUID, _ chapterIDs: UUID) -> EffectTask<Never>
     /// Retrieved id of cached chapter for manga in memory
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
@@ -106,14 +106,14 @@ struct CacheClient {
     /// Removes all chapter IDs from list of cached chapters in manga
     ///
     /// - Parameter mangaID: `UUID` manga id, whose chapter are gonna be removed from memory
-    /// - Returns: `Effect<Never, Never>`
-    let removeAllCachedChapterIDsFromMemory: (_ mangaID: UUID) -> Effect<Never, Never>
+    /// - Returns: `EffectTask<Never>`
+    let removeAllCachedChapterIDsFromMemory: (_ mangaID: UUID) -> EffectTask<Never>
     /// Removes chapter ID from list of cached chapters in manga
     ///
     /// - Parameter mangaID: `UUID` of the manga, whose chapter is gonna be deleted from memory
     /// - Parameter chapterID: `UUID` of the not more cached chapter to be removed from memory
-    /// - Returns: `Effect<Never, Never>`
-    let removeCachedChapterIDFromMemory: (_ mangaID: UUID, _ chapterID: UUID) -> Effect<Never, Never>
+    /// - Returns: `EffectTask<Never>`
+    let removeCachedChapterIDFromMemory: (_ mangaID: UUID, _ chapterID: UUID) -> EffectTask<Never>
 }
 
 extension CacheClient: DependencyKey {

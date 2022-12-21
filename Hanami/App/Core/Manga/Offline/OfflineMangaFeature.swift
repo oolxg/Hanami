@@ -107,7 +107,7 @@ struct OfflineMangaFeature: ReducerProtocol {
             case .chaptersForMangaDeletionRetrieved(let result):
                 switch result {
                 case .success(let chapters):
-                    var effects: [Effect<Action, Never>] = [
+                    var effects: [EffectTask<Action>] = [
                         databaseClient
                             .deleteManga(mangaID: state.manga.id)
                             .fireAndForget(),

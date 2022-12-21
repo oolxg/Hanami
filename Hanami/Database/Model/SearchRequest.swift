@@ -18,3 +18,11 @@ struct SearchRequest: Codable {
         self.date = date
     }
 }
+
+extension SearchRequest: Identifiable { }
+
+extension SearchRequest: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+}

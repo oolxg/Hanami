@@ -48,7 +48,7 @@ struct MangaThumbnailView: View {
         .frame(height: 170)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onTapGesture {
-            ViewStore(store).binding(\.$isNavigationLinkActive).wrappedValue.toggle()
+            ViewStore(store).binding(\.$navigationLinkActive).wrappedValue.toggle()
         }
         .overlay(navigationLink)
         .overlay {
@@ -123,7 +123,7 @@ extension MangaThumbnailView {
     private var navigationLink: some View {
         WithViewStore(store) { viewStore in
             NavigationLink(
-                isActive: viewStore.binding(\.$isNavigationLinkActive),
+                isActive: viewStore.binding(\.$navigationLinkActive),
                 destination: { mangaView },
                 label: { EmptyView() }
             )

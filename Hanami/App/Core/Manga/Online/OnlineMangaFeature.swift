@@ -99,7 +99,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                var effects: [Effect<Action, Never>] = []
+                var effects: [EffectTask<Action>] = []
                 
                 if state.pagesState == nil {
                     effects.append(

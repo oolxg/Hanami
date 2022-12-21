@@ -18,7 +18,7 @@ extension DependencyValues {
 }
 
 struct AuthClient {
-    let makeAuth: () -> Effect<Result<Void, AppError>, Never>
+    let makeAuth: () -> EffectTask<Result<Void, AppError>>
 }
 
 extension AuthClient: DependencyKey {

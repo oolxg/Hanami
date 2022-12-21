@@ -20,8 +20,8 @@ struct SettingsClient {
     /// Save `SettingsConfig` in `UserDefaults`
     ///
     /// - Parameter config: `SettingsConfig` to be saved
-    /// - Returns: `Effect<Never, Never>` - returns nothing, basically...
-    let saveSettingsConfig: (_ config: SettingsConfig) -> Effect<Never, Never>
+    /// - Returns: `EffectTask<Never>` - returns nothing, basically...
+    let saveSettingsConfig: (_ config: SettingsConfig) -> EffectTask<Never>
     /// Retrieve `SettingsConfig` from `UserDefaults`
     ///
     /// - Returns: `Effect<SettingsConfig, AppError>` - returns either `SettingsConfig` or `AppError.notFound`

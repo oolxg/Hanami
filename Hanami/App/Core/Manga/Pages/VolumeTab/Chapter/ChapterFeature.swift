@@ -99,7 +99,7 @@ struct ChapterFeature: ReducerProtocol {
                 return .task { .downloaderAction(.retrieveCachedChaptersFromMemory) }
                 
             case .fetchChapterDetailsIfNeeded:
-                var effects: [Effect<Action, Never>] = []
+                var effects: [EffectTask<Action>] = []
                 
                 let allChapterIDs = [state.chapter.id] + state.chapter.others
                 

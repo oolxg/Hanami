@@ -54,7 +54,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
     @Dependency(\.mangaClient) private var mangaClient
     
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
+    func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         struct CancelChapterCache: Hashable { let id: UUID }
         
         switch action {
@@ -121,7 +121,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
         case .chapterDeletionConfirmed(let chapterID):
             state.cachedChaptersStates.removeAll(where: { $0.id == chapterID })
             
-            var effects: [Effect<Action, Never>] = [
+            var effects: [EffectTask<Action>] = [
                 databaseClient
                     .deleteChapter(chapterID: chapterID)
                     .fireAndForget(),
@@ -291,7 +291,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
                 
                 hudClient.show(message: msg)
                 
-                var effects: [Effect<Action, Never>] = [
+                var effects: [EffectTask<Action>] = [
                     databaseClient
                         .deleteChapter(chapterID: chapter.id)
                         .fireAndForget(),

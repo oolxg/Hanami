@@ -11,13 +11,13 @@ import ComposableArchitecture
 struct DownloadsFeature: ReducerProtocol {
     struct State: Equatable {
         var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
-        var mangaEntries: [UUID: CoreDateMangaEntry] = [:]
+        var mangaEntries: IdentifiedArrayOf<CoreDataMangaEntry> = []
         var currentSortOrder = SortOrder.firstAdded
     }
     
     enum Action {
         case retrieveCachedManga
-        case cachedMangaFetched(Result<[CoreDateMangaEntry], Never>)
+        case cachedMangaFetched(Result<[CoreDataMangaEntry], Never>)
         case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailFeature.Action)
         case sortOrderChanged(SortOrder)
     }
@@ -49,12 +49,12 @@ struct DownloadsFeature: ReducerProtocol {
                     
                     state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
                     
+                    state.mangaEntries = .init(uniqueElements: retrievedMangaEntries)
+                    
                     for entry in retrievedMangaEntries where newMangaIDs.contains(entry.manga.id) {
                         state.cachedMangaThumbnailStates.append(
                             MangaThumbnailFeature.State(manga: entry.manga, online: false)
                         )
-                        
-                        state.mangaEntries[entry.manga.id] = entry
                     }
                     
                     return .none
@@ -84,16 +84,15 @@ struct DownloadsFeature: ReducerProtocol {
                     state.cachedMangaThumbnailStates.sort(by: { $0.manga.title > $1.manga.title })
                 case .firstAdded:
                     state.cachedMangaThumbnailStates.sort(
-                        by: { state.mangaEntries[$0.manga.id]!.addedAt < state.mangaEntries[$1.manga.id]!.addedAt }
+                        by: { state.mangaEntries[id: $0.manga.id]!.addedAt < state.mangaEntries[id: $1.manga.id]!.addedAt }
                     )
                 case .lastAdded:
                     state.cachedMangaThumbnailStates.sort(
-                        by: { state.mangaEntries[$0.manga.id]!.addedAt > state.mangaEntries[$1.manga.id]!.addedAt }
+                        by: { state.mangaEntries[id: $0.manga.id]!.addedAt > state.mangaEntries[id: $1.manga.id]!.addedAt }
                     )
                 }
                 
                 return .none
-                
                 
             case .cachedMangaThumbnailAction:
                 return .none

@@ -80,7 +80,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
+    func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
         case .userStartedReadingChapter:
             var effects = [

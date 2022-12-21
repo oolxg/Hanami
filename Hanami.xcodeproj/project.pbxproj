@@ -508,8 +508,8 @@
 		222A03612871AF9900D5B588 /* Database */ = {
 			isa = PBXGroup;
 			children = (
-				080D1DCC294FFAD6008B813C /* CoreDataGenerated+Extension */,
 				222A03632871AFC400D5B588 /* PersistenceController.swift */,
+				080D1DCC294FFAD6008B813C /* CoreDataGenerated+Extension */,
 				080D1DB4294FDD66008B813C /* Migration */,
 				222A03622871AFA400D5B588 /* Model */,
 			);

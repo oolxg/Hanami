@@ -38,7 +38,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
         }
         
         var online: Bool { onlineMangaState != nil }
-        @BindableState var isNavigationLinkActive = false
+        @BindableState var navigationLinkActive = false
         var id: UUID { manga.id }
     }
     
@@ -115,7 +115,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
                 }
                 
             case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
-                state.isNavigationLinkActive = false
+                state.navigationLinkActive = false
                 return .none
                 
             // action only to hijack it in DownloadsFeature
@@ -126,8 +126,8 @@ struct MangaThumbnailFeature: ReducerProtocol {
                 state.onlineMangaState!.reset()
                 return .none
                 
-            case .binding(\.$isNavigationLinkActive):
-                if state.isNavigationLinkActive {
+            case .binding(\.$navigationLinkActive):
+                if state.navigationLinkActive {
                     // when users enters the view, we must cancel clearing manga info
                     return .cancel(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id))
                 }

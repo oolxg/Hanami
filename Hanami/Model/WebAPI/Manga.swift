@@ -149,9 +149,13 @@ extension Tag: Hashable {
     }
 }
 
-struct CoreDateMangaEntry: Decodable {
+struct CoreDataMangaEntry: Decodable {
     let manga: Manga
     let addedAt: Date
 }
 
-extension CoreDateMangaEntry: Equatable { }
+extension CoreDataMangaEntry: Identifiable {
+    var id: UUID { manga.id }
+}
+
+extension CoreDataMangaEntry: Equatable { }

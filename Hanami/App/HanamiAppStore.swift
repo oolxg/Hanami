@@ -30,7 +30,9 @@ struct AppFeature: ReducerProtocol {
                     .merge(
                         .task { .rootAction(.downloadsAction(.retrieveCachedManga)) },
                         
-                        .task { .rootAction(.settingsAction(.initSettings)) }
+                        .task { .rootAction(.settingsAction(.initSettings)) },
+                        
+                        .task { .rootAction(.searchAction(.updateSearchHistory(nil))) }
                     ),
                     
                     .task { .rootAction(.makeAuthIfNeeded) }

@@ -29,7 +29,7 @@ extension SearchRequest {
     func toManagedObject(in context: NSManagedObjectContext, withRelationships relationships: Any? = nil) -> SearchRequestMO {
         let searchRequestMO = SearchRequestMO(context: context)
         
-        searchRequestMO.id = UUID()
+        searchRequestMO.id = id
         searchRequestMO.params = params.toData()!
         searchRequestMO.date = date
         

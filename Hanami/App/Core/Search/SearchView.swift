@@ -22,6 +22,8 @@ struct SearchView: View {
         let searchResultsFetched: Bool
         let showEmptyResultsMessage: Bool
         let isLoading: Bool
+        let showMangaList: Bool
+        let searchHistory: IdentifiedArrayOf<SearchRequest>
         
         init(state: SearchFeature.State) {
             searchTextEmpty = state.searchText.isEmpty
@@ -30,6 +32,8 @@ struct SearchView: View {
             searchResultsFetched = state.searchResultsFetched
             showEmptyResultsMessage = searchResultsFetched && !searchTextEmpty && foundMangaCount == 0
             isLoading = state.isLoading
+            searchHistory = state.searchHistory
+            showMangaList = !isLoading && searchResultsFetched && !showEmptyResultsMessage
         }
     }
     
@@ -42,7 +46,7 @@ struct SearchView: View {
                         
                         if isSearchFieldFocused || !viewStore.searchTextEmpty {
                             Button("Cancel") {
-                                viewStore.send(.resetSearchButtonTapped)
+                                viewStore.send(.cancelSearchButtonTapped)
                                 UIApplication.shared.endEditing()
                             }
                             .foregroundColor(.theme.foreground)
@@ -123,8 +127,11 @@ extension SearchView {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .tint(.theme.accent)
-                } else {
+                } else if viewStore.showMangaList {
                     mangaList
+                } else {
+                    searchHistory
+                        .padding(.top, 10)
                 }
             }
         }
@@ -142,6 +149,51 @@ extension SearchView {
                 
                 ResultsCountPicker(count: viewStore.binding(\.$resultsCount))
             }
+        }
+    }
+    
+    private var searchHistory: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Recently searched")
+                        .fontWeight(.bold)
+
+                    Spacer()
+                    
+                    if !viewStore.searchHistory.isEmpty {
+                        Button {
+                            viewStore.send(.userTappedOnDeleteSearchHistoryButton)
+                        } label: {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.theme.foreground)
+                        }
+                    }
+                }
+                .font(.headline)
+                
+                ScrollView(showsIndicators: false) {
+                    ForEach(viewStore.searchHistory) { searchRequest in
+                        HStack(spacing: 10) {
+                            Image(systemName: "magnifyingglass")
+                            
+                            Text(searchRequest.params.searchQuery)
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    viewStore.send(.userTappedOnSearchHistory(searchRequest))
+                                }
+                        }
+                        
+                        Rectangle()
+                            .foregroundColor(.theme.foreground)
+                            .frame(height: 0.8)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 10)
         }
     }
     

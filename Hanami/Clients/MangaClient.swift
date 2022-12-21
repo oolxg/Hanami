@@ -73,10 +73,10 @@ struct MangaClient {
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let findDidReadChapterOnMangaPage: (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabFeature.State>) -> (volumeID: UUID, chapterID: UUID)?
     
-    let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
-    let deleteCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
-    let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> Effect<Never, Never>
-    let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> Effect<Never, Never>
+    let saveCoverArt: (_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) ->  EffectTask<Never>
+    let deleteCoverArt: (_ mangaID: UUID, _ cacheClient: CacheClient) ->  EffectTask<Never>
+    let saveChapterPage: (_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) ->  EffectTask<Never>
+    let removeCachedPagesForChapter: (_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) ->  EffectTask<Never>
     /// Check whether cover art for manga cached or not
     ///
     /// - Parameter mangaID: ID of manga, whose cover art need to be checked

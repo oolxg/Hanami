@@ -24,12 +24,20 @@ struct SearchFeature: ReducerProtocol {
         @BindableState var searchText = ""
         
         var lastSuccessfulRequestParams: SearchParams?
+        
+        var searchHistory: IdentifiedArrayOf<SearchRequest> = []
+        let searchHistoryMaxSize = 10
     }
     
     enum Action: BindableAction {
+        case updateSearchHistory(SearchParams?)
+        case searchHistoryRetrieved(Result<[SearchRequest], Never>)
+        case userTappedOnDeleteSearchHistoryButton
+        
+        case userTappedOnSearchHistory(SearchRequest)
         case searchForManga
-        case resetSearchButtonTapped
-        case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchParams)
+        case cancelSearchButtonTapped
+        case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchParams?)
         case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
         
         case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
@@ -49,7 +57,58 @@ struct SearchFeature: ReducerProtocol {
         Reduce { state, action in
             struct CancelSearch: Hashable { }
             switch action {
-            case .resetSearchButtonTapped:
+            case .updateSearchHistory(let searchParams):
+                if let searchParams {
+                    let req = SearchRequest(params: searchParams)
+                    if state.searchHistory.count == state.searchHistoryMaxSize {
+                        _ = state.searchHistory.removeLast()
+                    }
+                    
+                    state.searchHistory.insert(req, at: 0)
+                    
+                    return databaseClient.saveSearchRequest(req)
+                        .fireAndForget()
+                }
+                
+                return databaseClient.retrieveSearchRequests(suffixLength: state.searchHistoryMaxSize)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect(Action.searchHistoryRetrieved)
+                
+            case .searchHistoryRetrieved(let result):
+                switch result {
+                case .success(let searchHistory):
+                    state.searchHistory = .init(uniqueElements: searchHistory)
+                    state.searchHistory.sort { $0.date > $1.date }
+                    return .none
+                    
+                case .failure:
+                    return .none
+                }
+                
+            case .userTappedOnDeleteSearchHistoryButton:
+                state.searchHistory.removeAll()
+                
+                return databaseClient
+                    .deleteOldSearchRequests(keepLast: 0)
+                    .fireAndForget()
+                
+            case .userTappedOnSearchHistory(let searchRequest):
+                state.filtersState.contentRatings = searchRequest.params.contentRatings
+                state.filtersState.mangaStatuses = searchRequest.params.mangaStatuses
+                state.filtersState.publicationDemographics = searchRequest.params.publicationDemographic
+                state.filtersState.allTags = searchRequest.params.tags
+                state.searchText = searchRequest.params.searchQuery
+                
+                state.searchResultsFetched = false
+                state.isLoading = true
+                
+                return searchClient.makeSearchRequest(searchRequest.params)
+                    .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
+                    .receive(on: DispatchQueue.main)
+                    .catchToEffect { .searchResultDownloaded(result: $0, requestParams: nil) }
+                    .cancellable(id: CancelSearch(), cancelInFlight: true)
+                
+            case .cancelSearchButtonTapped:
                 // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
                 let mangaIDs = state.foundManga.map(\.id)
                 
@@ -61,16 +120,13 @@ struct SearchFeature: ReducerProtocol {
                 
                 return .merge(
                     .cancel(id: CancelSearch()),
+                    
                     .cancel(ids: mangaIDs.map { OnlineMangaFeature.CancelClearCache(mangaID: $0) })
                 )
                 
             case .searchForManga:
-                let isAnySearchParamApplied = state.filtersState.isAnyFilterApplied || !state.searchText.isEmpty
-                // if user clears the search string, we should delete all, what we've found for previous search request
-                // and if user want to do the same request, e.g. only search string was used, no filters, it will be considered as
-                // the same search request, and because of it we should also set 'nil' to lastRequestParams to avoid it
-                guard isAnySearchParamApplied else {
-                    return .task { .resetSearchButtonTapped }
+                guard !state.searchText.isEmpty else {
+                    return .task { .cancelSearchButtonTapped }
                 }
                 
                 let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
@@ -105,12 +161,6 @@ struct SearchFeature: ReducerProtocol {
                         }
                     ),
                     
-                    databaseClient.saveSearchRequest(SearchRequest(params: searchParams))
-                        .fireAndForget(),
-                    
-                    databaseClient.deleteOldSearchRequests(keepLastN: 10)
-                        .fireAndForget(),
-                    
                     searchClient.makeSearchRequest(searchParams)
                         .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
                         .receive(on: DispatchQueue.main)
@@ -133,9 +183,17 @@ struct SearchFeature: ReducerProtocol {
                         UIApplication.shared.endEditing()
                     }
                     
-                    return searchClient.fetchStatistics(response.data.map(\.id))
-                        .receive(on: DispatchQueue.main)
-                        .catchToEffect(Action.mangaStatisticsFetched)
+                    var effects = [
+                        searchClient.fetchStatistics(response.data.map(\.id))
+                            .receive(on: DispatchQueue.main)
+                            .catchToEffect(Action.mangaStatisticsFetched)
+                    ]
+                    
+                    if let requestParams {
+                        effects.append(.task { .updateSearchHistory(requestParams) })
+                    }
+                    
+                    return .merge(effects)
                     
                 case .failure(let error):
                     logger.error("Failed to make search request: \(error)")
@@ -159,8 +217,6 @@ struct SearchFeature: ReducerProtocol {
                 
             case .binding(\.$searchText):
                 struct DebounceForSearch: Hashable { }
-                
-                state.searchResultsFetched = false
                 
                 return .merge(
                     .cancel(id: CancelSearch()),

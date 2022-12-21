@@ -19,8 +19,8 @@ extension DependencyValues {
 }
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> Effect<Never, Never>
-    let downloadImage: (URL) -> Effect<Result<UIImage, AppError>, Never>
+    let prefetchImages: ([URL]) -> EffectTask<Never>
+    let downloadImage: (URL) -> EffectTask<Result<UIImage, AppError>>
     
     private static let prefetcher = ImagePrefetcher(maxConcurrentRequestCount: 5)
 }
