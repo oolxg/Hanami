@@ -26,7 +26,6 @@ struct SearchFeature: ReducerProtocol {
         var lastSuccessfulRequestParams: SearchParams?
         
         var searchHistory: IdentifiedArrayOf<SearchRequest> = []
-        let searchHistoryMaxSize = 10
     }
     
     enum Action: BindableAction {
@@ -60,7 +59,7 @@ struct SearchFeature: ReducerProtocol {
             case .updateSearchHistory(let searchParams):
                 if let searchParams {
                     let req = SearchRequest(params: searchParams)
-                    if state.searchHistory.count == state.searchHistoryMaxSize {
+                    if state.searchHistory.count == Defaults.Search.maxSearchHistorySize {
                         _ = state.searchHistory.removeLast()
                     }
                     
@@ -70,7 +69,7 @@ struct SearchFeature: ReducerProtocol {
                         .fireAndForget()
                 }
                 
-                return databaseClient.retrieveSearchRequests(suffixLength: state.searchHistoryMaxSize)
+                return databaseClient.retrieveSearchRequests(suffixLength: Defaults.Search.maxSearchHistorySize)
                     .receive(on: DispatchQueue.main)
                     .catchToEffect(Action.searchHistoryRetrieved)
                 

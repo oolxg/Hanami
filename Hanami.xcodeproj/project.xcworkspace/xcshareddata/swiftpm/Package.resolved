@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kean/Nuke",
       "state" : {
-        "revision" : "93c8dc78fbc0aa3538a0db460eb389d4180af242",
-        "version" : "11.3.1"
+        "revision" : "1e7395a8931ad19659fd1e10137a862b9c1e2a38",
+        "version" : "11.5.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "f504716c27d2e5d4144fa4794b12129301d17729",
-        "version" : "1.0.3"
+        "revision" : "937e904258d22af6e447a0b72c0bc67583ef64a2",
+        "version" : "1.0.4"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swiftui-navigation",
       "state" : {
-        "revision" : "4b666bcc59ba1711a7543ecb37e1d181963b180c",
-        "version" : "0.4.2"
+        "revision" : "46acf5ecc1cabdb28d7fe03289f6c8b13a023f52",
+        "version" : "0.4.5"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "5a5457a744239896e9b0b03a8e1a5069c3e7b91f",
-        "version" : "0.6.0"
+        "revision" : "df16fe6ffe4d6e2e06761aa67716b808b2c9109e",
+        "version" : "0.7.0"
       }
     }
   ],

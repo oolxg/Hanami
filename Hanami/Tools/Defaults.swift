@@ -20,6 +20,10 @@ enum Defaults {
         static let blurRadiusStep = 1.0
     }
     
+    enum Search {
+        static let maxSearchHistorySize = 10
+    }
+    
     enum Storage {
         static let settingsConfig = "settingsConfig"
     }
