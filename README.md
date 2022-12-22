@@ -22,7 +22,7 @@ At the moment, there are only two options for installing the application:
 
 You need a device with at least iOS/iPadOS 15.0 to start using app.
 
-<sub>Note: This app was tested on iPhone, iPad version might be kinda laggy.</sub>
+<sub>Note: This app was mainly tested on iPhone, iPad version might be kinda laggy.</sub>
 
 #### Contribution
 
@@ -32,5 +32,5 @@ If you found error, typo or just want to add some new feature, feel free to cont
 
 Copyright © 2022 Oleg Mihjalov. All rights reserved.
 
-##### Thanks
+#### Thanks
 Thanks to [EhPanda](https://github.com/EhPanda-Team/EhPanda) from where I kindly borrowed some of the code for this project
