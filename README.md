@@ -1,20 +1,20 @@
 
 <h1 align="center">Hanami 🌸</h1>
 <p align="center">
-<img src="https://user-images.githubusercontent.com/44912908/209033176-52da7172-14e4-460b-a753-302015069f79.jpg" width="400" alt="Hanami🌸 logo"></img>
+<img src="https://user-images.githubusercontent.com/44912908/209033176-52da7172-14e4-460b-a753-302015069f79.jpg" width="400" alt="Hanami 🌸 logo"></img>
 </p>
 
-### Completely free app to read and download manga. No data collection.
+<h3 align="center">Completely free app to read and download manga</h3>
 
 #### How to install.
 
 At the moment, there are only two options for installing the application:
 
-*   The easiest way - via Apple TestFlight
-    *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664). on you device.
+*   The easiest way - via Apple TestFlight:
+    *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664) on you device.
     *  Follow [this link](https://testflight.apple.com/join/VUPzZpkc), install app and start using Hanami 🌸.
-*   A little harder way(requires MacBook/iMac and Xcode).
-	* First clone this repo `git clone https://github.com/oolxg/Hanami` 
+*   A little harder way(requires MacBook/iMac and Xcode):
+	* First clone this repo `git clone https://github.com/oolxg/Hanami`.
 	* Open `Hanami.xcodeproj` in the root of cloned project.
 	* Change signing team and Bundle Identifier.
 	* Build the app. 
@@ -28,9 +28,13 @@ You need a device with at least iOS/iPadOS 15.0 to start using app.
 
 If you found error, typo or just want to add some new feature, feel free to contribute to this project.
 
-####  App Icon
+#### App Icon
 
 Copyright © 2022 Oleg Mihjalov. All rights reserved.
 
 #### Thanks
-Thanks to [EhPanda](https://github.com/EhPanda-Team/EhPanda) from where I kindly borrowed some of the code for this project
+Thanks to [MangaDEX](https://mangadex.org) whose [API](https://api.mangadex.org/docs/) this app uses.
+
+Thanks to [EhPanda](https://github.com/EhPanda-Team/EhPanda) from where I kindly borrowed some of the code for this project.
+
+<sub><sub>Small bottom text to get your attention and tell you that this app does not collect or share any information about you with anyone.</sub></sub>
