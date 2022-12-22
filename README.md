@@ -30,7 +30,7 @@ If you found error, typo or just want to add some new feature, feel free to cont
 
 #### App Icon
 
-Copyright © 2022 Oleg Mihjalov. All rights reserved.
+Copyright © 2022 Oleg M. All rights reserved.
 
 #### Thanks
 Thanks to [MangaDEX](https://mangadex.org) whose [API](https://api.mangadex.org/docs/) this app uses.
