@@ -6,12 +6,12 @@
 
 <h3 align="center">Completely free app to read and download manga</h3>
 
-#### How to install.
+#### How to install
 
 At the moment, there are only two options for installing the application:
 
 *   The easiest way - via Apple TestFlight:
-    *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664) on you device.
+    *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664) on your device.
     *  Follow [this link](https://testflight.apple.com/join/VUPzZpkc), install app and start using Hanami 🌸.
 *   A little harder way(requires MacBook/iMac and Xcode):
 	* First clone this repo `git clone https://github.com/oolxg/Hanami`.
