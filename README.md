@@ -15,18 +15,18 @@ At the moment, there are only two options for installing the application:
     *  Follow [this link](https://testflight.apple.com/join/VUPzZpkc), install app and start using Hanami 🌸.
 *   A little harder way(requires MacBook/iMac and Xcode).
 	* First clone this repo `git clone https://github.com/oolxg/Hanami` 
-	* Open `Hanami.xcodeproj` in root.
+	* Open `Hanami.xcodeproj` in the root of cloned project.
 	* Change signing team and Bundle Identifier.
 	* Build the app. 
 #### System requirements
 
 You need a device with at least iOS/iPadOS 15.0 to start using app.
 
-<sub>Note: This app was test on iPhone, iPad version might be kinda laggy.</sub>
+<sub>Note: This app was tested on iPhone, iPad version might be kinda laggy.</sub>
 
 #### Contribution
 
-Feel free to contribute to this project.
+If you found error, typo or just want to add some new feature, feel free to contribute to this project.
 
 ####  App Icon
 
