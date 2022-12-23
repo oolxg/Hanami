@@ -9,7 +9,7 @@ import Foundation
 import struct ComposableArchitecture.Effect
 
 extension URLSession {
-    func get<T: Decodable>(url: URL, decodeResponseAs type: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> Effect<T, AppError> {
+    func get<T: Decodable>(url: URL, decodeResponseAs _: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> Effect<T, AppError> {
         var request = URLRequest(url: url)
         
         let userAgent = "Hanami/\(AppUtil.version) (\(DeviceUtil.deviceName); \(DeviceUtil.fullOSName))"
