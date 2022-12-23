@@ -27,8 +27,8 @@ struct VerticalReaderView: View {
     
     private struct Page: Identifiable {
         let url: URL?
-        var rect: CGRect = .zero
         let index: Int
+        var rect: CGRect = .zero
         var id: Int { index }
     }
     
@@ -61,18 +61,19 @@ struct VerticalReaderView: View {
             .overlay(alignment: .topTrailing) { indicator }
             .coordinateSpace(name: "SCROLLER")
         }
+        .background(Color.theme.background)
         .offset { rect in
             if startOffset != rect.minY {
                 startOffset = rect.minY
             }
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .default).autoconnect()) { _ in
-            if timeOut < 0.3 {
+            // 0.6 - delay after which indicator will be hidden
+            if timeOut < 0.6 {
                 timeOut += 0.01
             } else if !hideIndicatorLabel {
-                hideIndicatorLabel = true
                 // MARK: Scrolling is finished
-
+                hideIndicatorLabel = true
             }
         }
     }
@@ -82,7 +83,7 @@ struct VerticalReaderView: View {
             LazyImage(url: pages[index].url) { state in
                 if let image = state.image {
                     image
-                        .aspectRatio(contentMode: .fit)
+                        .resizingMode(.aspectFit)
                         .offset { rect in
                             pages[id: pages[index].id]?.rect = rect
                         }
@@ -95,7 +96,8 @@ struct VerticalReaderView: View {
                 }
             }
         }
-        .frame(height: pages[index].rect.height == 0 ? 400 : pages[index].rect.height)
+        .frame(idealHeight: 550)
+        .frame(maxWidth: .infinity)
     }
     
     private var indicator: some View {

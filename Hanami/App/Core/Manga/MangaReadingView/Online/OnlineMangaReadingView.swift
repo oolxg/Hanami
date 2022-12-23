@@ -69,7 +69,7 @@ extension OnlineMangaReadingView {
             if !viewStore.pagesURLs.isEmpty {
                 VerticalReaderView(pagesURLs: viewStore.pagesURLs)
             } else {
-                Color.clear.frame(maxHeight: .infinity)
+                Color.theme.background.frame(maxHeight: .infinity)
             }
         }
     }
@@ -185,7 +185,7 @@ extension OnlineMangaReadingView {
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(viewStore.chapterIndex == chapterIndex ? Color.theme.accent : .theme.foreground)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 4)
+                                    RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.theme.background)
                                 )
                                 .frame(width: 50, height: 50)

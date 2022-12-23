@@ -49,6 +49,7 @@ struct OfflineMangaReadingView: View {
                     verticalReader
                 } else {
                     horizontalReader
+                        .gesture(swipeGesture)
                 }
             }
             .onChange(of: viewStore.chapterID) { _ in
@@ -58,15 +59,11 @@ struct OfflineMangaReadingView: View {
                     mainBlockOpacity = 1
                 }
             }
-            
         }
         .background(Color.theme.background)
         .overlay(navigationBlock)
-        .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationBarHidden(true)
         .gesture(tapGesture)
-        .gesture(swipeGesture)
-        
         .autoBlur(radius: blurRadius)
     }
 }
@@ -77,7 +74,7 @@ extension OfflineMangaReadingView {
             if !viewStore.cachedPagesPaths.isEmpty {
                 VerticalReaderView(pagesURLs: viewStore.cachedPagesPaths)
             } else {
-                Color.clear.frame(maxHeight: .infinity)
+                Color.theme.background.frame(maxHeight: .infinity)
             }
         }
     }
@@ -111,6 +108,7 @@ extension OfflineMangaReadingView {
                 Color.clear
                     .tag(viewStore.mostRightPageIndex)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
     }
     
@@ -172,7 +170,7 @@ extension OfflineMangaReadingView {
                             RoundedRectangle(cornerRadius: 6)
                                 .stroke(viewStore.chapterIndex == chapterIndex ? Color.theme.accent : .theme.foreground)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 4)
+                                    RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.theme.background)
                                 )
                                 .frame(width: 50, height: 50)
