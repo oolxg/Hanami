@@ -12,9 +12,10 @@ import NukeUI
 struct OfflineMangaReadingView: View {
     let store: StoreOf<OfflineMangaReadingFeature>
     let blurRadius: CGFloat
-    @State private var shouldShowNavBar = true
+    @State private var showNavBar = true
     // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
     @State private var mainBlockOpacity = 1.0
+    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
     
     private struct ViewState: Equatable {
         let chapterIndex: Double?
@@ -65,6 +66,12 @@ struct OfflineMangaReadingView: View {
         .navigationBarHidden(true)
         .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
+        .onReceive(timer) { _ in
+            timer.upstream.connect().cancel()
+            withAnimation(.linear) {
+                showNavBar = false
+            }
+        }
     }
 }
 
@@ -114,7 +121,7 @@ extension OfflineMangaReadingView {
     
     private var navigationBlock: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if shouldShowNavBar {
+            if showNavBar {
                 VStack {
                     ZStack {
                         Color.theme.background
@@ -212,7 +219,7 @@ extension OfflineMangaReadingView {
     private var tapGesture: some Gesture {
         TapGesture().onEnded {
             withAnimation(.linear) {
-                shouldShowNavBar.toggle()
+                showNavBar.toggle()
             }
         }
     }
