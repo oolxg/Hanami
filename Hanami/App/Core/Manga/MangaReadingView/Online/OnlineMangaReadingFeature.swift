@@ -43,7 +43,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         // need this var for avoiding computations of page index when `readMangaRightToLeft` is set to true
         var pageIndexToDisplay: Int? {
             if let pagesCount, pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
-                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex + 1
+                return readingFormat == .rightToLeft ? pagesCount - pageIndex : pageIndex + 1
             }
             return nil
         }
@@ -53,7 +53,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         }
         
         var useHighQualityImages = false
-        var readMangaRightToLeft = true
+        var readingFormat = SettingsConfig.ReadingFormat.leftToRight
         
         var sameScanlationGroupChapters: [Chapter] = []
     }
@@ -115,7 +115,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             switch result {
             case .success(let config):
                 state.useHighQualityImages = config.useHigherQualityImagesForOnlineReading
-                state.readMangaRightToLeft = config.readMangaRightToLeft
+                state.readingFormat = config.readingFormat
                 return .none
                 
             case .failure(let error):
@@ -129,13 +129,13 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             case .success(let chapterPagesInfo):
                 state.pagesURLs = chapterPagesInfo.getPagesURLs(highQuality: state.useHighQualityImages)
                 
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     state.pagesURLs!.reverse()
                 }
                 
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     state.pageIndex = state.startFromLastPage ? 0 : state.pagesCount! - 1
-                } else {
+                } else if state.readingFormat == .leftToRight {
                     state.pageIndex = state.startFromLastPage ? state.pagesCount! - 1 : 0
                 }
                 
@@ -158,14 +158,14 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             
             // we reached most left page of chapter
             if newPageIndex == state.mostLeftPageIndex {
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     return .task { .moveToNextChapter }
                 } else {
                     return .task { .moveToPreviousChapter }
                 }
             // we reached most right book of chapter
             } else if newPageIndex == state.mostRightPageIndex {
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     return .task { .moveToPreviousChapter }
                 } else {
                     return .task { .moveToNextChapter }

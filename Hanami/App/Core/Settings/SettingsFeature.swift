@@ -17,7 +17,7 @@ struct SettingsFeature: ReducerProtocol {
             useHigherQualityImagesForOnlineReading: false,
             useHigherQualityImagesForCaching: false,
             colorScheme: 0,
-            readMangaRightToLeft: true
+            readingFormat: .leftToRight
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0

@@ -25,11 +25,11 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         var pageIndex = 0
         var pageIndexToDisplay: Int? {
             if pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
-                return readMangaRightToLeft ? pagesCount - pageIndex : pageIndex + 1
+                return readingFormat == .rightToLeft ? pagesCount - pageIndex : pageIndex + 1
             }
             return nil
         }
-        var readMangaRightToLeft = true
+        var readingFormat = SettingsConfig.ReadingFormat.leftToRight
         
         let mostLeftPageIndex = -1
         var mostRightPageIndex: Int { pagesCount }
@@ -95,13 +95,13 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         case .settingsConfigRetrieved(let result):
             switch result {
             case .success(let config):
-                state.readMangaRightToLeft = config.readMangaRightToLeft
+                state.readingFormat = config.readingFormat
                 
                 state.cachedPagesPaths = mangaClient.getPathsForCachedChapterPages(
                     state.chapter.id, state.pagesCount, cacheClient
                 )
                 
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     state.cachedPagesPaths.reverse()
                     state.pageIndex = state.startFromLastPage ? 0 : state.pagesCount - 1
                 } else {
@@ -142,14 +142,14 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
             // we reached most left page of chapter
             if newPageIndex == state.mostLeftPageIndex {
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     return .task { .moveToNextChapter }
                 } else {
                     return .task { .moveToPreviousChapter }
                 }
             // we reached most right book of chapter
             } else if newPageIndex == state.mostRightPageIndex {
-                if state.readMangaRightToLeft {
+                if state.readingFormat == .rightToLeft {
                     return .task { .moveToPreviousChapter }
                 } else {
                     return .task { .moveToNextChapter }

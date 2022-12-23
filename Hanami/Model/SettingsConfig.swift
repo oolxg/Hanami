@@ -14,5 +14,17 @@ struct SettingsConfig: Codable, Equatable {
     var useHigherQualityImagesForCaching: Bool
     // 0 - system, 1 - light, 2 - dark
     var colorScheme: Int
-    var readMangaRightToLeft: Bool
+    var readingFormat: ReadingFormat
 }
+
+extension SettingsConfig {
+    enum ReadingFormat: String {
+        case leftToRight = "Left-to-Right"
+        case rightToLeft = "Right-to-Left"
+        case vertical = "Vertical"
+    }
+}
+
+extension SettingsConfig.ReadingFormat: Codable { }
+extension SettingsConfig.ReadingFormat: Equatable { }
+extension SettingsConfig.ReadingFormat: CaseIterable { }

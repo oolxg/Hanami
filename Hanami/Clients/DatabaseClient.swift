@@ -372,10 +372,12 @@ extension DatabaseClient {
     
     func retrieveSearchRequests(suffixLength: Int? = nil) -> EffectTask<[SearchRequest]> {
         Future { promise in
-            var requests = batchFetch(entityType: SearchRequestMO.self).map { $0.toEntity() }
+            var requests = batchFetch(entityType: SearchRequestMO.self)
+                .map { $0.toEntity() }
+                .sorted { $0.date < $1.date }
             
             if let suffixLength {
-                requests = requests.sorted { $0.date < $1.date }.suffix(suffixLength)
+                requests = requests.suffix(suffixLength)
             }
             
             promise(.success(requests))

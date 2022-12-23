@@ -142,10 +142,10 @@ extension SettingsView {
     private var readingSection: some View {
         Section {
             WithViewStore(store) { viewStore in
-                Picker("Reading format", selection: viewStore.binding(\.$config.readMangaRightToLeft)) {
-                    Text("Right-to-left").tag(true)
-                    
-                    Text("Left-to-right").tag(false)
+                Picker("Reading format", selection: viewStore.binding(\.$config.readingFormat)) {
+                    ForEach(SettingsConfig.ReadingFormat.allCases, id: \.self) { readingFormat in
+                        Text(readingFormat.rawValue).tag(readingFormat)
+                    }
                 }
                 .pickerStyle(.menu)
             }

@@ -26,6 +26,7 @@ struct OfflineMangaReadingView: View {
         let pageIndexToDisplay: Int?
         let mostLeftPageIndex: Int
         let mostRightPageIndex: Int
+        let isReadingFormatVeritcal: Bool
         
         init(state: OfflineMangaReadingFeature.State) {
             chapterIndex = state.chapter.attributes.chapterIndex
@@ -37,10 +38,51 @@ struct OfflineMangaReadingView: View {
             pageIndexToDisplay = state.pageIndexToDisplay
             mostLeftPageIndex = state.mostLeftPageIndex
             mostRightPageIndex = state.mostRightPageIndex
+            isReadingFormatVeritcal = state.readingFormat == .vertical
         }
     }
     
     var body: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            ZStack {
+                if viewStore.isReadingFormatVeritcal {
+                    verticalReader
+                } else {
+                    horizontalReader
+                }
+            }
+            .onChange(of: viewStore.chapterID) { _ in
+                mainBlockOpacity = 0
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    mainBlockOpacity = 1
+                }
+            }
+            
+        }
+        .background(Color.theme.background)
+        .overlay(navigationBlock)
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationBarHidden(true)
+        .gesture(tapGesture)
+        .gesture(swipeGesture)
+        
+        .autoBlur(radius: blurRadius)
+    }
+}
+
+extension OfflineMangaReadingView {
+    private var verticalReader: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if !viewStore.cachedPagesPaths.isEmpty {
+                VerticalReaderView(pagesURLs: viewStore.cachedPagesPaths)
+            } else {
+                Color.clear.frame(maxHeight: .infinity)
+            }
+        }
+    }
+    
+    @MainActor private var horizontalReader: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(
                 selection: viewStore.binding(
@@ -69,20 +111,6 @@ struct OfflineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.mostRightPageIndex)
             }
-            .background(Color.theme.background)
-            .overlay(navigationBlock)
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .navigationBarHidden(true)
-            .gesture(tapGesture)
-            .gesture(swipeGesture)
-            .onChange(of: viewStore.chapterID) { _ in
-                mainBlockOpacity = 0
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    mainBlockOpacity = 1
-                }
-            }
-            .autoBlur(radius: blurRadius)
         }
     }
     

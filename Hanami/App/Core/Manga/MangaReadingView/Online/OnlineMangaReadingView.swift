@@ -23,6 +23,7 @@ struct OnlineMangaReadingView: View {
         let mostLeftPageIndex: Int
         let pageIndex: Int
         let pageIndexToDisplay: Int?
+        let isReadingFormatVeritcal: Bool
         
         init(state: OnlineMangaReadingFeature.State) {
             pagesURLs = state.pagesURLs ?? []
@@ -33,10 +34,47 @@ struct OnlineMangaReadingView: View {
             mostLeftPageIndex = state.mostLeftPageIndex
             pageIndex = state.pageIndex
             pageIndexToDisplay = state.pageIndexToDisplay
+            isReadingFormatVeritcal = state.readingFormat == .vertical
         }
     }
     
     var body: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            ZStack {
+                if viewStore.isReadingFormatVeritcal {
+                    verticalReader
+                } else {
+                    horizontalReader
+                        .gesture(swipeGesture)
+                }
+            }
+            .overlay {
+                if viewStore.pagesURLs.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        .tint(.theme.accent)
+                }
+            }
+        }
+        .gesture(tapGesture)
+        .overlay(navigationBlock)
+        .navigationBarHidden(true)
+        .autoBlur(radius: blurRadius)
+    }
+}
+
+extension OnlineMangaReadingView {
+    private var verticalReader: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if !viewStore.pagesURLs.isEmpty {
+                VerticalReaderView(pagesURLs: viewStore.pagesURLs)
+            } else {
+                Color.clear.frame(maxHeight: .infinity)
+            }
+        }
+    }
+    
+    @MainActor private var horizontalReader: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(
                 selection: viewStore.binding(
@@ -47,45 +85,38 @@ struct OnlineMangaReadingView: View {
                 Color.clear
                     .tag(viewStore.mostLeftPageIndex)
                 
-                ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
-                    ZoomableScrollView {
-                        LazyImage(url: viewStore.pagesURLs[pageIndex]) { state in
-                            if let image = state.image {
-                                image.resizingMode(.aspectFit)
-                            } else if state.isLoading || state.error != nil {
-                                ProgressView(value: state.progress.fraction)
-                                    .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
-                                    .frame(width: 50, height: 50)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                    .tint(.theme.accent)
-                            }
-                        }
-                    }
-                }
-                .opacity(viewStore.pagesCount != nil ? 1 : 0)
+                pagesList
+                    .opacity(viewStore.pagesCount != nil ? 1 : 0)
                 
                 Color.clear
                     .tag(viewStore.mostRightPageIndex)
             }
             .background(Color.theme.background)
-            .overlay {
-                if viewStore.pagesURLs.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        .tint(.theme.accent)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+    }
+    
+    @MainActor private var pagesList: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
+                ZoomableScrollView {
+                    LazyImage(url: viewStore.pagesURLs[pageIndex]) { state in
+                        if let image = state.image {
+                            image.resizingMode(.aspectFit)
+                        } else if state.isLoading || state.error != nil {
+                            ProgressView(value: state.progress.fraction)
+                                .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
+                                .frame(width: 50, height: 50)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                                .tint(.theme.accent)
+                        }
+                    }
+                    .id(pageIndex)
                 }
             }
         }
-        .gesture(tapGesture)
-        .gesture(swipeGesture)
-        .overlay(navigationBlock)
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .navigationBarHidden(true)
-        .autoBlur(radius: blurRadius)
     }
-}
-
-extension OnlineMangaReadingView {
+    
     private var backButton: some View {
         Button {
             ViewStore(store).send(.userLeftMangaReadingView)
