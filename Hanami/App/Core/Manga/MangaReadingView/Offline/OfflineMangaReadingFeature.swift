@@ -24,7 +24,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         let pagesCount: Int
         var pageIndex = 0
         var pageIndexToDisplay: Int? {
-            if pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex {
+            if pageIndex > mostLeftPageIndex && pageIndex < mostRightPageIndex, readingFormat != .vertical {
                 return readingFormat == .rightToLeft ? pagesCount - pageIndex : pageIndex + 1
             }
             return nil

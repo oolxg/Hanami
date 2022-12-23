@@ -131,7 +131,6 @@ extension OnlineMangaReadingView {
             Image(systemName: "xmark")
                 .font(.title3)
                 .foregroundColor(.theme.foreground)
-                .padding(.vertical)
         }
     }
     
@@ -171,7 +170,7 @@ extension OnlineMangaReadingView {
                                 .disabled(true)
                         }
                     }
-                    .frame(height: 60)
+                    .frame(height: 40)
                     
                     Spacer()
                     
