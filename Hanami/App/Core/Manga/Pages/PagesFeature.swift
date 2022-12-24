@@ -170,6 +170,8 @@ struct PagesFeature: ReducerProtocol {
         case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabFeature.Action)
     }
     
+    @Dependency(\.mainQueue) private var mainQueue
+
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
@@ -190,7 +192,7 @@ struct PagesFeature: ReducerProtocol {
                 state.lockPage = true
                 state.currentPageIndex = newPageIndex
                 return .task { .unlockPage }
-                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                    .delay(for: .seconds(0.3), scheduler: mainQueue)
                     .eraseToEffect()
                 
             case .unlockPage:
@@ -204,7 +206,7 @@ struct PagesFeature: ReducerProtocol {
                     state.currentPageIndex -= 1
                 } else if state.volumeTabStatesOnCurrentPage.isEmpty {
                     return .task { .userDeletedAllCachedChapters }
-                        .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
+                        .delay(for: .seconds(0.3), scheduler: mainQueue)
                         .eraseToEffect()
                 }
                 

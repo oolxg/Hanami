@@ -51,7 +51,8 @@ struct HomeFeature: ReducerProtocol {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
     @Dependency(\.imageClient) private var imageClient
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
@@ -60,11 +61,11 @@ struct HomeFeature: ReducerProtocol {
                 
                 return .merge(
                     homeClient.fetchLastUpdates()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect { .mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) },
                     
                     homeClient.fetchAllSeasonalTitlesLists()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.allSeasonalListsFetched)
                 )
                 
@@ -103,19 +104,19 @@ struct HomeFeature: ReducerProtocol {
                     .cancel(ids: fetchedMangaIDs.map { OnlineMangaFeature.CancelClearCache(mangaID: $0) }),
                     
                     homeClient.fetchLastUpdates()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
                         .cancellable(id: UpdateDebounce(), cancelInFlight: true),
                     
                     .task { .refreshDelayCompleted }
-                        .delay(for: .seconds(3), scheduler: DispatchQueue.main)
+                        .delay(for: .seconds(3), scheduler: mainQueue)
                         .eraseToEffect()
                 ]
                 
                 if let seasonalListID = state.seasonalMangaListID {
                     effects.append(
                         homeClient.fetchCustomTitlesList(seasonalListID)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.seasonalMangaListFetched)
                     )
                 }
@@ -130,14 +131,14 @@ struct HomeFeature: ReducerProtocol {
                 guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
                 
                 return homeClient.fetchAwardWinningManga()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect { .mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
                 
             case .onAppearMostFollewedManga:
                 guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
                 
                 return homeClient.fetchMostFollowedManga()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect { .mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
                 
             case .allSeasonalListsFetched(let result):
@@ -154,7 +155,7 @@ struct HomeFeature: ReducerProtocol {
                     
                     return homeClient
                         .fetchMangaByIDs(seasonalMangaIDs)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
                     
                 case .failure(let error):
@@ -180,7 +181,7 @@ struct HomeFeature: ReducerProtocol {
                     
                     return .merge(
                         homeClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect { .statisticsFetched($0, keyPath) },
                         
                         imageClient.prefetchImages(coverArtURLs)
@@ -221,7 +222,7 @@ struct HomeFeature: ReducerProtocol {
                     
                     return homeClient
                         .fetchMangaByIDs(mangaIDs)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
                     
                 case .failure(let error):

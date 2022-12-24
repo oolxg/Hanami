@@ -40,7 +40,6 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         var pagesURLs: [URL]?
         
         var pageIndex = 0
-        // need this var for avoiding computations of page index when `readMangaRightToLeft` is set to true
         var pageIndexToDisplay: Int? {
             if let pagesCount, pageIndex > mostLeftPageIndex
                 && pageIndex < mostRightPageIndex, readingFormat != .vertical {
@@ -79,21 +78,22 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
         case .userStartedReadingChapter:
             var effects = [
                 settingsClient.getSettingsConfig()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved)
             ]
             
             if state.pagesURLs == nil {
                 effects.append(
                     mangaClient.fetchPagesInfo(state.chapterID)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.chapterPagesInfoFetched)
                 )
             }
@@ -105,7 +105,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                         state.scanlationGroupID,
                         state.translatedLanguage
                     )
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.sameScanlationGroupChaptersFetched)
                 )
             }

@@ -10,7 +10,7 @@ import Combine
 
 extension Publisher {
     #if DEBUG
-    func debugDecode<Item: Decodable>(type: Item.Type, decoder: JSONDecoder = AppUtil.decoder) -> AnyPublisher<Output, Never> where Self.Output == Data {
+    func debugDecode(type: any Decodable.Type, decoder: JSONDecoder = AppUtil.decoder) -> AnyPublisher<Output, Never> where Self.Output == Data {
         map { data in
             do {
                 _ = try decoder.decode(type, from: data)

@@ -58,7 +58,8 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
@@ -79,14 +80,14 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 effects.append(
                     databaseClient
                         .retrieveAllChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.sameScanlationGroupChaptersRetrieved)
                 )
             }
             
             return .concatenate(
                 settingsClient.getSettingsConfig()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),
                 
                 .merge(effects)

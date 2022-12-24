@@ -85,7 +85,7 @@ struct VerticalReaderView: View {
                     image
                         .resizingMode(.aspectFit)
                         .offset { rect in
-                            pages[id: pages[index].id]?.rect = rect
+                            pages[index].rect = rect
                         }
                 } else if state.isLoading || state.error != nil {
                     ProgressView(value: state.progress.fraction)

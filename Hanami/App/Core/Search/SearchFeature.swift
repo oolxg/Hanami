@@ -50,6 +50,7 @@ struct SearchFeature: ReducerProtocol {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -70,7 +71,7 @@ struct SearchFeature: ReducerProtocol {
                 }
                 
                 return databaseClient.retrieveSearchRequests(suffixLength: Defaults.Search.maxSearchHistorySize)
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.searchHistoryRetrieved)
                 
             case .searchHistoryRetrieved(let result):
@@ -102,8 +103,8 @@ struct SearchFeature: ReducerProtocol {
                 state.isLoading = true
                 
                 return searchClient.makeSearchRequest(searchRequest.params)
-                    .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
-                    .receive(on: DispatchQueue.main)
+                    .delay(for: .seconds(0.4), scheduler: mainQueue)
+                    .receive(on: mainQueue)
                     .catchToEffect { .searchResultDownloaded(result: $0, requestParams: nil) }
                     .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
@@ -161,8 +162,8 @@ struct SearchFeature: ReducerProtocol {
                     ),
                     
                     searchClient.makeSearchRequest(searchParams)
-                        .delay(for: .seconds(0.4), scheduler: DispatchQueue.main)
-                        .receive(on: DispatchQueue.main)
+                        .delay(for: .seconds(0.4), scheduler: mainQueue)
+                        .receive(on: mainQueue)
                         .catchToEffect { .searchResultDownloaded(result: $0, requestParams: searchParams) }
                         .cancellable(id: CancelSearch(), cancelInFlight: true)
                 )
@@ -184,7 +185,7 @@ struct SearchFeature: ReducerProtocol {
                     
                     var effects = [
                         searchClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.mangaStatisticsFetched)
                     ]
                     
@@ -221,7 +222,7 @@ struct SearchFeature: ReducerProtocol {
                     .cancel(id: CancelSearch()),
                     
                     .task { .searchForManga }
-                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: DispatchQueue.main)
+                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: mainQueue)
                         .eraseToEffect()
                 )
                 

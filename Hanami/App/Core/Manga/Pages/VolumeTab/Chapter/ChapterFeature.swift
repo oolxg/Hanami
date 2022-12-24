@@ -90,7 +90,8 @@ struct ChapterFeature: ReducerProtocol {
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     // swiftlint:disable:
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -118,7 +119,7 @@ struct ChapterFeature: ReducerProtocol {
                             } else if state.online, let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
                                 effects.append(
                                     mangaClient.fetchScanlationGroup(scanlationGroupID)
-                                        .receive(on: DispatchQueue.main)
+                                        .receive(on: mainQueue)
                                         .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapterID) }
                                         .cancellable(
                                             id: CancelChapterFetch(id: chapterID),
@@ -130,8 +131,8 @@ struct ChapterFeature: ReducerProtocol {
                             // chapter is not cached, need to fetch
                             effects.append(
                                 mangaClient.fetchChapterDetails(chapterID)
-                                    .delay(for: .seconds(0.3), scheduler: DispatchQueue.main)
-                                    .receive(on: DispatchQueue.main)
+                                    .delay(for: .seconds(0.3), scheduler: mainQueue)
+                                    .receive(on: mainQueue)
                                     .catchToEffect(ChapterFeature.Action.chapterDetailsFetched)
                                     .animation(.linear)
                                     .cancellable(id: CancelChapterFetch(id: chapterID), cancelInFlight: true)
@@ -166,7 +167,7 @@ struct ChapterFeature: ReducerProtocol {
                     }
                     
                     return mangaClient.fetchScanlationGroup(scanlationGroupID)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapter.id) }
                         .cancellable(
                             id: CancelChapterFetch(id: chapter.id),

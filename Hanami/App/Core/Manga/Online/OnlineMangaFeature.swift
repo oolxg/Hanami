@@ -93,7 +93,8 @@ struct OnlineMangaFeature: ReducerProtocol {
     @Dependency(\.openURL) private var openURL
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -104,7 +105,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 if state.pagesState == nil {
                     effects.append(
                         mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.volumesRetrieved)
                     )
                 }
@@ -112,7 +113,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 if state.statistics == nil {
                     effects.append(
                         mangaClient.fetchMangaStatistics(state.manga.id)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.mangaStatisticsDownloaded)
                     )
                 }
@@ -160,7 +161,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
                     return mangaClient.fetchAllCoverArtsForManga(state.manga.id)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.allCoverArtsInfoFetched)
                 }
                 
@@ -217,8 +218,8 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 return .merge(
                     mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                        .receive(on: DispatchQueue.main)
-                        .delay(for: .seconds(0.7), scheduler: DispatchQueue.main)
+                        .receive(on: mainQueue)
+                        .delay(for: .seconds(0.7), scheduler: mainQueue)
                         .catchToEffect(Action.volumesRetrieved),
                     
                     hapticClient.generateFeedback(.medium).fireAndForget()
@@ -255,7 +256,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !mangaClient.isCoverArtCached(state.manga.id, cacheClient), let coverArtURL = state.mainCoverArtURL {
                     return imageClient.downloadImage(coverArtURL)
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .eraseToEffect { .coverArtForCachingFetched($0) }
                 }
                 

@@ -39,6 +39,7 @@ struct RootFeature: ReducerProtocol {
     
     @Dependency(\.authClient) private var authClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -80,7 +81,7 @@ struct RootFeature: ReducerProtocol {
                     guard state.isAppLocked else { return .none }
                     
                     return authClient.makeAuth()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .eraseToEffect(Action.appAuthCompleted)
                     
                 @unknown default:
@@ -94,7 +95,7 @@ struct RootFeature: ReducerProtocol {
                 }
                 
                 return authClient.makeAuth()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .eraseToEffect(Action.appAuthCompleted)
                 
             case .appAuthCompleted(let result):

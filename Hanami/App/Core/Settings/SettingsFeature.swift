@@ -40,6 +40,7 @@ struct SettingsFeature: ReducerProtocol {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mainQueue) private var mainQueue
     @Dependency(\.cacheClient) private var cacheClient
 
     var body: some ReducerProtocol<State, Action> {
@@ -51,7 +52,7 @@ struct SettingsFeature: ReducerProtocol {
                     .task { .recomputeCacheSize },
 
                     settingsClient.getSettingsConfig()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.settingsConfigRetrieved)
                 )
                 
@@ -68,7 +69,7 @@ struct SettingsFeature: ReducerProtocol {
                 
             case .recomputeCacheSize:
                 return cacheClient.computeCacheSize()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .eraseToEffect(Action.cacheSizeComputed)
                 
             case .clearMangaCacheButtonTapped:
@@ -92,7 +93,7 @@ struct SettingsFeature: ReducerProtocol {
             case .clearMangaCacheConfirmed:
                 return .concatenate(
                     databaseClient.retrieveAllCachedMangas()
-                        .receive(on: DispatchQueue.main)
+                        .receive(on: mainQueue)
                         .catchToEffect(Action.cachedMangaRetrieved),
                     
                     cacheClient.clearCache().fireAndForget(),

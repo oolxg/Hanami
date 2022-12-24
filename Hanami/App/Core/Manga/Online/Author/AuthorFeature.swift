@@ -36,7 +36,8 @@ struct AuthorFeature: ReducerProtocol {
     @Dependency(\.homeClient) var homeClient
     @Dependency(\.mangaClient) var mangaClient
     @Dependency(\.logger) var logger
-    
+    @Dependency(\.mainQueue) var mainQueue
+
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
@@ -44,7 +45,7 @@ struct AuthorFeature: ReducerProtocol {
                 guard state.author == nil else { return .none }
                 
                 return mangaClient.fetchAuthorByID(state.authorID)
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.authorInfoFetched)
                 
             case .authorInfoFetched(let result):
@@ -55,11 +56,11 @@ struct AuthorFeature: ReducerProtocol {
 
                     return .concatenate(
                         homeClient.fetchMangaByIDs(mangaIDs)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.authorsMangaFetched),
                         
                         homeClient.fetchStatistics(mangaIDs)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .catchToEffect(Action.mangaStatisticsFetched)
                     )
                     

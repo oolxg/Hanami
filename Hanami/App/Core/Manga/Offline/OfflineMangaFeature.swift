@@ -53,6 +53,7 @@ struct OfflineMangaFeature: ReducerProtocol {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -61,7 +62,7 @@ struct OfflineMangaFeature: ReducerProtocol {
             case .onAppear:
                 return databaseClient
                     .retrieveAllChaptersForManga(mangaID: state.manga.id)
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.cachedChaptersRetrieved)
                 
             case .cachedChaptersRetrieved(let result):

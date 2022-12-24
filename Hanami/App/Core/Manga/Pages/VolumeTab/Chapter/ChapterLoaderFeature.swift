@@ -52,7 +52,8 @@ struct ChapterLoaderFeature: ReducerProtocol {
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mangaClient) private var mangaClient
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         struct CancelChapterCache: Hashable { let id: UUID }
@@ -61,7 +62,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
         case .retrieveCachedChaptersFromMemory:
             return cacheClient
                 .retrieveFromMemoryCachedChapters(state.parentManga.id)
-                .receive(on: DispatchQueue.main)
+                .receive(on: mainQueue)
                 .catchToEffect(Action.savedInMemoryChaptersRetrieved)
             
         case .savedInMemoryChaptersRetrieved(let result):
@@ -156,11 +157,11 @@ struct ChapterLoaderFeature: ReducerProtocol {
             return .concatenate(
                 // need to retrieve `SettingsConfig` each time, because use can update it and we have no listeners on this updates
                 settingsClient.getSettingsConfig()
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),
                 
                 mangaClient.fetchPagesInfo(chapter.id)
-                    .receive(on: DispatchQueue.main)
+                    .receive(on: mainQueue)
                     .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
             )
             
@@ -194,7 +195,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
                     .map { i, url in
                         imageClient
                             .downloadImage(url)
-                            .receive(on: DispatchQueue.main)
+                            .receive(on: mainQueue)
                             .eraseToEffect {
                                 Action.chapterPageForCachingFetched($0, pageIndex: i, chapter)
                             }

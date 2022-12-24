@@ -31,6 +31,7 @@ struct DownloadsFeature: ReducerProtocol {
     
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -66,12 +67,12 @@ struct DownloadsFeature: ReducerProtocol {
                 
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteMangaButtonTapped)):
                 return .task { .retrieveCachedManga }
-                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()
                 
             case .cachedMangaThumbnailAction(_, .userLeftMangaView):
                 return .task { .retrieveCachedManga }
-                    .delay(for: .seconds(0.2), scheduler: DispatchQueue.main)
+                    .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()
                 
             case .sortOrderChanged(let newSortOrder):

@@ -61,7 +61,8 @@ struct FiltersFeature: ReducerProtocol {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.searchClient) private var searchClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     // swiftlint:disable:next cyclomatic_complexity
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
         switch action {
@@ -69,7 +70,7 @@ struct FiltersFeature: ReducerProtocol {
             guard state.allTags.isEmpty else { return .none }
             
             return searchClient.fetchTags()
-                .receive(on: DispatchQueue.main)
+                .receive(on: mainQueue)
                 .catchToEffect(Action.filterListDownloaded)
             
         case .filterListDownloaded(let result):

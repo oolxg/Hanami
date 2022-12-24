@@ -56,7 +56,8 @@ struct MangaThumbnailFeature: ReducerProtocol {
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.logger) private var logger
-    
+    @Dependency(\.mainQueue) private var mainQueue
+
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -136,7 +137,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
                 // Can be cancelled if user returns wihing 60 sec.
                 return .merge(
                     .task { .userLeftMangaViewDelayCompleted }
-                        .debounce(for: .seconds(60), scheduler: DispatchQueue.main)
+                        .debounce(for: .seconds(60), scheduler: mainQueue)
                         .eraseToEffect()
                         .cancellable(id: OnlineMangaFeature.CancelClearCache(mangaID: state.manga.id)),
                     

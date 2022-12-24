@@ -29,6 +29,9 @@
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
 		085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DB65E28E11BD100AF5323 /* NukeUI */; };
+		08700EF3295769A90019E615 /* LiveTextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF2295769A90019E615 /* LiveTextHandler.swift */; };
+		08700EF629576A390019E615 /* LiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF529576A390019E615 /* LiveText.swift */; };
+		08700EFA29578C2B0019E615 /* Shimmering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF929578C2B0019E615 /* Shimmering.swift */; };
 		08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45B290169FB001EECD9 /* AuthorFeature.swift */; };
 		08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45D2902A9F5001EECD9 /* AuthorView.swift */; };
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
@@ -177,6 +180,9 @@
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0859979B28F6DBE50095422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		08700EF2295769A90019E615 /* LiveTextHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTextHandler.swift; sourceTree = "<group>"; };
+		08700EF529576A390019E615 /* LiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveText.swift; sourceTree = "<group>"; };
+		08700EF929578C2B0019E615 /* Shimmering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shimmering.swift; sourceTree = "<group>"; };
 		08A8F45B290169FB001EECD9 /* AuthorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorFeature.swift; sourceTree = "<group>"; };
 		08A8F45D2902A9F5001EECD9 /* AuthorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorView.swift; sourceTree = "<group>"; };
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
@@ -407,6 +413,15 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		08700EF429576A230019E615 /* LiveText */ = {
+			isa = PBXGroup;
+			children = (
+				08700EF2295769A90019E615 /* LiveTextHandler.swift */,
+				08700EF529576A390019E615 /* LiveText.swift */,
+			);
+			path = LiveText;
+			sourceTree = "<group>";
+		};
 		08A8F45A290169E6001EECD9 /* Author */ = {
 			isa = PBXGroup;
 			children = (
@@ -437,6 +452,7 @@
 		2220E151283123FD0046F08A /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				08700EF429576A230019E615 /* LiveText */,
 				2291EF5C2880E15B007FE0B0 /* NetworkMonitor.swift */,
 				222ED96E28C6E2C6009C361E /* DeviceUtil.swift */,
 				2225265C28B15ED3009F6FA3 /* HapticUtil.swift */,
@@ -455,6 +471,7 @@
 				222A03732872330400D5B588 /* HUD.swift */,
 				0827CF8A2943C86700D68C93 /* GaugeProgressViewStyle.swift */,
 				080D1DCF2955809B008B813C /* VerticalReaderView.swift */,
+				08700EF929578C2B0019E615 /* Shimmering.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -957,6 +974,7 @@
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,
 				2205CBA02856A91900421888 /* UINavigationController.swift in Sources */,
 				22F4A85628AB29C9008C11A7 /* ChapterFeature.swift in Sources */,
+				08700EF629576A390019E615 /* LiveText.swift in Sources */,
 				22D0CA70287DE15F005D06ED /* HomeClient.swift in Sources */,
 				080D1DCB294FF879008B813C /* SearchParams.swift in Sources */,
 				228DD05028A5278300F70162 /* HUDClient.swift in Sources */,
@@ -973,6 +991,7 @@
 				222A03682871BB0500D5B588 /* NSPersistentStoreCoordinator.swift in Sources */,
 				22F4A85928AB29C9008C11A7 /* PagesView.swift in Sources */,
 				22D74BFA287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift in Sources */,
+				08700EF3295769A90019E615 /* LiveTextHandler.swift in Sources */,
 				2220E15728312D400046F08A /* MangaThumbnailFeature.swift in Sources */,
 				22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */,
 				080D1DB8294FDD99008B813C /* CoreDataVersion.swift in Sources */,
@@ -990,6 +1009,7 @@
 				2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */,
 				22471E1E288E10A300223D35 /* Author.swift in Sources */,
 				0859979728F4C4230095422C /* SettingsView.swift in Sources */,
+				08700EFA29578C2B0019E615 /* Shimmering.swift in Sources */,
 				080D1DD02955809B008B813C /* VerticalReaderView.swift in Sources */,
 				226DF7952865BFDC007CF96A /* View.swift in Sources */,
 				224C657C2827204100AAEF2E /* HanamiApp.swift in Sources */,
