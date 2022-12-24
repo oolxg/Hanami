@@ -20,6 +20,7 @@ At the moment, there 3 options for installing the application:
 *	Alt Store way:
 	*	First install [AltStore](https://altstore.io).
 	*	Then download latest app release from [here](https://github.com/oolxg/Hanami/releases).
+	
 	<sub>Try this [video](https://www.youtube.com/watch?v=oLPVY-yETMM) if you have any problems.<sub>
 	
 #### System requirements
