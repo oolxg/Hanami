@@ -1,4 +1,3 @@
-
 <h1 align="center">Hanami 🌸</h1>
 <p align="center">
 <img src="https://user-images.githubusercontent.com/44912908/209033176-52da7172-14e4-460b-a753-302015069f79.jpg" width="400" alt="Hanami 🌸 logo"></img>
@@ -8,16 +7,21 @@
 
 #### How to install
 
-At the moment, there are only two options for installing the application:
+At the moment, there 3 options for installing the application:
 
 *   The easiest way - via Apple TestFlight:
     *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664) on your device.
     *  Follow [this link](https://testflight.apple.com/join/VUPzZpkc), install app and start using Hanami 🌸.
-*   A little harder way(requires MacBook/iMac and Xcode):
+*   Xcode way - requires MacBook/iMac:
 	* First clone this repo `git clone https://github.com/oolxg/Hanami`.
 	* Open `Hanami.xcodeproj` in the root of cloned project.
 	* Change signing team and Bundle Identifier.
 	* Build the app. 
+*	Alt Store way
+	*	First install [AltStore](https://altstore.io)
+	*	Then download latest app release from [here](https://github.com/oolxg/Hanami/releases)
+	<sub>Try this [video](https://www.youtube.com/watch?v=oLPVY-yETMM) if you have any problems<sub>
+	
 #### System requirements
 
 You need a device with at least iOS/iPadOS 15.0 to start using app.
