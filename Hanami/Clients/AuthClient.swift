@@ -45,9 +45,13 @@ extension AuthClient: DependencyKey {
                         }
                     }
                 } else if let error = error as? LAError {
+                    if error.code == .biometryNotAvailable {
+                        // we will return success because user turned off Biometry Auth
+                        return promise(.success(()))
+                    }
                     return promise(.failure(.biometryError(error)))
                 } else {
-                    // we will return success because user turned off Biometry Auth
+                    // ???
                     return promise(.success(()))
                 }
             }

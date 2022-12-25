@@ -64,7 +64,8 @@ struct SettingsFeature: ReducerProtocol {
                     
                 case .failure(let error):
                     logger.error("Failed to retrieve settings config: \(error)")
-                    return .none
+                    // for the case when app launched for the first time
+                    return settingsClient.saveSettingsConfig(state.config).fireAndForget()
                 }
                 
             case .recomputeCacheSize:

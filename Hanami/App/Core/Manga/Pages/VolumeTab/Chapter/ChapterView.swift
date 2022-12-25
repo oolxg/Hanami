@@ -146,7 +146,7 @@ extension ChapterView {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            ViewStore(store).send(.userTappedOnChapterDetails(chapter: chapter))
+            ViewStore(store).send(.userTappedOnChapterDetails(chapter))
         }
     }
     

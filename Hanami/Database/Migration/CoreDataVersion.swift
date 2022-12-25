@@ -12,6 +12,7 @@ import CoreData
 enum CoreDataMigrationVersion: String, CaseIterable {
     case version1 = "Model"
     case version2 = "Model2"
+    case version3 = "Model3"
 
     static func current() throws -> CoreDataMigrationVersion {
         guard let latest = allCases.last else {
@@ -25,6 +26,8 @@ enum CoreDataMigrationVersion: String, CaseIterable {
         case .version1:
             return .version2
         case .version2:
+            return .version3
+        case .version3:
             return nil
         }
     }

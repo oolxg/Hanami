@@ -42,7 +42,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
         
         case retrieveCachedChaptersFromMemory
         case savedInMemoryChaptersRetrieved(Result<Set<UUID>, AppError>)
-        case allChapterDetailsRetrievedFromDisk(Result<[CachedChapterEntry], AppError>)
+        case allChapterDetailsRetrievedFromDisk(Result<[CoreDataChapterDetailsEntry], AppError>)
     }
     
     @Dependency(\.cacheClient) private var cacheClient

@@ -21,7 +21,7 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         // set up the UIScrollView
         let scrollView = UIScrollView()
         scrollView.delegate = context.coordinator  // for viewForZooming(in:)
-        scrollView.maximumZoomScale = 3
+        scrollView.maximumZoomScale = 5
         scrollView.minimumZoomScale = 1
         scrollView.bouncesZoom = true
         scrollView.showsVerticalScrollIndicator = false

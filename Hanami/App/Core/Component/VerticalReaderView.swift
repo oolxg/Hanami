@@ -20,10 +20,6 @@ struct VerticalReaderView: View {
     @State private var timeOut: CGFloat = 0.3
     
     @State private var pages: IdentifiedArrayOf<Page>
-
-    init(pagesURLs: [URL?]) {
-        pages = .init(uniqueElements: pagesURLs.enumerated().map { Page(url: $1, index: $0) })
-    }
     
     private struct Page: Identifiable {
         let url: URL?
@@ -31,7 +27,11 @@ struct VerticalReaderView: View {
         var rect: CGRect = .zero
         var id: Int { index }
     }
-    
+
+    init(pagesURLs: [URL?]) {
+        pages = .init(uniqueElements: pagesURLs.enumerated().map { Page(url: $1, index: $0) })
+    }
+
     var body: some View {
         GeometryReader { geo in
             ScrollView(showsIndicators: true) {
@@ -51,7 +51,6 @@ struct VerticalReaderView: View {
                     if rect.height != 0 {
                         scrollerHeight = viewHeight / rect.height * viewHeight
                     }
-
                     // MARK: - Finding scroll indicator position
                     let progress = rect.minY / (geo.size.height - rect.height)
                     indicatorOffset = progress * (geo.size.height - scrollerHeight)
@@ -117,12 +116,12 @@ struct VerticalReaderView: View {
                             Text("\(last.index + 1)")
                                 .fontWeight(.black)
                                 .foregroundColor(.white)
-                                .offset(x: -3)
+                                .offset(x: -4)
                         } else {
-                            Text("\(1)")
+                            Text("1")
                                 .fontWeight(.black)
                                 .foregroundColor(.white)
-                                .offset(x: -3)
+                                .offset(x: -4)
                         }
                     }
                     .environment(\.colorScheme, .dark)

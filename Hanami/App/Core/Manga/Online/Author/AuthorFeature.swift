@@ -59,7 +59,7 @@ struct AuthorFeature: ReducerProtocol {
                             .receive(on: mainQueue)
                             .catchToEffect(Action.authorsMangaFetched),
                         
-                        homeClient.fetchStatistics(mangaIDs)
+                        mangaClient.fetchStatistics(mangaIDs)
                             .receive(on: mainQueue)
                             .catchToEffect(Action.mangaStatisticsFetched)
                     )

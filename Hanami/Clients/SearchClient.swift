@@ -17,13 +17,12 @@ extension DependencyValues {
 
 struct SearchClient {
     let makeSearchRequest: (SearchParams) -> Effect<Response<[Manga]>, AppError>
-    let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
     let fetchTags: () -> Effect<Response<[Tag]>, AppError>
 }
 
 extension SearchClient: DependencyKey {
     static let liveValue = SearchClient(
-        makeSearchRequest: { requestParams in
+        makeSearchRequest: { searchParams in
             var components = URLComponents()
             
             components.scheme = "https"
@@ -31,32 +30,30 @@ extension SearchClient: DependencyKey {
             components.path = "/manga"
             
             components.queryItems = [
-                URLQueryItem(name: "title", value: requestParams.searchQuery),
-                URLQueryItem(name: "limit", value: "\(requestParams.resultsCount)"),
+                URLQueryItem(name: "title", value: searchParams.searchQuery),
+                URLQueryItem(name: "limit", value: "\(searchParams.resultsCount)"),
                 URLQueryItem(name: "offset", value: "0"),
                 URLQueryItem(name: "contentRating[]", value: "safe"),
                 URLQueryItem(name: "contentRating[]", value: "suggestive"),
                 URLQueryItem(name: "contentRating[]", value: "erotica"),
                 URLQueryItem(name: "includes[]", value: "cover_art"),
                 URLQueryItem(name: "includes[]", value: "author"),
-                URLQueryItem(name: "order[\(requestParams.sortOption)]", value: "\(requestParams.sortOptionOrder)")
+                URLQueryItem(name: "order[\(searchParams.sortOption)]", value: "\(searchParams.sortOptionOrder)")
             ]
             
-            components.queryItems! += requestParams.tags
-                .filter { $0.state == .banned }
+            components.queryItems! += searchParams.tags.filter { $0.state == .banned }
                 .map { URLQueryItem(name: "excludedTags[]", value: $0.id.uuidString.lowercased()) }
             
-            components.queryItems! += requestParams.tags
-                .filter { $0.state == .selected }
+            components.queryItems! += searchParams.tags.filter { $0.state == .selected }
                 .map { URLQueryItem(name: "includedTags[]", value: $0.id.uuidString.lowercased()) }
             
-            components.queryItems! += requestParams.publicationDemographic.filter { $0.state == .selected }
+            components.queryItems! += searchParams.publicationDemographic.filter { $0.state == .selected }
                 .map { URLQueryItem(name: "publicationDemographic[]", value: $0.name) }
             
-            components.queryItems! += requestParams.contentRatings.filter { $0.state == .selected }
+            components.queryItems! += searchParams.contentRatings.filter { $0.state == .selected }
                 .map { URLQueryItem(name: "contentRating[]", value: $0.name) }
             
-            components.queryItems! += requestParams.mangaStatuses.filter { $0.state == .selected }
+            components.queryItems! += searchParams.mangaStatuses.filter { $0.state == .selected }
                 .map { URLQueryItem(name: "status[]", value: $0.name) }
             
             guard let url = components.url else {
@@ -64,23 +61,6 @@ extension SearchClient: DependencyKey {
             }
             
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
-        },
-        fetchStatistics: { mangaIDs in
-            guard !mangaIDs.isEmpty else { return .none }
-            
-            var components = URLComponents()
-            components.scheme = "https"
-            components.host = "api.mangadex.org"
-            components.path = "/statistics/manga"
-            components.queryItems = mangaIDs.map {
-                URLQueryItem(name: "manga[]", value: $0.uuidString.lowercased())
-            }
-            
-            guard let url = components.url else {
-                return .none
-            }
-            
-            return URLSession.shared.get(url: url, decodeResponseAs: MangaStatisticsContainer.self)
         },
         fetchTags: {
             guard let url = URL(string: "https://api.mangadex.org/manga/tag") else {

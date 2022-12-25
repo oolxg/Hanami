@@ -50,6 +50,7 @@ struct HomeFeature: ReducerProtocol {
     @Dependency(\.hudClient) private var hudClient
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
+    @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.mainQueue) private var mainQueue
 
@@ -180,7 +181,7 @@ struct HomeFeature: ReducerProtocol {
                     let coverArtURLs = state[keyPath: keyPath].compactMap(\.thumbnailURL)
                     
                     return .merge(
-                        homeClient.fetchStatistics(response.data.map(\.id))
+                        mangaClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: mainQueue)
                             .catchToEffect { .statisticsFetched($0, keyPath) },
                         

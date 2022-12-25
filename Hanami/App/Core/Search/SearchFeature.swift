@@ -49,6 +49,7 @@ struct SearchFeature: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
@@ -184,7 +185,7 @@ struct SearchFeature: ReducerProtocol {
                     }
                     
                     var effects = [
-                        searchClient.fetchStatistics(response.data.map(\.id))
+                        mangaClient.fetchStatistics(response.data.map(\.id))
                             .receive(on: mainQueue)
                             .catchToEffect(Action.mangaStatisticsFetched)
                     ]

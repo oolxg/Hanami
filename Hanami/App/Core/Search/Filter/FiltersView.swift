@@ -258,7 +258,7 @@ extension FiltersView {
         }
     }
     
-    @ViewBuilder private func makeChipsViewFor<T: FiltersTagProtocol>(_ filterTag: T) -> some View {
+    @ViewBuilder private func makeChipsViewFor(_ filterTag: any FiltersTagProtocol) -> some View {
         HStack {
             if filterTag.state == .selected {
                 Image(systemName: "plus")
@@ -279,7 +279,7 @@ extension FiltersView {
         .cornerRadius(10)
     }
     
-    private func getColorForTag<T: FiltersTagProtocol>(_ tag: T) -> Color {
+    private func getColorForTag(_ tag: any FiltersTagProtocol) -> Color {
         if tag.state == .notSelected {
             return .theme.darkGray
         } else if tag.state == .selected {

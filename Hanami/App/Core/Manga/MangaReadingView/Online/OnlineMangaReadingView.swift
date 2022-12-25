@@ -30,7 +30,7 @@ struct OnlineMangaReadingView: View {
             pagesURLs = state.pagesURLs ?? []
             pagesCount = state.pagesCount
             chapterIndex = state.chapterIndex
-            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex)
+            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex).removeDuplicates()
             mostRightPageIndex = state.mostRightPageIndex
             mostLeftPageIndex = state.mostLeftPageIndex
             pageIndex = state.pageIndex

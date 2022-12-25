@@ -38,7 +38,7 @@ extension Manga {
 }
 
 extension MangaMO {
-    var chapterDetailsList: [CachedChapterEntry] {
+    var chapterDetailsList: [CoreDataChapterDetailsEntry] {
         chapterDetailsSet.map { .init(chapter: $0.toEntity(), pagesCount: $0.pagesCount) }.sorted {
             ($0.chapter.attributes.chapterIndex ?? -1) > ($1.chapter.attributes.chapterIndex ?? -1)
         }

@@ -20,7 +20,7 @@ struct OnlineMangaView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     private var isCoverArtDisappeared: Bool {
-        headerOffset <= -350
+        headerOffset <= -450
     }
     
     private struct ViewState: Equatable {
@@ -32,6 +32,7 @@ struct OnlineMangaView: View {
         let allCoverArtURLs: [URL]
         let allCoverArtsInfo: [CoverArtInfo]
         let statistics: MangaStatistics?
+        let lastReadChapterAvailable: Bool
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
@@ -42,6 +43,7 @@ struct OnlineMangaView: View {
             allCoverArtURLs = state.croppedCoverArtURLs
             allCoverArtsInfo = state.allCoverArtsInfo
             statistics = state.statistics
+            lastReadChapterAvailable = state.lastReadChapterID != nil
         }
     }
     
@@ -152,7 +154,7 @@ extension OnlineMangaView {
                 .cornerRadius(0)
                 .offset(y: -minY)
             }
-            .frame(height: 350)
+            .frame(height: 450)
         }
     }
     
@@ -223,6 +225,8 @@ extension OnlineMangaView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
             case .chapters:
+                continueReadingButton
+
                 IfLetStore(
                     store.scope(
                         state: \.pagesState,
@@ -433,20 +437,49 @@ extension OnlineMangaView {
                     .opacity(isCoverArtDisappeared ? 1 : 0)
                 
                 ForEach(OnlineMangaFeature.Tab.allCases, content: makeTabLabel)
-                    .offset(x: isCoverArtDisappeared ? 0 : -40)
             }
-            .padding(.horizontal)
-            .padding(.top, 20)
+            .offset(x: isCoverArtDisappeared ? 0 : -40)
+            .padding(.leading)
+            .padding(.top, 10)
             .padding(.bottom, 5)
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.theme.background)
         .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
-        .modifier(
-            MangaViewOffsetModifier(
-                offset: $headerOffset
-            )
-        )
+        .modifier(MangaViewOffsetModifier(offset: $headerOffset))
+    }
+    
+    private var continueReadingButton: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            if viewStore.lastReadChapterAvailable {
+                Button {
+                    viewStore.send(.resumeReadingButtonTapped)
+                } label: {
+                    VStack(spacing: 12) {
+                        Text("Continue reading!")
+                            .foregroundColor(.theme.foreground)
+                            .fontWeight(.semibold)
+                            .padding(8)
+                            .frame(maxWidth: .infinity)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(lineWidth: 1.5)
+                                    .fill(Color.theme.accent)
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                Image(systemName: "x.circle.fill")
+                                    .background(Color.theme.background)
+                                    .foregroundColor(.theme.red)
+                                    .offset(x: 8, y: -8)
+                                    .onTapGesture {
+                                        viewStore.send(.hideResumeReadingButtonTapped)
+                                    }
+                            }
+                    }
+                }
+                .padding(.horizontal, 5)
+            }
+        }
     }
     
     /// Makes label for navigation through MangaView

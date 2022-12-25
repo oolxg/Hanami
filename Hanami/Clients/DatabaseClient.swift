@@ -216,6 +216,7 @@ extension DatabaseClient {
             promise(
                 .success(
                     batchFetch(entityType: MangaMO.self)
+                        .filter { $0.savedForOfflineReading }
                         .map { CoreDataMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
                 )
             )
@@ -250,9 +251,40 @@ extension DatabaseClient {
             let mangas = batchFetch(entityType: MangaMO.self)
             
             for manga in mangas {
-                _deleteManga(mangaID: manga.id)
+                if manga.lastReadChapterID == nil {
+                    _deleteManga(mangaID: manga.id)
+                } else {
+                    manga.savedForOfflineReading = false
+                }
             }
         }
+    }
+    
+    func setLastReadChapterID(for manga: Manga, chapterID: UUID?) -> EffectTask<Never> {
+        .fireAndForget {
+            var mangaMO = fetch(entityType: MangaMO.self, id: manga.id)
+            
+            if mangaMO == nil {
+                mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+                mangaMO!.savedForOfflineReading = false
+            }
+            
+            mangaMO!.lastReadChapterID = chapterID
+            
+            saveContext()
+        }
+        .eraseToEffect()
+    }
+    
+    func getLastReadChapterID(mangaID: UUID) -> Effect<UUID, AppError> {
+        Future { promise in
+            guard let chapterID = fetch(entityType: MangaMO.self, id: mangaID)?.lastReadChapterID else {
+                return promise(.failure(.notFound))
+            }
+            
+            promise(.success(chapterID))
+        }
+        .eraseToEffect()
     }
 }
 
@@ -274,6 +306,10 @@ extension DatabaseClient {
             
             if mangaMO == nil {
                 mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
+            }
+            
+            if mangaMO!.savedForOfflineReading == false {
+                mangaMO!.savedForOfflineReading = true
                 mangaMO!.addedAt = .now
             }
             
@@ -291,8 +327,8 @@ extension DatabaseClient {
     ///
     /// - Parameter mangaID: manga's ID, whose chapter need to be retrieved
     /// - Parameter scanlationGroupID: ID of scanlation group - need this if we need to fetch only chapters from specific Scanlation Group
-    /// - Returns: `Effect` either with array of `CachedChapterEntry` or `AppError.notFound`
-    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CachedChapterEntry], AppError> {
+    /// - Returns: `Effect` either with array of `CoreDataChapterEntry` or `AppError.notFound`
+    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CoreDataChapterDetailsEntry], AppError> {
         Future { promise in
             guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
                 promise(.failure(.notFound))
@@ -313,12 +349,12 @@ extension DatabaseClient {
     ///
     /// - Parameter chapterID: chapter's `UUID` to be found in DB
     /// - Returns: `CachedChapterEntry?` - nil if nothing was found or struct with `ChapterDetails` and number of pages in this chapter
-    func retrieveChapter(chapterID: UUID) -> CachedChapterEntry? {
+    func retrieveChapter(chapterID: UUID) -> CoreDataChapterDetailsEntry? {
         guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
             return nil
         }
         
-        return CachedChapterEntry(chapter: chapterMO.toEntity(), pagesCount: chapterMO.pagesCount)
+        return CoreDataChapterDetailsEntry(chapter: chapterMO.toEntity(), pagesCount: chapterMO.pagesCount)
     }
     
     /// Delete chapter with given ID from DB

@@ -48,7 +48,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
         case userLeftMangaReadingView
         
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
-        case sameScanlationGroupChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
+        case sameScanlationGroupChaptersRetrieved(Result<[CoreDataChapterDetailsEntry], AppError>)
     }
     
     @Dependency(\.mangaClient) private var mangaClient
@@ -64,6 +64,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
         case .userStartedReadingChapter:
+            DeviceUtil.disableScreenAutoLock()
             guard state.cachedPagesPaths.isEmpty else {
                 return .none
             }
@@ -251,6 +252,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             return .task { .userStartedReadingChapter }
             
         case .userLeftMangaReadingView:
+            DeviceUtil.enableScreenAutoLock()
             return .none
         }
     }

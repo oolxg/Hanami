@@ -38,8 +38,4 @@ enum AppUtil {
         encoder.dateEncodingStrategy = .formatted(AppUtil.dateFormatter)
         return encoder
     }()
-    
-    static var isIpad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
 }

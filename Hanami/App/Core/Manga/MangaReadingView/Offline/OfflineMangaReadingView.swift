@@ -33,7 +33,7 @@ struct OfflineMangaReadingView: View {
             chapterIndex = state.chapter.attributes.chapterIndex
             chapterID = state.chapter.id
             pagesCount = state.pagesCount
-            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.chapterIndex)
+            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.chapterIndex).removeDuplicates()
             cachedPagesPaths = state.cachedPagesPaths
             pageIndex = state.pageIndex
             pageIndexToDisplay = state.pageIndexToDisplay

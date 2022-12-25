@@ -183,6 +183,7 @@
 		08700EF2295769A90019E615 /* LiveTextHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTextHandler.swift; sourceTree = "<group>"; };
 		08700EF529576A390019E615 /* LiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveText.swift; sourceTree = "<group>"; };
 		08700EF929578C2B0019E615 /* Shimmering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shimmering.swift; sourceTree = "<group>"; };
+		08A116CC2957B81B00CE396C /* Model3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model3.xcdatamodel; sourceTree = "<group>"; };
 		08A8F45B290169FB001EECD9 /* AuthorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorFeature.swift; sourceTree = "<group>"; };
 		08A8F45D2902A9F5001EECD9 /* AuthorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorView.swift; sourceTree = "<group>"; };
 		08AC1BDB28C8501800017CAA /* UIDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDevice.swift; sourceTree = "<group>"; };
@@ -1211,7 +1212,7 @@
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1252,7 +1253,7 @@
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1437,10 +1438,11 @@
 		222A033E2870F6E200D5B588 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				08A116CC2957B81B00CE396C /* Model3.xcdatamodel */,
 				080D1DC1294FF115008B813C /* Model2.xcdatamodel */,
 				222A033F2870F6E200D5B588 /* Model.xcdatamodel */,
 			);
-			currentVersion = 080D1DC1294FF115008B813C /* Model2.xcdatamodel */;
+			currentVersion = 08A116CC2957B81B00CE396C /* Model3.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

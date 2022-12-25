@@ -22,6 +22,7 @@ struct OfflineMangaFeature: ReducerProtocol {
         
         var pagesState: PagesFeature.State?
         var selectedTab: Tab = .chapters
+        var lastReadChapter: CoreDataChapterDetailsEntry?
         
         // MARK: - Props for MangaReadingView
         @BindableState var isUserOnReadingView = false
@@ -36,15 +37,23 @@ struct OfflineMangaFeature: ReducerProtocol {
     }
     
     enum Action: BindableAction {
+        // MARK: - Actions to be called from view
         case onAppear
-        case cachedChaptersRetrieved(Result<[CachedChapterEntry], AppError>)
-        case mangaTabButtonTapped(Tab)
+        case resumeReadingButtonTapped
+        case hideResumeReadingButtonTapped
         case deleteMangaButtonTapped
-        case chaptersForMangaDeletionRetrieved(Result<[CachedChapterEntry], AppError>)
+        case mangaTabButtonTapped(Tab)
+
+        // MARK: - Actions to be called from reducer
+        case cachedChaptersRetrieved(Result<[CoreDataChapterDetailsEntry], AppError>)
+        case chaptersForMangaDeletionRetrieved(Result<[CoreDataChapterDetailsEntry], AppError>)
+        case lastReadChapterRetrieved(Result<UUID, AppError>)
         
+        // MARK: - Substate actions
         case mangaReadingViewAction(OfflineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
         
+        // MARK: - Binding
         case binding(BindingAction<State>)
     }
     
@@ -60,10 +69,16 @@ struct OfflineMangaFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return databaseClient
-                    .retrieveAllChaptersForManga(mangaID: state.manga.id)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.cachedChaptersRetrieved)
+                return .merge(
+                    databaseClient
+                        .retrieveAllChaptersForManga(mangaID: state.manga.id)
+                        .receive(on: mainQueue)
+                        .catchToEffect(Action.cachedChaptersRetrieved),
+                    
+                    databaseClient.getLastReadChapterID(mangaID: state.manga.id)
+                        .receive(on: mainQueue)
+                        .catchToEffect(Action.lastReadChapterRetrieved)
+                )
                 
             case .cachedChaptersRetrieved(let result):
                 switch result {
@@ -95,6 +110,35 @@ struct OfflineMangaFeature: ReducerProtocol {
                     )
                     return .none
                 }
+                
+            case .lastReadChapterRetrieved(let result):
+                switch result {
+                case .success(let lastReadChapterID):
+                    state.lastReadChapter = databaseClient.retrieveChapter(chapterID: lastReadChapterID)
+                    return .none
+                    
+                case .failure:
+                    return .none
+                }
+                
+            case .resumeReadingButtonTapped:
+                guard let chapter = state.lastReadChapter else { return .none }
+                
+                state.mangaReadingViewState = OfflineMangaReadingFeature.State(
+                    mangaID: state.manga.id,
+                    chapter: chapter.chapter,
+                    pagesCount: chapter.pagesCount,
+                    startFromLastPage: false
+                )
+                
+                state.isUserOnReadingView = true
+                
+                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                
+            case .hideResumeReadingButtonTapped:
+                state.lastReadChapter = nil
+                return databaseClient.setLastReadChapterID(for: state.manga, chapterID: nil)
+                    .fireAndForget()
                 
             case .mangaTabButtonTapped(let tab):
                 state.selectedTab = tab
@@ -172,17 +216,31 @@ struct OfflineMangaFeature: ReducerProtocol {
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
             case .mangaReadingViewAction(.userStartedReadingChapter):
+                var effects: [EffectTask<Action>] = [
+                    databaseClient.setLastReadChapterID(
+                        for: state.manga,
+                        chapterID: state.mangaReadingViewState!.chapter.id
+                    )
+                    .fireAndForget()
+                ]
                 if let pageIndex = mangaClient.getMangaPageForReadingChapter(
                     state.mangaReadingViewState?.chapter.attributes.chapterIndex,
                     state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
-                    return .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
+                    effects.append(
+                        .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
+                    )
                 }
                 
-                return .none
+                return .merge(effects)
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
                 defer { state.isUserOnReadingView = false }
+                
+                state.lastReadChapter = CoreDataChapterDetailsEntry(
+                    chapter: state.mangaReadingViewState!.chapter,
+                    pagesCount: state.mangaReadingViewState!.pagesCount
+                )
                 
                 let chapterIndex = state.mangaReadingViewState!.chapter.attributes.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage

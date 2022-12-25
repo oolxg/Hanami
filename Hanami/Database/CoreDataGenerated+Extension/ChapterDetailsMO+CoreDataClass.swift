@@ -37,7 +37,7 @@ extension ChapterDetails {
     }
 }
 
-struct CachedChapterEntry: Equatable {
+struct CoreDataChapterDetailsEntry: Equatable {
     let chapter: ChapterDetails
     let pagesCount: Int
 }

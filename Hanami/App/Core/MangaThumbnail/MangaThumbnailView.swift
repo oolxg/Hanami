@@ -228,11 +228,11 @@ extension MangaThumbnailView {
                     
                     // description
                     VStack(alignment: .leading) {
-                        Text(String.placeholder(length: AppUtil.isIpad ? 100 : 20))
-                        Text(String.placeholder(length: AppUtil.isIpad ? 85 : 15))
-                        Text(String.placeholder(length: AppUtil.isIpad ? 100 : 20))
-                        Text(String.placeholder(length: AppUtil.isIpad ? 65 : 10))
-                        Text(String.placeholder(length: AppUtil.isIpad ? 105 : 20))
+                        Text(String.placeholder(length: DeviceUtil.isIpad ? 100 : 20))
+                        Text(String.placeholder(length: DeviceUtil.isIpad ? 85 : 15))
+                        Text(String.placeholder(length: DeviceUtil.isIpad ? 100 : 20))
+                        Text(String.placeholder(length: DeviceUtil.isIpad ? 65 : 10))
+                        Text(String.placeholder(length: DeviceUtil.isIpad ? 105 : 20))
                     }
                     .lineLimit(1)
                     .font(.footnote)

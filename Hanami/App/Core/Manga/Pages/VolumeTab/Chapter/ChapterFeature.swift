@@ -72,9 +72,9 @@ struct ChapterFeature: ReducerProtocol {
     
     enum Action: Equatable {
         case fetchChapterDetailsIfNeeded
-        case userTappedOnChapterDetails(chapter: ChapterDetails)
-        case chapterDetailsFetched(result: Result<Response<ChapterDetails>, AppError>)
-        case scanlationGroupInfoFetched(result: Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
+        case userTappedOnChapterDetails(ChapterDetails)
+        case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
+        case scanlationGroupInfoFetched(Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
 
         case downloaderAction(ChapterLoaderFeature.Action)
 
@@ -120,7 +120,7 @@ struct ChapterFeature: ReducerProtocol {
                                 effects.append(
                                     mangaClient.fetchScanlationGroup(scanlationGroupID)
                                         .receive(on: mainQueue)
-                                        .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapterID) }
+                                        .catchToEffect { .scanlationGroupInfoFetched($0, chapterID: chapterID) }
                                         .cancellable(
                                             id: CancelChapterFetch(id: chapterID),
                                             cancelInFlight: true
@@ -133,7 +133,7 @@ struct ChapterFeature: ReducerProtocol {
                                 mangaClient.fetchChapterDetails(chapterID)
                                     .delay(for: .seconds(0.3), scheduler: mainQueue)
                                     .receive(on: mainQueue)
-                                    .catchToEffect(ChapterFeature.Action.chapterDetailsFetched)
+                                    .catchToEffect(Action.chapterDetailsFetched)
                                     .animation(.linear)
                                     .cancellable(id: CancelChapterFetch(id: chapterID), cancelInFlight: true)
                             )
@@ -168,7 +168,7 @@ struct ChapterFeature: ReducerProtocol {
                     
                     return mangaClient.fetchScanlationGroup(scanlationGroupID)
                         .receive(on: mainQueue)
-                        .catchToEffect { .scanlationGroupInfoFetched(result: $0, chapterID: chapter.id) }
+                        .catchToEffect { .scanlationGroupInfoFetched($0, chapterID: chapter.id) }
                         .cancellable(
                             id: CancelChapterFetch(id: chapter.id),
                             cancelInFlight: true

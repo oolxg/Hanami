@@ -84,6 +84,8 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
         case .userStartedReadingChapter:
+            DeviceUtil.disableScreenAutoLock()
+            
             var effects = [
                 settingsClient.getSettingsConfig()
                     .receive(on: mainQueue)
@@ -269,6 +271,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             return .task { .userStartedReadingChapter }
             
         case .userLeftMangaReadingView:
+            DeviceUtil.enableScreenAutoLock()
             return .none
         }
     }
