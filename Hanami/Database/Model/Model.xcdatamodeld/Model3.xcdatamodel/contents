@@ -19,7 +19,6 @@
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="lastReadChapterID" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="relationships" attributeType="Binary"/>
-        <attribute name="savedForOfflineReading" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <relationship name="chapterDetailsSet" toMany="YES" deletionRule="Cascade" destinationEntity="ChapterDetailsMO" inverseName="parentManga" inverseEntity="ChapterDetailsMO"/>
         <uniquenessConstraints>
             <uniquenessConstraint>

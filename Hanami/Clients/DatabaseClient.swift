@@ -224,22 +224,15 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    /// Delete manga with given ID from DB synchronically
-    ///
-    /// - Parameter mangaID: Manga's id, to be deleted from DB
-    private func _deleteManga(mangaID: UUID) {
-        remove(entityType: MangaMO.self, id: mangaID)
-        
-        saveContext()
-    }
-    
     /// Delete manga with given ID from DB
     ///
     /// - Parameter mangaID: Manga's id, to be deleted from DB
     /// - Returns: `EffectTask<Never>` - returns nothing
     func deleteManga(mangaID: UUID) -> EffectTask<Never> {
         .fireAndForget {
-            _deleteManga(mangaID: mangaID)
+            remove(entityType: MangaMO.self, id: mangaID)
+
+            saveContext()
         }
     }
     
@@ -250,13 +243,11 @@ extension DatabaseClient {
         .fireAndForget {
             let mangas = batchFetch(entityType: MangaMO.self)
             
-            for manga in mangas {
-                if manga.lastReadChapterID == nil {
-                    _deleteManga(mangaID: manga.id)
-                } else {
-                    manga.savedForOfflineReading = false
-                }
+            for manga in mangas where manga.lastReadChapterID == nil {
+                remove(entityType: MangaMO.self, id: manga.id)
             }
+            
+            saveContext()
         }
     }
     
@@ -266,10 +257,13 @@ extension DatabaseClient {
             
             if mangaMO == nil {
                 mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
-                mangaMO!.savedForOfflineReading = false
             }
             
             mangaMO!.lastReadChapterID = chapterID
+            
+            if mangaMO!.lastReadChapterID == nil && mangaMO!.savedForOfflineReading == false {
+                remove(entityType: MangaMO.self, id: manga.id)
+            }
             
             saveContext()
         }
@@ -309,7 +303,6 @@ extension DatabaseClient {
             }
             
             if mangaMO!.savedForOfflineReading == false {
-                mangaMO!.savedForOfflineReading = true
                 mangaMO!.addedAt = .now
             }
             
@@ -367,16 +360,12 @@ extension DatabaseClient {
                 return
             }
             
-            let parentMangaID = chapterMO.parentManga.id
-            let leftChaptersCount = chapterMO.parentManga.chapterDetailsSet.count - 1
+            if chapterMO.parentManga.chapterDetailsSet.count == 1 {
+                remove(entityType: MangaMO.self, id: chapterMO.parentManga.id)
+            }
             
             remove(entityType: ChapterDetailsMO.self, id: chapterID)
-            
             saveContext()
-            
-            if leftChaptersCount == 0 {
-                _deleteManga(mangaID: parentMangaID)
-            }
         }
     }
 }

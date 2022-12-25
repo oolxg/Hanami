@@ -16,7 +16,6 @@ extension MangaMO {
     @NSManaged public var chapterDetailsSet: Set<ChapterDetailsMO>
     @NSManaged public var addedAt: Date
     @NSManaged public var lastReadChapterID: UUID?
-    @NSManaged public var savedForOfflineReading: Bool
 }
 
 extension MangaMO: Identifiable { }

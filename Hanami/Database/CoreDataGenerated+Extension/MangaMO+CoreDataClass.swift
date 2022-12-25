@@ -21,6 +21,10 @@ extension MangaMO {
             relationships: relationships.decodeToObject()!
         )
     }
+    
+    var savedForOfflineReading: Bool {
+        !chapterDetailsSet.isEmpty
+    }
 }
 
 extension Manga {
