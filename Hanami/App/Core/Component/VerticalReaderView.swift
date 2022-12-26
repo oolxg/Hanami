@@ -54,7 +54,10 @@ struct VerticalReaderView: View {
                     }
                     // MARK: - Finding scroll indicator position
                     let progress = rect.minY / (geo.size.height - rect.height)
-                    indicatorOffset = progress * (geo.size.height - scrollerHeight)
+                    
+                    if !progress.isNaN {
+                        indicatorOffset = progress * (geo.size.height - scrollerHeight)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -148,6 +151,7 @@ struct VerticalReaderView: View {
             }
             .padding(.trailing, 1)
             .offset(y: indicatorOffset)
+            .animation(.linear, value: indicatorOffset)
     }
 }
 
