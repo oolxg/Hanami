@@ -41,20 +41,6 @@ extension View {
         }
     }
     
-    @ViewBuilder func offset(completion: @escaping (CGRect) -> Void) -> some View {
-        self
-            .overlay {
-                GeometryReader { geo in
-                    let rect = geo.frame(in: .named("SCROLLER"))
-                    Color.clear
-                        .preference(key: OffsetKey.self, value: rect)
-                        .onPreferenceChange( OffsetKey.self) { newValue in
-                            completion(newValue)
-                        }
-                }
-            }
-    }
-    
     func autoBlur(radius: Double) -> some View {
         blur(radius: radius)
             .allowsHitTesting(radius < 1)
@@ -76,13 +62,5 @@ extension View {
         } else {
             self
         }
-    }
-}
-
-private struct OffsetKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
     }
 }

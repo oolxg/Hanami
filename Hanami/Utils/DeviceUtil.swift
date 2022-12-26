@@ -27,4 +27,8 @@ enum DeviceUtil {
     static var isIpad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
+    
+    static var deviceScreenSize: CGRect {
+        UIScreen.main.bounds
+    }
 }

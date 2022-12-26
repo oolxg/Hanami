@@ -24,17 +24,18 @@ struct VerticalReaderView: View {
     private struct Page: Identifiable {
         let url: URL?
         let index: Int
+        var height: CGFloat
         var rect: CGRect = .zero
         var id: Int { index }
     }
 
     init(pagesURLs: [URL?]) {
-        pages = .init(uniqueElements: pagesURLs.enumerated().map { Page(url: $1, index: $0) })
+        pages = .init(uniqueElements: pagesURLs.enumerated().map { Page(url: $1, index: $0, height: 550) })
     }
 
     var body: some View {
         GeometryReader { geo in
-            ScrollView(showsIndicators: true) {
+            ScrollView(showsIndicators: false) {
                 LazyVStack {
                     ForEach(pages.indices, id: \.self) { i in
                         listCell(i)
@@ -86,6 +87,12 @@ struct VerticalReaderView: View {
                         .offset { rect in
                             pages[index].rect = rect
                         }
+                        .onAppear {
+                            if let imgSize = state.imageContainer?.image.size {
+                                let ratio = DeviceUtil.deviceScreenSize.width / imgSize.width
+                                pages[index].height = imgSize.height * ratio
+                            }
+                        }
                 } else if state.isLoading || state.error != nil {
                     ProgressView(value: state.progress.fraction)
                         .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
@@ -95,7 +102,7 @@ struct VerticalReaderView: View {
                 }
             }
         }
-        .frame(idealHeight: 550)
+        .frame(height: pages[index].height)
         .frame(maxWidth: .infinity)
     }
     
@@ -104,34 +111,65 @@ struct VerticalReaderView: View {
             .fill(.clear)
             .frame(width: 2, height: scrollerHeight)
             .overlay(alignment: .trailing) {
-                Image(systemName: "bubble.middle.bottom.fill")
-                    .resizable()
-                    .renderingMode(.template)
-                    .scaledToFit()
-                    .foregroundStyle(.ultraThinMaterial)
-                    .frame(width: 45, height: 45)
-                    .rotationEffect(.init(degrees: -90))
-                    .overlay {
-                        if let last = pages.last(where: { $0.rect.minY < $0.rect.height / 2 }) {
-                            Text("\(last.index + 1)")
-                                .fontWeight(.black)
-                                .foregroundColor(.white)
-                                .offset(x: -4)
-                        } else {
-                            Text("1")
-                                .fontWeight(.black)
-                                .foregroundColor(.white)
-                                .offset(x: -4)
+                HStack(spacing: 2) {
+                    Image(systemName: "bubble.middle.bottom.fill")
+                        .resizable()
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .foregroundStyle(.ultraThinMaterial)
+                        .frame(width: 45, height: 45)
+                        .rotationEffect(.init(degrees: -90))
+                        .overlay {
+                            if let last = pages.last(where: { $0.rect.minY < $0.rect.minY / 2 }) {
+                                Text("\(last.index + 1)")
+                                    .fontWeight(.black)
+                                    .foregroundColor(.white)
+                                    .offset(x: -4)
+                            } else {
+                                Text("1")
+                                    .fontWeight(.black)
+                                    .foregroundColor(.white)
+                                    .offset(x: -4)
+                            }
                         }
-                    }
-                    .environment(\.colorScheme, .dark)
-                    .offset(x: hideIndicatorLabel ? 65 : 0)
-                    .animation(
-                        .interactiveSpring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.6),
-                        value: hideIndicatorLabel
-                    )
+                        .environment(\.colorScheme, .dark)
+                        .offset(x: hideIndicatorLabel ? 65 : 0)
+                        .animation(
+                            .interactiveSpring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.6),
+                            value: hideIndicatorLabel
+                        )
+                    
+                    RoundedRectangle(cornerRadius: 6)
+                        .foregroundStyle(.ultraThinMaterial)
+                        .opacity(hideIndicatorLabel ? 0 : 1)
+                        .animation(.linear(duration: 0.2), value: hideIndicatorLabel)
+                        .frame(width: 4, height: 40)
+                }
             }
-            .padding(.trailing, 5)
+            .padding(.trailing, 1)
             .offset(y: indicatorOffset)
+    }
+}
+
+extension View {
+    @ViewBuilder func offset(completion: @escaping (CGRect) -> Void) -> some View {
+        self
+            .overlay {
+                GeometryReader { geo in
+                    Color.clear
+                        .preference(key: OffsetKey.self, value: geo.frame(in: .named("SCROLLER")))
+                        .onPreferenceChange(OffsetKey.self) { newValue in
+                            completion(newValue)
+                        }
+                }
+            }
+    }
+}
+
+private struct OffsetKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        value = nextValue()
     }
 }
