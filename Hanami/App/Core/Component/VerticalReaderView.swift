@@ -18,7 +18,6 @@ struct VerticalReaderView: View {
     // MARK: - END scroll view declaration props
     
     @State private var timeOut: CGFloat = 0.3
-    
     @State private var pages: IdentifiedArrayOf<Page>
     
     private struct Page: Identifiable {
@@ -35,7 +34,7 @@ struct VerticalReaderView: View {
 
     var body: some View {
         GeometryReader { geo in
-            ScrollView(showsIndicators: false) {
+            ScrollView(showsIndicators: true) {
                 LazyVStack {
                     ForEach(pages.indices, id: \.self) { i in
                         listCell(i)
@@ -66,9 +65,7 @@ struct VerticalReaderView: View {
         }
         .background(Color.theme.background)
         .offset { rect in
-            if startOffset != rect.minY {
-                startOffset = rect.minY
-            }
+            startOffset = rect.minY
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .default).autoconnect()) { _ in
             // 0.6 - delay after which indicator will be hidden
@@ -114,42 +111,34 @@ struct VerticalReaderView: View {
             .fill(.clear)
             .frame(width: 2, height: scrollerHeight)
             .overlay(alignment: .trailing) {
-                HStack(spacing: 2) {
-                    Image(systemName: "bubble.middle.bottom.fill")
-                        .resizable()
-                        .renderingMode(.template)
-                        .scaledToFit()
-                        .foregroundStyle(.ultraThinMaterial)
-                        .frame(width: 45, height: 45)
-                        .rotationEffect(.init(degrees: -90))
-                        .overlay {
-                            if let last = pages.last(where: { $0.rect.minY < $0.rect.minY / 2 }) {
-                                Text("\(last.index + 1)")
-                                    .fontWeight(.black)
-                                    .foregroundColor(.white)
-                                    .offset(x: -4)
-                            } else {
-                                Text("1")
-                                    .fontWeight(.black)
-                                    .foregroundColor(.white)
-                                    .offset(x: -4)
-                            }
+                Image(systemName: "bubble.middle.bottom.fill")
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .foregroundStyle(.ultraThinMaterial)
+                    .frame(width: 45, height: 45)
+                    .rotationEffect(.init(degrees: -90))
+                    .overlay {
+                        if let last = pages.last(where: { $0.rect.minY < $0.rect.minY / 2 }) {
+                            Text("\(last.index + 1)")
+                                .fontWeight(.black)
+                                .foregroundColor(.white)
+                                .offset(x: -4)
+                        } else {
+                            Text("1")
+                                .fontWeight(.black)
+                                .foregroundColor(.white)
+                                .offset(x: -4)
                         }
-                        .environment(\.colorScheme, .dark)
-                        .offset(x: hideIndicatorLabel ? 65 : 0)
-                        .animation(
-                            .interactiveSpring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.6),
-                            value: hideIndicatorLabel
-                        )
-                    
-                    RoundedRectangle(cornerRadius: 6)
-                        .foregroundStyle(.ultraThinMaterial)
-                        .opacity(hideIndicatorLabel ? 0 : 1)
-                        .animation(.linear(duration: 0.2), value: hideIndicatorLabel)
-                        .frame(width: 4, height: 40)
-                }
+                    }
+                    .environment(\.colorScheme, .dark)
+                    .offset(x: hideIndicatorLabel ? 65 : 0)
+                    .animation(
+                        .interactiveSpring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.6),
+                        value: hideIndicatorLabel
+                    )
             }
-            .padding(.trailing, 1)
+            .padding(.trailing, 6)
             .offset(y: indicatorOffset)
             .animation(.linear, value: indicatorOffset)
     }

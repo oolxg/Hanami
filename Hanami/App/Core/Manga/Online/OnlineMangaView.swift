@@ -43,7 +43,7 @@ struct OnlineMangaView: View {
             allCoverArtURLs = state.croppedCoverArtURLs
             allCoverArtsInfo = state.allCoverArtsInfo
             statistics = state.statistics
-            lastReadChapterAvailable = state.lastReadChapterID != nil
+            lastReadChapterAvailable = state.lastReadChapterID != nil && state.pagesState != nil
         }
     }
     

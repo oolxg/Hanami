@@ -130,19 +130,13 @@ struct SearchFeature: ReducerProtocol {
                     return .task { .cancelSearchButtonTapped }
                 }
                 
-                let selectedTags = state.filtersState.allTags.filter { $0.state != .notSelected }
-                let selectedPublicationDemographic = state.filtersState.publicationDemographics
-                    .filter { $0.state != .notSelected }
-                let selectedContentRatings = state.filtersState.contentRatings.filter { $0.state != .notSelected }
-                let selectedMangaStatuses = state.filtersState.mangaStatuses.filter { $0.state != .notSelected }
-                
                 let searchParams = SearchParams(
                     searchQuery: state.searchText,
                     resultsCount: state.resultsCount,
-                    tags: selectedTags,
-                    publicationDemographic: selectedPublicationDemographic,
-                    contentRatings: selectedContentRatings,
-                    mangaStatuses: selectedMangaStatuses,
+                    tags: state.filtersState.allTags,
+                    publicationDemographic: state.filtersState.publicationDemographics,
+                    contentRatings: state.filtersState.contentRatings,
+                    mangaStatuses: state.filtersState.mangaStatuses,
                     sortOption: state.searchSortOption,
                     sortOptionOrder: state.searchSortOptionOrder
                 )

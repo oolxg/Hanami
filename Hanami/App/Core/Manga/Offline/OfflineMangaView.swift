@@ -34,7 +34,7 @@ struct OfflineMangaView: View {
             currentPageIndex = state.pagesState?.currentPageIndex
             coverArtPath = state.coverArtPath
             selectedTab = state.selectedTab
-            lastReadChapterAvailable = state.lastReadChapter != nil
+            lastReadChapterAvailable = state.lastReadChapter != nil && state.pagesState != nil
         }
     }
     
