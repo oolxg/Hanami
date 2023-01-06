@@ -41,14 +41,14 @@ extension CoverArtInfo {
     }
     
     var coverArtURL: URL? {
-        coverArtURLString != nil ? URL(string: coverArtURLString!) : nil
+        coverArtURLString.hasValue ? URL(string: coverArtURLString!) : nil
     }
     
     var coverArtURL512: URL? {
-        coverArtURLString != nil ? URL(string: coverArtURLString! + ".512.jpg") : nil
+        coverArtURLString.hasValue ? URL(string: coverArtURLString! + ".512.jpg") : nil
     }
     
     var coverArtURL256: URL? {
-        coverArtURLString != nil ? URL(string: coverArtURLString! + ".256.jpg") : nil
+        coverArtURLString.hasValue ? URL(string: coverArtURLString! + ".256.jpg") : nil
     }
 }

@@ -93,7 +93,7 @@ extension MangaVolume: Equatable {
 
 extension MangaVolume {
     var volumeName: String {
-        volumeIndex == nil ? "No volume" : "Volume \(volumeIndex!.clean())"
+        volumeIndex.isNil ? "No volume" : "Volume \(volumeIndex!.clean())"
     }
 }
 

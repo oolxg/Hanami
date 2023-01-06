@@ -42,7 +42,7 @@ struct AuthorFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                guard state.author == nil else { return .none }
+                guard state.author.isNil else { return .none }
                 
                 return mangaClient.fetchAuthorByID(state.authorID)
                     .receive(on: mainQueue)

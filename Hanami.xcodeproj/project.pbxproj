@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0804D436295B727B00CC306E /* Optional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0804D435295B727B00CC306E /* Optional.swift */; };
 		080D1DB3294FDD3C008B813C /* CoreDataMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB2294FDD3C008B813C /* CoreDataMigrator.swift */; };
 		080D1DB6294FDD7C008B813C /* CoreDataMigrationStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB5294FDD7C008B813C /* CoreDataMigrationStep.swift */; };
 		080D1DB8294FDD99008B813C /* CoreDataVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB7294FDD99008B813C /* CoreDataVersion.swift */; };
@@ -159,6 +160,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0804D435295B727B00CC306E /* Optional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Optional.swift; sourceTree = "<group>"; };
 		080D1DB2294FDD3C008B813C /* CoreDataMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataMigrator.swift; sourceTree = "<group>"; };
 		080D1DB5294FDD7C008B813C /* CoreDataMigrationStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataMigrationStep.swift; sourceTree = "<group>"; };
 		080D1DB7294FDD99008B813C /* CoreDataVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataVersion.swift; sourceTree = "<group>"; };
@@ -347,6 +349,7 @@
 				22B9CA56285D43FD007EBE20 /* Int.swift */,
 				229F9A3028BB0A290015BC8B /* URL.swift */,
 				08B1346A28D2A8D000D1C85B /* Set.swift */,
+				0804D435295B727B00CC306E /* Optional.swift */,
 			);
 			path = DataType;
 			sourceTree = "<group>";
@@ -948,6 +951,7 @@
 				226C05B9287DD6EB00BA0E5C /* MangaClient.swift in Sources */,
 				080D1DC8294FF685008B813C /* SearchRequestMO+CoreDataClass.swift in Sources */,
 				2245D4BB2840EC40005B1C83 /* Publisher.swift in Sources */,
+				0804D436295B727B00CC306E /* Optional.swift in Sources */,
 				2220E15E283145290046F08A /* PreviewProvider.swift in Sources */,
 				2220E1622831B0300046F08A /* ResponseDataType.swift in Sources */,
 				2225265F28B1627E009F6FA3 /* HapticClient.swift in Sources */,
@@ -1186,6 +1190,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1226,6 +1231,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;

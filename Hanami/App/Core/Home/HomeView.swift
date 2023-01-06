@@ -192,14 +192,20 @@ extension HomeView {
         } label: {
             ZStack(alignment: .bottomLeading) {
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(
+                    .fill(
                         LinearGradient(
                             colors: [.pink, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
-                        ),
-                        lineWidth: 2
+                        )
                     )
+                    .overlay {
+                        Image(systemName: "bolt")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.white)
+                            .frame(width: 60, height: 60)
+                    }
                 
                 Text("Seasonal")
                     .foregroundColor(.theme.foreground)
@@ -258,14 +264,20 @@ extension HomeView {
         } label: {
             ZStack(alignment: .bottomLeading) {
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(
+                    .fill(
                         LinearGradient(
                             colors: [.purple, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
-                        ),
-                        lineWidth: 2
+                        )
                     )
+                    .overlay {
+                        Image(systemName: "person.3.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.white)
+                            .frame(width: 60, height: 60)
+                    }
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Most")
@@ -332,14 +344,20 @@ extension HomeView {
         } label: {
             ZStack(alignment: .bottomLeading) {
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(
+                    .fill(
                         LinearGradient(
                             colors: [.green, .blue],
                             startPoint: .bottomLeading,
                             endPoint: .top
-                        ),
-                        lineWidth: 2
+                        )
                     )
+                    .overlay {
+                        Image(systemName: "trophy.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.white)
+                            .frame(width: 60, height: 60)
+                    }
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Award")

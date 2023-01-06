@@ -45,6 +45,6 @@ extension Chapter {
 
 extension Chapter {
     var chapterName: String {
-        chapterIndex == nil ? "Chapter" : "Chapter \(chapterIndex!.clean())"
+        chapterIndex.isNil ? "Chapter" : "Chapter \(chapterIndex!.clean())"
     }
 }

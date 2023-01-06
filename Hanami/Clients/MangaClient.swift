@@ -206,7 +206,7 @@ extension MangaClient: DependencyKey {
             for (pageIndex, page) in pages.enumerated() {
                 for volumeState in page {
                     // swiftlint:disable:next for_where
-                    if volumeState.chapterStates.first(where: { $0.chapter.chapterIndex == chapterIndex }) != nil {
+                    if volumeState.chapterStates.first(where: { $0.chapter.chapterIndex == chapterIndex }).hasValue {
                         return pageIndex
                     }
                 }

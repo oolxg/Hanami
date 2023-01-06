@@ -91,6 +91,7 @@ struct RootFeature: ReducerProtocol {
                 
             case .makeAuthIfNeeded:
                 guard state.settingsState.config.autolockPolicy != .never else {
+                    state.isAppLocked = false
                     return .none
                 }
                 

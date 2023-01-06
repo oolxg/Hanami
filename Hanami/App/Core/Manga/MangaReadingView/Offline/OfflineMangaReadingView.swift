@@ -102,7 +102,7 @@ extension OfflineMangaReadingView {
                         LazyImage(url: viewStore.cachedPagesPaths[pagePathIndex]) { state in
                             if let image = state.image {
                                 image.resizingMode(.aspectFit)
-                            } else if state.isLoading || state.error != nil {
+                            } else if state.isLoading || state.error.hasValue {
                                 ProgressView()
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                                     .tint(.theme.accent)

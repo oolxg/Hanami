@@ -93,7 +93,7 @@ extension OnlineMangaReadingView {
                     .tag(viewStore.mostLeftPageIndex)
                 
                 pagesList
-                    .opacity(viewStore.pagesCount != nil ? 1 : 0)
+                    .opacity(viewStore.pagesCount.isNil ? 0 : 1)
                 
                 Color.clear
                     .tag(viewStore.mostRightPageIndex)
@@ -110,7 +110,7 @@ extension OnlineMangaReadingView {
                     LazyImage(url: viewStore.pagesURLs[pageIndex]) { state in
                         if let image = state.image {
                             image.resizingMode(.aspectFit)
-                        } else if state.isLoading || state.error != nil {
+                        } else if state.isLoading || state.error.hasValue {
                             ProgressView(value: state.progress.fraction)
                                 .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
                                 .frame(width: 50, height: 50)

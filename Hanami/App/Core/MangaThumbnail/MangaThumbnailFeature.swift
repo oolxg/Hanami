@@ -37,7 +37,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
             online ? onlineMangaState!.coverArtURL256 : offlineMangaState!.coverArtPath
         }
         
-        var online: Bool { onlineMangaState != nil }
+        var online: Bool { onlineMangaState.hasValue }
         @BindableState var navigationLinkActive = false
         var id: UUID { manga.id }
     }
@@ -63,12 +63,12 @@ struct MangaThumbnailFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                if state.online, state.onlineMangaState!.coverArtURL256 == nil, let coverArtID = state.manga.coverArtID {
+                if state.online, state.onlineMangaState!.coverArtURL256.isNil, let coverArtID = state.manga.coverArtID {
                     return mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(Action.thumbnailInfoLoaded)
                 } else if !state.online {
-                    guard state.offlineMangaState!.coverArtPath == nil else {
+                    guard state.offlineMangaState!.coverArtPath.isNil else {
                         return .none
                     }
                     

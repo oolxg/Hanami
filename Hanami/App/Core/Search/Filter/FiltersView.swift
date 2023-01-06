@@ -252,7 +252,7 @@ extension FiltersView {
                             .foregroundColor(.theme.foreground)
                             .padding(.vertical)
                     }
-                    .opacity(isActive == nil ? 0 : 1)
+                    .opacity(isActive.isNil ? 0 : 1)
                 }
             }
         }

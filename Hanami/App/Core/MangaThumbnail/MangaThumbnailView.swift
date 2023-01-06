@@ -112,7 +112,7 @@ extension MangaThumbnailView {
                             .frame(width: 120)
                     }
                 }
-                .redacted(if: state.image == nil)
+                .redacted(if: state.image.isNil)
             }
         }
         .overlay {
@@ -167,7 +167,7 @@ extension MangaThumbnailView {
                             Text(String.placeholder(length: 3))
                         }
                     }
-                    .redacted(if: viewStore.mangaStatistics == nil)
+                    .redacted(if: viewStore.mangaStatistics.isNil)
                 }
                 
                 HStack(alignment: .top, spacing: 0) {
@@ -181,7 +181,7 @@ extension MangaThumbnailView {
                                 .redacted(reason: .placeholder)
                         }
                     }
-                    .redacted(if: viewStore.mangaStatistics == nil)
+                    .redacted(if: viewStore.mangaStatistics.isNil)
                 }
                 
                 HStack(spacing: 5) {

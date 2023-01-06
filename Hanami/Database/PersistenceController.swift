@@ -40,7 +40,7 @@ extension PersistenceController {
                 completion(.failure(error as? AppError ?? .databaseError("Migration error occurred")))
             }
             container.loadPersistentStores { _, error in
-                guard error == nil else {
+                guard error.isNil else {
                     let message = "Was unable to load store \(String(describing: error))."
                     completion(.failure(.databaseError(message)))
                     return
@@ -54,7 +54,7 @@ extension PersistenceController {
             switch result {
             case .success:
                 container.loadPersistentStores { _, error in
-                    guard error == nil else {
+                    guard error.isNil else {
                         let message = "Was unable to load store \(String(describing: error))."
                         completion(.failure(.databaseError(message)))
                         return

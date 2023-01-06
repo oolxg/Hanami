@@ -33,27 +33,27 @@ struct LocalizedString: Codable {
 extension LocalizedString {
     init(localizedStrings: [LocalizedString]) {
         localizedStrings.forEach { content in
-            ar = ar == nil ? content.ar : ar
-            cs = cs == nil ? content.cs : cs
-            en = en == nil ? content.en : en
-            es = es == nil ? content.es : es
-            esLa = esLa == nil ? content.esLa : esLa
-            hi = hi == nil ? content.hi : hi
-            hu = hu == nil ? content.hu : hu
-            fa = fa == nil ? content.fa : fa
-            fr = fr == nil ? content.fr : fr
-            it = it == nil ? content.it : it
-            jp = jp == nil ? content.jp : jp
-            jpRo = jpRo == nil ? content.jpRo : jpRo
-            ko = ko == nil ? content.ko : ko
-            mn = mn == nil ? content.mn : mn
-            ms = ms == nil ? content.ms : ms
-            nl = nl == nil ? content.nl : nl
-            ru = ru == nil ? content.ru : ru
-            th = th == nil ? content.th : th
-            uk = uk == nil ? content.uk : uk
-            zh = zh == nil ? content.zh : zh
-            zhRo = zhRo == nil ? content.zhRo : zhRo
+            ar = ar.isNil ? content.ar : ar
+            cs = cs.isNil ? content.cs : cs
+            en = en.isNil ? content.en : en
+            es = es.isNil ? content.es : es
+            esLa = esLa.isNil ? content.esLa : esLa
+            hi = hi.isNil ? content.hi : hi
+            hu = hu.isNil ? content.hu : hu
+            fa = fa.isNil ? content.fa : fa
+            fr = fr.isNil ? content.fr : fr
+            it = it.isNil ? content.it : it
+            jp = jp.isNil ? content.jp : jp
+            jpRo = jpRo.isNil ? content.jpRo : jpRo
+            ko = ko.isNil ? content.ko : ko
+            mn = mn.isNil ? content.mn : mn
+            ms = ms.isNil ? content.ms : ms
+            nl = nl.isNil ? content.nl : nl
+            ru = ru.isNil ? content.ru : ru
+            th = th.isNil ? content.th : th
+            uk = uk.isNil ? content.uk : uk
+            zh = zh.isNil ? content.zh : zh
+            zhRo = zhRo.isNil ? content.zhRo : zhRo
         }
     }
 }

@@ -152,7 +152,7 @@ extension ChapterView {
     
     private func cacheStatusLabel(for chapter: ChapterDetails) -> some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            if chapter.attributes.externalURL != nil {
+            if chapter.attributes.externalURL.hasValue {
                 Image("ExternalLinkIcon")
                     .resizable()
                     .frame(width: 20, height: 20)
@@ -215,7 +215,7 @@ extension ChapterView {
                             Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
                                 .fontWeight(.bold)
                                 .lineLimit(1)
-                                .redacted(if: viewStore.scanlationGroups[chapter.id]?.name == nil)
+                                .redacted(if: viewStore.scanlationGroups[chapter.id].isNil)
                             
                             if viewStore.scanlationGroups[chapter.id]?.attributes.isOfficial == true {
                                 Image(systemName: "person.badge.shield.checkmark")

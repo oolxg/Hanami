@@ -93,7 +93,7 @@ struct VerticalReaderView: View {
                                 pages[index].height = imgSize.height * ratio
                             }
                         }
-                } else if state.isLoading || state.error != nil {
+                } else if state.isLoading || state.error.hasValue {
                     ProgressView(value: state.progress.fraction)
                         .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
                         .frame(width: 50, height: 50)

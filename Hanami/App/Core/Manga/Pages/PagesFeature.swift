@@ -67,7 +67,7 @@ struct PagesFeature: ReducerProtocol {
             
             // splitting chapters into arrays according to 'chapter.attributes.volumeIndex'
             for chapterDetails in chaptersDetailsList {
-                if volumesDict[chapterDetails.attributes.volumeIndex] == nil {
+                if volumesDict[chapterDetails.attributes.volumeIndex].isNil {
                     volumesDict[chapterDetails.attributes.volumeIndex] = [chapterDetails]
                 } else {
                     volumesDict[chapterDetails.attributes.volumeIndex]!.append(chapterDetails)
@@ -85,7 +85,7 @@ struct PagesFeature: ReducerProtocol {
                 var cachedChapterDetails: [Double?: [ChapterDetails]] = [:]
                 
                 for chapter in volume {
-                    if cachedChapterDetails[chapter.attributes.chapterIndex] != nil {
+                    if cachedChapterDetails[chapter.attributes.chapterIndex].hasValue {
                         cachedChapterDetails[chapter.attributes.chapterIndex]!.append(chapter)
                     } else {
                         cachedChapterDetails[chapter.attributes.chapterIndex] = [chapter]

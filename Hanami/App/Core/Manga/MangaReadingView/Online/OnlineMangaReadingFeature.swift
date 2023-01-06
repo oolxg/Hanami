@@ -92,7 +92,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                     .catchToEffect(Action.settingsConfigRetrieved)
             ]
             
-            if state.pagesURLs == nil {
+            if state.pagesURLs.isNil {
                 effects.append(
                     mangaClient.fetchPagesInfo(state.chapterID)
                         .receive(on: mainQueue)
@@ -155,7 +155,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             }
             
         case .currentPageIndexChanged(let newPageIndex):
-            guard state.pagesURLs != nil else { return .none }
+            guard state.pagesURLs.hasValue else { return .none }
             
             state.pageIndex = newPageIndex
             

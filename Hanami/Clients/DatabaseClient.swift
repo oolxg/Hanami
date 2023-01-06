@@ -243,7 +243,7 @@ extension DatabaseClient {
         .fireAndForget {
             let mangas = batchFetch(entityType: MangaMO.self)
             
-            for manga in mangas where manga.lastReadChapterID == nil {
+            for manga in mangas where manga.lastReadChapterID.isNil {
                 remove(entityType: MangaMO.self, id: manga.id)
             }
             
@@ -255,13 +255,13 @@ extension DatabaseClient {
         .fireAndForget {
             var mangaMO = fetch(entityType: MangaMO.self, id: manga.id)
             
-            if mangaMO == nil {
+            if mangaMO.isNil {
                 mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
             }
             
             mangaMO!.lastReadChapterID = chapterID
             
-            if mangaMO!.lastReadChapterID == nil && mangaMO!.savedForOfflineReading == false {
+            if mangaMO!.lastReadChapterID.isNil && mangaMO!.savedForOfflineReading == false {
                 remove(entityType: MangaMO.self, id: manga.id)
             }
             
@@ -292,13 +292,13 @@ extension DatabaseClient {
     /// - Returns: `EffectTask<Never>` - returns nothing
     func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> EffectTask<Never> {
         .fireAndForget {
-            guard fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id) == nil else {
+            guard fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id).isNil else {
                 return
             }
             
             var mangaMO = fetch(entityType: MangaMO.self, id: manga.id)
             
-            if mangaMO == nil {
+            if mangaMO.isNil {
                 mangaMO = manga.toManagedObject(in: PersistenceController.shared.container.viewContext)
             }
             

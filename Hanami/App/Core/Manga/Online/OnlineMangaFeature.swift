@@ -111,7 +111,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                         .catchToEffect(Action.lastReadChapterRetrieved)
                 ]
                 
-                if state.pagesState == nil {
+                if state.pagesState.isNil {
                     effects.append(
                         mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
                             .receive(on: mainQueue)
@@ -119,7 +119,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     )
                 }
                 
-                if state.statistics == nil {
+                if state.statistics.isNil {
                     effects.append(
                         mangaClient.fetchStatistics([state.manga.id])
                             .receive(on: mainQueue)
@@ -132,9 +132,9 @@ struct OnlineMangaFeature: ReducerProtocol {
             case .volumesRetrieved(let result):
                 switch result {
                 case .success(let response):
-                    let allowHaptic = state.pagesState != nil
+                    let allowHaptic = state.pagesState.hasValue
                     
-                    if state.pagesState != nil {
+                    if state.pagesState.hasValue {
                         hudClient.show(message: "Updated!", backgroundColor: .theme.green)
                     }
                     

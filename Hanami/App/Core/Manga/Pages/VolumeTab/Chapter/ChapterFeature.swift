@@ -67,7 +67,6 @@ struct ChapterFeature: ReducerProtocol {
         var confirmationDialog: ConfirmationDialogState<Action>?
     }
     
-    // for online reading
     struct CancelChapterFetch: Hashable { let id: UUID }
     
     enum Action: Equatable {
@@ -107,7 +106,7 @@ struct ChapterFeature: ReducerProtocol {
                 for chapterID in allChapterIDs {
                     let possiblyCachedChapterEntry = databaseClient.retrieveChapter(chapterID: chapterID)
                     
-                    if state.chapterDetailsList[id: chapterID] == nil {
+                    if state.chapterDetailsList[id: chapterID].isNil {
                         // if chapter is cached - no need to fetch it from API
                         if let cachedChapterDetails = possiblyCachedChapterEntry?.chapter {
                             if !state._chapterDetailsList.contains(where: { $0.id == chapterID }) {

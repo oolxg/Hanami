@@ -27,7 +27,7 @@ struct AuthorView: View {
 
                        mangaList
                     }
-                    .animation(.linear, value: viewStore.author == nil)
+                    .animation(.linear, value: viewStore.author.isNil)
                 }
                 .navigationTitle(viewStore.author?.attributes.name ?? "Loading...")
                 .navigationBarTitleDisplayMode(.large)

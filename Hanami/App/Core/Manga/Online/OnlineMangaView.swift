@@ -43,7 +43,7 @@ struct OnlineMangaView: View {
             allCoverArtURLs = state.croppedCoverArtURLs
             allCoverArtsInfo = state.allCoverArtsInfo
             statistics = state.statistics
-            lastReadChapterAvailable = state.lastReadChapterID != nil && state.pagesState != nil
+            lastReadChapterAvailable = state.lastReadChapterID.hasValue && !state.pagesState.isNil
         }
     }
     
@@ -143,7 +143,7 @@ extension OnlineMangaView {
                     LazyImage(url: viewStore.coverArtURL) { state in
                         if let image = state.image {
                             image.resizingMode(.aspectFill)
-                        } else if state.isLoading || state.error != nil {
+                        } else if state.isLoading || state.error.hasValue {
                             LazyImage(url: viewStore.thumbnailCoverArtURL, resizingMode: .aspectFill)
                         }
                     }
@@ -272,7 +272,7 @@ extension OnlineMangaView {
                                         }
                                     }
                                 )
-                        } else if state.isLoading || state.error != nil {
+                        } else if state.isLoading || state.error.hasValue {
                             ProgressView()
                         }
                     }
