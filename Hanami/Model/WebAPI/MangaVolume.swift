@@ -73,7 +73,7 @@ struct MangaVolume: Decodable {
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
-        chapters = tempDecodedChapters.sorted { ($0.chapterIndex ?? 99999) > ($1.chapterIndex ?? 99999) }
+        chapters = tempDecodedChapters.sorted { ($0.index ?? 99999) > ($1.index ?? 99999) }
         volumeIndex = Double(tempVolume)
     }
     

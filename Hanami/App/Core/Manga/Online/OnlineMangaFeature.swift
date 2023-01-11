@@ -264,7 +264,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     state.mangaReadingViewState = OnlineMangaReadingFeature.State(
                         mangaID: state.manga.id,
                         chapterID: chapter.id,
-                        chapterIndex: chapter.attributes.chapterIndex,
+                        chapterIndex: chapter.attributes.index,
                         scanlationGroupID: chapter.scanlationGroupID,
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
@@ -347,7 +347,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(
                     mangaID: state.manga.id,
                     chapterID: chapter.id,
-                    chapterIndex: chapter.attributes.chapterIndex,
+                    chapterIndex: chapter.attributes.index,
                     scanlationGroupID: chapter.scanlationGroupID,
                     translatedLanguage: chapter.attributes.translatedLanguage
                 )

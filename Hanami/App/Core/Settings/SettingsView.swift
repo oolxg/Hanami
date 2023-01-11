@@ -20,10 +20,12 @@ struct SettingsView: View {
                     .foregroundColor(.clear)
                 
                 List {
+                    localizationSection
+                    
                     readingSection
-
+                    
                     privacySection
-
+                    
                     appearanceSection
                     
                     storageSection
@@ -50,6 +52,26 @@ struct SettingsView_Previews: PreviewProvider {
 #endif
 
 extension SettingsView {
+    private var localizationSection: some View {
+        Section {
+            WithViewStore(store) { viewStore in
+                NavigationLink {
+                    LocalizationSettingsView(selectedLanugauge: viewStore.binding(\.$config.ios639Language))
+                } label: {
+                    HStack {
+                        Text("Language for manga reading")
+                        
+                        Spacer()
+                        
+                        Text(viewStore.config.ios639Language.language)
+                    }
+                }
+            }
+        } header: {
+            Text("Localization")
+        }
+    }
+    
     private var privacySection: some View {
         Section {
             WithViewStore(store) { viewStore in
@@ -87,11 +109,11 @@ extension SettingsView {
                     Label("Save manga in higher quality", systemImage: "antenna.radiowaves.left.and.right.slash")
                         .foregroundColor(.theme.foreground)
                 }
-
+                
                 HStack {
                     Label("Saved manga size", systemImage: "folder.fill")
                         .foregroundColor(.theme.foreground)
-
+                    
                     Spacer()
                     
                     Text("\(viewStore.usedStorageSpace.clean()) MB")
@@ -103,7 +125,7 @@ extension SettingsView {
                     Label("Clear image cache", systemImage: "photo.stack")
                         .foregroundColor(.red)
                 }
-
+                
                 if viewStore.usedStorageSpace > 0 {
                     Button(role: .destructive) {
                         viewStore.send(.clearMangaCacheButtonTapped)

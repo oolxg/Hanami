@@ -15,7 +15,6 @@ struct OfflineMangaReadingView: View {
     @State private var showNavBar = true
     // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
     @State private var mainBlockOpacity = 1.0
-    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
     
     private struct ViewState: Equatable {
         let chapterIndex: Double?
@@ -30,10 +29,10 @@ struct OfflineMangaReadingView: View {
         let isReadingFormatVeritcal: Bool
         
         init(state: OfflineMangaReadingFeature.State) {
-            chapterIndex = state.chapter.attributes.chapterIndex
+            chapterIndex = state.chapter.attributes.index
             chapterID = state.chapter.id
             pagesCount = state.pagesCount
-            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.chapterIndex).removeDuplicates()
+            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.attributes.index).removeDuplicates()
             cachedPagesPaths = state.cachedPagesPaths
             pageIndex = state.pageIndex
             pageIndexToDisplay = state.pageIndexToDisplay
@@ -66,10 +65,11 @@ struct OfflineMangaReadingView: View {
         .navigationBarHidden(true)
         .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
-        .onReceive(timer) { _ in
-            timer.upstream.connect().cancel()
-            withAnimation(.linear) {
-                showNavBar = false
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                withAnimation(.linear) {
+                    showNavBar = false
+                }
             }
         }
     }
@@ -192,12 +192,12 @@ extension OfflineMangaReadingView {
                     }
                     .onChange(of: viewStore.chapterIndexes.isEmpty) { _ in
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(viewStore.chapterIndex)
+                            proxy.scrollTo(viewStore.chapterIndex, anchor: UnitPoint(x: 0.95, y: 0))
                         }
                     }
                     .onAppear {
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(viewStore.chapterIndex)
+                            proxy.scrollTo(viewStore.chapterIndex, anchor: UnitPoint(x: 0.95, y: 0))
                         }
                     }
                 }

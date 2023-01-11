@@ -87,7 +87,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             DeviceUtil.disableScreenAutoLock()
             
             var effects = [
-                settingsClient.getSettingsConfig()
+                settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved)
             ]
@@ -208,7 +208,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             state = State(
                 mangaID: state.mangaID,
                 chapterID: chapter.id,
-                chapterIndex: chapter.chapterIndex,
+                chapterIndex: chapter.index,
                 scanlationGroupID: state.scanlationGroupID,
                 translatedLanguage: state.translatedLanguage
             )
@@ -234,7 +234,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             state = State(
                 mangaID: state.mangaID,
                 chapterID: nextChapter.id,
-                chapterIndex: nextChapter.chapterIndex,
+                chapterIndex: nextChapter.index,
                 scanlationGroupID: state.scanlationGroupID,
                 translatedLanguage: state.translatedLanguage
             )
@@ -260,7 +260,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
             state = State(
                 mangaID: state.mangaID,
                 chapterID: previousChapter.id,
-                chapterIndex: previousChapter.chapterIndex,
+                chapterIndex: previousChapter.index,
                 scanlationGroupID: state.scanlationGroupID,
                 translatedLanguage: state.translatedLanguage,
                 startFromLastPage: true

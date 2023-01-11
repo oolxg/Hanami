@@ -42,7 +42,7 @@ struct CacheClient {
         )
     }()
     
-    // Manga -> set of cached chapterIDs
+    // MangaID -> set of cached chapterIDs
     private static let cachedChapterIDsStorage: MemoryStorage<UUID, Set<UUID>> = {
         let config = MemoryConfig(expiry: .never)
         

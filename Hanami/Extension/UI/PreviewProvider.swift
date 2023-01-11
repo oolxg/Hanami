@@ -21,7 +21,7 @@ class DeveloperPreview {
     private init() { }
     
     let chapter = Chapter(
-        chapterIndex: 1.2,
+        index: 1.2,
         id: UUID(),
         others: [UUID(), UUID(), UUID()]
     )

@@ -15,6 +15,7 @@ struct SettingsConfig: Codable, Equatable {
     // 0 - system, 1 - light, 2 - dark
     var colorScheme: Int
     var readingFormat: ReadingFormat
+    var ios639Language: ISO639Language
 }
 
 extension SettingsConfig {

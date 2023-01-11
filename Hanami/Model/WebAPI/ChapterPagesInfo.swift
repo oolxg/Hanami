@@ -19,7 +19,7 @@ struct ChapterPagesInfo: Decodable {
         let dataSaver: [String]
     }
     
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case baseURL = "baseUrl"
         case pagesInfo = "chapter"
     }

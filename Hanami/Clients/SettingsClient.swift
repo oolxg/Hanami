@@ -21,21 +21,21 @@ struct SettingsClient {
     ///
     /// - Parameter config: `SettingsConfig` to be saved
     /// - Returns: `EffectTask<Never>` - returns nothing, basically...
-    let saveSettingsConfig: (_ config: SettingsConfig) -> EffectTask<Never>
+    let updateSettingsConfig: (_ config: SettingsConfig) -> EffectTask<Never>
     /// Retrieve `SettingsConfig` from `UserDefaults`
     ///
     /// - Returns: `Effect<SettingsConfig, AppError>` - returns either `SettingsConfig` or `AppError.notFound`
-    let getSettingsConfig: () -> Effect<SettingsConfig, AppError>
+    let retireveSettingsConfig: () -> Effect<SettingsConfig, AppError>
 }
 
 extension SettingsClient: DependencyKey {
     static let liveValue = SettingsClient(
-        saveSettingsConfig: { config in
+        updateSettingsConfig: { newConfig in
             .fireAndForget {
-                UserDefaults.standard.set(config.toData(), forKey: Defaults.Storage.settingsConfig)
+                UserDefaults.standard.set(newConfig.toData(), forKey: Defaults.Storage.settingsConfig)
             }
         },
-        getSettingsConfig: {
+        retireveSettingsConfig: {
             Future { promise in
                 let data = UserDefaults.standard.object(forKey: Defaults.Storage.settingsConfig) as? Data
                 

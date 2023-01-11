@@ -13,7 +13,6 @@ struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
     let blurRadius: CGFloat
     @State private var showNavBar = true
-    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
     
     private struct ViewState: Equatable {
         let pagesURLs: [URL]
@@ -30,7 +29,7 @@ struct OnlineMangaReadingView: View {
             pagesURLs = state.pagesURLs ?? []
             pagesCount = state.pagesCount
             chapterIndex = state.chapterIndex
-            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.chapterIndex).removeDuplicates()
+            chapterIndexes = state.sameScanlationGroupChapters.compactMap(\.index).removeDuplicates()
             mostRightPageIndex = state.mostRightPageIndex
             mostLeftPageIndex = state.mostLeftPageIndex
             pageIndex = state.pageIndex
@@ -61,10 +60,11 @@ struct OnlineMangaReadingView: View {
         .overlay(navigationBlock)
         .navigationBarHidden(true)
         .autoBlur(radius: blurRadius)
-        .onReceive(timer) { _ in
-            timer.upstream.connect().cancel()
-            withAnimation(.linear) {
-                showNavBar = false
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                withAnimation(.linear) {
+                    showNavBar = false
+                }
             }
         }
     }
@@ -206,12 +206,12 @@ extension OnlineMangaReadingView {
                     }
                     .onChange(of: viewStore.chapterIndexes.isEmpty) { _ in
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(viewStore.chapterIndex)
+                            proxy.scrollTo(viewStore.chapterIndex, anchor: UnitPoint(x: 0.95, y: 0))
                         }
                     }
                     .onAppear {
                         withAnimation(.easeInOut) {
-                            proxy.scrollTo(viewStore.chapterIndex)
+                            proxy.scrollTo(viewStore.chapterIndex, anchor: UnitPoint(x: 0.95, y: 0))
                         }
                     }
                 }

@@ -28,13 +28,13 @@ struct VolumeTabFeature: ReducerProtocol {
         }
         
         var childrenChapterIndexes: [Int] {
-            chapterStates.compactMap(\.chapter.chapterIndex).map(Int.init).removeDuplicates()
+            chapterStates.compactMap(\.chapter.index).map(Int.init).removeDuplicates()
         }
     }
     
     enum Action {
         case chapterAction(id: UUID, action: ChapterFeature.Action)
-        case userDeletedLastChapterInVolume
+        case userDeletedLastChapterInVolume(mangaID: UUID)
     }
     
     var body: some ReducerProtocol<State, Action> {
@@ -43,10 +43,11 @@ struct VolumeTabFeature: ReducerProtocol {
             case .chapterAction(let chapterStateID, action: .downloaderAction(.chapterDeletionConfirmed)):
                 // we compare it to 1 because this action will fire before chapter deletion from `chapterDetailsList`
                 if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
+                    let mangaID = state.chapterStates[id: chapterStateID]!.parentManga.id
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
-                        return .task { .userDeletedLastChapterInVolume }
+                        return .task { .userDeletedLastChapterInVolume(mangaID: mangaID) }
                     }
                 }
                 

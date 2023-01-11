@@ -156,7 +156,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
             
             return .concatenate(
                 // need to retrieve `SettingsConfig` each time, because use can update it and we have no listeners on this updates
-                settingsClient.getSettingsConfig()
+                settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),
                 
@@ -284,7 +284,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
                 
                 let msg: String
                 
-                if let chapterIndex = chapter.attributes.chapterIndex?.clean() {
+                if let chapterIndex = chapter.attributes.index?.clean() {
                     msg = "Failed to cache chapter \(chapterIndex) \(chapter.chapterName)\n\(error.description)"
                 } else {
                     msg = "Failed to cache chapter \(chapter.chapterName)\n\(error.description)"

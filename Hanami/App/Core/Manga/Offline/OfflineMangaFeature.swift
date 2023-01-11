@@ -224,7 +224,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                     .fireAndForget()
                 ]
                 if let pageIndex = mangaClient.getMangaPageForReadingChapter(
-                    state.mangaReadingViewState?.chapter.attributes.chapterIndex,
+                    state.mangaReadingViewState?.chapter.attributes.index,
                     state.pagesState!.splitIntoPagesVolumeTabStates
                 ) {
                     effects.append(
@@ -242,7 +242,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                     pagesCount: state.mangaReadingViewState!.pagesCount
                 )
                 
-                let chapterIndex = state.mangaReadingViewState!.chapter.attributes.chapterIndex
+                let chapterIndex = state.mangaReadingViewState!.chapter.attributes.index
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
                 
                 guard let info = mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {

@@ -87,7 +87,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             }
             
             return .concatenate(
-                settingsClient.getSettingsConfig()
+                settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),
                 
@@ -121,7 +121,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             switch result {
             case .success(let chapters):
                 state.sameScanlationGroupChapters = chapters.map(\.chapter).sorted {
-                    ($0.attributes.chapterIndex ?? -1) < ($1.attributes.chapterIndex ?? -1)
+                    ($0.attributes.index ?? -1) < ($1.attributes.index ?? -1)
                 }
                 return .none
                 
@@ -161,7 +161,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             return .none
             
         case .chapterCarouselButtonTapped(let newChapterIndex):
-            guard newChapterIndex != state.chapter.attributes.chapterIndex else {
+            guard newChapterIndex != state.chapter.attributes.index else {
                 return .none
             }
             
@@ -194,7 +194,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
         case .moveToNextChapter:
             let nextChapterIndex = mangaClient.computeNextChapterIndex(
-                state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
+                state.chapter.attributes.index, state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
             guard let nextChapterIndex else {
@@ -223,7 +223,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
         case .moveToPreviousChapter:
             let previousChapterIndex = mangaClient.computePreviousChapterIndex(
-                state.chapter.attributes.chapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
+                state.chapter.attributes.index, state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
             guard let previousChapterIndex else {

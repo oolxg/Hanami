@@ -85,10 +85,10 @@ struct PagesFeature: ReducerProtocol {
                 var cachedChapterDetails: [Double?: [ChapterDetails]] = [:]
                 
                 for chapter in volume {
-                    if cachedChapterDetails[chapter.attributes.chapterIndex].hasValue {
-                        cachedChapterDetails[chapter.attributes.chapterIndex]!.append(chapter)
+                    if cachedChapterDetails[chapter.attributes.index].hasValue {
+                        cachedChapterDetails[chapter.attributes.index]!.append(chapter)
                     } else {
-                        cachedChapterDetails[chapter.attributes.chapterIndex] = [chapter]
+                        cachedChapterDetails[chapter.attributes.index] = [chapter]
                     }
                 }
                 
@@ -111,7 +111,7 @@ struct PagesFeature: ReducerProtocol {
                     
                     chapters.append(
                         Chapter(
-                            chapterIndex: chapter.chapterIndex,
+                            index: chapter.index,
                             id: chapter.id,
                             others: chapterList.map(\.id)
                         )
@@ -120,7 +120,7 @@ struct PagesFeature: ReducerProtocol {
                 
                 // almost alway chapter has 'chapterIndex'
                 // if not, most likely it's oneshot or sth, that should be at the beginning(in our pagination = in the end)
-                chapters.sort { ($0.chapterIndex ?? -1) > ($1.chapterIndex ?? -1) }
+                chapters.sort { ($0.index ?? -1) > ($1.index ?? -1) }
                 
                 volumes.append((
                     volume: MangaVolume(chapters: chapters, volumeIndex: volumeIndex),
@@ -166,11 +166,13 @@ struct PagesFeature: ReducerProtocol {
         case pageIndexButtonTapped(newPageIndex: Int)
         case changePageAfterEffectCancellation(newPageIndex: Int)
         case unlockPage
-        case userDeletedAllCachedChapters
+        case userDeletedAllCachedChapters(parentMangaID: UUID)
         case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabFeature.Action)
     }
     
     @Dependency(\.mainQueue) private var mainQueue
+    @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.mangaClient) private var mangaClient
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -199,21 +201,23 @@ struct PagesFeature: ReducerProtocol {
                 state.lockPage = false
                 return .none
                 
-            case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume):
+            case let .volumeTabAction(volumeID, .userDeletedLastChapterInVolume(mangaID)):
                 state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
                 
                 if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
                     state.currentPageIndex -= 1
                 } else if state.volumeTabStatesOnCurrentPage.isEmpty {
-                    return .task { .userDeletedAllCachedChapters }
+                    return .task { .userDeletedAllCachedChapters(parentMangaID: mangaID) }
                         .delay(for: .seconds(0.3), scheduler: mainQueue)
                         .eraseToEffect()
                 }
                 
                 return .none
                 
-            case .userDeletedAllCachedChapters:
-                return .none
+            case let .userDeletedAllCachedChapters(mangaID):
+                return mangaClient
+                    .deleteCoverArt(mangaID, cacheClient)
+                    .fireAndForget()
                 
             case .volumeTabAction:
                 return .none

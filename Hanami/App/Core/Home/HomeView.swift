@@ -208,7 +208,7 @@ extension HomeView {
                     }
                 
                 Text("Seasonal")
-                    .foregroundColor(.theme.foreground)
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                     .font(.headline)
                     .padding(.bottom, 10)
@@ -283,7 +283,7 @@ extension HomeView {
                     Text("Most")
                     Text("Followed")
                 }
-                .foregroundColor(.theme.foreground)
+                .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
                 .font(.headline)
                 .padding(.bottom, 10)
@@ -363,7 +363,7 @@ extension HomeView {
                     Text("Award")
                     Text("Winning")
                 }
-                .foregroundColor(.theme.foreground)
+                .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
                 .font(.headline)
                 .padding(.bottom, 10)

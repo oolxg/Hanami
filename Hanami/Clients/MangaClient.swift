@@ -206,7 +206,7 @@ extension MangaClient: DependencyKey {
             for (pageIndex, page) in pages.enumerated() {
                 for volumeState in page {
                     // swiftlint:disable:next for_where
-                    if volumeState.chapterStates.first(where: { $0.chapter.chapterIndex == chapterIndex }).hasValue {
+                    if volumeState.chapterStates.first(where: { $0.chapter.index == chapterIndex }).hasValue {
                         return pageIndex
                     }
                 }
@@ -215,14 +215,14 @@ extension MangaClient: DependencyKey {
             return nil
         },
         computeNextChapterIndex: { currentChapterIndex, chapters in
-            guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == currentChapterIndex }) else {
+            guard let chapterIndex = chapters?.firstIndex(where: { $0.index == currentChapterIndex }) else {
                 return nil
             }
             
             return chapterIndex + 1 < chapters!.count ? chapterIndex + 1 : nil
         },
         computeChapterIndex: { chapterIndex, chapters in
-            guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == chapterIndex }) else {
+            guard let chapterIndex = chapters?.firstIndex(where: { $0.index == chapterIndex }) else {
                 return nil
             }
             
@@ -230,7 +230,7 @@ extension MangaClient: DependencyKey {
         },
         computePreviousChapterIndex: { currentChapterIndex, chapters in
             // 'currentChapterIndex' - is index(Double) and may not match with index in 'chapters'
-            guard let chapterIndex = chapters?.firstIndex(where: { $0.chapterIndex == currentChapterIndex }) else {
+            guard let chapterIndex = chapters?.firstIndex(where: { $0.index == currentChapterIndex }) else {
                 return nil
             }
             
@@ -241,7 +241,7 @@ extension MangaClient: DependencyKey {
                 for chapterStateID in volumes[id: volumeStateID]!.chapterStates.ids {
                     let chapterState = volumes[id: volumeStateID]!.chapterStates[id: chapterStateID]!
                     
-                    if chapterState.chapter.chapterIndex == chapterIndex {
+                    if chapterState.chapter.index == chapterIndex {
                         return (volumeID: volumeStateID, chapterID: chapterStateID)
                     }
                 }

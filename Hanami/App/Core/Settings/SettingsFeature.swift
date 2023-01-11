@@ -17,7 +17,8 @@ struct SettingsFeature: ReducerProtocol {
             useHigherQualityImagesForOnlineReading: false,
             useHigherQualityImagesForCaching: false,
             colorScheme: 0,
-            readingFormat: .leftToRight
+            readingFormat: .vertical,
+            ios639Language: ISO639Language.deviceLanguage ?? .en
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0
@@ -51,7 +52,7 @@ struct SettingsFeature: ReducerProtocol {
                 return .merge(
                     .task { .recomputeCacheSize },
 
-                    settingsClient.getSettingsConfig()
+                    settingsClient.retireveSettingsConfig()
                         .receive(on: mainQueue)
                         .catchToEffect(Action.settingsConfigRetrieved)
                 )
@@ -65,7 +66,7 @@ struct SettingsFeature: ReducerProtocol {
                 case .failure(let error):
                     logger.error("Failed to retrieve settings config: \(error)")
                     // for the case when app launched for the first time
-                    return settingsClient.saveSettingsConfig(state.config).fireAndForget()
+                    return settingsClient.updateSettingsConfig(state.config).fireAndForget()
                 }
                 
             case .recomputeCacheSize:
@@ -152,7 +153,7 @@ struct SettingsFeature: ReducerProtocol {
                 fallthrough
                 
             case .binding:
-                return settingsClient.saveSettingsConfig(state.config).fireAndForget()
+                return settingsClient.updateSettingsConfig(state.config).fireAndForget()
             }
         }
     }

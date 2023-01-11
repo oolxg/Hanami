@@ -22,14 +22,14 @@ struct ChapterDetails: Decodable {
         let updatedAt: Date
         let version: Int
 
-        let chapterIndex: Double?
+        let index: Double?
         let externalURL: URL?
         let readableAt: Date?
         let title: String?
         let volumeIndex: Double?
         
         enum CodingKeys: String, CodingKey {
-            case chapterIndex = "chapter"
+            case index = "chapter"
             case createdAt
             case externalURL = "externalUrl"
             case pagesCount = "pages"
@@ -53,10 +53,10 @@ extension ChapterDetails.Attributes {
         
         // this needed because we get `chapterIndex` as String from MangaDex API, but we use it and save it as Double
         do {
-            let chapterIndexString = try container.decode(String.self, forKey: .chapterIndex)
-            chapterIndex = Double(chapterIndexString.replacingOccurrences(of: ",", with: "."))
+            let chapterIndexString = try container.decode(String.self, forKey: .index)
+            index = Double(chapterIndexString.replacingOccurrences(of: ",", with: "."))
         } catch {
-            chapterIndex = try? container.decode(Double?.self, forKey: .chapterIndex)
+            index = try? container.decode(Double?.self, forKey: .index)
         }
         
         createdAt = try container.decode(Date.self, forKey: .createdAt)
@@ -122,7 +122,7 @@ extension ChapterDetails {
     var chapterName: String {
         if let title = attributes.title {
             return "\(languageFlag) \(title)"
-        } else if let index = attributes.chapterIndex?.clean() {
+        } else if let index = attributes.index?.clean() {
             return "\(languageFlag) Ch. \(index)"
         } else if attributes.pagesCount == 1 {
             return "Oneshot"
@@ -132,7 +132,7 @@ extension ChapterDetails {
     }
     
     var asChapter: Chapter {
-        Chapter(chapterIndex: attributes.chapterIndex, id: id, others: [])
+        Chapter(index: attributes.index, id: id, others: [])
     }
     
     var scanlationGroupID: UUID? {
