@@ -55,18 +55,18 @@ struct OnlineMangaReadingView: View {
                         .tint(.theme.accent)
                 }
             }
+            .onChange(of: viewStore.chapterIndex) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                    withAnimation(.linear) {
+                        showNavBar = false
+                    }
+                }
+            }
         }
         .gesture(tapGesture)
         .overlay(navigationBlock)
         .navigationBarHidden(true)
         .autoBlur(radius: blurRadius)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                withAnimation(.linear) {
-                    showNavBar = false
-                }
-            }
-        }
     }
 }
 

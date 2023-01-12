@@ -164,10 +164,10 @@ struct PagesFeature: ReducerProtocol {
         var firstChapterOptionsIDs: [UUID] {
             var firstChapter: Chapter?
             
-            for page in splitIntoPagesVolumeTabStates.reversed() {
-                for volumeState in page.reversed() {
-                    for chapterState in volumeState.chapterStates.reversed() {
-                        if firstChapter == nil {
+            for page in splitIntoPagesVolumeTabStates {
+                for volumeState in page {
+                    for chapterState in volumeState.chapterStates where (chapterState.chapter.index ?? .infinity) > 0 {
+                        if firstChapter.isNil {
                             firstChapter = chapterState.chapter
                         } else if (firstChapter!.index ?? .infinity) > (chapterState.chapter.index ?? .infinity) {
                             firstChapter = chapterState.chapter

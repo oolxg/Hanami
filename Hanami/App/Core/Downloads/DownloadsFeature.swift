@@ -43,8 +43,8 @@ struct DownloadsFeature: ReducerProtocol {
             case .cachedMangaFetched(let result):
                 switch result {
                 case .success(let retrievedMangaEntries):
-                    let cachedMangaIDsSet = Set(state.cachedMangaThumbnailStates.map(\.id))
-                    let retrievedMangaIDs = Set(retrievedMangaEntries.map(\.manga.id))
+                    let cachedMangaIDsSet = state.cachedMangaThumbnailStates.ids
+                    let retrievedMangaIDs = retrievedMangaEntries.idsSet
                     let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
                     let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
                     

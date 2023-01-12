@@ -116,6 +116,7 @@ struct OnlineMangaFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
+            struct FirstChapterCancel: Hashable { let chpaterID: UUID }
             switch action {
             case .onAppear:
                 var effects = [
@@ -257,11 +258,18 @@ struct OnlineMangaFeature: ReducerProtocol {
                     hapticClient.generateFeedback(.medium).fireAndForget()
                 )
                 
+            // user wants to start reading manga from first chapter, have to retrieve preffered lang for reading
             case .startReadingButtonTapped:
+                if let chapterLang = state.firstChapterOptions?.first?.attributes.translatedLanguage,
+                    chapterLang == state.prefferedLanguage?.rawValue {
+                    return .none
+                }
+                
                 return settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved)
-                
+            
+            // after we retrieved preffered lang, have to find `first` chapters
             case .settingsConfigRetrieved(let result):
                 switch result {
                 case .success(let config):
@@ -274,6 +282,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .merge(
                         firstChapterOptionsIDs.map { chapterID in
                             mangaClient.fetchChapterDetails(chapterID)
+                                .cancellable(id: FirstChapterCancel(chpaterID: chapterID), cancelInFlight: true)
                                 .receive(on: mainQueue)
                                 .catchToEffect(Action.firstChapterOptionRetrieved)
                         }
@@ -301,18 +310,31 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
+            // when all first chapters fetched, have to filter only with matched preffered lang
+            // if nothing found, show all (maximum 12, because of screen size).
+            // if there's only one chapter with preffered lang, automatically send user to manga reading view
             case .allFirstChaptersRetrieved:
+                let prefferedLang = state.prefferedLanguage!.rawValue
                 let chaptersWithSamePrefferedLang = state._firstChapterOptions!.filter {
-                    $0.attributes.translatedLanguage == state.prefferedLanguage!.rawValue
+                    $0.attributes.translatedLanguage == prefferedLang
                 }
                 
                 if !chaptersWithSamePrefferedLang.isEmpty {
-                    state.firstChapterOptions = chaptersWithSamePrefferedLang
+                    if chaptersWithSamePrefferedLang.idsSet != state.firstChapterOptions?.idsSet {
+                        state.firstChapterOptions = chaptersWithSamePrefferedLang
+                    }
                 } else {
                     state.firstChapterOptions = state._firstChapterOptions
                 }
                 
-                if state.firstChapterOptions!.count == 1 {
+                state.firstChapterOptions = Array(state.firstChapterOptions!.prefix(12))
+                
+                let onlyOneChapterAndLangMatches = state.firstChapterOptions?.count == 1 &&
+                    state.firstChapterOptions!.first!.attributes.translatedLanguage == prefferedLang &&
+                    state.firstChapterOptions!.first!.attributes.externalURL == nil
+                    
+                
+                if onlyOneChapterAndLangMatches {
                     let chapter = state.firstChapterOptions!.first!
                     state.mangaReadingViewState = OnlineMangaReadingFeature.State(
                         mangaID: state.manga.id,

@@ -111,7 +111,7 @@ struct SearchFeature: ReducerProtocol {
                 
             case .cancelSearchButtonTapped:
                 // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
-                let mangaIDs = state.foundManga.map(\.id)
+                let mangaIDs = state.foundManga.idsSet
                 
                 state.searchText = ""
                 state.foundManga.removeAll()

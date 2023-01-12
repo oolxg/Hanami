@@ -37,6 +37,7 @@ struct OnlineMangaView: View {
         let lastReadChapterAvailable: Bool
         let areChaptersFetched: Bool
         let firstChapterOptions: [ChapterDetails]?
+        let userReadsManga: Bool
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
@@ -50,6 +51,7 @@ struct OnlineMangaView: View {
             lastReadChapterAvailable = state.lastReadChapterID.hasValue && state.pagesState.hasValue
             areChaptersFetched = state.pagesState.hasValue
             firstChapterOptions = state.firstChapterOptions
+            userReadsManga = state.isUserOnReadingView
         }
     }
     
@@ -125,61 +127,54 @@ extension OnlineMangaView {
                     .font(.title3)
                     .padding(.bottom, 10)
                 
-                if let firstChapterOptions = viewStore.firstChapterOptions {
-                    VStack(alignment: .leading, spacing: 12) {
-                        ForEach(firstChapterOptions) { chapter in
-                            VStack(alignment: .leading) {
-                                HStack(alignment: .bottom) {
-                                    Text(chapter.chapterName)
-                                    
-                                    Spacer()
-                                    
-                                    if chapter.attributes.externalURL != nil {
-                                        Image("ExternalLinkIcon")
-                                            .resizable()
-                                            .frame(width: 20, height: 20)
-                                    }
-                                }
-                                
-                                if let scanlationGroup = chapter.scanlationGroup {
-                                    HStack {
-                                        Text(scanlationGroup.name)
-                                            .fontWeight(.bold)
-                                            .lineLimit(1)
-                                            .font(.caption)
-                                            .foregroundColor(.theme.secondaryText)
-                                        
-                                        if scanlationGroup.attributes.isOfficial {
-                                            Image(systemName: "person.badge.shield.checkmark")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .foregroundColor(.green)
-                                                .frame(height: 15)
-                                        }
-                                    }
-                                }
-                                
-                                Divider()
-                            }
-                            .onTapGesture {
-                                showFirstChaptersPopup = false
-                                viewStore.send(.userTappedOnFirstChapterOption(chapter))
+                ForEach(viewStore.firstChapterOptions ?? []) { chapter in
+                    LazyVStack(alignment: .leading) {
+                        HStack(alignment: .bottom) {
+                            Text(chapter.chapterName)
+                            
+                            Spacer()
+                            
+                            if chapter.attributes.externalURL != nil {
+                                Image("ExternalLinkIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        if let scanlationGroup = chapter.scanlationGroup {
+                            HStack {
+                                Text(scanlationGroup.name)
+                                    .fontWeight(.bold)
+                                    .lineLimit(1)
+                                    .font(.caption)
+                                    .foregroundColor(.theme.secondaryText)
+                                
+                                if scanlationGroup.attributes.isOfficial {
+                                    Image(systemName: "person.badge.shield.checkmark")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundColor(.green)
+                                        .frame(height: 15)
+                                }
+                            }
+                        }
+                        
+                        Divider()
                     }
-                } else {
-                    ProgressView()
+                    .onTapGesture {
+                        showFirstChaptersPopup = false
+                        viewStore.send(.userTappedOnFirstChapterOption(chapter))
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .animation(.linear, value: viewStore.firstChapterOptions?.count)
-            .padding(25)
-            .background(Color.theme.background.cornerRadius(20))
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 40)
         }
+        .padding(25)
+        .background(Color.theme.background.cornerRadius(20))
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 40)
     }
-    
+
     private var footer: some View {
         HStack(spacing: 0) {
             Text("All information on this page provided by ")
@@ -574,10 +569,8 @@ extension OnlineMangaView {
                 }
             }
             .padding(.horizontal, 5)
-            .onChange(of: viewStore.firstChapterOptions) { newValue in
-                if newValue.hasValue && newValue!.count > 1 {
-                    showFirstChaptersPopup = true
-                }
+            .onChange(of: viewStore.firstChapterOptions.hasValue) { _ in
+                showFirstChaptersPopup = !viewStore.userReadsManga
             }
         }
     }

@@ -58,6 +58,12 @@ struct OfflineMangaReadingView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     mainBlockOpacity = 1
                 }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                    withAnimation(.linear) {
+                        showNavBar = false
+                    }
+                }
             }
         }
         .background(Color.theme.background)
@@ -65,13 +71,6 @@ struct OfflineMangaReadingView: View {
         .navigationBarHidden(true)
         .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                withAnimation(.linear) {
-                    showNavBar = false
-                }
-            }
-        }
     }
 }
 

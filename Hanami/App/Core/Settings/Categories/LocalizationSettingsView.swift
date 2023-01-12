@@ -21,10 +21,6 @@ struct LocalizationSettingsView: View {
                 ForEach(allLanguages) { lang in
                     HStack {
                         Text(lang.language)
-                            .onTapGesture {
-                                selectedLanugauge = lang
-                                dismiss()
-                            }
                         
                         Spacer()
                         
@@ -32,6 +28,11 @@ struct LocalizationSettingsView: View {
                             Image(systemName: "checkmark")
                                 .foregroundColor(.theme.accent)
                         }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedLanugauge = lang
+                        dismiss()
                     }
                 }
             }
