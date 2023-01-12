@@ -32,7 +32,7 @@ struct VolumesContainer: Decodable {
         }
         
         // all volumes w/o index are going to be first in list
-        volumes = temp.sorted { ($0.volumeIndex ?? 9999) > ($1.volumeIndex ?? 9999) }
+        volumes = temp.sorted { ($0.volumeIndex ?? .infinity) > ($1.volumeIndex ?? .infinity) }
     }
     
     private struct DynamicCodingKeys: CodingKey {
@@ -73,7 +73,7 @@ struct MangaVolume: Decodable {
                 tempVolume = try container.decode(String.self, forKey: DynamicCodingKeys(stringValue: key.stringValue)!)
             }
         }
-        chapters = tempDecodedChapters.sorted { ($0.index ?? 99999) > ($1.index ?? 99999) }
+        chapters = tempDecodedChapters.sorted { ($0.index ?? .infinity) > ($1.index ?? .infinity) }
         volumeIndex = Double(tempVolume)
     }
     

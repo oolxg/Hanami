@@ -53,7 +53,6 @@ struct ChapterFeature: ReducerProtocol {
                 }
             }
         }
-        var scanlationGroups: [UUID: ScanlationGroup] = [:]
         var chaptersCount: Int {
             // need this for offline reading
             // when user deletes chapter, `chapter.others.count` doesn't change himself, only `chapterDetailsList.count`
@@ -73,7 +72,6 @@ struct ChapterFeature: ReducerProtocol {
         case fetchChapterDetailsIfNeeded
         case userTappedOnChapterDetails(ChapterDetails)
         case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
-        case scanlationGroupInfoFetched(Result<Response<ScanlationGroup>, AppError>, chapterID: UUID)
 
         case downloaderAction(ChapterLoaderFeature.Action)
 
@@ -112,20 +110,6 @@ struct ChapterFeature: ReducerProtocol {
                             if !state._chapterDetailsList.contains(where: { $0.id == chapterID }) {
                                 state._chapterDetailsList.append(cachedChapterDetails)
                             }
-                            
-                            if let scanlationGroup = cachedChapterDetails.scanlationGroup {
-                                state.scanlationGroups[cachedChapterDetails.id] = scanlationGroup
-                            } else if state.online, let scanlationGroupID = cachedChapterDetails.scanlationGroupID {
-                                effects.append(
-                                    mangaClient.fetchScanlationGroup(scanlationGroupID)
-                                        .receive(on: mainQueue)
-                                        .catchToEffect { .scanlationGroupInfoFetched($0, chapterID: chapterID) }
-                                        .cancellable(
-                                            id: CancelChapterFetch(id: chapterID),
-                                            cancelInFlight: true
-                                        )
-                                )
-                            }
                         } else if state.online {
                             // chapter is not cached, need to fetch
                             effects.append(
@@ -156,44 +140,12 @@ struct ChapterFeature: ReducerProtocol {
                         state._chapterDetailsList.append(chapter)
                     }
                     
-                    if let scanlationGroup = response.data.scanlationGroup {
-                        state.scanlationGroups[chapter.id] = scanlationGroup
-                        return .none
-                    }
-                    
-                    guard let scanlationGroupID = chapter.scanlationGroupID else {
-                        return .none
-                    }
-                    
-                    return mangaClient.fetchScanlationGroup(scanlationGroupID)
-                        .receive(on: mainQueue)
-                        .catchToEffect { .scanlationGroupInfoFetched($0, chapterID: chapter.id) }
-                        .cancellable(
-                            id: CancelChapterFetch(id: chapter.id),
-                            cancelInFlight: true
-                        )
+                    return .none
                     
                 case .failure(let error):
                     logger.error(
                         "Failed to fetch chapterDetails: \(error)",
                         context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
-                    )
-                    return .none
-                }
-                
-            case .scanlationGroupInfoFetched(let result, let chapterID):
-                switch result {
-                case .success(let response):
-                    state.scanlationGroups[chapterID] = response.data
-                    return .none
-                    
-                case .failure(let error):
-                    logger.error(
-                        "Failed to fetch scanlationGroup: \(error)",
-                        context: [
-                            "mangaID": "\(state.parentManga.id.uuidString.lowercased())",
-                            "chapterID": "\(chapterID.uuidString.lowercased())"
-                        ]
                     )
                     return .none
                 }

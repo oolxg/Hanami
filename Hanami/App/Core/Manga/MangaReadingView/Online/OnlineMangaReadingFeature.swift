@@ -34,7 +34,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         let startFromLastPage: Bool
         
         // if user reaches one of this indexes, means we have to send him to the next or prev chapter chapter
-        let mostRightPageIndex = 9999
+        let mostRightPageIndex = Int.max
         let mostLeftPageIndex = -1
         
         var pagesURLs: [URL]?

@@ -95,7 +95,7 @@ struct PagesFeature: ReducerProtocol {
                 // sorting chapters desc by 'volumeIndex'
                 let cachedChaptersAsList = cachedChapterDetails.map(\.value).sorted { lhs, rhs in
                     // all chapters in each array are having the same 'volumeIndex'
-                    (lhs.first!.attributes.volumeIndex ?? 9999) < (rhs.first!.attributes.volumeIndex ?? 9999)
+                    (lhs.first!.attributes.volumeIndex ?? .infinity) < (rhs.first!.attributes.volumeIndex ?? .infinity)
                 }
                 
                 // 'Chapter' - it's simplified and compressed version of 'ChapterDetails'
@@ -133,7 +133,7 @@ struct PagesFeature: ReducerProtocol {
             // sorting volmues by volumeIndex
             // typically the most fresh chapters stored in 'No Volume'(volumes w/o 'volumeIndex')
             // so we show this volume in the first place
-            volumes.sort { ($0.volume.volumeIndex ?? 9999) > ($1.volume.volumeIndex ?? 9999) }
+            volumes.sort { ($0.volume.volumeIndex ?? .infinity) > ($1.volume.volumeIndex ?? .infinity) }
             
             // here we're shaped the data(volumes) as they were for online reading
             // and we can use another initializer
@@ -159,6 +159,27 @@ struct PagesFeature: ReducerProtocol {
         
         // this lock to disable user on pressing on chapterDetails right after he changed page(this causes crashes)
         var lockPage = false
+        
+        // list of all UUIDs of first chapter options in manga
+        var firstChapterOptionsIDs: [UUID] {
+            var firstChapter: Chapter?
+            
+            for page in splitIntoPagesVolumeTabStates.reversed() {
+                for volumeState in page.reversed() {
+                    for chapterState in volumeState.chapterStates.reversed() {
+                        if firstChapter == nil {
+                            firstChapter = chapterState.chapter
+                        } else if (firstChapter!.index ?? .infinity) > (chapterState.chapter.index ?? .infinity) {
+                            firstChapter = chapterState.chapter
+                        }
+                    }
+                }
+            }
+            
+            guard let firstChapter else { return [] }
+            
+            return firstChapter.others + [firstChapter.id]
+        }
     }
     
     

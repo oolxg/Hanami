@@ -12,14 +12,14 @@ import Foundation
 
 // swiftlint:disable identifier_name
 struct LocalizedString: Codable {
-    var ar, cs, en, es, esLa: String?
+    var ar, cs, de, en, es, esLa: String?
     var hi, hu, fa, fr, it: String?
     var jp, jpRo, ko, mn, ms: String?
     var nl, ru, th, uk, zh: String?
     var zhRo: String?
     
     enum CodingKeys: String, CodingKey {
-        case ar, cs, en, es
+        case ar, cs, en, es, de
         case esLa = "es-la"
         case hi, hu, fa, fr, it
         case jp = "ja"
@@ -35,6 +35,7 @@ extension LocalizedString {
         localizedStrings.forEach { content in
             ar = ar.isNil ? content.ar : ar
             cs = cs.isNil ? content.cs : cs
+            de = de.isNil ? content.de : de
             en = en.isNil ? content.en : en
             es = es.isNil ? content.es : es
             esLa = esLa.isNil ? content.esLa : esLa
@@ -68,6 +69,8 @@ extension LocalizedString {
             return ar
         } else if let cs {
             return cs
+        } else if let de {
+            return de
         } else if let es {
             return es
         } else if let esLa {

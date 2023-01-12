@@ -18,7 +18,6 @@ struct ChapterView: View {
         let chapterDetailsList: IdentifiedArrayOf<ChapterDetails>
         let cachedChaptersStates: Set<ChapterLoaderFeature.CachedChapterState>
         let areChaptersShown: Bool
-        let scanlationGroups: [UUID: ScanlationGroup]
         
         init(state: ChapterFeature.State) {
             chapter = state.chapter
@@ -27,7 +26,6 @@ struct ChapterView: View {
             chapterDetailsList = state.chapterDetailsList
             cachedChaptersStates = state.downloader.cachedChaptersStates
             areChaptersShown = state.areChaptersShown
-            scanlationGroups = state.scanlationGroups
         }
     }
     
@@ -204,44 +202,41 @@ extension ChapterView {
     }
     
     private func makeScanlationGroupView(for chapter: ChapterDetails) -> some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Translated by")
-                        .fontWeight(.light)
-                    
-                    if viewStore.chapterDetailsList[id: chapter.id]?.scanlationGroupID != nil {
-                        HStack {
-                            Text(viewStore.scanlationGroups[chapter.id]?.name ?? .placeholder(length: 35))
-                                .fontWeight(.bold)
-                                .lineLimit(1)
-                                .redacted(if: viewStore.scanlationGroups[chapter.id].isNil)
-                            
-                            if viewStore.scanlationGroups[chapter.id]?.attributes.isOfficial == true {
-                                Image(systemName: "person.badge.shield.checkmark")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                    } else {
-                        Text("No group")
+        HStack {
+            VStack(alignment: .leading) {
+                Text("Translated by")
+                    .fontWeight(.light)
+                
+                if let scanlationGroup = chapter.scanlationGroup {
+                    HStack {
+                        Text(scanlationGroup.name)
                             .fontWeight(.bold)
+                            .lineLimit(1)
+                        
+                        if scanlationGroup.attributes.isOfficial {
+                            Image(systemName: "person.badge.shield.checkmark")
+                                .foregroundColor(.green)
+                        }
                     }
+                } else {
+                    Text("No group")
+                        .fontWeight(.bold)
                 }
+            }
+            .font(.caption)
+            .foregroundColor(.theme.secondaryText)
+            .padding(.horizontal, 5)
+            
+            Spacer()
+            
+            Image(systemName: "clock")
                 .font(.caption)
                 .foregroundColor(.theme.secondaryText)
-                .padding(.horizontal, 5)
-                
-                Spacer()
-                
-                Image(systemName: "clock")
-                    .font(.caption)
-                    .foregroundColor(.theme.secondaryText)
-                
-                Text(chapter.attributes.createdAt.timeAgo)
-                    .font(.caption)
-                    .foregroundColor(.theme.secondaryText)
-            }
-            .transition(.opacity)
+            
+            Text(chapter.attributes.createdAt.timeAgo)
+                .font(.caption)
+                .foregroundColor(.theme.secondaryText)
         }
+        .transition(.opacity)
     }
 }

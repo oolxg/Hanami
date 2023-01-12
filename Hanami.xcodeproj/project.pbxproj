@@ -30,6 +30,7 @@
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
 		085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 085DB65E28E11BD100AF5323 /* NukeUI */; };
+		086A3DDA296F6BCB00CF434C /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 086A3DD9296F6BCB00CF434C /* PopupView */; };
 		08700EF3295769A90019E615 /* LiveTextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF2295769A90019E615 /* LiveTextHandler.swift */; };
 		08700EF629576A390019E615 /* LiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF529576A390019E615 /* LiveText.swift */; };
 		08700EFA29578C2B0019E615 /* Shimmering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08700EF929578C2B0019E615 /* Shimmering.swift */; };
@@ -38,7 +39,7 @@
 		08AC1BDC28C8501800017CAA /* UIDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AC1BDB28C8501800017CAA /* UIDevice.swift */; };
 		08B1346B28D2A8D000D1C85B /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08B1346A28D2A8D000D1C85B /* Set.swift */; };
 		08E0B078293EC0C60021D5EC /* ChapterLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E0B077293EC0C60021D5EC /* ChapterLoaderFeature.swift */; };
-		08F59DC2296EF73000FF6A0A /* IOS639-1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F59DC1296EF73000FF6A0A /* IOS639-1.swift */; };
+		08F59DC2296EF73000FF6A0A /* ISO639-1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F59DC1296EF73000FF6A0A /* ISO639-1.swift */; };
 		08F59DC5296F0F8300FF6A0A /* LocalizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F59DC4296F0F8300FF6A0A /* LocalizationSettingsView.swift */; };
 		22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 22048EAE286CC5B400FE6A54 /* ComposableArchitecture */; };
 		2205CB9E28569DDE00421888 /* MangaStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2205CB9D28569DDE00421888 /* MangaStatistics.swift */; };
@@ -194,7 +195,7 @@
 		08B1346A28D2A8D000D1C85B /* Set.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
 		08E0B077293EC0C60021D5EC /* ChapterLoaderFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterLoaderFeature.swift; sourceTree = "<group>"; };
 		08E23C7D28D34A3600149889 /* Hanami.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hanami.entitlements; sourceTree = "<group>"; };
-		08F59DC1296EF73000FF6A0A /* IOS639-1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IOS639-1.swift"; sourceTree = "<group>"; };
+		08F59DC1296EF73000FF6A0A /* ISO639-1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ISO639-1.swift"; sourceTree = "<group>"; };
 		08F59DC4296F0F8300FF6A0A /* LocalizationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationSettingsView.swift; sourceTree = "<group>"; };
 		2205CB9D28569DDE00421888 /* MangaStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaStatistics.swift; sourceTree = "<group>"; };
 		2205CB9F2856A91900421888 /* UINavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationController.swift; sourceTree = "<group>"; };
@@ -296,6 +297,7 @@
 			files = (
 				228FA49B288DBB4D00369529 /* Cache in Frameworks */,
 				22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */,
+				086A3DDA296F6BCB00CF434C /* PopupView in Frameworks */,
 				085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */,
 				08200ABA28F6FACB009705D9 /* SwiftyBeaver in Frameworks */,
 			);
@@ -635,7 +637,7 @@
 				080E9F25292B9867006296FB /* SettingsConfig.swift */,
 				224E6711282E91FF001D214C /* Response.swift */,
 				080D1DCA294FF879008B813C /* SearchParams.swift */,
-				08F59DC1296EF73000FF6A0A /* IOS639-1.swift */,
+				08F59DC1296EF73000FF6A0A /* ISO639-1.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -791,6 +793,7 @@
 				228FA49A288DBB4D00369529 /* Cache */,
 				085DB65E28E11BD100AF5323 /* NukeUI */,
 				08200AB928F6FACB009705D9 /* SwiftyBeaver */,
+				086A3DD9296F6BCB00CF434C /* PopupView */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -869,6 +872,7 @@
 				228FA499288DBB4C00369529 /* XCRemoteSwiftPackageReference "Cache" */,
 				085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */,
 				08200AB828F6FACB009705D9 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				086A3DD8296F6BCB00CF434C /* XCRemoteSwiftPackageReference "PopupView" */,
 			);
 			productRefGroup = 224C65792827204100AAEF2E /* Products */;
 			projectDirPath = "";
@@ -941,7 +945,7 @@
 				2274193D2886EBBD00ACAA24 /* DownloadsFeature.swift in Sources */,
 				228FA49D288DBB5500369529 /* CacheClient.swift in Sources */,
 				2220E14F283074F10046F08A /* LocalizedString.swift in Sources */,
-				08F59DC2296EF73000FF6A0A /* IOS639-1.swift in Sources */,
+				08F59DC2296EF73000FF6A0A /* ISO639-1.swift in Sources */,
 				080D1DB6294FDD7C008B813C /* CoreDataMigrationStep.swift in Sources */,
 				224E6712282E91FF001D214C /* Response.swift in Sources */,
 				222A0352287111D100D5B588 /* Data.swift in Sources */,
@@ -1206,7 +1210,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1227,7 +1231,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.22.1;
+				MARKETING_VERSION = 0.23;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1247,7 +1251,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1268,7 +1272,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.22.1;
+				MARKETING_VERSION = 0.23;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1413,6 +1417,14 @@
 				minimumVersion = 11.0.0;
 			};
 		};
+		086A3DD8296F6BCB00CF434C /* XCRemoteSwiftPackageReference "PopupView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/PopupView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		22048EAD286CC5B400FE6A54 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
@@ -1441,6 +1453,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */;
 			productName = NukeUI;
+		};
+		086A3DD9296F6BCB00CF434C /* PopupView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 086A3DD8296F6BCB00CF434C /* XCRemoteSwiftPackageReference "PopupView" */;
+			productName = PopupView;
 		};
 		22048EAE286CC5B400FE6A54 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;

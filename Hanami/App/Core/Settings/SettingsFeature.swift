@@ -18,7 +18,7 @@ struct SettingsFeature: ReducerProtocol {
             useHigherQualityImagesForCaching: false,
             colorScheme: 0,
             readingFormat: .vertical,
-            ios639Language: ISO639Language.deviceLanguage ?? .en
+            iso639Language: ISO639Language.deviceLanguage ?? .en
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0

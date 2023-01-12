@@ -12,7 +12,7 @@ extension View {
     func redacted(if condition: @autoclosure () -> Bool) -> some View {
         redacted(reason: condition() ? .placeholder : []).shimmering(active: condition())
     }
-
+    
     func hud(
         isPresented: Binding<Bool>,
         message: String,

@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
+    @State private var showLocalizationView = false
     
     var body: some View {
         NavigationView {
@@ -55,16 +56,24 @@ extension SettingsView {
     private var localizationSection: some View {
         Section {
             WithViewStore(store) { viewStore in
-                NavigationLink {
-                    LocalizationSettingsView(selectedLanugauge: viewStore.binding(\.$config.ios639Language))
-                } label: {
-                    HStack {
-                        Text("Language for manga reading")
-                        
-                        Spacer()
-                        
-                        Text(viewStore.config.ios639Language.language)
-                    }
+                HStack(spacing: 8) {
+                    Text("Language for manga reading")
+                    
+                    Spacer()
+                    
+                    Text(viewStore.config.iso639Language.language)
+                        .foregroundColor(.theme.accent)
+                    
+                    Image(systemName: "chevron.up.chevron.down")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 12)
+                        .foregroundColor(.theme.accent)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture { showLocalizationView = true }
+                .fullScreenCover(isPresented: $showLocalizationView) {
+                    LocalizationSettingsView(selectedLanugauge: viewStore.binding(\.$config.iso639Language))
                 }
             }
         } header: {
