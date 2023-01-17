@@ -40,7 +40,6 @@ struct OfflineMangaFeature: ReducerProtocol {
         // MARK: - Actions to be called from view
         case onAppear
         case resumeReadingButtonTapped
-        case hideResumeReadingButtonTapped
         case deleteMangaButtonTapped
         case mangaTabButtonTapped(Tab)
 
@@ -134,11 +133,6 @@ struct OfflineMangaFeature: ReducerProtocol {
                 state.isUserOnReadingView = true
                 
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
-                
-            case .hideResumeReadingButtonTapped:
-                state.lastReadChapter = nil
-                return databaseClient.setLastReadChapterID(for: state.manga, chapterID: nil)
-                    .fireAndForget()
                 
             case .mangaTabButtonTapped(let tab):
                 state.selectedTab = tab

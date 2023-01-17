@@ -34,7 +34,7 @@ struct OfflineMangaView: View {
             currentPageIndex = state.pagesState?.currentPageIndex
             coverArtPath = state.coverArtPath
             selectedTab = state.selectedTab
-            lastReadChapterAvailable = state.lastReadChapter.hasValue && state.pagesState.isNil
+            lastReadChapterAvailable = state.lastReadChapter.hasValue && state.pagesState.hasValue
         }
     }
     
@@ -363,18 +363,6 @@ extension OfflineMangaView {
                             .stroke(lineWidth: 1.5)
                             .fill(Color.theme.accent)
                     }
-                    .overlay(alignment: .topTrailing) {
-                        Image(systemName: "x.circle.fill")
-                            .background(Color.theme.background)
-                            .foregroundColor(.theme.red)
-                            .offset(x: 8, y: -8)
-                            .onTapGesture {
-                                ViewStore(store).send(.hideResumeReadingButtonTapped)
-                            }
-                    }
-                
-                Color.clear
-                    .frame(height: 6)
             }
         }
         .padding(.horizontal, 5)

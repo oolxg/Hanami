@@ -60,6 +60,7 @@ struct OnlineMangaReadingView: View {
         .gesture(tapGesture)
         .overlay(navigationBlock)
         .navigationBarHidden(true)
+        .statusBarHidden(!showNavBar)
         .autoBlur(radius: blurRadius)
         .onReceive(timer) { _ in
             timer.upstream.connect().cancel()

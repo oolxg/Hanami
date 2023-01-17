@@ -64,6 +64,7 @@ struct OfflineMangaReadingView: View {
         .background(Color.theme.background)
         .overlay(navigationBlock)
         .navigationBarHidden(true)
+        .statusBarHidden(!showNavBar)
         .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
         .onReceive(timer) { _ in
