@@ -32,7 +32,9 @@ struct AppFeature: ReducerProtocol {
                         
                         .task { .rootAction(.settingsAction(.initSettings)) },
                         
-                        .task { .rootAction(.searchAction(.updateSearchHistory(nil))) }
+                        .task { .rootAction(.searchAction(.updateSearchHistory(nil))) },
+                        
+                        .task { .rootAction(.searchAction(.filtersAction(.fetchFilterTagsIfNeeded))) }
                     ),
                     
                     .task { .rootAction(.makeAuthIfNeeded) }

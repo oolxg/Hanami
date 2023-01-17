@@ -48,7 +48,7 @@ struct FiltersFeature: ReducerProtocol {
     }
     
     enum Action {
-        case onAppear
+        case fetchFilterTagsIfNeeded
         case filterListDownloaded(Result<Response<[Tag]>, AppError>)
         case filterTagButtonTapped(FiltersTag)
         case resetFilterButtonPressed
@@ -66,7 +66,7 @@ struct FiltersFeature: ReducerProtocol {
     // swiftlint:disable:next cyclomatic_complexity
     func reduce(into state: inout State, action: Action) -> Effect<Action, Never> {
         switch action {
-        case .onAppear:
+        case .fetchFilterTagsIfNeeded:
             guard state.allTags.isEmpty else { return .none }
             
             return searchClient.fetchTags()

@@ -13,13 +13,12 @@ import PopupView
 struct OnlineMangaView: View {
     let store: StoreOf<OnlineMangaFeature>
     let blurRadius: CGFloat
-    // i don't know how does it work https://www.youtube.com/watch?v=ATi5EnY5IYE
     @State private var headerOffset: CGFloat = 0
+    @State private var showFirstChaptersPopup = false
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
-    @State private var showFirstChaptersPopup = false
     
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -450
@@ -27,7 +26,6 @@ struct OnlineMangaView: View {
     
     private struct ViewState: Equatable {
         let manga: Manga
-        let currentPageIndex: Int?
         let selectedTab: OnlineMangaFeature.Tab
         let coverArtURL: URL?
         let thumbnailCoverArtURL: URL?
@@ -41,7 +39,6 @@ struct OnlineMangaView: View {
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
-            currentPageIndex = state.pagesState?.currentPageIndex
             selectedTab = state.selectedTab
             coverArtURL = state.mainCoverArtURL
             thumbnailCoverArtURL = state.coverArtURL256
@@ -83,7 +80,6 @@ struct OnlineMangaView: View {
                 }
             }
             .animation(.linear, value: isCoverArtDisappeared)
-            .animation(.default, value: viewStore.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
                 Rectangle()
@@ -97,15 +93,15 @@ struct OnlineMangaView: View {
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: ViewStore(store).binding(\.$isUserOnReadingView), content: mangaReadingView)
             .tint(.theme.accent)
-            .popup(isPresented: $showFirstChaptersPopup) {
-                firstChaptersOptions
-                    .environment(\.colorScheme, colorScheme)
-            } customize: {
-                $0
-                    .closeOnTap(false)
-                    .closeOnTapOutside(true)
-                    .backgroundColor(.black.opacity(0.4))
-            }
+        }
+        .popup(isPresented: $showFirstChaptersPopup) {
+            firstChaptersOptions
+                .environment(\.colorScheme, colorScheme)
+        } customize: {
+            $0
+                .closeOnTap(false)
+                .closeOnTapOutside(true)
+                .backgroundColor(.black.opacity(0.4))
         }
     }
 }
@@ -182,7 +178,7 @@ extension OnlineMangaView {
             Text("MANGADEX")
                 .fontWeight(.semibold)
                 .onTapGesture {
-                    openURL(URL(string: "https://mangadex.org/")!)
+                    openURL(URL(string: "https://mangadex.org/title/\(ViewStore(store).manga.id.uuidString.lowercased())")!)
                 }
         }
         .font(.caption2)

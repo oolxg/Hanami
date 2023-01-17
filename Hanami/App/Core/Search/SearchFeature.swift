@@ -111,19 +111,13 @@ struct SearchFeature: ReducerProtocol {
                 
             case .cancelSearchButtonTapped:
                 // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
-                let mangaIDs = state.foundManga.idsSet
-                
                 state.searchText = ""
                 state.foundManga.removeAll()
                 state.searchResultsFetched = false
                 state.lastSuccessfulRequestParams = nil
                 state.isLoading = false
                 
-                return .merge(
-                    .cancel(id: CancelSearch()),
-                    
-                    .cancel(ids: mangaIDs.map { OnlineMangaFeature.CancelClearCache(mangaID: $0) })
-                )
+                return .cancel(id: CancelSearch())
                 
             case .searchForManga:
                 guard !state.searchText.isEmpty else {
@@ -149,19 +143,12 @@ struct SearchFeature: ReducerProtocol {
                 state.isLoading = true
                 state.foundManga.removeAll()
                 
-                return .concatenate(
-                    .cancel(
-                        ids: state.foundManga.map {
-                            OnlineMangaFeature.CancelClearCache(mangaID: $0.id)
-                        }
-                    ),
-                    
-                    searchClient.makeSearchRequest(searchParams)
-                        .delay(for: .seconds(0.4), scheduler: mainQueue)
-                        .receive(on: mainQueue)
-                        .catchToEffect { .searchResultDownloaded(result: $0, requestParams: searchParams) }
-                        .cancellable(id: CancelSearch(), cancelInFlight: true)
-                )
+                return searchClient.makeSearchRequest(searchParams)
+                    .delay(for: .seconds(0.4), scheduler: mainQueue)
+                    .receive(on: mainQueue)
+                    .catchToEffect { .searchResultDownloaded(result: $0, requestParams: searchParams) }
+                    .cancellable(id: CancelSearch(), cancelInFlight: true)
+                
                 
             case .searchResultDownloaded(let result, let requestParams):
                 state.isLoading = false

@@ -50,7 +50,10 @@ struct PagesFeature: ReducerProtocol {
                 }
                 
                 splitIntoPagesVolumeTabStates.append(
-                    volumesOnPage.map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
+                    .init(
+                        uniqueElements: volumesOnPage
+                            .map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
+                    )
                 )
             }
             
@@ -145,20 +148,17 @@ struct PagesFeature: ReducerProtocol {
             )
         }
         
-        private(set) var splitIntoPagesVolumeTabStates: [[VolumeTabFeature.State]] = []
+        private(set) var splitIntoPagesVolumeTabStates: [IdentifiedArrayOf<VolumeTabFeature.State>] = []
         var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabFeature.State> = []
         
         var pagesCount: Int { splitIntoPagesVolumeTabStates.count }
         var currentPageIndex = 0 {
             willSet {
-                let temp = volumeTabStatesOnCurrentPage
-                volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates[newValue])
-                splitIntoPagesVolumeTabStates[currentPageIndex] = Array(temp)
+                  let temp = volumeTabStatesOnCurrentPage
+                volumeTabStatesOnCurrentPage = splitIntoPagesVolumeTabStates[newValue]
+                splitIntoPagesVolumeTabStates[currentPageIndex] = temp
             }
         }
-        
-        // this lock to disable user on pressing on chapterDetails right after he changed page(this causes crashes)
-        var lockPage = false
         
         // list of all UUIDs of first chapter options in manga
         var firstChapterOptionsIDs: [UUID] {
@@ -186,7 +186,6 @@ struct PagesFeature: ReducerProtocol {
     enum Action {
         case pageIndexButtonTapped(newPageIndex: Int)
         case changePageAfterEffectCancellation(newPageIndex: Int)
-        case unlockPage
         case userDeletedAllCachedChapters(parentMangaID: UUID)
         case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabFeature.Action)
     }
@@ -198,7 +197,7 @@ struct PagesFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-            case .pageIndexButtonTapped(let newIndex):
+            case let .pageIndexButtonTapped(newIndex):
                 guard newIndex != state.currentPageIndex, newIndex >= 0, newIndex < state.pagesCount else {
                     return .none
                 }
@@ -211,15 +210,8 @@ struct PagesFeature: ReducerProtocol {
                     .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
                 )
                 
-            case .changePageAfterEffectCancellation(let newPageIndex):
-                state.lockPage = true
+            case let .changePageAfterEffectCancellation(newPageIndex):
                 state.currentPageIndex = newPageIndex
-                return .task { .unlockPage }
-                    .delay(for: .seconds(0.3), scheduler: mainQueue)
-                    .eraseToEffect()
-                
-            case .unlockPage:
-                state.lockPage = false
                 return .none
                 
             case let .volumeTabAction(volumeID, .userDeletedLastChapterInVolume(mangaID)):

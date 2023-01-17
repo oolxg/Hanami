@@ -67,7 +67,7 @@ struct MangaClient {
     ///
     /// - Parameter chapterIndex: index of chapter, that user has read
     /// - Returns: `Int?` - if page found, than index of that page, otherwise `nil`
-    let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [[VolumeTabFeature.State]]) -> Int?
+    let getMangaPageForReadingChapter: (_ chapterIndex: Double?, _ pages: [IdentifiedArrayOf<VolumeTabFeature.State>]) -> Int?
     let computeNextChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
     let computeChapterIndex: (_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
     let computePreviousChapterIndex: (_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?

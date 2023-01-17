@@ -15,7 +15,8 @@ struct OfflineMangaReadingView: View {
     @State private var showNavBar = true
     // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
     @State private var mainBlockOpacity = 1.0
-    
+    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
+
     private struct ViewState: Equatable {
         let chapterIndex: Double?
         let chapterID: UUID
@@ -58,12 +59,6 @@ struct OfflineMangaReadingView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     mainBlockOpacity = 1
                 }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                    withAnimation(.linear) {
-                        showNavBar = false
-                    }
-                }
             }
         }
         .background(Color.theme.background)
@@ -71,6 +66,12 @@ struct OfflineMangaReadingView: View {
         .navigationBarHidden(true)
         .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
+        .onReceive(timer) { _ in
+            timer.upstream.connect().cancel()
+            withAnimation(.linear) {
+                showNavBar = false
+            }
+        }
     }
 }
 

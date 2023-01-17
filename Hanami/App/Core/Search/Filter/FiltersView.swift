@@ -16,23 +16,20 @@ struct FiltersView: View {
     @State private var showGenresFiltersPage = false
     
     var body: some View {
-        WithViewStore(store) { viewStore in
-            NavigationView {
-                ScrollView(showsIndicators: false) {
-                    filtersList
-
-                    optionsList
-                }
-                .navigationTitle("Filters")
-                .toolbar(content: toolbar)
-                .navigationBarTitleDisplayMode(.inline)
+        NavigationView {
+            ScrollView(showsIndicators: false) {
+                filtersList
+                
+                optionsList
             }
-            .transition(.opacity)
-            .animation(.linear, value: viewStore.allTags.isEmpty)
-            .autoBlur(radius: blurRadius)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
+            .navigationTitle("Filters")
+            .toolbar(content: toolbar)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .transition(.opacity)
+        .autoBlur(radius: blurRadius)
+        .onAppear {
+            ViewStore(store).send(.fetchFilterTagsIfNeeded)
         }
     }
 }

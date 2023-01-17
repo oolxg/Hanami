@@ -102,8 +102,6 @@ struct HomeFeature: ReducerProtocol {
                 var effects = [
                     hapticClient.generateNotificationFeedback(.success).fireAndForget(),
                     
-                    .cancel(ids: fetchedMangaIDs.map { OnlineMangaFeature.CancelClearCache(mangaID: $0) }),
-                    
                     homeClient.fetchLastUpdates()
                         .receive(on: mainQueue)
                         .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }

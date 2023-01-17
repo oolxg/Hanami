@@ -38,7 +38,7 @@ struct PagesView: View {
                 ),
                 content: VolumeTabView.init
             )
-            .disabled(viewStore.lockPage)
+            .animation(.linear, value: viewStore.currentPageIndex)
 
             footer
                 .transition(.identity)

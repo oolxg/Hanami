@@ -45,19 +45,6 @@ struct OnlineMangaFeature: ReducerProtocol {
         // swiftlint:disable:next identifier_name
         var _firstChapterOptions: [ChapterDetails]?
         var firstChapterOptions: [ChapterDetails]?
-
-        // should only be used for clearing cache
-        mutating func reset() {
-            let manga = manga
-            let stat = statistics
-            let coverArtURL = mainCoverArtURL
-            let coverArtURL256 = coverArtURL256
-            
-            self = State(manga: manga)
-            self.statistics = stat
-            self.mainCoverArtURL = coverArtURL
-            self.coverArtURL256 = coverArtURL256
-        }
     }
     
     enum Tab: String, CaseIterable, Identifiable {
@@ -67,8 +54,6 @@ struct OnlineMangaFeature: ReducerProtocol {
         
         var id: String { rawValue }
     }
-    
-    struct CancelClearCache: Hashable { let mangaID: UUID }
     
     enum Action: BindableAction {
         // MARK: - Actions to be called from view
@@ -327,7 +312,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     state.firstChapterOptions = state._firstChapterOptions
                 }
                 
-                state.firstChapterOptions = Array(state.firstChapterOptions!.prefix(12))
+                state.firstChapterOptions = Array(state.firstChapterOptions!.prefix(10))
                 
                 let onlyOneChapterAndLangMatches = state.firstChapterOptions?.count == 1 &&
                     state.firstChapterOptions!.first!.attributes.translatedLanguage == prefferedLang &&
@@ -488,9 +473,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 ]
                 
                 if let pageIndex = mangaClient.getMangaPageForReadingChapter(chapterIndex, volumes) {
-                    effects.append(
-                        .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
-                    )
+                    effects.append(.task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) })
                 }
                 
                 return .merge(effects)
