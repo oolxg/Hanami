@@ -26,7 +26,9 @@ struct OnlineMangaFeature: ReducerProtocol {
         var lastReadChapterID: UUID?
         // MARK: - Props for MangaReadingView
         @BindableState var isUserOnReadingView = false
-        var mangaReadingViewState: OnlineMangaReadingFeature.State?
+        var mangaReadingViewState: OnlineMangaReadingFeature.State? {
+            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
+        }
         // MARK: - END Props for MangaReadingView
         
         var authorViewState: AuthorFeature.State?
@@ -309,6 +311,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                         state.firstChapterOptions = chaptersWithSamePrefferedLang
                     }
                 } else {
+                    // showing all translations from first chapter
                     state.firstChapterOptions = state._firstChapterOptions
                 }
                 
@@ -329,8 +332,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
                     
-                    state.isUserOnReadingView = true
-                    
                     return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 }
                 
@@ -348,8 +349,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                     scanlationGroupID: chapter.scanlationGroupID,
                     translatedLanguage: chapter.attributes.translatedLanguage
                 )
-                
-                state.isUserOnReadingView = true
                 
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
@@ -372,8 +371,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                         scanlationGroupID: chapter.scanlationGroupID,
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
-                    
-                    state.isUserOnReadingView = true
                     
                     return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                     
@@ -455,8 +452,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                     scanlationGroupID: chapter.scanlationGroupID,
                     translatedLanguage: chapter.attributes.translatedLanguage
                 )
-                
-                state.isUserOnReadingView = true
                 
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 

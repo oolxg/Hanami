@@ -59,6 +59,15 @@ struct OnlineMangaView: View {
                     LazyVStack(pinnedViews: .sectionHeaders) {
                         header
                             .id("header")
+                            .popup(isPresented: $showFirstChaptersPopup) {
+                                firstChaptersOptions
+                                    .environment(\.colorScheme, colorScheme)
+                            } customize: {
+                                $0
+                                    .closeOnTap(false)
+                                    .closeOnTapOutside(true)
+                                    .backgroundColor(.black.opacity(0.4))
+                            }
                         
                         Section {
                             mangaBodyView
@@ -93,15 +102,6 @@ struct OnlineMangaView: View {
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(isPresented: ViewStore(store).binding(\.$isUserOnReadingView), content: mangaReadingView)
             .tint(.theme.accent)
-        }
-        .popup(isPresented: $showFirstChaptersPopup) {
-            firstChaptersOptions
-                .environment(\.colorScheme, colorScheme)
-        } customize: {
-            $0
-                .closeOnTap(false)
-                .closeOnTapOutside(true)
-                .backgroundColor(.black.opacity(0.4))
         }
     }
 }

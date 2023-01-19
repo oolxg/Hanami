@@ -26,7 +26,10 @@ struct OfflineMangaFeature: ReducerProtocol {
         
         // MARK: - Props for MangaReadingView
         @BindableState var isUserOnReadingView = false
-        var mangaReadingViewState: OfflineMangaReadingFeature.State?
+        
+        var mangaReadingViewState: OfflineMangaReadingFeature.State? {
+            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
+        }
     }
     
     enum Tab: String, CaseIterable, Identifiable {
@@ -130,8 +133,6 @@ struct OfflineMangaFeature: ReducerProtocol {
                     startFromLastPage: false
                 )
                 
-                state.isUserOnReadingView = true
-                
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
             case .mangaTabButtonTapped(let tab):
@@ -204,9 +205,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                     pagesCount: retrievedChapter.pagesCount,
                     startFromLastPage: false
                 )
-                
-                state.isUserOnReadingView = true
-                
+                                
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
             case .mangaReadingViewAction(.userStartedReadingChapter):
