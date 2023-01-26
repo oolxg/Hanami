@@ -43,6 +43,7 @@ struct RootFeature: ReducerProtocol {
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
+            struct CancelAuth: Hashable { }
             switch action {
             case .tabChanged(let newTab):
                 state.selectedTab = newTab
@@ -61,7 +62,7 @@ struct RootFeature: ReducerProtocol {
                 case .background:
                     state.appLastUsedAt = .now
                     state.isAppLocked = true
-                    return .none
+                    return .cancel(id: CancelAuth())
                     
                 case .inactive:
                     state.isAppLocked = true
@@ -83,6 +84,7 @@ struct RootFeature: ReducerProtocol {
                     return authClient.makeAuth()
                         .receive(on: mainQueue)
                         .eraseToEffect(Action.appAuthCompleted)
+                        .cancellable(id: CancelAuth())
                     
                 @unknown default:
                     logger.info("New ScenePhase arrived!")
@@ -98,6 +100,7 @@ struct RootFeature: ReducerProtocol {
                 return authClient.makeAuth()
                     .receive(on: mainQueue)
                     .eraseToEffect(Action.appAuthCompleted)
+                    .cancellable(id: CancelAuth())
                 
             case .appAuthCompleted(let result):
                 switch result {

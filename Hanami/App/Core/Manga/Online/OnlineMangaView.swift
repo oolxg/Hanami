@@ -208,16 +208,14 @@ extension OnlineMangaView {
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                ZStack {
-                    LazyImage(url: viewStore.coverArtURL) { state in
-                        if let image = state.image {
-                            image.resizingMode(.aspectFill)
-                        } else if state.isLoading || state.error.hasValue {
-                            LazyImage(url: viewStore.thumbnailCoverArtURL, resizingMode: .aspectFill)
-                        }
+                LazyImage(url: viewStore.coverArtURL) { state in
+                    if let image = state.image {
+                        image.resizingMode(.aspectFill)
+                    } else if state.isLoading || state.error.hasValue {
+                        LazyImage(url: viewStore.thumbnailCoverArtURL, resizingMode: .aspectFill)
                     }
-                    .animation(nil)
                 }
+                .animation(nil)
                 .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
                 .overlay(headerOverlay)
                 .cornerRadius(0)

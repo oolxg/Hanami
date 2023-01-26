@@ -270,7 +270,7 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     
-    func getLastReadChapterID(mangaID: UUID) -> Effect<UUID, AppError> {
+    func getLastReadChapterID(mangaID: UUID) -> EffectPublisher<UUID, AppError> {
         Future { promise in
             guard let chapterID = fetch(entityType: MangaMO.self, id: mangaID)?.lastReadChapterID else {
                 return promise(.failure(.notFound))
@@ -321,7 +321,7 @@ extension DatabaseClient {
     /// - Parameter mangaID: manga's ID, whose chapter need to be retrieved
     /// - Parameter scanlationGroupID: ID of scanlation group - need this if we need to fetch only chapters from specific Scanlation Group
     /// - Returns: `Effect` either with array of `CoreDataChapterEntry` or `AppError.notFound`
-    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> Effect<[CoreDataChapterDetailsEntry], AppError> {
+    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> EffectPublisher<[CoreDataChapterDetailsEntry], AppError> {
         Future { promise in
             guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
                 promise(.failure(.notFound))

@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct LocalizationSettingsView: View {
     @Binding var selectedLanugauge: ISO639Language
     @Environment(\.dismiss) private var dismiss
-    @State private var allLanguages = ISO639Language.allCases.sorted { $0.language < $1.language }
+    @State private var allLanguages = ISO639Language.allCases.sorted { $0.name < $1.name }
     @State private var searchInput = ""
     @State private var showInfoAlert = false
     
@@ -20,7 +20,7 @@ struct LocalizationSettingsView: View {
             List {
                 ForEach(allLanguages) { lang in
                     HStack {
-                        Text(lang.language)
+                        Text(lang.name)
                         
                         Spacer()
                         
@@ -36,7 +36,6 @@ struct LocalizationSettingsView: View {
                     }
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Select manga language")
             .navigationBarBackButtonHidden()
             .toolbar {
@@ -72,12 +71,12 @@ struct LocalizationSettingsView: View {
             )
             .onChange(of: searchInput) { _ in
                 guard !searchInput.isEmpty else {
-                    allLanguages = ISO639Language.allCases.sorted { $0.language < $1.language }
+                    allLanguages = ISO639Language.allCases.sorted { $0.name < $1.name }
                     return
                 }
                 
-                allLanguages = ISO639Language.allCases.filter { $0.language.contains(searchInput) }
-                    .sorted { $0.language < $1.language }
+                allLanguages = ISO639Language.allCases.filter { $0.name.contains(searchInput) }
+                    .sorted { $0.name < $1.name }
             }
         }
     }

@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/exyte/PopupView",
       "state" : {
-        "revision" : "208faafa83c74a9366a216471cc69503ddb1a21a",
-        "version" : "2.0.0"
+        "revision" : "ee306aede532d941c05ff8c63b3b0f3b8cc208cc",
+        "version" : "2.0.1"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "6cf778a7da64de9508596a435aa0a5647885d71a",
-        "version" : "0.49.2"
+        "revision" : "63972fa9ea670405011ddc76a09f11e924341fca",
+        "version" : "0.50.0"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "e9e82b5302025092ab8358e794f89a0f0397dd9d",
-        "version" : "0.1.2"
+        "revision" : "8282b0c59662eb38946afe30eb403663fc2ecf76",
+        "version" : "0.1.4"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swiftui-navigation",
       "state" : {
-        "revision" : "ddc01cdcddfd30ef7a966049b2e1d251e224ad93",
-        "version" : "0.5.0"
+        "revision" : "bf0fb9d53019cbde1a1e0cf290b560a0a0411282",
+        "version" : "0.6.0"
       }
     },
     {

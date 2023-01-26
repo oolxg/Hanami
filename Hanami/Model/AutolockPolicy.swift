@@ -60,7 +60,7 @@ enum AutoLockPolicy: Int {
         case .min1:
             return 60
         case .min5:
-            return 30
+            return 5 * 60
         }
     }
 }

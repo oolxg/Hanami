@@ -103,7 +103,7 @@ struct OnlineMangaFeature: ReducerProtocol {
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
         Reduce { state, action in
-            struct FirstChapterCancel: Hashable { let chpaterID: UUID }
+            struct FirstChapterCancel: Hashable { let chapterID: UUID }
             switch action {
             case .onAppear:
                 var effects = [
@@ -111,6 +111,14 @@ struct OnlineMangaFeature: ReducerProtocol {
                         .receive(on: mainQueue)
                         .catchToEffect(Action.lastReadChapterRetrieved)
                 ]
+                
+                if state.allCoverArtsInfo.isEmpty {
+                    effects.append(
+                        mangaClient.fetchAllCoverArtsForManga(state.manga.id)
+                            .receive(on: mainQueue)
+                            .catchToEffect(Action.allCoverArtsInfoFetched)
+                    )
+                }
                 
                 if state.pagesState.isNil {
                     effects.append(
@@ -178,13 +186,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
             case .mangaTabButtonTapped(let newTab):
                 state.selectedTab = newTab
-                
-                if newTab == .coverArt && state.allCoverArtsInfo.isEmpty {
-                    return mangaClient.fetchAllCoverArtsForManga(state.manga.id)
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.allCoverArtsInfoFetched)
-                }
-                
                 return .none
                 
             case .allCoverArtsInfoFetched(let result):
@@ -269,7 +270,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .merge(
                         firstChapterOptionsIDs.map { chapterID in
                             mangaClient.fetchChapterDetails(chapterID)
-                                .cancellable(id: FirstChapterCancel(chpaterID: chapterID), cancelInFlight: true)
+                                .cancellable(id: FirstChapterCancel(chapterID: chapterID), cancelInFlight: true)
                                 .receive(on: mainQueue)
                                 .catchToEffect(Action.firstChapterOptionRetrieved)
                         }

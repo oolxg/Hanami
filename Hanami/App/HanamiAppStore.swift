@@ -24,7 +24,6 @@ struct AppFeature: ReducerProtocol {
             switch action {
             case .initApp:
                 return .concatenate(
-//                    databaseClient.dropDatabase().fireAndForget(),
                     databaseClient.prepareDatabase().fireAndForget(),
                     
                     .merge(

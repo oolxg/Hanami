@@ -16,13 +16,13 @@ extension DependencyValues {
 }
 
 struct HomeClient {
-    let fetchLastUpdates: () -> Effect<Response<[Manga]>, AppError>
-    let fetchAllSeasonalTitlesLists: () -> Effect<Response<[CustomMangaList]>, AppError>
+    let fetchLastUpdates: () -> EffectPublisher<Response<[Manga]>, AppError>
+    let fetchAllSeasonalTitlesLists: () -> EffectPublisher<Response<[CustomMangaList]>, AppError>
     let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> CustomMangaList
-    let fetchCustomTitlesList: (_ seasonalTitlesListID: UUID) -> Effect<Response<CustomMangaList>, AppError>
-    let fetchMangaByIDs: ([UUID]) -> Effect<Response<[Manga]>, AppError>
-    let fetchAwardWinningManga: () -> Effect<Response<[Manga]>, AppError>
-    let fetchMostFollowedManga: () -> Effect<Response<[Manga]>, AppError>
+    let fetchCustomTitlesList: (_ seasonalTitlesListID: UUID) -> EffectPublisher<Response<CustomMangaList>, AppError>
+    let fetchMangaByIDs: ([UUID]) -> EffectPublisher<Response<[Manga]>, AppError>
+    let fetchAwardWinningManga: () -> EffectPublisher<Response<[Manga]>, AppError>
+    let fetchMostFollowedManga: () -> EffectPublisher<Response<[Manga]>, AppError>
 }
 
 extension HomeClient: DependencyKey {

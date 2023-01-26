@@ -36,8 +36,8 @@ struct SearchFeature: ReducerProtocol {
         case userTappedOnSearchHistory(SearchRequest)
         case searchForManga
         case cancelSearchButtonTapped
-        case searchResultDownloaded(result: Result<Response<[Manga]>, AppError>, requestParams: SearchParams?)
-        case mangaStatisticsFetched(result: Result<MangaStatisticsContainer, AppError>)
+        case searchResultDownloaded(Result<Response<[Manga]>, AppError>, requestParams: SearchParams?)
+        case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
         
         case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
         case filtersAction(FiltersFeature.Action)
@@ -106,11 +106,10 @@ struct SearchFeature: ReducerProtocol {
                 return searchClient.makeSearchRequest(searchRequest.params)
                     .delay(for: .seconds(0.4), scheduler: mainQueue)
                     .receive(on: mainQueue)
-                    .catchToEffect { .searchResultDownloaded(result: $0, requestParams: nil) }
+                    .catchToEffect { .searchResultDownloaded($0, requestParams: nil) }
                     .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
             case .cancelSearchButtonTapped:
-                // cancelling all subscriptions to clear cache for manga(because all instance will be destroyed)
                 state.searchText = ""
                 state.foundManga.removeAll()
                 state.searchResultsFetched = false
@@ -146,7 +145,7 @@ struct SearchFeature: ReducerProtocol {
                 return searchClient.makeSearchRequest(searchParams)
                     .delay(for: .seconds(0.4), scheduler: mainQueue)
                     .receive(on: mainQueue)
-                    .catchToEffect { .searchResultDownloaded(result: $0, requestParams: searchParams) }
+                    .catchToEffect { .searchResultDownloaded($0, requestParams: searchParams) }
                     .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
                 

@@ -25,7 +25,7 @@ struct SettingsClient {
     /// Retrieve `SettingsConfig` from `UserDefaults`
     ///
     /// - Returns: `Effect<SettingsConfig, AppError>` - returns either `SettingsConfig` or `AppError.notFound`
-    let retireveSettingsConfig: () -> Effect<SettingsConfig, AppError>
+    let retireveSettingsConfig: () -> EffectPublisher<SettingsConfig, AppError>
 }
 
 extension SettingsClient: DependencyKey {

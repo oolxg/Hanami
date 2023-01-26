@@ -102,7 +102,7 @@ struct CacheClient {
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
     /// - Returns: `Set<UUID>`: Set of cached chaptes
-    let retrieveFromMemoryCachedChapters: (_ mangaID: UUID) -> Effect<Set<UUID>, AppError>
+    let retrieveFromMemoryCachedChapters: (_ mangaID: UUID) -> EffectPublisher<Set<UUID>, AppError>
     /// Removes all chapter IDs from list of cached chapters in manga
     ///
     /// - Parameter mangaID: `UUID` manga id, whose chapter are gonna be removed from memory

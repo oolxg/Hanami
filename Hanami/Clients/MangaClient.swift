@@ -25,42 +25,42 @@ struct MangaClient {
     /// - Parameter scanlationGroupID: (Optional) Scanlation Group's 'UUID' of chapters
     /// - Parameter translatedLang: (Optional) Language of chapters
     /// - Returns: `Effect<...>` with either `Chapter` splitted in `Volumes` or `AppError`
-    let fetchMangaChapters: (_ mangaID: UUID, _ scanlationGroupID: UUID?, _ translatedLang: String?) -> Effect<VolumesContainer, AppError>
+    let fetchMangaChapters: (_ mangaID: UUID, _ scanlationGroupID: UUID?, _ translatedLang: String?) -> EffectPublisher<VolumesContainer, AppError>
     /// Fetch statistics for manga(bookmarks and rating)
     ///
     /// - Parameter mangaIDs: Manga's `UUIDs`, whose statistic are need to be fetched
     /// - Returns: `Effect<...>` with either Container of UUID - `MangaStatistics` or `AppError`
-    let fetchStatistics: (_ mangaIDs: [UUID]) -> Effect<MangaStatisticsContainer, AppError>
+    let fetchStatistics: (_ mangaIDs: [UUID]) -> EffectPublisher<MangaStatisticsContainer, AppError>
     /// Fetch all `CoverArtInfo` for given MangaID
     ///
     /// - Parameter mangaID: Manga's `UUID`, whose `CoverArtInfo` are need to be fetched
     /// - Returns: `Effect<...>` with either sorted array(by `createdAt`, desc) of all `CoverArtInfo` or `AppError`
-    let fetchAllCoverArtsForManga: (_ mangaID: UUID) -> Effect<Response<[CoverArtInfo]>, AppError>
+    let fetchAllCoverArtsForManga: (_ mangaID: UUID) -> EffectPublisher<Response<[CoverArtInfo]>, AppError>
     /// Fetch  `ChapterDetails` for given chapter ID
     ///
     /// - Parameter chapterID: Chapter ID of `ChapterDetails`, that need to be fetched
     /// - Returns: `Effect<...>` with either `Response<ChapterDetails>` or `AppError`
-    let fetchChapterDetails: (_ chapterID: UUID) -> Effect<Response<ChapterDetails>, AppError>
+    let fetchChapterDetails: (_ chapterID: UUID) -> EffectPublisher<Response<ChapterDetails>, AppError>
     /// Fetch `ScanlationGroup` for given chapter ID
     ///
     /// - Parameter scanlationGroupID: ID of ScanlationGroup, can be found in `ChapterDetails`'s `Relationship`
     /// - Returns: `Effect<...>` with either `Response<ScanlationGroup>` or `AppError`
-    let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> Effect<Response<ScanlationGroup>, AppError>
+    let fetchScanlationGroup: (_ scanlationGroupID: UUID) -> EffectPublisher<Response<ScanlationGroup>, AppError>
     /// Fetch `PagesInfo` for given chapter
     ///
     /// - Parameter chapterID: ID of Chapter, can be found in `ChapterDetails`'s `Relationship`
     /// - Returns: `Effect<ScanlationGroup>` or AppError
-    let fetchPagesInfo: (_ chapterID: UUID) -> Effect<ChapterPagesInfo, AppError>
+    let fetchPagesInfo: (_ chapterID: UUID) -> EffectPublisher<ChapterPagesInfo, AppError>
     /// Fetch `CoverArtInfo` with given coverArtID
     ///
     /// - Parameter coverArtID: ID of CoverArt to be fetched
     /// - Returns: `Effect<...>` with either `Response<CoverArtInfo>` or `AppError`
-    let fetchCoverArtInfo: (_ coverArtID: UUID) -> Effect<Response<CoverArtInfo>, AppError>
+    let fetchCoverArtInfo: (_ coverArtID: UUID) -> EffectPublisher<Response<CoverArtInfo>, AppError>
     /// Fetch `Author` with given ID
     ///
     /// - Parameter authorID: ID of Author to be fetched
     /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
-    let fetchAuthorByID: (_ authorID: UUID) -> Effect<Response<Author>, AppError>
+    let fetchAuthorByID: (_ authorID: UUID) -> EffectPublisher<Response<Author>, AppError>
     
     // MARK: - Actions inside App
     /// Find in pages exact page with last read chapter index

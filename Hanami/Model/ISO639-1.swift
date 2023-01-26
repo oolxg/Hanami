@@ -30,7 +30,7 @@ extension ISO639Language {
         return ISO639Language(rawValue: deviceLangStr)
     }
     
-    var language: String {
+    var name: String {
         switch self {
         case .ar: return "Arabic"
         case .de: return "German"
