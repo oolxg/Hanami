@@ -54,6 +54,13 @@ struct OfflineMangaView: View {
                     }
                 }
             }
+            .overlay(alignment: .bottom) {
+                if viewStore.lastReadChapterAvailable {
+                    continueReadingButton
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 5)
+                }
+            }
             .animation(.linear, value: isCoverArtDisappeared)
             .animation(.default, value: viewStore.currentPageIndex)
             .onAppear { viewStore.send(.onAppear) }
@@ -98,16 +105,18 @@ extension OfflineMangaView {
     }
     
     private var footer: some View {
-        HStack(spacing: 0) {
-            Text("All information on this page provided by ")
-            
-            Text("MANGADEX")
-                .fontWeight(.semibold)
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+            HStack(spacing: 0) {
+                Text("All information on this page provided by ")
+                
+                Text("MANGADEX")
+                    .fontWeight(.semibold)
+            }
+            .font(.caption2)
+            .foregroundColor(.gray)
+            .padding(.horizontal)
+            .padding(.bottom, viewStore.lastReadChapterAvailable ? 50 : 5)
         }
-        .font(.caption2)
-        .foregroundColor(.gray)
-        .padding(.horizontal)
-        .padding(.bottom, 5)
     }
     
     @MainActor private var header: some View {
@@ -217,10 +226,6 @@ extension OfflineMangaView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
             case .chapters:
-                if viewStore.lastReadChapterAvailable {
-                    continueReadingButton
-                }
-                
                 IfLetStore(
                     store.scope(
                         state: \.pagesState,
@@ -350,22 +355,19 @@ extension OfflineMangaView {
     
     private var continueReadingButton: some View {
         Button {
-            ViewStore(store).send(.resumeReadingButtonTapped)
+            ViewStore(store).send(.continueReadingButtonTapped)
         } label: {
-            VStack(spacing: 12) {
-                Text("Continue reading!")
-                    .foregroundColor(.theme.foreground)
-                    .fontWeight(.semibold)
-                    .padding(8)
-                    .frame(maxWidth: .infinity)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(lineWidth: 1.5)
-                            .fill(Color.theme.accent)
-                    }
-            }
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.theme.accent)
+                .overlay {
+                    Text("Continue reading!")
+                        .foregroundColor(.black)
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .padding(.horizontal, 5)
         }
-        .padding(.horizontal, 5)
     }
     
     /// Makes label for navigation through MangaView

@@ -60,10 +60,10 @@ struct OnlineMangaFeature: ReducerProtocol {
     enum Action: BindableAction {
         // MARK: - Actions to be called from view
         case onAppear
-        case mangaTabButtonTapped(Tab)
+        case navigationTabButtonTapped(Tab)
         case authorNameTapped(Author)
         case refreshButtonTapped
-        case resumeReadingButtonTapped
+        case continueReadingButtonTapped
         case startReadingButtonTapped
         case userTappedOnFirstChapterOption(ChapterDetails)
         
@@ -184,7 +184,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .mangaTabButtonTapped(let newTab):
+            case .navigationTabButtonTapped(let newTab):
                 state.selectedTab = newTab
                 return .none
                 
@@ -353,7 +353,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                 
-            case .resumeReadingButtonTapped:
+            case .continueReadingButtonTapped:
                 guard let chapterID = state.lastReadChapterID else { return .none }
                 
                 return mangaClient.fetchChapterDetails(chapterID)

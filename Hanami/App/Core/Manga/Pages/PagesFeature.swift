@@ -154,7 +154,7 @@ struct PagesFeature: ReducerProtocol {
         var pagesCount: Int { splitIntoPagesVolumeTabStates.count }
         var currentPageIndex = 0 {
             willSet {
-                  let temp = volumeTabStatesOnCurrentPage
+                let temp = volumeTabStatesOnCurrentPage
                 volumeTabStatesOnCurrentPage = splitIntoPagesVolumeTabStates[newValue]
                 splitIntoPagesVolumeTabStates[currentPageIndex] = temp
             }

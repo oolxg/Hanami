@@ -88,6 +88,11 @@ struct OnlineMangaView: View {
                     }
                 }
             }
+            .overlay(alignment: .bottom) {
+                readingActionButton
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 5)
+            }
             .animation(.linear, value: isCoverArtDisappeared)
             .onAppear { viewStore.send(.onAppear) }
             .overlay(
@@ -184,7 +189,7 @@ extension OnlineMangaView {
         .font(.caption2)
         .foregroundColor(.gray)
         .padding(.horizontal)
-        .padding(.bottom, 5)
+        .padding(.bottom, 50)
     }
     
     @ViewBuilder private func mangaReadingView() -> some View {
@@ -292,12 +297,6 @@ extension OnlineMangaView {
         WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
             case .chapters:
-                if viewStore.lastReadChapterAvailable {
-                    continueReadingButton
-                } else if viewStore.areChaptersFetched {
-                    startReadingButton
-                }
-
                 IfLetStore(
                     store.scope(
                         state: \.pagesState,
@@ -520,49 +519,29 @@ extension OnlineMangaView {
         .modifier(MangaViewOffsetModifier(offset: $headerOffset))
     }
     
-    private var continueReadingButton: some View {
-        Button {
-            ViewStore(store).send(.resumeReadingButtonTapped)
-        } label: {
-            VStack(spacing: 12) {
-                Text("Continue reading!")
-                    .foregroundColor(.theme.foreground)
-                    .fontWeight(.semibold)
-                    .padding(8)
-                    .frame(maxWidth: .infinity)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(lineWidth: 1.5)
-                            .fill(Color.theme.accent)
-                    }
-            }
-        }
-        .padding(.horizontal, 5)
-    }
-    
-    private var startReadingButton: some View {
+    private var readingActionButton: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             Button {
-                viewStore.send(.startReadingButtonTapped)
+                viewStore.send(
+                    viewStore.lastReadChapterAvailable ? .continueReadingButtonTapped : .startReadingButtonTapped
+                )
                 
-                if viewStore.firstChapterOptions.hasValue {
+                if viewStore.firstChapterOptions.hasValue && !viewStore.lastReadChapterAvailable {
                     showFirstChaptersPopup = true
                 }
             } label: {
-                VStack(spacing: 12) {
-                    Text("Start reading!")
-                        .foregroundColor(.theme.foreground)
-                        .fontWeight(.semibold)
-                        .padding(8)
-                        .frame(maxWidth: .infinity)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(lineWidth: 1.5)
-                                .fill(Color.theme.accent)
-                        }
-                }
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.theme.accent)
+                    .overlay {
+                        Text(viewStore.lastReadChapterAvailable ? "Continue reading!" : "Start reading!")
+                            .foregroundColor(.black)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 40)
+                    .padding(.horizontal, 5)
             }
-            .padding(.horizontal, 5)
+            .opacity(viewStore.areChaptersFetched ? 1 : 0)
             .onChange(of: viewStore.firstChapterOptions.hasValue) { _ in
                 showFirstChaptersPopup = !viewStore.userReadsManga
             }
@@ -589,7 +568,7 @@ extension OnlineMangaView {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                viewStore.send(.mangaTabButtonTapped(tab), animation: .easeInOut)
+                viewStore.send(.navigationTabButtonTapped(tab), animation: .easeInOut)
             }
         }
     }

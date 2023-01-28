@@ -42,7 +42,7 @@ struct OfflineMangaFeature: ReducerProtocol {
     enum Action: BindableAction {
         // MARK: - Actions to be called from view
         case onAppear
-        case resumeReadingButtonTapped
+        case continueReadingButtonTapped
         case deleteMangaButtonTapped
         case mangaTabButtonTapped(Tab)
 
@@ -123,7 +123,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .resumeReadingButtonTapped:
+            case .continueReadingButtonTapped:
                 guard let chapter = state.lastReadChapter else { return .none }
                 
                 state.mangaReadingViewState = OfflineMangaReadingFeature.State(
