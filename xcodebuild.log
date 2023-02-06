@@ -1,0 +1,6 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace Hanami.xcworkspace -scheme Hanami
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+

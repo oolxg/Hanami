@@ -55,12 +55,12 @@ struct CacheClient {
     /// - Parameter image: `UIImaga` to be cached
     /// - Parameter imageName: `imageName` name of the image
     /// - Returns: ` EffectTask<Never>`
-    let cacheImage: (_ image: UIImage, _ imageName: String) ->  EffectTask<Never>
+    let cacheImage: (_ image: UIImage, _ imageName: String) -> EffectTask<Never>
     /// Removes image with `imageName` from disk
     ///
     /// - Parameter imageName: `imageName` name of the image to be removed
     /// - Returns: ` EffectTask<Never>`
-    let removeImage: (String) ->  EffectTask<Never>
+    let removeImage: (String) -> EffectTask<Never>
     /// Checks whether image is cached on disk or not
     ///
     /// - Parameter imageName: name of the image to be checked
@@ -71,13 +71,13 @@ struct CacheClient {
     /// - Note: Doesn't affect Nuke cache
     ///
     /// - Returns: ` EffectTask<Never>`
-    let clearCache: () ->  EffectTask<Never>
+    let clearCache: () -> EffectTask<Never>
     /// Computes cache for all save on disk images
     ///
     /// - Note: Doesn't compute Nuke cache
     ///
     /// - Returns: `EffectTask<Swift.Result<Double, AppError>>`: `Double` - cached size in Megabytes
-    let computeCacheSize: () ->  EffectTask<Swift.Result<Double, AppError>>
+    let computeCacheSize: () -> EffectTask<Swift.Result<Double, AppError>>
     /// Returns path for image with given `imageName`
     ///
     /// - Note: Doesn't affect cached images in Nuke

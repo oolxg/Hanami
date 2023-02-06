@@ -8,8 +8,7 @@
 
 import CoreData
 
-@objc(ChapterDetailsMO)
-public class ChapterDetailsMO: NSManagedObject { }
+@objc(ChapterDetailsMO) public class ChapterDetailsMO: NSManagedObject { }
 
 extension ChapterDetailsMO: IdentifiableMO { }
 

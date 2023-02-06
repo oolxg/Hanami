@@ -9,7 +9,6 @@ import Foundation
 import class SwiftUI.UIImage
 import ComposableArchitecture
 
-// swiftlint:disable:next type_body_length
 struct ChapterLoaderFeature: ReducerProtocol {
     struct State: Equatable {
         let parentManga: Manga

@@ -8,8 +8,7 @@
 
 import CoreData
 
-@objc(MangaMO)
-public class MangaMO: NSManagedObject { }
+@objc(MangaMO) public class MangaMO: NSManagedObject { }
 
 extension MangaMO: IdentifiableMO { }
 

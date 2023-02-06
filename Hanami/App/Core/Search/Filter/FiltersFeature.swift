@@ -63,7 +63,7 @@ struct FiltersFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    // swiftlint:disable:next cyclomatic_complexity
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> EffectPublisher<Action, Never> {
         switch action {
         case .fetchFilterTagsIfNeeded:
