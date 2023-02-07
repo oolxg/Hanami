@@ -35,7 +35,14 @@ struct SettingsView: View {
                     
                     storageSection
                     
-                    aboutSection
+                    Text("About")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .onTapGesture { showAboutSheet.toggle() }
+                        .sheet(isPresented: $showAboutSheet) {
+                            aboutSectionSheet
+                                .environment(\.colorScheme, colorScheme)
+                        }
                 }
                 .navigationTitle("Settings")
                 .tint(Color.theme.accent)
@@ -113,14 +120,6 @@ extension SettingsView {
         }
     }
     
-    @MainActor private var aboutSection: some View {
-        Text("About")
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .onTapGesture { showAboutSheet.toggle() }
-            .sheet(isPresented: $showAboutSheet) { aboutSectionSheet }
-    }
-    
     @MainActor private var aboutSectionSheet: some View {
         NavigationView {
             ScrollView {
@@ -134,6 +133,10 @@ extension SettingsView {
                         
                         Text("Hey-hey 🖖, my name is Oleg!")
                     }
+                    
+                    Rectangle()
+                        .foregroundColor(.theme.secondaryText)
+                        .frame(height: 1.5)
                     
                     Text(
                         LocalizedStringKey(
@@ -188,7 +191,6 @@ extension SettingsView {
                 }
             }
             .navigationTitle("About")
-            .navigationBarTitleDisplayMode(.inline)
             .padding(.horizontal)
         }
     }

@@ -33,5 +33,9 @@ enum Defaults {
         static let githubAvatarLink = URL(string: "https://github.com/oolxg.png")!
         static let githubUserLink = URL(string: "https://github.com/oolxg")!
         static let githubProjectLink = URL(string: "https://github.com/oolxg/Hanami")!
+        static let mangaDEXLink = URL(string: "https://mangadex.org")!
+        static func mangaDexTitleLink(mangaID: UUID) -> URL {
+            URL(string: "https://mangadex.org/title/\(mangaID.uuidString.lowercased())")!
+        }
     }
 }

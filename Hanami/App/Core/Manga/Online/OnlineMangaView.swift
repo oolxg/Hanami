@@ -177,19 +177,22 @@ extension OnlineMangaView {
     }
 
     private var footer: some View {
-        HStack(spacing: 0) {
-            Text("All information on this page provided by ")
-            
-            Text("MANGADEX")
-                .fontWeight(.semibold)
-                .onTapGesture {
-                    openURL(URL(string: "https://mangadex.org/title/\(ViewStore(store).manga.id.uuidString.lowercased())")!)
-                }
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            HStack(spacing: 0) {
+                Text("All information on this page provided by ")
+                
+                Text("MANGADEX")
+                    .fontWeight(.semibold)
+                    .onTapGesture {
+                        openURL(Defaults.Links.mangaDexTitleLink(mangaID: viewStore.manga.id))
+                    }
+            }
+            .font(.caption2)
+            .foregroundColor(.gray)
+            .padding(.horizontal)
+            .padding(.bottom, viewStore.areChaptersFetched ? 50 : 5)
+            .animation(.linear, value: viewStore.areChaptersFetched)
         }
-        .font(.caption2)
-        .foregroundColor(.gray)
-        .padding(.horizontal)
-        .padding(.bottom, 50)
     }
     
     @ViewBuilder private func mangaReadingView() -> some View {
