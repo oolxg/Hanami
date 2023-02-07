@@ -27,4 +27,11 @@ enum Defaults {
     enum Storage {
         static let settingsConfig = "settingsConfig"
     }
+    
+    enum Links {
+        static let bmcLink = URL(string: "https://www.buymeacoffee.com/oolxg")!
+        static let githubAvatarLink = URL(string: "https://github.com/oolxg.png")!
+        static let githubUserLink = URL(string: "https://github.com/oolxg")!
+        static let githubProjectLink = URL(string: "https://github.com/oolxg/Hanami")!
+    }
 }
