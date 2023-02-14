@@ -127,7 +127,7 @@ extension SettingsView {
                     HStack {
                         LazyImage(url: Defaults.Links.githubAvatarLink)
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 150, height: 150)
+                            .frame(width: 100, height: 100)
                             .clipShape(Circle())
                             .onTapGesture { openURL(Defaults.Links.githubUserLink) }
                         

@@ -322,6 +322,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0806CB2C299C057F0075D0F8 /* MangaView */ = {
+			isa = PBXGroup;
+			children = (
+				2294E1E3288B55CE00829C48 /* Offline */,
+				2294E1E2288B55CB00829C48 /* Online */,
+			);
+			path = MangaView;
+			sourceTree = "<group>";
+		};
 		080D1DB4294FDD66008B813C /* Migration */ = {
 			isa = PBXGroup;
 			children = (
@@ -522,9 +531,8 @@
 			isa = PBXGroup;
 			children = (
 				22104828285B663900CE8CED /* MangaReadingView */,
+				0806CB2C299C057F0075D0F8 /* MangaView */,
 				22F4A84B28AB29C9008C11A7 /* Pages */,
-				2294E1E3288B55CE00829C48 /* Offline */,
-				2294E1E2288B55CB00829C48 /* Online */,
 			);
 			path = Manga;
 			sourceTree = "<group>";

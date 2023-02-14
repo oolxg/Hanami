@@ -43,7 +43,13 @@ extension ImageClient: DependencyKey {
                         
                         return promise(.success(image))
                     } catch {
-                        return promise(.failure(.networkError(URLError(URLError.Code.badURL))))
+                        if let urlError = error as? URLError {
+                            promise(.failure(.networkError(urlError)))
+                        } else if let decodingError = error as? DecodingError {
+                            promise(.failure(.decodingError(decodingError)))
+                        } else {
+                            promise(.failure(.unknownError(error)))
+                        }
                     }
                 }
             }

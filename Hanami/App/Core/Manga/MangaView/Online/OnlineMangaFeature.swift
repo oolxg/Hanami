@@ -192,7 +192,9 @@ struct OnlineMangaFeature: ReducerProtocol {
                 switch result {
                 case .success(let response):
                     state.allCoverArtsInfo = response.data
-                    return .none
+                    return imageClient
+                        .prefetchImages(state.croppedCoverArtURLs)
+                        .fireAndForget()
                     
                 case .failure(let error):
                     logger.error(

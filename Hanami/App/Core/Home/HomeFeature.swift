@@ -176,6 +176,10 @@ struct HomeFeature: ReducerProtocol {
                         uniqueElements: response.data[0..<25].map { MangaThumbnailFeature.State(manga: $0) }
                     )
                     
+                    let officialTestMangaID = UUID(uuidString: "f9c33607-9180-4ba6-b85c-e4b5faee7192")!
+                    
+                    state[keyPath: keyPath].remove(id: officialTestMangaID)
+                    
                     let coverArtURLs = state[keyPath: keyPath].compactMap(\.thumbnailURL)
                     
                     return .merge(
