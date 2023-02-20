@@ -25,7 +25,7 @@ Screenshots
 
 #### How to install
 
-At the moment, there 3 options for installing the application:
+At the moment, there're 3 options for installing the application:
 
 *   The easiest way - via Apple TestFlight:
     *  You need to install [TestFlight](https://apps.apple.com/jp/app/testflight/id899247664) on your device.
