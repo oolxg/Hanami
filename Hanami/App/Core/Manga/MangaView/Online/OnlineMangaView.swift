@@ -59,15 +59,6 @@ struct OnlineMangaView: View {
                     LazyVStack(pinnedViews: .sectionHeaders) {
                         header
                             .id("header")
-                            .popup(isPresented: $showFirstChaptersPopup) {
-                                firstChaptersOptions
-                                    .environment(\.colorScheme, colorScheme)
-                            } customize: {
-                                $0
-                                    .closeOnTap(false)
-                                    .closeOnTapOutside(true)
-                                    .backgroundColor(.black.opacity(0.4))
-                            }
                         
                         Section {
                             mangaBodyView
@@ -75,6 +66,15 @@ struct OnlineMangaView: View {
                             pinnedNavigation
                         } footer: {
                             footer
+                        }
+                        .popup(isPresented: $showFirstChaptersPopup) {
+                            firstChaptersOptions
+                                .environment(\.colorScheme, colorScheme)
+                        } customize: {
+                            $0
+                                .closeOnTap(false)
+                                .closeOnTapOutside(true)
+                                .backgroundColor(.black.opacity(0.4))
                         }
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
