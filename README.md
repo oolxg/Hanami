@@ -7,18 +7,20 @@
 
 Screenshots
 -------------
-<p align="center">
+<div align="center">
 <table>
   <tbody>
     <tr>
       <td><img src="https://user-images.githubusercontent.com/44912908/220133980-71dd7c56-6a17-4f9e-b287-64efe3a058c1.PNG" height=500></td>
       <td><img src="https://user-images.githubusercontent.com/44912908/220134920-2a4a7948-362f-45b5-b2c1-ec9b8361e6b0.PNG" height=500></td>
+    </tr>
+    <tr>
       <td><img src="https://user-images.githubusercontent.com/44912908/220134232-2ec29166-7150-4cd6-8db3-93c2f19d0aca.PNG" height=500></td>
       <td><img src="https://user-images.githubusercontent.com/44912908/220134903-f5d3d6a2-9daa-452b-b819-79fb31168796.PNG" height=500></td>
     </tr>
   </tbody>
 </table>
-</p>
+</div>
 
 
 #### How to install
