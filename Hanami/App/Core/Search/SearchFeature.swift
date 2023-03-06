@@ -78,7 +78,7 @@ struct SearchFeature: ReducerProtocol {
             case .searchHistoryRetrieved(let result):
                 switch result {
                 case .success(let searchHistory):
-                    state.searchHistory = .init(uniqueElements: searchHistory)
+                    state.searchHistory = searchHistory.asIdentifiedArray
                     state.searchHistory.sort { $0.date > $1.date }
                     return .none
                     
@@ -156,9 +156,9 @@ struct SearchFeature: ReducerProtocol {
                 case .success(let response):
                     state.lastSuccessfulRequestParams = requestParams
                     state.searchResultsFetched = true
-                    state.foundManga = .init(
-                        uniqueElements: response.data.map { MangaThumbnailFeature.State(manga: $0) }
-                    )
+                    state.foundManga = response.data
+                        .map { MangaThumbnailFeature.State(manga: $0) }
+                        .asIdentifiedArray
                     
                     if !state.foundManga.isEmpty {
                         UIApplication.shared.endEditing()

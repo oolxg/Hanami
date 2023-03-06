@@ -34,7 +34,7 @@ struct ChapterFeature: ReducerProtocol {
                 // if all chapters fetched, this container is no longer needed
                 // so we put all chapterDetails in 'chapterDetailsList' and clear this one
                 if _chapterDetailsList.count == chaptersCount {
-                    chapterDetailsList = .init(uniqueElements: _chapterDetailsList.sorted { lhs, rhs in
+                    chapterDetailsList = _chapterDetailsList.sorted { lhs, rhs in
                         // sort by lang and by ScanlationGroup's name
                         if lhs.attributes.translatedLanguage == rhs.attributes.translatedLanguage,
                            let lhsName = lhs.scanlationGroup?.name, let rhsName = rhs.scanlationGroup?.name {
@@ -47,7 +47,8 @@ struct ChapterFeature: ReducerProtocol {
                         }
                         
                         return false
-                    })
+                    }
+                    .asIdentifiedArray
                     
                     _chapterDetailsList = []
                 }

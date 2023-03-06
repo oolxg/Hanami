@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import typealias IdentifiedCollections.IdentifiedArrayOf
 
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
@@ -47,5 +48,11 @@ extension Array where Element == Int {
         }
         
         return result
+    }
+}
+
+extension Array where Element: Identifiable {
+    var asIdentifiedArray: IdentifiedArrayOf<Element> {
+        IdentifiedArrayOf(uniqueElements: self)
     }
 }

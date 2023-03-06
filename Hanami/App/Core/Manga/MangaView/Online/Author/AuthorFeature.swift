@@ -77,11 +77,9 @@ struct AuthorFeature: ReducerProtocol {
             case .authorsMangaFetched(let result):
                 switch result {
                 case .success(let response):
-                    state.mangaThumbnailStates = .init(
-                        uniqueElements: response.data.map {
-                            MangaThumbnailFeature.State(manga: $0, online: true)
-                        }
-                    )
+                    state.mangaThumbnailStates = response.data
+                        .map { MangaThumbnailFeature.State(manga: $0, online: true) }
+                        .asIdentifiedArray
                     
                     return .none
                     

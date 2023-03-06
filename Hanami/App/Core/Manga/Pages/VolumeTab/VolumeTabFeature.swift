@@ -12,11 +12,9 @@ struct VolumeTabFeature: ReducerProtocol {
     struct State: Equatable, Identifiable {
         init(volume: MangaVolume, parentManga: Manga, online: Bool) {
             self.volume = volume
-            chapterStates = .init(
-                uniqueElements: volume.chapters.map {
-                    ChapterFeature.State(chapter: $0, parentManga: parentManga, online: online)
-                }
-            )
+            chapterStates = volume.chapters
+                .map { ChapterFeature.State(chapter: $0, parentManga: parentManga, online: online) }
+                .asIdentifiedArray
         }
         
         let volume: MangaVolume

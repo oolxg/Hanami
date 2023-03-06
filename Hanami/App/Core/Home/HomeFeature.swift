@@ -172,9 +172,9 @@ struct HomeFeature: ReducerProtocol {
                         return .none
                     }
                     
-                    state[keyPath: keyPath] = .init(
-                        uniqueElements: response.data[0..<25].map { MangaThumbnailFeature.State(manga: $0) }
-                    )
+                    state[keyPath: keyPath] = response.data[0..<25]
+                        .map { MangaThumbnailFeature.State(manga: $0) }
+                        .asIdentifiedArray
                     
                     let officialTestMangaID = UUID(uuidString: "f9c33607-9180-4ba6-b85c-e4b5faee7192")!
                     

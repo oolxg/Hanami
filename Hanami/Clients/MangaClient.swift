@@ -199,9 +199,7 @@ extension MangaClient: DependencyKey {
         getMangaPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter
             // we find it among all chapters and send user to this page
-            guard let chapterIndex = chapterIndex else {
-                return nil
-            }
+            guard let chapterIndex else { return nil }
             
             for (pageIndex, page) in pages.enumerated() {
                 for volumeState in page {

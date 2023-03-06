@@ -76,11 +76,10 @@ struct FiltersFeature: ReducerProtocol {
         case .filterListDownloaded(let result):
             switch result {
             case .success(let response):
-                state.allTags = .init(
-                    uniqueElements: response.data
-                        .map { FiltersTag(tag: $0, state: .notSelected) }
-                        .sorted(by: <)
-                )
+                state.allTags = response.data
+                    .map { FiltersTag(tag: $0, state: .notSelected) }
+                    .sorted(by: <)
+                    .asIdentifiedArray
                 
                 return .none
                 

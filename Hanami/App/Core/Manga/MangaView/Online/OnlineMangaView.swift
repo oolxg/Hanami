@@ -312,6 +312,7 @@ extension OnlineMangaView {
                             .padding(.bottom, 20)
                     }
                 )
+                .animation(nil, value: viewStore.areChaptersFetched)
             case .info:
                 aboutTab
             case .coverArt:
@@ -490,6 +491,7 @@ extension OnlineMangaView {
                 .padding(.vertical)
         }
         .transition(.opacity)
+        .font(.title3)
     }
     
     private var refreshButton: some View {
@@ -501,6 +503,7 @@ extension OnlineMangaView {
                 .padding(.vertical)
         }
         .transition(.opacity)
+        .font(.title3)
     }
     
     private var pinnedNavigation: some View {
@@ -513,7 +516,7 @@ extension OnlineMangaView {
             }
             .offset(x: isCoverArtDisappeared ? 0 : -40)
             .padding(.leading)
-            .padding(.top, 10)
+            .padding(.top, 20)
             .padding(.bottom, 5)
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
@@ -534,7 +537,7 @@ extension OnlineMangaView {
                 }
             } label: {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.theme.accent)
+                    .fill(viewStore.lastReadChapterAvailable ? Color.theme.accent : .theme.green)
                     .overlay {
                         Text(viewStore.lastReadChapterAvailable ? "Continue reading!" : "Start reading!")
                             .foregroundColor(.black)
@@ -545,6 +548,7 @@ extension OnlineMangaView {
                     .padding(.horizontal, 5)
             }
             .opacity(viewStore.areChaptersFetched ? 1 : 0)
+            .animation(.linear, value: viewStore.areChaptersFetched)
             .onChange(of: viewStore.firstChapterOptions.hasValue) { _ in
                 showFirstChaptersPopup = !viewStore.userReadsManga
             }

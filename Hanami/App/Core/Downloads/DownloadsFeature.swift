@@ -50,7 +50,7 @@ struct DownloadsFeature: ReducerProtocol {
                     
                     state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
                     
-                    state.mangaEntries = .init(uniqueElements: retrievedMangaEntries)
+                    state.mangaEntries = retrievedMangaEntries.asIdentifiedArray
                     
                     for entry in retrievedMangaEntries where newMangaIDs.contains(entry.manga.id) {
                         state.cachedMangaThumbnailStates.append(

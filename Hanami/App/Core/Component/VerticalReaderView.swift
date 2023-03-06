@@ -27,17 +27,20 @@ struct VerticalReaderView: View {
         var rect: CGRect = .zero
         var id: Int { index }
     }
-
+    
     init(pagesURLs: [URL?]) {
-        pages = .init(uniqueElements: pagesURLs.enumerated().map { Page(url: $1, index: $0, height: 550) })
+        pages = pagesURLs
+            .enumerated()
+            .map { Page(url: $1, index: $0, height: 550) }
+            .asIdentifiedArray
     }
-
+    
     var body: some View {
         GeometryReader { geo in
             ScrollView(showsIndicators: true) {
-                LazyVStack {
-                    ForEach(pages.indices, id: \.self) { i in
-                        listCell(i)
+                LazyVStack(spacing: 0) {
+                    ForEach(pages) { page in
+                        cell(for: page)
                     }
                 }
                 .offset { rect in
@@ -78,19 +81,19 @@ struct VerticalReaderView: View {
         }
     }
     
-    @MainActor @ViewBuilder private func listCell(_ index: Int) -> some View {
+    @MainActor @ViewBuilder private func cell(for page: Page) -> some View {
         ZoomableScrollView {
-            LazyImage(url: pages[index].url) { state in
+            LazyImage(url: page.url) { state in
                 if let image = state.image {
                     image
                         .resizingMode(.aspectFit)
                         .offset { rect in
-                            pages[index].rect = rect
+                            pages[page.index].rect = rect
                         }
                         .onAppear {
                             if let imgSize = state.imageContainer?.image.size {
                                 let ratio = DeviceUtil.deviceScreenSize.width / imgSize.width
-                                pages[index].height = imgSize.height * ratio
+                                pages[page.index].height = imgSize.height * ratio
                             }
                         }
                 } else if state.isLoading || state.error.hasValue {
@@ -102,7 +105,7 @@ struct VerticalReaderView: View {
                 }
             }
         }
-        .frame(height: pages[index].height)
+        .frame(height: page.height)
         .frame(maxWidth: .infinity)
     }
     
@@ -119,7 +122,7 @@ struct VerticalReaderView: View {
                     .frame(width: 45, height: 45)
                     .rotationEffect(.init(degrees: -90))
                     .overlay {
-                        if let last = pages.last(where: { $0.rect.minY < $0.rect.minY / 2 }) {
+                        if let last = pages.last(where: { $0.rect.minY < 0 }) {
                             Text("\(last.index + 1)")
                                 .fontWeight(.black)
                                 .foregroundColor(.white)

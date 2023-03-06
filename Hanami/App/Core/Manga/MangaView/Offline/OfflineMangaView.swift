@@ -164,7 +164,7 @@ extension OfflineMangaView {
                             Circle()
                                 .fill(viewStore.manga.attributes.status.color)
                                 .frame(width: 10, height: 10)
-                            // circle disappears on scroll down, 'drawingGroup' helps to fix it
+                                // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
                             Text(viewStore.manga.attributes.status.rawValue.capitalized)
@@ -204,6 +204,7 @@ extension OfflineMangaView {
         } label: {
             Image(systemName: "trash")
                 .foregroundColor(.theme.foreground)
+                .padding(.vertical)
         }
         .confirmationDialog(
             "Are you sure you want delete this manga and all chapters from device?",
@@ -220,6 +221,19 @@ extension OfflineMangaView {
         } message: {
             Text("Are you sure you want delete this manga and all chapters from device?")
         }
+        .font(.title3)
+    }
+    
+    private var backButton: some View {
+        Button {
+            self.dismiss()
+        } label: {
+            Image(systemName: "arrow.left")
+                .foregroundColor(.white)
+                .padding(.vertical)
+        }
+        .transition(.opacity)
+        .font(.title3)
     }
     
     private var mangaBodyView: some View {
@@ -321,17 +335,6 @@ extension OfflineMangaView {
             .foregroundColor(.theme.foreground)
             .background(Color.theme.darkGray)
             .cornerRadius(10)
-    }
-    
-    private var backButton: some View {
-        Button {
-            self.dismiss()
-        } label: {
-            Image(systemName: "arrow.left")
-                .foregroundColor(.white)
-                .padding(.vertical)
-        }
-        .transition(.opacity)
     }
     
     private var pinnedNavigation: some View {

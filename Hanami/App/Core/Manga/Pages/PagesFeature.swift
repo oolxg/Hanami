@@ -50,17 +50,16 @@ struct PagesFeature: ReducerProtocol {
                 }
                 
                 splitIntoPagesVolumeTabStates.append(
-                    .init(
-                        uniqueElements: volumesOnPage
-                            .map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
-                    )
+                    volumesOnPage
+                        .map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
+                        .asIdentifiedArray
                 )
             }
             
             // if manga has at least on chapter, we show it on current(first) page
             // 'volumeTabStatesOnCurrentPage' - this is volumes, that gonna be displayed on page
             if !splitIntoPagesVolumeTabStates.isEmpty {
-                volumeTabStatesOnCurrentPage = .init(uniqueElements: splitIntoPagesVolumeTabStates.first!)
+                volumeTabStatesOnCurrentPage = splitIntoPagesVolumeTabStates.first!
             }
         }
         
@@ -193,7 +192,7 @@ struct PagesFeature: ReducerProtocol {
     @Dependency(\.mainQueue) private var mainQueue
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.mangaClient) private var mangaClient
-
+    
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
@@ -207,7 +206,7 @@ struct PagesFeature: ReducerProtocol {
                 return .concatenate(
                     .cancel(ids: chapterIDs.map { ChapterFeature.CancelChapterFetch(id: $0) }),
                     
-                    .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
+                        .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
                 )
                 
             case let .changePageAfterEffectCancellation(newPageIndex):
