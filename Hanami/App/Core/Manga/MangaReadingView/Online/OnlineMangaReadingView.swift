@@ -151,7 +151,7 @@ extension OnlineMangaReadingView {
                 viewStore.send(.downloadChapterButtonTapped)
             } label: {
                 if viewStore.isChapterCached {
-                    Image(systemName: "checkmark")
+                    Image(systemName: "externaldrive.badge.checkmark")
                         .font(.title3)
                         .foregroundColor(.theme.green)
                 } else if let progress = viewStore.chapterCachingProgress {
@@ -162,6 +162,9 @@ extension OnlineMangaReadingView {
                             Image(systemName: "xmark")
                                 .font(.subheadline)
                                 .foregroundColor(.theme.red)
+                        }
+                        .onTapGesture {
+                            viewStore.send(.cancelDownloadButtonTapped)
                         }
                 } else {
                     Image(systemName: "arrow.down.to.line.circle")

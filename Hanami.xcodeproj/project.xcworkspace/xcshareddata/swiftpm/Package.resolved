@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/exyte/PopupView",
       "state" : {
-        "revision" : "ee306aede532d941c05ff8c63b3b0f3b8cc208cc",
-        "version" : "2.0.1"
+        "revision" : "2cfc7fd290e2f7402a51359f5c675023332b4df4",
+        "version" : "2.1.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "f623901b4bcc97f59c36704f81583f169b228e51",
-        "version" : "0.13.0"
+        "revision" : "870133b7b2387df136ad301ec67b2e864b51dda1",
+        "version" : "0.14.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "cd22f6a1b3a6210e1e365cbfa8706dbb1736ca27",
-        "version" : "0.51.0"
+        "revision" : "3e8eee1efe99d06e99426d421733b858b332186b",
+        "version" : "0.52.0"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump",
       "state" : {
-        "revision" : "dd86159e25c749873f144577e5d18309bf57534f",
-        "version" : "0.8.0"
+        "revision" : "de8ba65649e7ee317b9daf27dd5eebf34bd4be57",
+        "version" : "0.9.1"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "8282b0c59662eb38946afe30eb403663fc2ecf76",
-        "version" : "0.1.4"
+        "revision" : "6bb1034e8a1bfbf46dfb766b6c09b7b17e1cba10",
+        "version" : "0.2.0"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swiftui-navigation",
       "state" : {
-        "revision" : "270a754308f5440be52fc295242eb7031638bd15",
-        "version" : "0.6.1"
+        "revision" : "0a0e1b321d70ee6a464ecfe6b0136d9eff77ebfc",
+        "version" : "0.7.0"
       }
     },
     {

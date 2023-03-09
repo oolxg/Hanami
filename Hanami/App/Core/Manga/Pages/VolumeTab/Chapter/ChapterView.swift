@@ -161,9 +161,9 @@ extension ChapterView {
                         Button {
                             viewStore.send(.chapterDeleteButtonTapped(chapterID: chapter.id))
                         } label: {
-                            Image(systemName: "checkmark.circle")
+                            Image(systemName: "externaldrive.badge.checkmark")
                                 .font(.callout)
-                                .foregroundColor(.green)
+                                .foregroundColor(.theme.green)
                         }
                         
                     case .downloadInProgress:
@@ -215,7 +215,7 @@ extension ChapterView {
                         
                         if scanlationGroup.attributes.isOfficial {
                             Image(systemName: "person.badge.shield.checkmark")
-                                .foregroundColor(.green)
+                                .foregroundColor(.theme.green)
                         }
                     }
                 } else {

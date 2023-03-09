@@ -191,6 +191,7 @@ extension OnlineMangaView {
             .foregroundColor(.gray)
             .padding(.horizontal)
             .padding(.bottom, viewStore.areChaptersFetched ? 50 : 5)
+            .opacity(viewStore.areChaptersFetched ? 1 : 0)
             .animation(.linear, value: viewStore.areChaptersFetched)
         }
     }

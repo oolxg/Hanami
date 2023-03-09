@@ -16,7 +16,7 @@ struct DownloadsFeature: ReducerProtocol {
     }
     
     enum Action {
-        case retrieveCachedManga
+        case initDownloads
         case cachedMangaFetched(Result<[CoreDataMangaEntry], Never>)
         case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailFeature.Action)
         case sortOrderChanged(SortOrder)
@@ -30,14 +30,16 @@ struct DownloadsFeature: ReducerProtocol {
     }
     
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {
-            case .retrieveCachedManga:
-                return databaseClient.retrieveAllCachedMangas()
+            case .initDownloads:
+                return databaseClient
+                    .retrieveAllCachedMangas()
                     .catchToEffect(Action.cachedMangaFetched)
                 
             case .cachedMangaFetched(let result):
@@ -58,7 +60,9 @@ struct DownloadsFeature: ReducerProtocol {
                         )
                     }
                     
-                    return .none
+                    let coverArtPaths = state.cachedMangaThumbnailStates.map(\.thumbnailURL).compactMap { $0 }
+                    
+                    return imageClient.prefetchImages(coverArtPaths).fireAndForget()
                     
                 case .failure(let error):
                     logger.error("Failed to retrieve all cached manga from disk: \(error)")
@@ -66,12 +70,12 @@ struct DownloadsFeature: ReducerProtocol {
                 }
                 
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteMangaButtonTapped)):
-                return .task { .retrieveCachedManga }
+                return .task { .initDownloads }
                     .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()
                 
             case .cachedMangaThumbnailAction(_, .userLeftMangaView):
-                return .task { .retrieveCachedManga }
+                return .task { .initDownloads }
                     .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()
                 

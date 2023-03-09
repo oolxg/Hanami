@@ -21,6 +21,7 @@ struct OnlineMangaViewLoaderFeature: ReducerProtocol {
     
     enum Action {
         case downloadChapterButtonTapped(UUID)
+        case cancelDownloadButtonTapped(UUID)
         case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
         case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>)
         case chapterPageForCachingFetched(Result<UIImage, AppError>, pageIndex: Int)
@@ -49,6 +50,29 @@ struct OnlineMangaViewLoaderFeature: ReducerProtocol {
             }
             
             return .none
+            
+        case let .cancelDownloadButtonTapped(chapterID):
+            var effects: [EffectTask<Action>] = [
+                databaseClient
+                    .deleteChapter(chapterID: chapterID)
+                    .fireAndForget(),
+                
+                cacheClient
+                    .removeCachedChapterIDFromMemory(state.parentManga.id, chapterID)
+                    .fireAndForget(),
+                
+                .cancel(id: CancelChapterCache(id: chapterID))
+            ]
+            
+            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
+                effects.append(
+                    mangaClient
+                        .removeCachedPagesForChapter(chapterID, pagesCount, cacheClient)
+                        .fireAndForget()
+                )
+            }
+            
+            return .merge(effects)
                 
         case let .chapterDetailsFetched(result):
             switch result {

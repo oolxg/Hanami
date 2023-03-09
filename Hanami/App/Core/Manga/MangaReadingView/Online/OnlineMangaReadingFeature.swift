@@ -68,11 +68,13 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
         case chapterCarouselButtonTapped(newChapterIndex: Double)
         case userLeftMangaReadingView
         case downloadChapterButtonTapped
+        case cancelDownloadButtonTapped
         
         // MARK: - Inner actions
         case chapterPagesInfoFetched(Result<ChapterPagesInfo, AppError>)
         case sameScanlationGroupChaptersFetched(Result<VolumesContainer, AppError>)
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
+        case chapterLoaderFinishedLoadCancellation
         
         case loaderAction(OnlineMangaViewLoaderFeature.Action)
     }
@@ -200,7 +202,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 
             // To be hijacked in parent 'OnlineMangaFeature'
             case .downloadChapterButtonTapped:
-                guard !state.isChapterCached else { return .none }
+                guard !state.isChapterCached, state.chapterLoader.isNil else { return .none }
                 
                 state.chapterLoader = OnlineMangaViewLoaderFeature.State(
                     parentManga: state.manga,
@@ -209,6 +211,18 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 
                 let chapterID = state.chapterID
                 return .task { .loaderAction(.downloadChapterButtonTapped(chapterID)) }
+                
+            case .cancelDownloadButtonTapped:
+                let chapterID = state.chapterID
+                return .concatenate(
+                    .task { .loaderAction(.cancelDownloadButtonTapped(chapterID)) },
+                    
+                    .task { .chapterLoaderFinishedLoadCancellation }
+                )
+                
+            case .chapterLoaderFinishedLoadCancellation:
+                state.chapterLoader = nil
+                return .none
                 
             case .chapterCarouselButtonTapped(let newChapterIndex):
                 guard newChapterIndex != state.chapterIndex else {

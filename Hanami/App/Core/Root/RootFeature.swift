@@ -52,7 +52,7 @@ struct RootFeature: ReducerProtocol {
                 case .settings:
                     return .task { .settingsAction(.recomputeCacheSize) }
                 case .downloads:
-                    return .task { .downloadsAction(.retrieveCachedManga) }
+                    return .task { .downloadsAction(.initDownloads) }
                 default:
                     return .none
                 }
