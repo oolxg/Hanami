@@ -70,19 +70,18 @@ struct ChapterFeature: ReducerProtocol {
     struct CancelChapterFetch: Hashable { let id: UUID }
     
     enum Action: Equatable {
-        case fetchChapterDetailsIfNeeded
-        case userTappedOnChapterDetails(ChapterDetails)
-        case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
-
-        case downloaderAction(ChapterLoaderFeature.Action)
-
         case onAppear
-        case downloadChapterButtonTapped(chapter: ChapterDetails)
-        case cancelChapterDownloadButtonTapped(chapterID: UUID)
+        case fetchChapterDetailsIfNeeded
         
+        case userTappedOnChapterDetails(ChapterDetails)
         case chapterDeleteButtonTapped(chapterID: UUID)
+        case downloadChapterButtonTapped(chapter: ChapterDetails)
         case chapterDeletionConfirmed(chapterID: UUID)
+        case cancelChapterDownloadButtonTapped(chapterID: UUID)
         case cancelTapped
+        
+        case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
+        case downloaderAction(ChapterLoaderFeature.Action)
     }
     
     @Dependency(\.mangaClient) private var mangaClient

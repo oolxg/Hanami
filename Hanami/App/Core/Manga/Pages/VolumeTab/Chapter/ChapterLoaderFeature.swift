@@ -201,13 +201,12 @@ struct ChapterLoaderFeature: ReducerProtocol {
                     }
                 
                 effects.append(
-                    databaseClient
-                        .saveChapterDetails(
-                            chapter,
-                            pagesCount: pagesURLs.count,
-                            parentManga: state.parentManga
-                        )
-                        .fireAndForget()
+                    databaseClient.saveChapterDetails(
+                        chapter,
+                        pagesCount: pagesURLs.count,
+                        parentManga: state.parentManga
+                    )
+                    .fireAndForget()
                 )
                 
                 return .merge(effects)

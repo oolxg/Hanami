@@ -328,7 +328,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 if onlyOneChapterAndLangMatches {
                     let chapter = state.firstChapterOptions!.first!
                     state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                        mangaID: state.manga.id,
+                        manga: state.manga,
                         chapterID: chapter.id,
                         chapterIndex: chapter.attributes.index,
                         scanlationGroupID: chapter.scanlationGroupID,
@@ -346,7 +346,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 }
                 
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                    mangaID: state.manga.id,
+                    manga: state.manga,
                     chapterID: chapter.id,
                     chapterIndex: chapter.attributes.index,
                     scanlationGroupID: chapter.scanlationGroupID,
@@ -368,7 +368,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                     let chapter = response.data
                     
                     state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                        mangaID: state.manga.id,
+                        manga: state.manga,
                         chapterID: chapter.id,
                         chapterIndex: chapter.attributes.index,
                         scanlationGroupID: chapter.scanlationGroupID,
@@ -409,7 +409,9 @@ struct OnlineMangaFeature: ReducerProtocol {
         }
         Reduce { state, action in
             switch action {
-            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterButtonTapped))):
+            // MARK: - hijacking download chapter actions
+            case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterButtonTapped))),
+                    .mangaReadingViewAction(.downloadChapterButtonTapped):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !mangaClient.isCoverArtCached(state.manga.id, cacheClient), let coverArtURL = state.mainCoverArtURL {
                     return imageClient.downloadImage(coverArtURL)
@@ -449,7 +451,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 }
                 
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                    mangaID: state.manga.id,
+                    manga: state.manga,
                     chapterID: chapter.id,
                     chapterIndex: chapter.attributes.index,
                     scanlationGroupID: chapter.scanlationGroupID,

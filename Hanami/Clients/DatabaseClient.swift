@@ -230,15 +230,23 @@ extension DatabaseClient {
     /// - Returns: `EffectTask<Never>` - returns nothing
     func deleteManga(mangaID: UUID) -> EffectTask<Never> {
         .fireAndForget {
-            remove(entityType: MangaMO.self, id: mangaID)
-
-            saveContext()
+            if let mangaMO = fetch(entityType: MangaMO.self, id: mangaID) {
+                if mangaMO.lastReadChapterID.isNil {
+                    remove(entityType: MangaMO.self, id: mangaID)
+                } else {
+                    for chapter in mangaMO.chapterDetailsSet {
+                        remove(entityType: ChapterDetailsMO.self, id: chapter.id)
+                    }
+                }
+                
+                saveContext()
+            }
         }
     }
     
     /// Delete all mangas from DB
     ///
-    /// - Returns: ` EffectTask<Never>` - returns nothing
+    /// - Returns: `EffectTask<Never>` - returns nothing
     func deleteAllMangas() -> EffectTask<Never> {
         .fireAndForget {
             let mangas = batchFetch(entityType: MangaMO.self)

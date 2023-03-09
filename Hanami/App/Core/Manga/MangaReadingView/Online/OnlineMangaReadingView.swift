@@ -25,6 +25,8 @@ struct OnlineMangaReadingView: View {
         let pageIndex: Int
         let pageIndexToDisplay: Int?
         let isReadingFormatVeritcal: Bool
+        let chapterCachingProgress: Double?
+        let isChapterCached: Bool
         
         init(state: OnlineMangaReadingFeature.State) {
             pagesURLs = state.pagesURLs ?? []
@@ -36,6 +38,14 @@ struct OnlineMangaReadingView: View {
             pageIndex = state.pageIndex
             pageIndexToDisplay = state.pageIndexToDisplay
             isReadingFormatVeritcal = state.readingFormat == .vertical
+            
+            if let loader = state.chapterLoader, let total = loader.pagesCount {
+                chapterCachingProgress = Double(loader.pagesFetched) / Double(total)
+            } else {
+                chapterCachingProgress = nil
+            }
+            
+            isChapterCached = state.isChapterCached
         }
     }
     
@@ -135,6 +145,33 @@ extension OnlineMangaReadingView {
         }
     }
     
+    private var downloadButton: some View {
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            Button {
+                viewStore.send(.downloadChapterButtonTapped)
+            } label: {
+                if viewStore.isChapterCached {
+                    Image(systemName: "checkmark")
+                        .font(.title3)
+                        .foregroundColor(.theme.green)
+                } else if let progress = viewStore.chapterCachingProgress {
+                    ProgressView(value: progress)
+                        .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
+                        .frame(width: 30, height: 30)
+                        .overlay(alignment: .center) {
+                            Image(systemName: "xmark")
+                                .font(.subheadline)
+                                .foregroundColor(.theme.red)
+                        }
+                } else {
+                    Image(systemName: "arrow.down.to.line.circle")
+                        .font(.title3)
+                        .foregroundColor(.theme.foreground)
+                }
+            }
+        }
+    }
+    
     private var navigationBlock: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             if showNavBar {
@@ -164,11 +201,8 @@ extension OnlineMangaReadingView {
                             
                             Spacer()
                             
-                            // to align VStack in center
-                            backButton
+                            downloadButton
                                 .padding(.horizontal)
-                                .opacity(0)
-                                .disabled(true)
                         }
                     }
                     .frame(height: 40)
@@ -246,7 +280,7 @@ struct OnlineMangaReadingView_Previews: PreviewProvider {
         OnlineMangaReadingView(
             store: .init(
                 initialState: .init(
-                    mangaID: .init(),
+                    manga: dev.manga,
                     chapterID: .init(),
                     chapterIndex: 0,
                     scanlationGroupID: .init(),
