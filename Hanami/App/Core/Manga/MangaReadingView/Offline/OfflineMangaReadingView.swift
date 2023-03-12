@@ -15,7 +15,7 @@ struct OfflineMangaReadingView: View {
     @State private var showNavBar = true
     // `mainBlockOpacity` for fixing UI bug on changing chapters(n -> n+1)
     @State private var mainBlockOpacity = 1.0
-    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
+    @State private var timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
 
     private struct ViewState: Equatable {
         let chapterIndex: Double?
@@ -221,6 +221,10 @@ extension OfflineMangaReadingView {
         TapGesture().onEnded {
             withAnimation(.linear) {
                 showNavBar.toggle()
+                
+                if showNavBar {
+                    timer = Timer.publish(every: 10, on: .main, in: .default).autoconnect()
+                }
             }
         }
     }

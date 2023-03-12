@@ -206,16 +206,15 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
                 
                 state.chapterLoader = OnlineMangaViewLoaderFeature.State(
                     parentManga: state.manga,
+                    chapterID: state.chapterID,
                     useHighResImagesForCaching: state.useHighQualityImages
                 )
                 
-                let chapterID = state.chapterID
-                return .task { .loaderAction(.downloadChapterButtonTapped(chapterID)) }
+                return .task { .loaderAction(.downloadChapterButtonTapped) }
                 
             case .cancelDownloadButtonTapped:
-                let chapterID = state.chapterID
                 return .concatenate(
-                    .task { .loaderAction(.cancelDownloadButtonTapped(chapterID)) },
+                    .task { .loaderAction(.cancelDownloadButtonTapped) },
                     
                     .task { .chapterLoaderFinishedLoadCancellation }
                 )

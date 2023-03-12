@@ -13,7 +13,7 @@ struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
     let blurRadius: CGFloat
     @State private var showNavBar = true
-    private let timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
+    @State private var timer = Timer.publish(every: 4, on: .main, in: .default).autoconnect()
     
     private struct ViewState: Equatable {
         let pagesURLs: [URL]
@@ -272,6 +272,10 @@ extension OnlineMangaReadingView {
         TapGesture().onEnded {
             withAnimation(.linear) {
                 showNavBar.toggle()
+                
+                if showNavBar {
+                    timer = Timer.publish(every: 10, on: .main, in: .default).autoconnect()
+                }
             }
         }
     }
