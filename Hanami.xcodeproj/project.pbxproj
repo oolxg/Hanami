@@ -647,11 +647,10 @@
 			isa = PBXGroup;
 			children = (
 				0829E21C28FC23E10009A907 /* WebAPI */,
-				0829E21D28FC243D0009A907 /* AutolockPolicy.swift */,
 				080E9F25292B9867006296FB /* SettingsConfig.swift */,
-				224E6711282E91FF001D214C /* Response.swift */,
+				0829E21D28FC243D0009A907 /* AutolockPolicy.swift */,
 				080D1DCA294FF879008B813C /* SearchParams.swift */,
-				08F59DC1296EF73000FF6A0A /* ISO639-1.swift */,
+				224E6711282E91FF001D214C /* Response.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -659,6 +658,7 @@
 		224E6719282EAA48001D214C /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				08F59DC1296EF73000FF6A0A /* ISO639-1.swift */,
 				224E671A282EAA50001D214C /* AppError.swift */,
 				08200ABD28F704AA009705D9 /* Defaults.swift */,
 			);

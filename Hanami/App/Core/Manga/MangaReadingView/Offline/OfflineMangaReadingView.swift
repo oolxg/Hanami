@@ -48,9 +48,11 @@ struct OfflineMangaReadingView: View {
             ZStack {
                 if viewStore.isReadingFormatVeritcal {
                     verticalReader
+                        .gesture(tapGesture)
                 } else {
                     horizontalReader
                         .gesture(swipeGesture)
+                        .gesture(longPressGesture)
                 }
             }
             .onChange(of: viewStore.chapterID) { _ in
@@ -65,7 +67,6 @@ struct OfflineMangaReadingView: View {
         .overlay(navigationBlock)
         .navigationBarHidden(true)
         .statusBarHidden(!showNavBar)
-        .gesture(tapGesture)
         .autoBlur(radius: blurRadius)
         .onReceive(timer) { _ in
             timer.upstream.connect().cancel()
@@ -117,6 +118,7 @@ extension OfflineMangaReadingView {
                     .tag(viewStore.mostRightPageIndex)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .ignoresSafeArea()
         }
     }
     
@@ -217,8 +219,22 @@ extension OfflineMangaReadingView {
             }
     }
     
+    // Need tapGesture and longPressGesture separately for handling double tap within ZoomableScrollView
+    // tapGesture used for vertical reading(longPressGesture blocks scroll) and tap longPressGesture
     private var tapGesture: some Gesture {
         TapGesture().onEnded {
+            withAnimation(.linear) {
+                showNavBar.toggle()
+                
+                if showNavBar {
+                    timer = Timer.publish(every: 10, on: .main, in: .default).autoconnect()
+                }
+            }
+        }
+    }
+    
+    private var longPressGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.1).onEnded { _ in
             withAnimation(.linear) {
                 showNavBar.toggle()
                 

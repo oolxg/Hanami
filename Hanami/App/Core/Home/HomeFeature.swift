@@ -71,9 +71,7 @@ struct HomeFeature: ReducerProtocol {
                 )
                 
             case .refreshButtonTapped:
-                let now = Date()
-                
-                guard state.lastRefreshDate.isNil || now - state.lastRefreshDate! > 10 else {
+                guard state.lastRefreshDate.isNil || .now - state.lastRefreshDate! > 10 else {
                     hudClient.show(
                         message: "Wait a little to refresh home page",
                         iconName: "clock",
@@ -85,7 +83,7 @@ struct HomeFeature: ReducerProtocol {
                 }
                 
                 state.isRefreshActionInProgress = true
-                state.lastRefreshDate = now
+                state.lastRefreshDate = .now
                 
                 var fetchedMangaIDs: [UUID] = []
                 

@@ -206,7 +206,7 @@ struct PagesFeature: ReducerProtocol {
                 return .concatenate(
                     .cancel(ids: chapterIDs.map { ChapterFeature.CancelChapterFetch(id: $0) }),
                     
-                        .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
+                    .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
                 )
                 
             case let .changePageAfterEffectCancellation(newPageIndex):
