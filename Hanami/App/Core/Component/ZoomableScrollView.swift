@@ -70,7 +70,7 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
             guard let scrollView = gestureRecognizer.view as? UIScrollView else { return }
 
             let zoomScale = scrollView.zoomScale
-            let newZoomScale = zoomScale == 1 ? scrollView.maximumZoomScale : 1
+            let newZoomScale: CGFloat = zoomScale == 1 ? 3 : 1
 
             let pointInView = gestureRecognizer.location(in: hostingController.view)
             let width = scrollView.bounds.size.width / newZoomScale
