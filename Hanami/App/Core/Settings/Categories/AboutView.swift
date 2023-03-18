@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
 import NukeUI
 
 struct AboutView: View {
@@ -76,19 +75,19 @@ struct AboutView: View {
                             .frame(maxWidth: .infinity)
                         
                         if #available(iOS 16.0, *) {
-                            ShareLink("Share Hanami - Manga Reader", item: Defaults.Links.testFlightLinkt)
+                            ShareLink("Share Hanami - Manga Reader", item: Defaults.Links.testFlightLink)
                                 .foregroundColor(.white)
                         } else {
-                        Button {
-                            UIPasteboard.general.url = Defaults.Links.testFlightLinkt
-                            userTappedOnCopyURL = true
-                        } label: {
-                            Label(
-                                "Copy TestFlight link to start using",
-                                systemImage: userTappedOnCopyURL ? "checkmark" : "rectangle.on.rectangle"
-                            )
-                            .foregroundColor(.white)
-                        }
+                            Button {
+                                UIPasteboard.general.url = Defaults.Links.testFlightLink
+                                userTappedOnCopyURL = true
+                            } label: {
+                                Label(
+                                    "Copy TestFlight link to start using",
+                                    systemImage: userTappedOnCopyURL ? "checkmark" : "rectangle.on.rectangle"
+                                )
+                                .foregroundColor(.white)
+                            }
                         }
                     }
                     

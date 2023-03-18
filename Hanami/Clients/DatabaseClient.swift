@@ -230,17 +230,7 @@ extension DatabaseClient {
     /// - Returns: `EffectTask<Never>` - returns nothing
     func deleteManga(mangaID: UUID) -> EffectTask<Never> {
         .fireAndForget {
-            if let mangaMO = fetch(entityType: MangaMO.self, id: mangaID) {
-                if mangaMO.lastReadChapterID.isNil {
-                    remove(entityType: MangaMO.self, id: mangaID)
-                } else {
-                    for chapter in mangaMO.chapterDetailsSet {
-                        remove(entityType: ChapterDetailsMO.self, id: chapter.id)
-                    }
-                }
-                
-                saveContext()
-            }
+            remove(entityType: MangaMO.self, id: mangaID)
         }
     }
     
@@ -251,7 +241,7 @@ extension DatabaseClient {
         .fireAndForget {
             let mangas = batchFetch(entityType: MangaMO.self)
             
-            for manga in mangas where manga.lastReadChapterID.isNil {
+            for manga in mangas {
                 remove(entityType: MangaMO.self, id: manga.id)
             }
             
