@@ -42,17 +42,16 @@ struct AboutView: View {
                         )
                     )
 
-                    VStack {
+                    HStack {
                         Image("bmc-violet")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            .frame(maxWidth: .infinity)
                             .onTapGesture { openURL(Defaults.Links.bmcLink) }
                         
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.black)
-                            .frame(width: 200, height: 70)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .overlay {
                                 HStack(spacing: 5) {
                                     Image("gh-mark-white")
@@ -66,16 +65,15 @@ struct AboutView: View {
                                         .frame(height: 35)
                                 }
                             }
-                            .frame(maxWidth: .infinity, alignment: .center)
                             .onTapGesture { openURL(Defaults.Links.githubProjectLink) }
                     }
+                    .frame(height: 50)
                     
                     ZStack {
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: 10)
                             .fill(Color.theme.darkGray)
                             .frame(height: 50)
                             .frame(maxWidth: .infinity)
-                            .padding(.horizontal)
                         
                         if #available(iOS 16.0, *) {
                             ShareLink("Share Hanami - Manga Reader", item: Defaults.Links.testFlightLinkt)
