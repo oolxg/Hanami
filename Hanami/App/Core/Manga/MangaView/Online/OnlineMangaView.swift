@@ -135,7 +135,7 @@ extension OnlineMangaView {
                             
                             Spacer()
                             
-                            if chapter.attributes.externalURL != nil {
+                            if chapter.attributes.externalURL.hasValue {
                                 Image("ExternalLinkIcon")
                                     .resizable()
                                     .frame(width: 20, height: 20)

@@ -114,6 +114,7 @@ extension MangaThumbnailView {
                 }
                 .redacted(if: state.image.isNil)
             }
+            .animation(viewStore.online ? .linear : nil)
         }
         .overlay {
             Rectangle()

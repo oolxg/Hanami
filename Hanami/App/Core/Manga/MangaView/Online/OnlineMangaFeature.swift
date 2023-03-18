@@ -310,7 +310,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 }
                 
                 if !chaptersWithSamePrefferedLang.isEmpty {
-                    if chaptersWithSamePrefferedLang.idsSet != state.firstChapterOptions?.idsSet {
+                    if chaptersWithSamePrefferedLang.ids != state.firstChapterOptions?.ids {
                         state.firstChapterOptions = chaptersWithSamePrefferedLang
                     }
                 } else {
@@ -322,7 +322,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 let onlyOneChapterAndLangMatches = state.firstChapterOptions?.count == 1 &&
                     state.firstChapterOptions!.first!.attributes.translatedLanguage == prefferedLang &&
-                    state.firstChapterOptions!.first!.attributes.externalURL == nil
+                    state.firstChapterOptions!.first!.attributes.externalURL.isNil
                     
                 
                 if onlyOneChapterAndLangMatches {

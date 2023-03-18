@@ -8,7 +8,7 @@
 import Foundation
 
 extension Collection where Element: Identifiable {
-    var idsSet: Set<Element.ID> {
+    var ids: Set<Element.ID> {
         Set(map(\.id))
     }
 }
