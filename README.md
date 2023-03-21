@@ -4,6 +4,13 @@
 </p>
 
 <h3 align="center">Completely free app to read and download manga</h3>
+<p align="center">
+  <img src="https://img.shields.io/badge/platforms-iOS%2C%20iPadOS%2C%20macOS-green?style=for-the-badge"/>
+
+  <a href="https://github.com/oolxg/Hanami/releases/latest">
+    <img src="https://img.shields.io/github/downloads/oolxg/Hanami/total?color=red&style=for-the-badge&label= ⬇️Downloads">
+  </a>
+</p>
 
 Screenshots
 -------------
