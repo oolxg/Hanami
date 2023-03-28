@@ -107,7 +107,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
                 }
                 
                 return cacheClient
-                    .saveCachedChaptersInMemory(state.parentManga.id, cachedChapterIDs)
+                    .replaceCachedChaptersInMemory(state.parentManga.id, cachedChapterIDs)
                     .fireAndForget()
                 
             case .failure(let error):
@@ -154,7 +154,7 @@ struct ChapterLoaderFeature: ReducerProtocol {
             )
             
             return .concatenate(
-                // need to retrieve `SettingsConfig` each time, because use can update it and we have no listeners on this updates
+                // need to retrieve `SettingsConfig` each time, because user can update it and we have no listeners on this updates
                 settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),

@@ -12,6 +12,7 @@ import class SwiftUI.UIImage
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: ReducerProtocol {
     struct State: Equatable {
+        // MARK: - Props for view
         let manga: Manga
         var pagesState: PagesFeature.State?
         
@@ -24,16 +25,6 @@ struct OnlineMangaFeature: ReducerProtocol {
         var allCoverArtsInfo: [CoverArtInfo] = []
         var selectedTab: Tab = .chapters
         var lastReadChapterID: UUID?
-        // MARK: - Props for MangaReadingView
-        @BindableState var isUserOnReadingView = false
-        var mangaReadingViewState: OnlineMangaReadingFeature.State? {
-            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
-        }
-        // MARK: - END Props for MangaReadingView
-        
-        var authorViewState: AuthorFeature.State?
-        @BindableState var showAuthorView = false
-        var lastRefreshedAt: Date?
         
         var mainCoverArtURL: URL?
         var coverArtURL256: URL?
@@ -41,12 +32,30 @@ struct OnlineMangaFeature: ReducerProtocol {
             allCoverArtsInfo.compactMap(\.coverArtURL512)
         }
         
-        // preffered lang for reading manga
-        var prefferedLanguage: ISO639Language?
         // different chapter option to start reading manga
         // swiftlint:disable:next identifier_name
         var _firstChapterOptions: [ChapterDetails]?
         var firstChapterOptions: [ChapterDetails]?
+        // MARK: END Props for view
+        
+        // MARK: - Props for MangaReadingView
+        @BindableState var isUserOnReadingView = false
+        var mangaReadingViewState: OnlineMangaReadingFeature.State? {
+            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
+        }
+        // MARK: END Props for MangaReadingView
+        
+        // MARK: - Props for inner states/views
+        var authorViewState: AuthorFeature.State?
+        var chapterLoaderState: MangaChapterLoaderFeature.State?
+        @BindableState var showAuthorView = false
+        // MARK: END Props for inner states/views
+        
+        // MARK: - Behavior props
+        var lastRefreshedAt: Date?
+        // preffered lang for reading manga
+        var prefferedLanguage: ISO639Language?
+        // MARK: END Behavior props
     }
     
     enum Tab: String, CaseIterable, Identifiable {
@@ -66,13 +75,14 @@ struct OnlineMangaFeature: ReducerProtocol {
         case continueReadingButtonTapped
         case startReadingButtonTapped
         case userTappedOnFirstChapterOption(ChapterDetails)
+        case userTappedOnChapterLoaderButton
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
         case lastReadChapterRetrieved(Result<UUID, AppError>)
         case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
         case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
-        case chapterDetailsCorContinueReadingFetched(Result<Response<ChapterDetails>, AppError>)
+        case chapterDetailsForContinueReadingFetched(Result<Response<ChapterDetails>, AppError>)
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case firstChapterOptionRetrieved(Result<Response<ChapterDetails>, AppError>)
         case allFirstChaptersRetrieved
@@ -81,7 +91,8 @@ struct OnlineMangaFeature: ReducerProtocol {
         case mangaReadingViewAction(OnlineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
         case authorViewAction(AuthorFeature.Action)
-        
+        case chapterLoaderAcion(MangaChapterLoaderFeature.Action)
+
         // MARK: - Binding
         case binding(BindingAction<State>)
         
@@ -105,6 +116,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         Reduce { state, action in
             struct FirstChapterCancel: Hashable { let chapterID: UUID }
             switch action {
+            // MARK: - Actions to be called from view
             case .onAppear:
                 var effects = [
                     databaseClient.getLastReadChapterID(mangaID: state.manga.id)
@@ -137,6 +149,82 @@ struct OnlineMangaFeature: ReducerProtocol {
                 }
                 
                 return .merge(effects)
+                
+            case .navigationTabButtonTapped(let newTab):
+                state.selectedTab = newTab
+                return .none
+                
+            case .authorNameTapped(let author):
+                state.showAuthorView = true
+                
+                if state.authorViewState?.authorID != author.id {
+                    state.authorViewState = AuthorFeature.State(authorID: author.id)
+                }
+                
+                return .none
+                
+            case .refreshButtonTapped:
+                if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
+                    hudClient.show(
+                        message: "Wait a little to refresh this page",
+                        iconName: "clock",
+                        backgroundColor: .theme.yellow
+                    )
+                    return hapticClient
+                        .generateNotificationFeedback(.error)
+                        .fireAndForget()
+                }
+                
+                state.lastRefreshedAt = .now
+                
+                return .merge(
+                    mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
+                        .receive(on: mainQueue)
+                        .delay(for: .seconds(0.7), scheduler: mainQueue)
+                        .catchToEffect(Action.volumesRetrieved),
+                    
+                    hapticClient.generateFeedback(.medium).fireAndForget()
+                )
+                
+            case .continueReadingButtonTapped:
+                guard let chapterID = state.lastReadChapterID else { return .none }
+                
+                return mangaClient.fetchChapterDetails(chapterID)
+                    .receive(on: mainQueue)
+                    .catchToEffect(Action.chapterDetailsForContinueReadingFetched)
+                
+            // user wants to start reading manga from first chapter, have to retrieve preffered lang for reading
+            case .startReadingButtonTapped:
+                if let chapterLang = state.firstChapterOptions?.first?.attributes.translatedLanguage,
+                   chapterLang == state.prefferedLanguage?.rawValue {
+                    return .none
+                }
+                
+                return settingsClient.retireveSettingsConfig()
+                    .receive(on: mainQueue)
+                    .catchToEffect(Action.settingsConfigRetrieved)
+                
+            case .userTappedOnFirstChapterOption(let chapter):
+                if let url = chapter.attributes.externalURL {
+                    return .fireAndForget { await openURL(url) }
+                }
+                
+                state.mangaReadingViewState = OnlineMangaReadingFeature.State(
+                    manga: state.manga,
+                    chapterID: chapter.id,
+                    chapterIndex: chapter.attributes.index,
+                    scanlationGroupID: chapter.scanlationGroupID,
+                    translatedLanguage: chapter.attributes.translatedLanguage
+                )
+                
+                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                
+            case .userTappedOnChapterLoaderButton:
+                guard state.chapterLoaderState.isNil else { return .none }
+                
+                state.chapterLoaderState = MangaChapterLoaderFeature.State(manga: state.manga)
+                return .task { .chapterLoaderAcion(.startChapterFetching) }
+            // MARK: - END Actions to be called from view
                 
             case .volumesRetrieved(let result):
                 switch result {
@@ -184,9 +272,22 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .navigationTabButtonTapped(let newTab):
-                state.selectedTab = newTab
-                return .none
+            case .mangaStatisticsDownloaded(let result):
+                switch result {
+                case .success(let response):
+                    state.statistics = response.statistics[state.manga.id]
+                    return .none
+                    
+                case .failure(let error):
+                    logger.error(
+                        "Failed to fetch statistics for manga: \(error)",
+                        context: [
+                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                            "mangaName": "\(state.manga.title)"
+                        ]
+                    )
+                    return .none
+                }
                 
             case .allCoverArtsInfoFetched(let result):
                 switch result {
@@ -208,57 +309,26 @@ struct OnlineMangaFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .mangaStatisticsDownloaded(let result):
+            case .chapterDetailsForContinueReadingFetched(let result):
                 switch result {
                 case .success(let response):
-                    state.statistics = response.statistics[state.manga.id]
-                    return .none
+                    let chapter = response.data
+                    
+                    state.mangaReadingViewState = OnlineMangaReadingFeature.State(
+                        manga: state.manga,
+                        chapterID: chapter.id,
+                        chapterIndex: chapter.attributes.index,
+                        scanlationGroupID: chapter.scanlationGroupID,
+                        translatedLanguage: chapter.attributes.translatedLanguage
+                    )
+                    
+                    return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                     
                 case .failure(let error):
-                    logger.error(
-                        "Failed to fetch statistics for manga: \(error)",
-                        context: [
-                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                            "mangaName": "\(state.manga.title)"
-                        ]
-                    )
+                    hudClient.show(message: "Failed to fetch chapter\n\(error.description)", backgroundColor: .red)
                     return .none
                 }
                 
-            case .refreshButtonTapped:
-                if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
-                    hudClient.show(
-                        message: "Wait a little to refresh this page",
-                        iconName: "clock",
-                        backgroundColor: .theme.yellow
-                    )
-                    return hapticClient
-                        .generateNotificationFeedback(.error)
-                        .fireAndForget()
-                }
-                
-                state.lastRefreshedAt = .now
-                
-                return .merge(
-                    mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                        .receive(on: mainQueue)
-                        .delay(for: .seconds(0.7), scheduler: mainQueue)
-                        .catchToEffect(Action.volumesRetrieved),
-                    
-                    hapticClient.generateFeedback(.medium).fireAndForget()
-                )
-                
-            // user wants to start reading manga from first chapter, have to retrieve preffered lang for reading
-            case .startReadingButtonTapped:
-                if let chapterLang = state.firstChapterOptions?.first?.attributes.translatedLanguage,
-                    chapterLang == state.prefferedLanguage?.rawValue {
-                    return .none
-                }
-                
-                return settingsClient.retireveSettingsConfig()
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.settingsConfigRetrieved)
-            
             // after we retrieved preffered lang, have to find `first` chapters
             case .settingsConfigRetrieved(let result):
                 switch result {
@@ -340,57 +410,6 @@ struct OnlineMangaFeature: ReducerProtocol {
                 
                 return .none
                 
-            case .userTappedOnFirstChapterOption(let chapter):
-                if let url = chapter.attributes.externalURL {
-                    return .fireAndForget { await openURL(url) }
-                }
-                
-                state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                    manga: state.manga,
-                    chapterID: chapter.id,
-                    chapterIndex: chapter.attributes.index,
-                    scanlationGroupID: chapter.scanlationGroupID,
-                    translatedLanguage: chapter.attributes.translatedLanguage
-                )
-                
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
-                
-            case .continueReadingButtonTapped:
-                guard let chapterID = state.lastReadChapterID else { return .none }
-                
-                return mangaClient.fetchChapterDetails(chapterID)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.chapterDetailsCorContinueReadingFetched)
-                
-            case .chapterDetailsCorContinueReadingFetched(let result):
-                switch result {
-                case .success(let response):
-                    let chapter = response.data
-                    
-                    state.mangaReadingViewState = OnlineMangaReadingFeature.State(
-                        manga: state.manga,
-                        chapterID: chapter.id,
-                        chapterIndex: chapter.attributes.index,
-                        scanlationGroupID: chapter.scanlationGroupID,
-                        translatedLanguage: chapter.attributes.translatedLanguage
-                    )
-                    
-                    return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
-                    
-                case .failure(let error):
-                    hudClient.show(message: "Failed to fetch chapter\n\(error.description)", backgroundColor: .red)
-                    return .none
-                }
-                
-            case .authorNameTapped(let author):
-                state.showAuthorView = true
-                
-                if state.authorViewState?.authorID != author.id {
-                    state.authorViewState = AuthorFeature.State(authorID: author.id)
-                }
-                
-                return .none
-                
             case .mangaReadingViewAction:
                 return .none
                 
@@ -404,6 +423,9 @@ struct OnlineMangaFeature: ReducerProtocol {
                 return .none
                 
             case .binding:
+                return .none
+                
+            case .chapterLoaderAcion:
                 return .none
             }
         }
@@ -522,6 +544,9 @@ struct OnlineMangaFeature: ReducerProtocol {
         }
         .ifLet(\.authorViewState, action: /Action.authorViewAction) {
             AuthorFeature()
+        }
+        .ifLet(\.chapterLoaderState, action: /Action.chapterLoaderAcion) {
+            MangaChapterLoaderFeature()
         }
     }
 }

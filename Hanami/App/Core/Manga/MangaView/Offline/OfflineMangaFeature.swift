@@ -99,7 +99,7 @@ struct OfflineMangaFeature: ReducerProtocol {
                         chaptersPerPages: 10
                     )
                     return cacheClient
-                        .saveCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
+                        .replaceCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
                         .fireAndForget()
                     
                 case .failure(let error):

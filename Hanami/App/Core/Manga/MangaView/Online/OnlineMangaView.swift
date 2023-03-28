@@ -15,6 +15,7 @@ struct OnlineMangaView: View {
     let blurRadius: CGFloat
     @State private var headerOffset: CGFloat = 0
     @State private var showFirstChaptersPopup = false
+    @State private var showChapterLoaderSheet = false
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
@@ -75,6 +76,16 @@ struct OnlineMangaView: View {
                                 .closeOnTap(false)
                                 .closeOnTapOutside(true)
                                 .backgroundColor(.black.opacity(0.4))
+                        }
+                        .sheet(isPresented: $showChapterLoaderSheet) {
+                            IfLetStore(
+                                store.scope(
+                                    state: \.chapterLoaderState,
+                                    action: OnlineMangaFeature.Action.chapterLoaderAcion
+                                )
+                            ) { loaderStore in
+                                MangaChapterLoaderView(store: loaderStore)
+                            }
                         }
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
@@ -244,10 +255,12 @@ extension OnlineMangaView {
                 )
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
+                    HStack(alignment: .bottom) {
                         backButton
                         
                         Spacer()
+                        
+                        chapterLoaderButton
                         
                         refreshButton
                     }
@@ -488,6 +501,19 @@ extension OnlineMangaView {
             self.dismiss()
         } label: {
             Image(systemName: "arrow.left")
+                .foregroundColor(Color.theme.foreground)
+                .padding(.vertical)
+        }
+        .transition(.opacity)
+        .font(.title3)
+    }
+    
+    private var chapterLoaderButton: some View {
+        Button {
+            ViewStore(store).send(.userTappedOnChapterLoaderButton)
+            showChapterLoaderSheet = true
+        } label: {
+            Image(systemName: "arrow.down.to.line.circle")
                 .foregroundColor(Color.theme.foreground)
                 .padding(.vertical)
         }

@@ -91,7 +91,7 @@ struct CacheClient {
     /// - Parameter mangaID: `UUID` parent manga ID
     /// - Parameter chapterIDs: `Set<UUID>` of the chapters to be cached in memory
     /// - Returns: `EffectTask<Never>`
-    let saveCachedChaptersInMemory: (_ mangaID: UUID, _ chapterIDs: Set<UUID>) -> EffectTask<Never>
+    let replaceCachedChaptersInMemory: (_ mangaID: UUID, _ chapterIDs: Set<UUID>) -> EffectTask<Never>
     /// Saves id of cached chapter for manga in memory
     ///
     /// - Parameter mangaID: `UUID` parent manga ID
@@ -162,7 +162,7 @@ extension CacheClient: DependencyKey {
             
             return nil
         },
-        saveCachedChaptersInMemory: { mangaID, chapterIDs in
+        replaceCachedChaptersInMemory: { mangaID, chapterIDs in
             .fireAndForget {
                 cacheQueue.async {
                     cachedChapterIDsStorage.setObject(chapterIDs, forKey: mangaID)

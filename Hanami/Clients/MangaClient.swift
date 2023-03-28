@@ -61,6 +61,12 @@ struct MangaClient {
     /// - Parameter authorID: ID of Author to be fetched
     /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
     let fetchAuthorByID: (_ authorID: UUID) -> EffectPublisher<Response<Author>, AppError>
+    /// Fetch MangaFeed (aka `[ChapterDetails]`)
+    ///
+    /// - Parameter mangaID: ID of Manga to be fetched
+    /// - Parameter offset: offset of feed
+    /// - Returns: `Effect<...>` with either `Response<Author>` or `AppError`
+    let fetchMangaFeed: (_ mangaID: UUID, _ offset: Int) -> EffectPublisher<Response<[ChapterDetails]>, AppError>
     
     // MARK: - Actions inside App
     /// Find in pages exact page with last read chapter index
@@ -195,6 +201,30 @@ extension MangaClient: DependencyKey {
             }
             
             return URLSession.shared.get(url: url, decodeResponseAs: Response<Author>.self)
+        },
+        fetchMangaFeed: { mangaID, offset in
+            var components = URLComponents()
+            components.scheme = "https"
+            components.host = "api.mangadex.org"
+            components.path = "/manga/\(mangaID.uuidString.lowercased())/feed"
+            
+            components.queryItems = [
+                URLQueryItem(name: "includes[]", value: "scanlation_group"),
+                URLQueryItem(name: "order[volume]", value: "desc"),
+                URLQueryItem(name: "order[chapter]", value: "desc"),
+                URLQueryItem(name: "offset", value: "\(offset)"),
+                URLQueryItem(name: "limit", value: "500"),
+                URLQueryItem(name: "contentRating[]", value: "safe"),
+                URLQueryItem(name: "contentRating[]", value: "suggestive"),
+                URLQueryItem(name: "contentRating[]", value: "erotica"),
+                URLQueryItem(name: "contentRating[]", value: "pornographic")
+            ]
+            
+            guard let url = components.url else {
+                return .none
+            }
+            
+            return URLSession.shared.get(url: url, decodeResponseAs: Response<[ChapterDetails]>.self)
         },
         getMangaPageForReadingChapter: { chapterIndex, pages in
             // chapterIndex - index of current reading chapter
