@@ -26,6 +26,7 @@
 		0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20528F88AF30009A907 /* SettingsClient.swift */; };
 		0829E20828F896C30009A907 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20728F896C30009A907 /* AuthClient.swift */; };
 		0829E21E28FC243D0009A907 /* AutolockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E21D28FC243D0009A907 /* AutolockPolicy.swift */; };
+		08351B7D29E87E1800481398 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 08351B7C29E87E1800481398 /* WrappingHStack */; };
 		0859979528F4C4170095422C /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979428F4C4170095422C /* SettingsFeature.swift */; };
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
@@ -309,6 +310,7 @@
 				22048EAF286CC5B400FE6A54 /* ComposableArchitecture in Frameworks */,
 				086A3DDA296F6BCB00CF434C /* PopupView in Frameworks */,
 				085DB65F28E11BD100AF5323 /* NukeUI in Frameworks */,
+				08351B7D29E87E1800481398 /* WrappingHStack in Frameworks */,
 				08200ABA28F6FACB009705D9 /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -825,6 +827,7 @@
 				085DB65E28E11BD100AF5323 /* NukeUI */,
 				08200AB928F6FACB009705D9 /* SwiftyBeaver */,
 				086A3DD9296F6BCB00CF434C /* PopupView */,
+				08351B7C29E87E1800481398 /* WrappingHStack */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -904,6 +907,7 @@
 				085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */,
 				08200AB828F6FACB009705D9 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				086A3DD8296F6BCB00CF434C /* XCRemoteSwiftPackageReference "PopupView" */,
+				08351B7B29E87E1800481398 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 			);
 			productRefGroup = 224C65792827204100AAEF2E /* Products */;
 			projectDirPath = "";
@@ -1445,6 +1449,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		08351B7B29E87E1800481398 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dkk/WrappingHStack";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		085DB65D28E11BD100AF5323 /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kean/Nuke";
@@ -1484,6 +1496,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 08200AB828F6FACB009705D9 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		08351B7C29E87E1800481398 /* WrappingHStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08351B7B29E87E1800481398 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
+			productName = WrappingHStack;
 		};
 		085DB65E28E11BD100AF5323 /* NukeUI */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -112,4 +112,13 @@ extension UIDevice {
         
         return mapToDevice(identifier: identifier)
     }()
+    
+    var hasTopNotch: Bool {
+        let scenes = UIApplication.shared.connectedScenes
+        guard let windowScene = scenes.first as? UIWindowScene else { return false }
+
+        if windowScene.windows.isEmpty { return false }          // Should never occur, but…
+        let top = windowScene.windows[0].safeAreaInsets.top
+        return top > 20
+    }
 }

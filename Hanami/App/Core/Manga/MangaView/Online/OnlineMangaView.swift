@@ -85,6 +85,7 @@ struct OnlineMangaView: View {
                                 )
                             ) { loaderStore in
                                 MangaChapterLoaderView(store: loaderStore)
+                                    .environment(\.colorScheme, colorScheme)
                             }
                         }
                     }
@@ -109,7 +110,7 @@ struct OnlineMangaView: View {
             .overlay(
                 Rectangle()
                     .fill(Color.theme.background)
-                    .frame(height: 50)
+                    .frame(height: DeviceUtil.hasTopNotch ? 50 : 20)
                     .frame(maxHeight: .infinity, alignment: .top)
                     .opacity(isCoverArtDisappeared ? 1 : 0)
             )
@@ -292,7 +293,7 @@ extension OnlineMangaView {
                         .lineLimit(5)
                 }
                 .padding(.horizontal)
-                .padding(.top, 40)
+                .padding(.top, DeviceUtil.hasTopNotch ? 40 : 15)
                 .padding(.bottom, 25)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -543,12 +544,12 @@ extension OnlineMangaView {
             }
             .offset(x: isCoverArtDisappeared ? 0 : -40)
             .padding(.leading)
-            .padding(.top, 20)
+            .padding(.top, DeviceUtil.hasTopNotch ? 20 : 0)
             .padding(.bottom, 5)
         }
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.theme.background)
-        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
+        .offset(y: headerOffset > 0 ? 0 : DeviceUtil.hasTopNotch ? -headerOffset / 10 : 20)
         .modifier(MangaViewOffsetModifier(offset: $headerOffset))
     }
     
@@ -563,7 +564,7 @@ extension OnlineMangaView {
                     showFirstChaptersPopup = true
                 }
             } label: {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(viewStore.lastReadChapterAvailable ? Color.theme.accent : .theme.green)
                     .overlay {
                         Text(viewStore.lastReadChapterAvailable ? "Continue reading!" : "Start reading!")

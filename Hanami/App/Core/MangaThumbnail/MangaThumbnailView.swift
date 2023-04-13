@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import NukeUI
+import WrappingHStack
 
 struct MangaThumbnailView: View {
     let store: StoreOf<MangaThumbnailFeature>
@@ -157,7 +158,7 @@ extension MangaThumbnailView {
     
     private var statistics: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            HStack(alignment: .top, spacing: 10) {
+            WrappingHStack(alignment: .leading, lineSpacing: 10) {
                 HStack(alignment: .top, spacing: 0) {
                     Image(systemName: "star.fill")
 
@@ -199,7 +200,6 @@ extension MangaThumbnailView {
                 }
             }
             .font(.footnote)
-            .frame(height: 15)
         }
     }
 }

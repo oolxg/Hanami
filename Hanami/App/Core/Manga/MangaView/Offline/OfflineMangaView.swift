@@ -67,7 +67,7 @@ struct OfflineMangaView: View {
             .overlay(
                 Rectangle()
                     .fill(Color.theme.background)
-                    .frame(height: 50)
+                    .frame(height: DeviceUtil.hasTopNotch ? 50 : 20)
                     .frame(maxHeight: .infinity, alignment: .top)
                     .opacity(isCoverArtDisappeared ? 1 : 0)
             )
@@ -180,7 +180,7 @@ extension OfflineMangaView {
                         .lineLimit(5)
                 }
                 .padding(.horizontal)
-                .padding(.top, 40)
+                .padding(.top, DeviceUtil.hasTopNotch ? 40 : 15)
                 .padding(.bottom, 25)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -229,7 +229,7 @@ extension OfflineMangaView {
             self.dismiss()
         } label: {
             Image(systemName: "arrow.left")
-                .foregroundColor(.white)
+                .foregroundColor(.theme.foreground)
                 .padding(.vertical)
         }
         .transition(.opacity)
@@ -346,13 +346,13 @@ extension OfflineMangaView {
                 ForEach(OfflineMangaFeature.Tab.allCases, content: makeTabLabel)
             }
             .padding(.leading)
-            .padding(.top, 20)
+            .padding(.top, DeviceUtil.hasTopNotch ? 20 : 0)
             .padding(.bottom, 5)
         }
         .offset(x: isCoverArtDisappeared ? 0 : -40)
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.theme.background)
-        .offset(y: headerOffset > 0 ? 0 : -headerOffset / 10)
+        .offset(y: headerOffset > 0 ? 0 : DeviceUtil.hasTopNotch ? -headerOffset / 10 : 20)
         .modifier(MangaViewOffsetModifier(offset: $headerOffset))
     }
     

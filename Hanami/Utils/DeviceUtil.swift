@@ -31,4 +31,8 @@ enum DeviceUtil {
     static var deviceScreenSize: CGRect {
         UIScreen.main.bounds
     }
+    
+    static var hasTopNotch: Bool {
+        UIDevice.current.hasTopNotch
+    }
 }
