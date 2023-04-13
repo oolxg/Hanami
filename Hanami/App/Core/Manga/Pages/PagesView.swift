@@ -31,17 +31,19 @@ struct PagesView: View {
             .frame(maxWidth: .infinity, alignment: .center)
             .padding()
         } else {
-            ForEachStore(
-                store.scope(
-                    state: \.volumeTabStatesOnCurrentPage,
-                    action: PagesFeature.Action.volumeTabAction
-                ),
-                content: VolumeTabView.init
-            )
-            .animation(.linear, value: viewStore.currentPageIndex)
-
-            footer
-                .transition(.identity)
+            VStack {
+                ForEachStore(
+                    store.scope(
+                        state: \.volumeTabStatesOnCurrentPage,
+                        action: PagesFeature.Action.volumeTabAction
+                    ),
+                    content: VolumeTabView.init
+                )
+                .animation(.linear, value: viewStore.currentPageIndex)
+                
+                footer
+                    .transition(.identity)
+            }
         }
     }
 }

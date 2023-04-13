@@ -83,7 +83,6 @@ extension MangaChapterLoaderView {
                     .foregroundColor(Color.theme.foreground)
             }
             .font(.headline)
-
         }
     }
 }

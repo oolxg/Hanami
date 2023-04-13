@@ -355,15 +355,15 @@ extension SearchView {
                 HStack {
                     Image(systemName: "arrow.up.arrow.down")
                     
-                    HStack(spacing: 0) {
-                        Text("Sort by ")
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Sort by")
                         Text(getSortTypeName(sortOption: sortOption, order: sortOptionOrder))
                             .fontWeight(.heavy)
                     }
                     .font(.callout)
-                    .frame(width: 200, height: 20, alignment: .leading)
+                    .frame(height: 15)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.trailing)
             }
             .tint(.theme.foreground)
         }
