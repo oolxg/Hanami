@@ -67,4 +67,10 @@ Thanks to [MangaDEX](https://mangadex.org) whose [API](https://api.mangadex.org/
 
 Thanks to [EhPanda](https://github.com/EhPanda-Team/EhPanda) from where I kindly borrowed some of the code for this project.
 
+#### Donate
+
+<a href="https://www.buymeacoffee.com/oolxg">
+  <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=oolxg&button_colour=FF5F5F&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00" />
+</a>
+
 <sub><sub>Small bottom text to get your attention and tell you that this app does not collect or share any information about you with anyone.</sub></sub>
