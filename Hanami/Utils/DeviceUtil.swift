@@ -32,7 +32,7 @@ enum DeviceUtil {
         UIScreen.main.bounds
     }
     
-    static var hasTopNotch: Bool {
+    static var hasTopNotch = {
         UIDevice.current.hasTopNotch
-    }
+    }()
 }

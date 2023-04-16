@@ -11,24 +11,44 @@ import ComposableArchitecture
 struct MangaChapterLoaderView: View {
     let store: StoreOf<MangaChapterLoaderFeature>
     
+    struct ViewState: Equatable {
+        let allLanguages: [String]
+        let prefferedLanguage: String?
+        let chapters: IdentifiedArrayOf<ChapterDetails>
+        let title: String
+        
+        init(state: MangaChapterLoaderFeature.State) {
+            allLanguages = state.allLanguages
+            prefferedLanguage = state.prefferedLanguage
+            
+            if let filtered = state.filteredChapters {
+                chapters = filtered
+            } else {
+                chapters = state.chapters
+            }
+            title = state.manga.title
+        }
+    }
+    
     var body: some View {
         NavigationView {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: ViewState.init) { viewStore in
                 ScrollView {
                     Menu {
-                        Picker(
-                            selection: viewStore.binding(
-                                get: \.prefferedLanguage,
-                                send: MangaChapterLoaderFeature.Action.prefferedLanguageChanged
-                            )
-                        ) {
-                            ForEach(viewStore.allLanguages, id: \.self) { lang in
-                                Text(lang)
-                                    .id(lang)
+                        ForEach(viewStore.allLanguages, id: \.self) { lang in
+                            Button(lang) {
+                                viewStore.send(.prefferedLanguageChanged(to: lang))
                             }
-                        } label: { EmptyView() }
+                        }
                     } label: {
-                        Text(viewStore.prefferedLanguage ?? "none")
+                        if let lang = viewStore.prefferedLanguage {
+                            Text(lang)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            ProgressView()
+                                .tint(.theme.accent)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     }
                     
                     LazyVStack(alignment: .leading, spacing: 10) {
@@ -40,7 +60,7 @@ struct MangaChapterLoaderView: View {
                     }
                     .padding(.horizontal)
                 }
-                .navigationTitle(viewStore.manga.title)
+                .navigationTitle(viewStore.title)
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
@@ -71,13 +91,13 @@ extension MangaChapterLoaderView {
             
             Spacer()
             
-            if let index = chapter.attributes.index {
-                Text(index.description)
+            if let index = chapter.attributes.index?.clean() {
+                Text(index)
                     .font(.headline)
             }
             
             Button {
-                
+                ViewStore(store).send(.downloadButtonTapped(chapter: chapter))
             } label: {
                 Image(systemName: "arrow.down.to.line.circle")
                     .foregroundColor(Color.theme.foreground)

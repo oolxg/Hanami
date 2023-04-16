@@ -223,7 +223,7 @@ struct OnlineMangaFeature: ReducerProtocol {
                 guard state.chapterLoaderState.isNil else { return .none }
                 
                 state.chapterLoaderState = MangaChapterLoaderFeature.State(manga: state.manga)
-                return .task { .chapterLoaderAcion(.startChapterFetching) }
+                return .task { .chapterLoaderAcion(.initLoader) }
             // MARK: - END Actions to be called from view
                 
             case .volumesRetrieved(let result):

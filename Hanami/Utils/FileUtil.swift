@@ -8,18 +8,20 @@
 import Foundation
 
 enum FileUtil {
-    static var documentDirectory: URL {
+    static var documentDirectory = {
         url(for: .documentDirectory)!
-    }
-    static var cachesDirectory: URL {
+    }()
+    static var cachesDirectory = {
         url(for: .cachesDirectory)!
-    }
-    static var logsDirectoryURL: URL {
+    }()
+    
+    static var logsDirectoryURL = {
         documentDirectory.appendingPathComponent(Defaults.FilePath.logs)
-    }
-    static var temporaryDirectory: URL {
-        .init(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    }
+    }()
+    
+    static var temporaryDirectory = {
+        URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+    }()
     
     static func url(for searchPathDirectory: FileManager.SearchPathDirectory) -> URL? {
         try? FileManager.default.url(for: searchPathDirectory, in: .userDomainMask, appropriateFor: nil, create: true)

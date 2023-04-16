@@ -8,13 +8,13 @@
 import Foundation
 
 enum AppUtil {
-    static var version: String {
+    static var version = {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "null"
-    }
+    }()
     
-    static var build: String {
+    static var build = {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "null"
-    }
+    }()
     
     static var dateFormatter: DateFormatter = {
         let fmt = DateFormatter()

@@ -9,7 +9,7 @@
 import UIKit.UIDevice
 
 extension UIDevice {
-    static let modelName: String = {
+    static var identifier = {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -18,6 +18,10 @@ extension UIDevice {
             return identifier + String(UnicodeScalar(UInt8(value)))
         }
         
+        return identifier
+    }()
+    
+    static let modelName: String = {
         // swiftlint:disable cyclomatic_complexity
         // swiftlint:disable function_body_length
         // swiftlint:disable line_length
