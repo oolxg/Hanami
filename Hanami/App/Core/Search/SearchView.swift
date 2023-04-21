@@ -173,22 +173,24 @@ extension SearchView {
                 .font(.headline)
                 
                 ScrollView(showsIndicators: false) {
-                    ForEach(viewStore.searchHistory) { searchRequest in
-                        HStack(spacing: 10) {
-                            Image(systemName: "magnifyingglass")
+                    LazyVStack {
+                        ForEach(viewStore.searchHistory) { searchRequest in
+                            HStack(spacing: 10) {
+                                Image(systemName: "magnifyingglass")
+                                
+                                Text(searchRequest.params.searchQuery)
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        viewStore.send(.userTappedOnSearchHistory(searchRequest))
+                                    }
+                            }
                             
-                            Text(searchRequest.params.searchQuery)
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    viewStore.send(.userTappedOnSearchHistory(searchRequest))
-                                }
+                            Rectangle()
+                                .foregroundColor(.theme.foreground)
+                                .frame(height: 0.8)
                         }
-                        
-                        Rectangle()
-                            .foregroundColor(.theme.foreground)
-                            .frame(height: 0.8)
                     }
                 }
             }

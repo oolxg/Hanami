@@ -259,7 +259,9 @@ struct OnlineMangaFeature: ReducerProtocol {
                         ]
                     )
                     
-                    return .none
+                    hudClient.show(message: "Failed to fetch: \(error.description)")
+                    
+                    return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
                 
             case .lastReadChapterRetrieved(let result):
