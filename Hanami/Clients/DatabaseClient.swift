@@ -231,6 +231,7 @@ extension DatabaseClient {
     func deleteManga(mangaID: UUID) -> EffectTask<Never> {
         .fireAndForget {
             remove(entityType: MangaMO.self, id: mangaID)
+            saveContext()
         }
     }
     

@@ -11,7 +11,7 @@ import Combine
 final class NetworkMonitor: ObservableObject {
     static let shared = NetworkMonitor()
     private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.NetworkMonitor")
+    private let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.NetworkMonitor", qos: .background)
     @Published private(set) var isConnected = true
     
     private init() {

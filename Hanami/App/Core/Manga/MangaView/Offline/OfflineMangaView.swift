@@ -360,7 +360,7 @@ extension OfflineMangaView {
         Button {
             ViewStore(store).send(.continueReadingButtonTapped)
         } label: {
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: 12)
                 .fill(Color.theme.accent)
                 .overlay {
                     Text("Continue reading!")
@@ -398,7 +398,7 @@ extension OfflineMangaView {
         }
     }
     
-    struct MangaViewOffsetModifier: ViewModifier {
+    private struct MangaViewOffsetModifier: ViewModifier {
         @Binding var offset: CGFloat
         @State private var startValue: CGFloat = 0
         
@@ -420,7 +420,7 @@ extension OfflineMangaView {
         }
     }
     
-    struct MangaViewOffsetKey: PreferenceKey {
+    private struct MangaViewOffsetKey: PreferenceKey {
         static var defaultValue: CGFloat = 0
         
         static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {

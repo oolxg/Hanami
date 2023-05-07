@@ -66,11 +66,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
                     return mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(Action.thumbnailInfoLoaded)
-                } else if !state.online {
-                    guard state.offlineMangaState!.coverArtPath.isNil else {
-                        return .none
-                    }
-                    
+                } else if !state.online && state.offlineMangaState!.coverArtPath.isNil {
                     state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
                         state.manga.id, cacheClient
                     )

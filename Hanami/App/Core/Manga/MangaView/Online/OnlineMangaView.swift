@@ -37,6 +37,7 @@ struct OnlineMangaView: View {
         let areChaptersFetched: Bool
         let firstChapterOptions: [ChapterDetails]?
         let userReadsManga: Bool
+        let isErrorOccured: Bool
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
@@ -50,6 +51,7 @@ struct OnlineMangaView: View {
             areChaptersFetched = state.pagesState.hasValue
             firstChapterOptions = state.firstChapterOptions
             userReadsManga = state.isUserOnReadingView
+            isErrorOccured = state.isErrorOccured
         }
     }
     
@@ -261,7 +263,7 @@ extension OnlineMangaView {
                         
                         Spacer()
                         
-                        chapterLoaderButton
+//                        chapterLoaderButton
                         
                         refreshButton
                     }
@@ -322,7 +324,7 @@ extension OnlineMangaView {
                     ),
                     then: PagesView.init,
                     else: {
-                        ProgressView()
+                        chaptersNotLoadedView
                             .padding(.top, 50)
                             .padding(.bottom, 20)
                     }
@@ -335,6 +337,30 @@ extension OnlineMangaView {
             }
         }
         .padding(.horizontal, 5)
+    }
+    
+    private var chaptersNotLoadedView: some View {
+        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+            if viewStore.isErrorOccured {
+                errorMessage
+            } else {
+                ProgressView()
+            }
+        }
+    }
+    
+    private var errorMessage: some View {
+        VStack(alignment: .center) {
+            Text("There's some error...")
+                .fontWeight(.bold)
+
+            Text("Sorry...")
+                .fontWeight(.bold)
+
+            Text("👉👈")
+                .fontWeight(.bold)
+        }
+        .font(.title3)
     }
     
     @MainActor private var coverArtTab: some View {
@@ -608,7 +634,7 @@ extension OnlineMangaView {
         }
     }
     
-    struct MangaViewOffsetModifier: ViewModifier {
+    private struct MangaViewOffsetModifier: ViewModifier {
         @Binding var offset: CGFloat
         @State private var startValue: CGFloat = 0
         
@@ -630,7 +656,7 @@ extension OnlineMangaView {
         }
     }
     
-    struct MangaViewOffsetKey: PreferenceKey {
+    private struct MangaViewOffsetKey: PreferenceKey {
         static var defaultValue: CGFloat = 0
         
         static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {

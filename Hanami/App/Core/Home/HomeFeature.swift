@@ -203,7 +203,7 @@ struct HomeFeature: ReducerProtocol {
                 switch result {
                 case .success(let response):
                     for stat in response.statistics {
-                        state[keyPath: keyPath][id: stat.key]?.onlineMangaState!.statistics = stat.value
+                        state[keyPath: keyPath][id: stat.key]?.onlineMangaState?.statistics = stat.value
                     }
                     
                     return .none

@@ -31,6 +31,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         var croppedCoverArtURLs: [URL] {
             allCoverArtsInfo.compactMap(\.coverArtURL512)
         }
+        var isErrorOccured = false
         
         // different chapter option to start reading manga
         // swiftlint:disable:next identifier_name
@@ -118,6 +119,8 @@ struct OnlineMangaFeature: ReducerProtocol {
             switch action {
             // MARK: - Actions to be called from view
             case .onAppear:
+                state.isErrorOccured = false
+
                 var effects = [
                     databaseClient.getLastReadChapterID(mangaID: state.manga.id)
                         .receive(on: mainQueue)
@@ -260,6 +263,8 @@ struct OnlineMangaFeature: ReducerProtocol {
                     )
                     
                     hudClient.show(message: "Failed to fetch: \(error.description)")
+                    
+                    state.isErrorOccured = true
                     
                     return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
