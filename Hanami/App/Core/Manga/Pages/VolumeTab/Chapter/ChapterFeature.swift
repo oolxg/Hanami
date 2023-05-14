@@ -89,7 +89,6 @@ struct ChapterFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    // swiftlint:disable:
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action {

@@ -126,3 +126,6 @@ extension UIDevice {
         return top > 20
     }
 }
+// swiftlint:enable cyclomatic_complexity
+// swiftlint:enable function_body_length
+// swiftlint:enable line_length

@@ -112,3 +112,4 @@ extension LocalizedString {
         return nil
     }
 }
+// swiftlint:enable identifier_name

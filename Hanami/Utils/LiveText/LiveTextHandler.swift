@@ -9,8 +9,6 @@
 //  https://developer.apple.com/documentation/vision/recognizing_text_in_images
 //  https://github.com/TelegramMessenger/Telegram-iOS/blob/2a32c871882c4e1b1ccdecd34fccd301723b30d9/submodules/Translate/Sources/Translate.swift
 //  https://github.com/TelegramMessenger/Telegram-iOS/blob/0be460b147321b7455247aedca81ca819702959d/submodules/ImageContentAnalysis/Sources/ImageContentAnalysis.swift
-//  swiftlint:enable line_length
-//
 
 import Vision
 import SwiftUI

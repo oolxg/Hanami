@@ -15,6 +15,7 @@ enum ResponseDataType: String {
     case scanlationGroup = "scanlation_group"
     case tag, user, leader, member
     case customList = "custom_list"
+    case creator
 }
 
 extension ResponseDataType: Codable { }

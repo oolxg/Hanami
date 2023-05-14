@@ -15,7 +15,6 @@ disabled_rules:
 
 opt_in_rules:
   - array_init
-  - attributes
   - closure_spacing
   - collection_alignment
   - colon # promote to error
@@ -44,7 +43,6 @@ opt_in_rules:
   - strict_fileprivate
   - toggle_bool
   - unneeded_parentheses_in_closure_argument
-  - unused_import
   - vertical_whitespace_closing_braces
   - vertical_whitespace_opening_braces
   - yoda_condition
@@ -58,14 +56,6 @@ custom_rules:
     message: "Use explicit type annotation when initializing empty arrays and dictionaries"
     severity: warning
 
-
-attributes:
-  always_on_same_line:
-    - "@IBSegueAction"
-    - "@IBAction"
-    - "@NSManaged"
-    - "@objc"
-    - "@nonobjc"
 
 force_try: warning
 force_cast: warning

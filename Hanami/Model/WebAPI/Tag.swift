@@ -133,3 +133,4 @@ extension Tag {
         attributes.name.en.rawValue
     }
 }
+// swiftlint:enable identifier_name

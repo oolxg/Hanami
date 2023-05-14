@@ -89,7 +89,6 @@
 		224C657C2827204100AAEF2E /* HanamiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C657B2827204100AAEF2E /* HanamiApp.swift */; };
 		224C65802827204300AAEF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C657F2827204300AAEF2E /* Assets.xcassets */; };
 		224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 224C65822827204300AAEF2E /* Preview Assets.xcassets */; };
-		224C658D2827204300AAEF2E /* HanamiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224C658C2827204300AAEF2E /* HanamiTests.swift */; };
 		224E6712282E91FF001D214C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6711282E91FF001D214C /* Response.swift */; };
 		224E6714282E9781001D214C /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E6713282E9781001D214C /* Manga.swift */; };
 		224E671B282EAA50001D214C /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224E671A282EAA50001D214C /* AppError.swift */; };
@@ -251,7 +250,6 @@
 		224C657F2827204300AAEF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		224C65822827204300AAEF2E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		224C65882827204300AAEF2E /* HanamiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HanamiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		224C658C2827204300AAEF2E /* HanamiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HanamiTests.swift; sourceTree = "<group>"; };
 		224C65922827204300AAEF2E /* HanamiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HanamiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		224E6711282E91FF001D214C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		224E6713282E9781001D214C /* Manga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
@@ -610,7 +608,6 @@
 			isa = PBXGroup;
 			children = (
 				224C657A2827204100AAEF2E /* Hanami */,
-				224C658B2827204300AAEF2E /* HanamiTests */,
 				224C65792827204100AAEF2E /* Products */,
 				33240CCD5BD875E1E9324710 /* .gitignore */,
 			);
@@ -651,14 +648,6 @@
 				224C65822827204300AAEF2E /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		224C658B2827204300AAEF2E /* HanamiTests */ = {
-			isa = PBXGroup;
-			children = (
-				224C658C2827204300AAEF2E /* HanamiTests.swift */,
-			);
-			path = HanamiTests;
 			sourceTree = "<group>";
 		};
 		224E6710282E8E18001D214C /* Model */ = {
@@ -1099,7 +1088,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224C658D2827204300AAEF2E /* HanamiTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1250,7 +1238,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1271,7 +1259,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.25;
+				MARKETING_VERSION = 0.25.1;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1291,7 +1279,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1312,7 +1300,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.25;
+				MARKETING_VERSION = 0.25.1;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
