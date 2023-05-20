@@ -41,6 +41,7 @@ struct Tag: Codable {
                 case webComic = "Web Comic"
                 case adaptation = "Adaptation"
                 case fullColor = "Full Color"
+                case selfPublished = "Self-Published"
                 /* Format types END */
                 
                 /* Theme types */
