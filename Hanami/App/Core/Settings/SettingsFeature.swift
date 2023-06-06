@@ -11,7 +11,7 @@ import Nuke
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
-        @BindableState var config = SettingsConfig(
+        @BindingState var config = SettingsConfig(
             autolockPolicy: .never,
             blurRadius: Defaults.Security.minBlurRadius,
             useHigherQualityImagesForOnlineReading: false,

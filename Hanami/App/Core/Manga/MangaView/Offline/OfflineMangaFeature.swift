@@ -25,7 +25,7 @@ struct OfflineMangaFeature: ReducerProtocol {
         var lastReadChapter: CoreDataChapterDetailsEntry?
         
         // MARK: - Props for MangaReadingView
-        @BindableState var isUserOnReadingView = false
+        @BindingState var isUserOnReadingView = false
         
         var mangaReadingViewState: OfflineMangaReadingFeature.State? {
             didSet { isUserOnReadingView = mangaReadingViewState.hasValue }

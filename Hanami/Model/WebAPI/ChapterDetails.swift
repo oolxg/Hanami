@@ -113,7 +113,7 @@ extension ChapterDetails {
         ]
         
         if let translatedLanguage = attributes.translatedLanguage {
-            return flags[translatedLanguage] ?? "❓"
+            return flags[translatedLanguage, default: "❓"]
         }
         
         return "❓"

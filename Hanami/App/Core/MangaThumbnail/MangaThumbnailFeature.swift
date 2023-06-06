@@ -38,7 +38,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
         }
         
         var online: Bool { onlineMangaState.hasValue }
-        @BindableState var navigationLinkActive = false
+        @BindingState var navigationLinkActive = false
         var id: UUID { manga.id }
     }
     

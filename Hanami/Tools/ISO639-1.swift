@@ -14,9 +14,10 @@ enum ISO639Language: String {
     case hi, hu, fa, fr, it
     case jp = "ja"
     case jpRo = "ja-ro"
-    case ko, mn, ms, nl, ru
+    case ko, mn, ms, nl
     case ptBr = "pt-br"
-    case vi, th, uk, zh
+    case ru, vi, th, tr, uk
+    case zh
     case zhRo = "zh-ro"
     // swiftlint:enable identifier_name
 }
@@ -48,6 +49,7 @@ extension ISO639Language {
         case .mn: return "Mongolian"
         case .fa: return "Persian"
         case .vi: return "Vietnamese"
+        case .tr: return "Turkish"
         case .ru: return "Russian"
         case .es: return "Spanish, Castilian"
         case .th: return "Thai"

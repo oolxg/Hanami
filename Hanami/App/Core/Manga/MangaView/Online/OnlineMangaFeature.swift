@@ -40,7 +40,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         // MARK: END Props for view
         
         // MARK: - Props for MangaReadingView
-        @BindableState var isUserOnReadingView = false
+        @BindingState var isUserOnReadingView = false
         var mangaReadingViewState: OnlineMangaReadingFeature.State? {
             didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
         }
@@ -49,7 +49,7 @@ struct OnlineMangaFeature: ReducerProtocol {
         // MARK: - Props for inner states/views
         var authorViewState: AuthorFeature.State?
         var chapterLoaderState: MangaChapterLoaderFeature.State?
-        @BindableState var showAuthorView = false
+        @BindingState var showAuthorView = false
         // MARK: END Props for inner states/views
         
         // MARK: - Behavior props

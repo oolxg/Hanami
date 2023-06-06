@@ -17,11 +17,11 @@ struct SearchFeature: ReducerProtocol {
         var searchResultsFetched = false
         var isLoading = false
         
-        @BindableState var searchSortOption = FiltersFeature.QuerySortOption.relevance
-        @BindableState var searchSortOptionOrder = FiltersFeature.QuerySortOption.Order.desc
-        @BindableState var resultsCount = 10
+        @BindingState var searchSortOption = FiltersFeature.QuerySortOption.relevance
+        @BindingState var searchSortOptionOrder = FiltersFeature.QuerySortOption.Order.desc
+        @BindingState var resultsCount = 10
         
-        @BindableState var searchText = ""
+        @BindingState var searchText = ""
         
         var lastSuccessfulRequestParams: SearchParams?
         
