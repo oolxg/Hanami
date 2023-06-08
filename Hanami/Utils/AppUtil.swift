@@ -37,4 +37,28 @@ enum AppUtil {
         encoder.dateEncodingStrategy = .formatted(AppUtil.dateFormatter)
         return encoder
     }()
+    
+    enum AppConfiguration {
+        case debug
+        case testFlight
+        case appStore
+    }
+    
+    static let appConfiguration: AppConfiguration = {
+        let isDebug: Bool = {
+#if DEBUG
+            true
+#else
+            false
+#endif
+        }()
+        
+        if isDebug {
+            return .debug
+        } else if Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
+            return .testFlight
+        } else {
+            return .appStore
+        }
+    }()
 }

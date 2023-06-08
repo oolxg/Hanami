@@ -39,4 +39,15 @@ enum Defaults {
             URL(string: "https://mangadex.org/title/\(mangaID.uuidString.lowercased())")!
         }
     }
+    
+    enum Feedback {
+        static var feedbackDomain: URL? {
+            if AppUtil.appConfiguration != .debug, var urlString = Bundle.main.infoDictionary?["API_URL"] as? String {
+                urlString = "https://" + urlString
+                return URL(string: urlString)
+            }
+            
+            return nil
+        }
+    }
 }
