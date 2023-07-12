@@ -41,13 +41,13 @@ enum Defaults {
     }
     
     enum Feedback {
-        static var feedbackDomain: URL? {
+        static let apiURL: URL? = {
             if AppUtil.appConfiguration != .debug, var urlString = Bundle.main.infoDictionary?["API_URL"] as? String {
                 urlString = "https://" + urlString
                 return URL(string: urlString)
             }
             
             return nil
-        }
+        }()
     }
 }

@@ -115,29 +115,40 @@ struct FiltersFeature: ReducerProtocol {
             
             return .none
             
-        case .mangaStatusButtonTapped(let tag):
-            if tag.state == .selected {
-                state.mangaStatuses[id: tag.id]!.state = .notSelected
+        case .mangaStatusButtonTapped(let tagContainer):
+            if tagContainer.state == .selected {
+                state.mangaStatuses[id: tagContainer.id]!.state = .notSelected
             } else {
-                state.mangaStatuses[id: tag.id]!.state = .selected
+                state.mangaStatuses[id: tagContainer.id]!.state = .selected
             }
             
             return hapticClient.generateFeedback(.light).fireAndForget()
             
-        case .contentRatingButtonTapped(let tag):
-            if tag.state == .selected {
-                state.contentRatings[id: tag.id]!.state = .notSelected
+        case .contentRatingButtonTapped(let tagContainer):
+            if tagContainer.state == .selected {
+                state.contentRatings[id: tagContainer.id]!.state = .notSelected
             } else {
-                state.contentRatings[id: tag.id]!.state = .selected
+                state.contentRatings[id: tagContainer.id]!.state = .selected
+            }
+            
+            // setting all tags to notSelected when user tapped on `safe`
+            if tagContainer.tag == .safe && tagContainer.state != .selected {
+                for tagID in state.contentRatings.ids {
+                    state.contentRatings[id: tagID]!.state = .notSelected
+                }
+                state.contentRatings[id: tagContainer.id]!.state = .selected
+            } else {
+                let safeTagID = state.contentRatings.first(where: { $0.tag == .safe })!.id
+                state.contentRatings[id: safeTagID]!.state = .notSelected
             }
             
             return hapticClient.generateFeedback(.light).fireAndForget()
             
-        case .publicationDemographicButtonTapped(let tag):
-            if tag.state == .selected {
-                state.publicationDemographics[id: tag.id]!.state = .notSelected
+        case .publicationDemographicButtonTapped(let tagContainer):
+            if tagContainer.state == .selected {
+                state.publicationDemographics[id: tagContainer.id]!.state = .notSelected
             } else {
-                state.publicationDemographics[id: tag.id]!.state = .selected
+                state.publicationDemographics[id: tagContainer.id]!.state = .selected
             }
             
             return hapticClient.generateFeedback(.light).fireAndForget()
