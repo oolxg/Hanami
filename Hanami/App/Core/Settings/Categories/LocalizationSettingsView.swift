@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import ModelKit
 
 struct LocalizationSettingsView: View {
     @Binding var selectedLanugauge: ISO639Language
@@ -81,11 +82,3 @@ struct LocalizationSettingsView: View {
         }
     }
 }
-
-#if DEBUG
-struct LocalizationSettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        LocalizationSettingsView(selectedLanugauge: .constant(.zhRo))
-    }
-}
-#endif

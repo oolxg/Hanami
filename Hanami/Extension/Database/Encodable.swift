@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Utils
 
 extension Encodable {
     func toData(encoder: JSONEncoder = AppUtil.encoder) -> Data? {

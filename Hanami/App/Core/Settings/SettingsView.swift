@@ -8,6 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 import NukeUI
+import Utils
+import ModelKit
 
 struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
@@ -50,19 +52,6 @@ struct SettingsView: View {
         }
     }
 }
-
-#if DEBUG
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView(
-            store: Store(
-                initialState: SettingsFeature.State(),
-                reducer: SettingsFeature()._printChanges()
-            )
-        )
-    }
-}
-#endif
 
 extension SettingsView {
     private var localizationSection: some View {

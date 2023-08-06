@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct AuthorFeature: ReducerProtocol {
+struct AuthorFeature: Reducer {
     struct State: Equatable, Identifiable {
         var author: Author?
         var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
@@ -25,7 +27,7 @@ struct AuthorFeature: ReducerProtocol {
     
     // indirect because AuthorFeature is inside MangaFeauture
     // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
-    enum Action {
+    enum Action: Sendable {
         case onAppear
         case authorInfoFetched(Result<Response<Author>, AppError>)
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)
@@ -38,7 +40,7 @@ struct AuthorFeature: ReducerProtocol {
     @Dependency(\.logger) var logger
     @Dependency(\.mainQueue) var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import UIComponents
 
 struct FiltersView: View {
     let store: StoreOf<FiltersFeature>
@@ -33,20 +34,6 @@ struct FiltersView: View {
         }
     }
 }
-
-#if DEBUG
-struct FiltersView_Previews: PreviewProvider {
-    static var previews: some View {
-        FiltersView(
-            store: .init(
-                initialState: FiltersFeature.State(),
-                reducer: FiltersFeature()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
 
 extension FiltersView {
     private func toolbar() -> some ToolbarContent {
@@ -206,7 +193,7 @@ extension FiltersView {
                 }
                 .padding()
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.theme.foreground, lineWidth: 1.5)
                 )
             }

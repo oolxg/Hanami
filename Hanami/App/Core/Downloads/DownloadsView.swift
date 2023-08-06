@@ -66,20 +66,6 @@ struct DownloadsView: View {
     }
 }
 
-#if DEBUG
-struct DownloadsView_Previews: PreviewProvider {
-    static var previews: some View {
-        DownloadsView(
-            store: .init(
-                initialState: DownloadsFeature.State(),
-                reducer: DownloadsFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
-
 extension DownloadsView {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {

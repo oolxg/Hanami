@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import UIComponents
 
 struct SearchView: View {
     let store: StoreOf<SearchFeature>
@@ -92,20 +93,6 @@ struct SearchView: View {
         }
     }
 }
-
-#if DEBUG
-struct SearchView_Previews: PreviewProvider {
-    static var previews: some View {
-        SearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: SearchFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
 
 extension SearchView {
     private var searchBar: some View {

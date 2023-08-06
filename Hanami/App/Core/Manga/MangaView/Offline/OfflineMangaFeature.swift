@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import Utils
+import ModelKit
 
-struct OfflineMangaFeature: ReducerProtocol {
+struct OfflineMangaFeature: Reducer {
     struct State: Equatable {
         let manga: Manga
         var coverArtPath: URL?
@@ -66,7 +68,7 @@ struct OfflineMangaFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             switch action {

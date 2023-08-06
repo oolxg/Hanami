@@ -9,6 +9,7 @@ import ComposableArchitecture
 import Combine
 import LocalAuthentication
 import Foundation
+import Utils
 
 extension DependencyValues {
     var authClient: AuthClient {

@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import Utils
 
 struct CoreDataMigrationStep {
     let sourceModel: NSManagedObjectModel

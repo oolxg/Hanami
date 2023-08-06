@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import NukeUI
+import UIComponents
 
 struct OnlineMangaReadingView: View {
     let store: StoreOf<OnlineMangaReadingFeature>
@@ -296,23 +297,3 @@ extension OnlineMangaReadingView {
         }
     }
 }
-
-#if DEBUG
-struct OnlineMangaReadingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnlineMangaReadingView(
-            store: .init(
-                initialState: .init(
-                    manga: dev.manga,
-                    chapterID: .init(),
-                    chapterIndex: 0,
-                    scanlationGroupID: .init(),
-                    translatedLanguage: ""
-                ),
-                reducer: OnlineMangaReadingFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif

@@ -58,21 +58,6 @@ struct VolumeTabView: View {
     }
 }
 
-#if DEBUG
-struct VolumeTabView_Previews: PreviewProvider {
-    static var previews: some View {
-        VolumeTabView(
-            store: .init(
-                initialState: .init(
-                    volume: .init(chapters: [], volumeIndex: 99999), parentManga: dev.manga, online: false
-                ),
-                reducer: VolumeTabFeature()._printChanges()
-            )
-        )
-    }
-}
-#endif
-
 extension VolumeTabView {
     var chapterIndexesList: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in

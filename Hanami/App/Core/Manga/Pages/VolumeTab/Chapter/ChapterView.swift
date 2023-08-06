@@ -7,6 +7,8 @@
 
 import SwiftUI
 import ComposableArchitecture
+import ModelKit
+import UIComponents
 
 struct ChapterView: View {
     let store: StoreOf<ChapterFeature>
@@ -56,19 +58,6 @@ struct ChapterView: View {
     }
 }
 
-#if DEBUG
-struct ChapterView_Previews: PreviewProvider {
-    static var previews: some View {
-        ChapterView(
-            store: .init(
-                initialState: ChapterFeature.State(chapter: dev.chapter, parentManga: dev.manga),
-                reducer: ChapterFeature()._printChanges()
-            )
-        )
-    }
-}
-#endif
-
 extension ChapterView {
     private var disclosureGroupLabel: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
@@ -79,6 +68,7 @@ extension ChapterView {
                     .padding(.trailing, 5)
                 
                 Text(viewStore.chapter.chapterName)
+                    .foregroundColor(.theme.foreground)
                     .font(.title3)
                     .fontWeight(.light)
                     .padding(.vertical, 3)
@@ -87,11 +77,13 @@ extension ChapterView {
                 
                 if viewStore.chaptersCount > 1 {
                     Text("\(viewStore.chaptersCount) translations")
+                        .foregroundColor(.theme.foreground)
                         .font(.subheadline)
                         .fontWeight(.thin)
                         .padding(.vertical, 3)
                 } else {
                     Text("1 translation")
+                        .foregroundColor(.theme.foreground)
                         .font(.subheadline)
                         .fontWeight(.thin)
                         .padding(.vertical, 3)

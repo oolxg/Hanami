@@ -7,8 +7,9 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
 
-struct DownloadsFeature: ReducerProtocol {
+struct DownloadsFeature: Reducer {
     struct State: Equatable {
         var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var mangaEntries: IdentifiedArrayOf<CoreDataMangaEntry> = []
@@ -34,7 +35,7 @@ struct DownloadsFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .initDownloads:

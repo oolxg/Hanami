@@ -8,6 +8,8 @@
 import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIApplication
+import ModelKit
+import Utils
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {
@@ -225,3 +227,16 @@ struct SearchFeature: ReducerProtocol {
         }
     }
 }
+
+struct SearchParams: Equatable {
+    let searchQuery: String
+    let resultsCount: Int
+    let tags: IdentifiedArrayOf<FiltersFeature.FiltersTag>
+    let publicationDemographic: IdentifiedArrayOf<FiltersFeature.PublicationDemographic>
+    let contentRatings: IdentifiedArrayOf<FiltersFeature.ContentRatings>
+    let mangaStatuses: IdentifiedArrayOf<FiltersFeature.MangaStatus>
+    let sortOption: FiltersFeature.QuerySortOption
+    let sortOptionOrder: FiltersFeature.QuerySortOption.Order
+}
+
+extension SearchParams: Codable { }

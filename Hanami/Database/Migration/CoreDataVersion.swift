@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import Utils
 
 enum CoreDataMigrationVersion: String, CaseIterable {
     case version1 = "Model"

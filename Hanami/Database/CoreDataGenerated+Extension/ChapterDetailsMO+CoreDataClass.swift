@@ -7,6 +7,8 @@
 //
 
 import CoreData
+import ModelKit
+import DataTypeExtensions
 
 @objc(ChapterDetailsMO) public class ChapterDetailsMO: NSManagedObject { }
 

@@ -41,20 +41,6 @@ struct AuthorView: View {
     }
 }
 
-#if DEBUG
-struct AuthorView_Previews: PreviewProvider {
-    static var previews: some View {
-        AuthorView(
-            store: .init(
-                initialState: .init(authorID: UUID()),
-                reducer: AuthorFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
-
 extension AuthorView {
     private var backButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {

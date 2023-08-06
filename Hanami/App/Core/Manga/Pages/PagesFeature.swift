@@ -7,8 +7,9 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
 
-struct PagesFeature: ReducerProtocol {
+struct PagesFeature: Reducer {
     struct State: Equatable {
         // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
         init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, online: Bool) {
@@ -193,7 +194,7 @@ struct PagesFeature: ReducerProtocol {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.mangaClient) private var mangaClient
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case let .pageIndexButtonTapped(newIndex):

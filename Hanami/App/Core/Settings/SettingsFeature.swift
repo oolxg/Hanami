@@ -8,6 +8,8 @@
 import Foundation
 import ComposableArchitecture
 import Nuke
+import ModelKit
+import Utils
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
@@ -17,7 +19,7 @@ struct SettingsFeature: ReducerProtocol {
             useHigherQualityImagesForOnlineReading: false,
             useHigherQualityImagesForCaching: false,
             colorScheme: 0,
-            readingFormat: .vertical,
+            readingFormat: SettingsConfig.ReadingFormat.vertical,
             iso639Language: ISO639Language.deviceLanguage ?? .en
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB

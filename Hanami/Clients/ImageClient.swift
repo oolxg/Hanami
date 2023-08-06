@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Nuke
 import Foundation
 import class SwiftUI.UIImage
+import Utils
 
 extension DependencyValues {
     var imageClient: ImageClient {
@@ -28,7 +29,7 @@ struct ImageClient {
 extension ImageClient: DependencyKey {
     static let liveValue = ImageClient(
         prefetchImages: { urls in
-            .fireAndForget {
+            .run { _ in
                 prefetcher.startPrefetching(with: urls)
             }
         },

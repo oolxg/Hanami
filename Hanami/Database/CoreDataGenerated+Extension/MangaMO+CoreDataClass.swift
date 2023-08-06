@@ -7,6 +7,8 @@
 //
 
 import CoreData
+import ModelKit
+import DataTypeExtensions
 
 @objc(MangaMO) public class MangaMO: NSManagedObject { }
 

@@ -48,19 +48,6 @@ struct PagesView: View {
     }
 }
 
-#if DEBUG
-struct PagesView_Previews: PreviewProvider {
-    static var previews: some View {
-        PagesView(
-            store: .init(
-                initialState: .init(manga: dev.manga, mangaVolumes: [], chaptersPerPage: 1, online: true),
-                reducer: PagesFeature()._printChanges()
-            )
-        )
-    }
-}
-#endif
-
 extension PagesView {
     private var footer: some View {
         HStack {

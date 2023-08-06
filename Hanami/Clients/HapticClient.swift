@@ -8,6 +8,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Utils
 
 extension DependencyValues {
     var hapticClient: HapticClient {
@@ -24,12 +25,12 @@ struct HapticClient {
 extension HapticClient: DependencyKey {
     static let liveValue: HapticClient = .init(
         generateFeedback: { style in
-            .fireAndForget {
+            .run { _ in
                 HapticUtil.generateFeedback(style: style)
             }
         },
         generateNotificationFeedback: { style in
-            .fireAndForget {
+            .run { _ in
                 HapticUtil.generateNotificationFeedback(style: style)
             }
         }

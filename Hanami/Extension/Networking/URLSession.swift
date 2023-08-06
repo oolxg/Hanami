@@ -7,6 +7,7 @@
 
 import Foundation
 import struct ComposableArchitecture.EffectPublisher
+import Utils
 
 extension URLSession {
     func get<T: Decodable>(url: URL, decodeResponseAs _: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> EffectPublisher<T, AppError> {

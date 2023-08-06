@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import Utils
 
 extension NSManagedObjectModel {
     static func managedObjectModel(forResource resource: String) throws -> NSManagedObjectModel {

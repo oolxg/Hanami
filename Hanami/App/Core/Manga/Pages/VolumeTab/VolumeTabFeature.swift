@@ -7,8 +7,9 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
 
-struct VolumeTabFeature: ReducerProtocol {
+struct VolumeTabFeature: Reducer {
     struct State: Equatable, Identifiable {
         init(volume: MangaVolume, parentManga: Manga, online: Bool) {
             self.volume = volume
@@ -35,7 +36,7 @@ struct VolumeTabFeature: ReducerProtocol {
         case userDeletedLastChapterInVolume(mangaID: UUID)
     }
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .chapterAction(let chapterStateID, action: .downloaderAction(.chapterDeletionConfirmed)):

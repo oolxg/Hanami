@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import Utils
 
 protocol CoreDataMigratorProtocol {
     func requiresMigration(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws -> Bool

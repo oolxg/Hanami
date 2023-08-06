@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct OnlineMangaReadingFeature: ReducerProtocol {
+struct OnlineMangaReadingFeature: Reducer {
     struct State: Equatable {
         init(
             manga: Manga,
@@ -87,7 +89,7 @@ struct OnlineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .userStartedReadingChapter:

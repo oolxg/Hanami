@@ -8,8 +8,10 @@
 import Foundation
 import class SwiftUI.UIImage
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct ChapterLoaderFeature: ReducerProtocol {
+struct ChapterLoaderFeature: Reducer {
     struct State: Equatable {
         let parentManga: Manga
         let online: Bool

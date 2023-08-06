@@ -8,6 +8,7 @@
 import Foundation
 import SwiftyBeaver
 import ComposableArchitecture
+import Utils
 
 struct Logger {
     private let logger: SwiftyBeaver.Type = {

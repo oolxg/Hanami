@@ -8,6 +8,8 @@
 import ComposableArchitecture
 import Combine
 import LocalAuthentication
+import ModelKit
+import Utils
 
 extension DependencyValues {
     var settingsClient: SettingsClient {

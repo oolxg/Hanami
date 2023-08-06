@@ -7,6 +7,8 @@
 
 import SwiftUI
 import NukeUI
+import UIExtensions
+import Utils
 
 struct AboutView: View {
     @Environment(\.openURL) private var openURL
@@ -32,12 +34,6 @@ struct AboutView: View {
             .navigationTitle("About")
             .padding(.horizontal)
         }
-    }
-}
-
-struct AboutView_Previews: PreviewProvider {
-    static var previews: some View {
-        AboutView()
     }
 }
 

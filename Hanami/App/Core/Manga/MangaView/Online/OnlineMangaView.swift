@@ -9,6 +9,9 @@ import SwiftUI
 import ComposableArchitecture
 import NukeUI
 import PopupView
+import ModelKit
+import UIComponents
+import Utils
 
 struct OnlineMangaView: View {
     let store: StoreOf<OnlineMangaFeature>
@@ -124,14 +127,6 @@ struct OnlineMangaView: View {
         }
     }
 }
-
-#if DEBUG
-struct MangaView_Previews: PreviewProvider {
-    static var previews: some View {
-        EmptyView()
-    }
-}
-#endif
 
 extension OnlineMangaView {
     private var firstChaptersOptions: some View {

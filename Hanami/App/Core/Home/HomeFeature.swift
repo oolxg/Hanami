@@ -7,8 +7,11 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
+import DataTypeExtensions
 
-struct HomeFeature: ReducerProtocol {
+struct HomeFeature: Reducer {
     struct State: Equatable {
         var latestUpdatesMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
@@ -54,7 +57,7 @@ struct HomeFeature: ReducerProtocol {
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.mainQueue) private var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:

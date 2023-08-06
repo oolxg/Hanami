@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct FiltersFeature: ReducerProtocol {
+struct FiltersFeature: Reducer {
     struct State: Equatable {
         // MARK: - Tags
         var allTags: IdentifiedArrayOf<FiltersTag> = []

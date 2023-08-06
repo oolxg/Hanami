@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import ModelKit
 
 struct MangaChapterLoaderView: View {
     let store: StoreOf<MangaChapterLoaderFeature>
@@ -66,14 +67,6 @@ struct MangaChapterLoaderView: View {
         }
     }
 }
-
-#if DEBUG
-struct MangaChapterLoaderView_Previews: PreviewProvider {
-    static var previews: some View {
-        EmptyView()
-    }
-}
-#endif
 
 extension MangaChapterLoaderView {
     @ViewBuilder private func makeViewFor(chapter: ChapterDetails) -> some View {

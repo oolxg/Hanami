@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import Utils
 
 struct HomeView: View {
     let store: StoreOf<HomeFeature>
@@ -124,19 +125,6 @@ struct HomeView: View {
     }
 }
 
-#if DEBUG
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView(
-            store: .init(
-                initialState: HomeFeature.State(),
-                reducer: HomeFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
 
 extension HomeView {
     private var latestUpdates: some View {

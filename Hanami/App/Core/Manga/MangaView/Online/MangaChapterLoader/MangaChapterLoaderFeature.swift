@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct MangaChapterLoaderFeature: ReducerProtocol {
+struct MangaChapterLoaderFeature: Reducer {
     struct State: Equatable {
         let manga: Manga
         var chapters: IdentifiedArrayOf<ChapterDetails> = []

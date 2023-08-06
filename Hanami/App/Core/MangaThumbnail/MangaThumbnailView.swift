@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 import NukeUI
 import WrappingHStack
+import ModelKit
+import Utils
 
 struct MangaThumbnailView: View {
     let store: StoreOf<MangaThumbnailFeature>
@@ -59,22 +61,6 @@ struct MangaThumbnailView: View {
         }
     }
 }
-
-#if DEBUG
-struct MangaThumbnailView_Previews: PreviewProvider {
-    static var previews: some View {
-        MangaThumbnailView(
-            store: .init(
-                initialState: .init(
-                    manga: dev.manga
-                ),
-                reducer: MangaThumbnailFeature()._printChanges()
-            ),
-            blurRadius: 0
-        )
-    }
-}
-#endif
 
 extension MangaThumbnailView {
     private var textBlock: some View {

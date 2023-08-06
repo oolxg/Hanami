@@ -8,6 +8,8 @@
 import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIImage
+import ModelKit
+import Utils
 
 extension DependencyValues {
     var mangaClient: MangaClient {

@@ -8,8 +8,10 @@
 import ComposableArchitecture
 import enum SwiftUI.ScenePhase
 import Foundation
+import Utils
+import DataTypeExtensions
 
-struct RootFeature: ReducerProtocol {
+struct RootFeature: Reducer {
     struct State: Equatable {
         var homeState = HomeFeature.State()
         var searchState = SearchFeature.State()
@@ -41,7 +43,7 @@ struct RootFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             struct CancelAuth: Hashable { }
             switch action {

@@ -8,9 +8,12 @@
 import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIImage
+import ModelKit
+import Utils
+import DataTypeExtensions
 
 // swiftlint:disable:next type_body_length
-struct OnlineMangaFeature: ReducerProtocol {
+struct OnlineMangaFeature: Reducer {
     struct State: Equatable {
         // MARK: - Props for view
         let manga: Manga
@@ -112,7 +115,7 @@ struct OnlineMangaFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             struct FirstChapterCancel: Hashable { let chapterID: UUID }

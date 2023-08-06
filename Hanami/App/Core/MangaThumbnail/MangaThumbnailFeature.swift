@@ -7,8 +7,10 @@
 
 import Foundation
 import ComposableArchitecture
+import ModelKit
+import Utils
 
-struct MangaThumbnailFeature: ReducerProtocol {
+struct MangaThumbnailFeature: Reducer {
     struct State: Equatable, Identifiable {
         init(manga: Manga, online: Bool = true) {
             if online {
@@ -57,7 +59,7 @@ struct MangaThumbnailFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             switch action {

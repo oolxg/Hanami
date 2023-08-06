@@ -8,6 +8,9 @@
 import SwiftUI
 import ComposableArchitecture
 import NukeUI
+import ModelKit
+import Utils
+import UIComponents
 
 struct OfflineMangaView: View {
     let store: StoreOf<OfflineMangaFeature>
@@ -79,14 +82,6 @@ struct OfflineMangaView: View {
         }
     }
 }
-
-#if DEBUG
-struct OfflineMangaView_Previews: PreviewProvider {
-    static var previews: some View {
-        EmptyView()
-    }
-}
-#endif
 
 extension OfflineMangaView {
     private func mangaReadingView() -> some View {
