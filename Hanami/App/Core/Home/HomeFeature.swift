@@ -10,6 +10,7 @@ import ComposableArchitecture
 import ModelKit
 import Utils
 import DataTypeExtensions
+import Logger
 
 struct HomeFeature: Reducer {
     struct State: Equatable {
@@ -183,14 +184,11 @@ struct HomeFeature: Reducer {
                     
                     let coverArtURLs = state[keyPath: keyPath].compactMap(\.thumbnailURL)
                     
-                    return .merge(
-                        mangaClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: mainQueue)
-                            .catchToEffect { .statisticsFetched($0, keyPath) },
-                        
-                        imageClient.prefetchImages(coverArtURLs)
-                            .fireAndForget()
-                    )
+                    imageClient.prefetchImages(with: coverArtURLs)
+                    
+                    return mangaClient.fetchStatistics(response.data.map(\.id))
+                        .receive(on: mainQueue)
+                        .catchToEffect { .statisticsFetched($0, keyPath) }
                     
                 case .failure(let error):
                     hudClient.show(message: error.description)

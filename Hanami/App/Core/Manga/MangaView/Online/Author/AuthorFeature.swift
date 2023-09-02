@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct AuthorFeature: Reducer {
     struct State: Equatable, Identifiable {
@@ -25,6 +26,7 @@ struct AuthorFeature: Reducer {
         }
     }
     
+    // Without confirming to Sendable it doesn't compile
     // indirect because AuthorFeature is inside MangaFeauture
     // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
     enum Action: Sendable {

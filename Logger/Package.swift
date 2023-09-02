@@ -4,28 +4,34 @@
 import PackageDescription
 
 let package = Package(
-    name: "UIComponents",
+    name: "Logger",
     platforms: [.iOS(.v15)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "UIComponents",
-            targets: ["UIComponents"])
+            name: "Logger",
+            targets: ["Logger"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(path: "../UITheme"),
-        .package(url: "https://github.com/kean/Nuke", exact: "11.6.4")
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", from: "2.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
+        .package(path: "../Utils")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "UIComponents",
+            name: "Logger",
             dependencies: [
-                .product(name: "UITheme", package: "UITheme"),
-                .product(name: "NukeUI", package: "Nuke")
+                .product(name: "SwiftyBeaver", package: "SwiftyBeaver"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "Utils", package: "Utils")
             ]
+        ),
+        .testTarget(
+            name: "LoggerTests",
+            dependencies: ["Logger"]
         )
     ]
 )

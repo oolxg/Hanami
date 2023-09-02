@@ -11,6 +11,7 @@ import class SwiftUI.UIImage
 import ModelKit
 import Utils
 import DataTypeExtensions
+import Logger
 
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: Reducer {
@@ -303,9 +304,8 @@ struct OnlineMangaFeature: Reducer {
                 switch result {
                 case .success(let response):
                     state.allCoverArtsInfo = response.data
-                    return imageClient
-                        .prefetchImages(state.croppedCoverArtURLs)
-                        .fireAndForget()
+                    imageClient.prefetchImages(with: state.croppedCoverArtURLs)
+                    return .none
                     
                 case .failure(let error):
                     logger.error(
@@ -446,30 +446,34 @@ struct OnlineMangaFeature: Reducer {
                     .mangaReadingViewAction(.downloadChapterButtonTapped):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !mangaClient.isCoverArtCached(state.manga.id, cacheClient), let coverArtURL = state.mainCoverArtURL {
-                    return imageClient.downloadImage(coverArtURL)
-                        .receive(on: mainQueue)
-                        .eraseToEffect { .coverArtForCachingFetched($0) }
+                    return .run { send in
+                        do {
+                            let coverArt = try await imageClient.downloadImage(from: coverArtURL)
+                            await send(.coverArtForCachingFetched(.success(coverArt)))
+                        } catch {
+                            if let error = error as? AppError {
+                                await send(.coverArtForCachingFetched(.failure(error)))
+                            }
+                        }
+                    }
                 }
                 
                 return .none
                 
-            case .coverArtForCachingFetched(let result):
-                switch result {
-                case .success(let coverArt):
-                    return mangaClient
-                        .saveCoverArt(coverArt, state.manga.id, cacheClient)
-                        .fireAndForget()
-                    
-                case .failure(let error):
-                    logger.error(
-                        "Failed to fetch main cover art for caching: \(error)",
-                        context: [
-                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                            "mangaName": "\(state.manga.title)"
-                        ]
-                    )
-                    return .none
-                }
+            case .coverArtForCachingFetched(.success(let coverArt)):
+                return mangaClient
+                    .saveCoverArt(coverArt, state.manga.id, cacheClient)
+                    .fireAndForget()
+                
+            case .coverArtForCachingFetched(.failure(let error)):
+                logger.error(
+                    "Failed to fetch main cover art for caching: \(error)",
+                    context: [
+                        "mangaID": "\(state.manga.id.uuidString.lowercased())",
+                        "mangaName": "\(state.manga.title)"
+                    ]
+                )
+                return .none
                 
             default:
                 return .none

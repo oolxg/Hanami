@@ -20,7 +20,7 @@ struct SearchView: View {
         let searchTextEmpty: Bool
         let foundMangaCount: Int
         let searchResultsCount: Int
-        let searchResultsFetched: Bool
+        let searchResultDidFetch: Bool
         let showEmptyResultsMessage: Bool
         let isLoading: Bool
         let showMangaList: Bool
@@ -30,11 +30,11 @@ struct SearchView: View {
             searchTextEmpty = state.searchText.isEmpty
             foundMangaCount = state.foundManga.count
             searchResultsCount = state.resultsCount
-            searchResultsFetched = state.searchResultsFetched
-            showEmptyResultsMessage = searchResultsFetched && !searchTextEmpty && foundMangaCount == 0
+            searchResultDidFetch = state.searchResultDidFetch
+            showEmptyResultsMessage = searchResultDidFetch && !searchTextEmpty && foundMangaCount == 0
             isLoading = state.isLoading
             searchHistory = state.searchHistory
-            showMangaList = !isLoading && searchResultsFetched && !showEmptyResultsMessage
+            showMangaList = !isLoading && searchResultDidFetch && !showEmptyResultsMessage
         }
     }
     
@@ -213,7 +213,7 @@ extension SearchView {
                 .animation(.linear, value: viewStore.searchResultsCount)
                 .transition(.opacity)
                 
-                if viewStore.searchResultsFetched {
+                if viewStore.searchResultDidFetch {
                     footer
                 }
             }

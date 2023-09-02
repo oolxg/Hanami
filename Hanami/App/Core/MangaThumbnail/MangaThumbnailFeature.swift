@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct MangaThumbnailFeature: Reducer {
     struct State: Equatable, Identifiable {

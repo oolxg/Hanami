@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct MangaChapterLoaderFeature: Reducer {
     struct State: Equatable {
@@ -54,7 +55,7 @@ struct MangaChapterLoaderFeature: Reducer {
                     .catchToEffect(Action.settingsConfigRetrieved)
             )
             
-        case let .settingsConfigRetrieved(result):
+        case .settingsConfigRetrieved(let result):
             switch result {
             case .success(let config):
                 state.prefferedLanguage = config.iso639Language.name
@@ -65,7 +66,7 @@ struct MangaChapterLoaderFeature: Reducer {
                 return .none
             }
                 
-        case let .feedFetched(result, currentOffset):
+        case .feedFetched(let result, let currentOffset):
             switch result {
             case .success(let response):
                 state.chapters.append(contentsOf: response.data.asIdentifiedArray)
@@ -84,7 +85,7 @@ struct MangaChapterLoaderFeature: Reducer {
                 return .none
             }
             
-        case let .prefferedLanguageChanged(newLang):
+        case .prefferedLanguageChanged(let newLang):
             state.prefferedLanguage = newLang
             
             state.filteredChapters = state.chapters.filter {
@@ -93,7 +94,7 @@ struct MangaChapterLoaderFeature: Reducer {
             
             return .none
             
-        case let .downloadButtonTapped(chapter):
+        case .downloadButtonTapped(let chapter):
             logger.info("Starting downloading chapter \(chapter.chapterName) at MangaChapterLoaderFeature")
             return .none
         }

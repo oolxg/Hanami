@@ -10,6 +10,7 @@ import class SwiftUI.UIImage
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct ChapterLoaderFeature: Reducer {
     struct State: Equatable {
@@ -38,7 +39,7 @@ struct ChapterLoaderFeature: Reducer {
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         
         case downloadChapterButtonTapped(chapter: ChapterDetails)
-        case chapterPageForCachingFetched(Result<UIImage, AppError>, pageIndex: Int, ChapterDetails)
+        case chapterPageForCachingFetched(Result<UIImage, AppError>, chapter: ChapterDetails, pageIndex: Int)
         case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, ChapterDetails)
         
         case retrieveCachedChaptersFromMemory
@@ -191,16 +192,20 @@ struct ChapterLoaderFeature: Reducer {
                     )
                 )
                 
-                var effects = pagesURLs
-                    .enumerated()
-                    .map { i, url in
-                        imageClient
-                            .downloadImage(url)
-                            .receive(on: mainQueue)
-                            .eraseToEffect {
-                                Action.chapterPageForCachingFetched($0, pageIndex: i, chapter)
+                var effects: [EffectTask<Action>] = [
+                    .run { send in
+                        for (i, pageURL) in pagesURLs.enumerated() {
+                            do {
+                                let page = try await imageClient.downloadImage(from: pageURL)
+                                await send(.chapterPageForCachingFetched(.success(page), chapter: chapter, pageIndex: i))
+                            } catch {
+                                if let error = error as? AppError {
+                                    await send(.chapterPageForCachingFetched(.failure(error), chapter: chapter, pageIndex: i))
+                                }
                             }
+                        }
                     }
+                ]
                 
                 effects.append(
                     databaseClient.saveChapterDetails(
@@ -244,35 +249,33 @@ struct ChapterLoaderFeature: Reducer {
             }
             
             
-        case .chapterPageForCachingFetched(let result, let pageIndex, let chapter):
-            switch result {
-            case .success(let chapterPage):
-                let chapterState = state.cachedChaptersStates.first(where: { $0.id == chapter.id })!
-                
-                let chapterPagesCount = chapterState.pagesCount
-                let fetchedPagesCount = chapterState.pagesFetched + 1
-                
-                state.cachedChaptersStates.insertOrUpdateByID(
-                    .init(
-                        id: chapter.id,
-                        status: fetchedPagesCount == chapterPagesCount ? .cached : .downloadInProgress,
-                        pagesCount: chapterPagesCount,
-                        pagesFetched: fetchedPagesCount
-                    )
+        case .chapterPageForCachingFetched(.success(let chapterPage), let chapter, let pageIndex):
+            let chapterState = state.cachedChaptersStates.first(where: { $0.id == chapter.id })!
+            
+            let chapterPagesCount = chapterState.pagesCount
+            let fetchedPagesCount = chapterState.pagesFetched + 1
+            
+            state.cachedChaptersStates.insertOrUpdateByID(
+                .init(
+                    id: chapter.id,
+                    status: fetchedPagesCount == chapterPagesCount ? .cached : .downloadInProgress,
+                    pagesCount: chapterPagesCount,
+                    pagesFetched: fetchedPagesCount
                 )
+            )
+            
+            return .merge(
+                mangaClient
+                    .saveChapterPage(chapterPage, pageIndex, chapter.id, cacheClient)
+                    .cancellable(id: CancelChapterCache(id: chapter.id))
+                    .fireAndForget(),
                 
-                return .merge(
-                    mangaClient
-                        .saveChapterPage(chapterPage, pageIndex, chapter.id, cacheClient)
-                        .cancellable(id: CancelChapterCache(id: chapter.id))
-                        .fireAndForget(),
-                    
-                    cacheClient
-                        .saveCachedChapterInMemory(state.parentManga.id, chapter.id)
-                        .fireAndForget()
-                )
+                cacheClient
+                    .saveCachedChapterInMemory(state.parentManga.id, chapter.id)
+                    .fireAndForget()
+            )
                 
-            case .failure(let error):
+        case .chapterPageForCachingFetched(.failure(let error), let chapter, let pageIndex):
                 logger.error(
                     "Failed to fetch page for caching: \(error)",
                     context: [
@@ -316,7 +319,6 @@ struct ChapterLoaderFeature: Reducer {
                 }
                 
                 return .merge(effects)
-            }
         }
     }
 }

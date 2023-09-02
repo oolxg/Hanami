@@ -10,6 +10,7 @@ import ComposableArchitecture
 import class SwiftUI.UIImage
 import ModelKit
 import Utils
+import Logger
 
 struct ChapterFeature: ReducerProtocol {
     struct State: Equatable, Identifiable {

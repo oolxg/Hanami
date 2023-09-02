@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Utils
 import ModelKit
+import Logger
 
 struct OfflineMangaFeature: Reducer {
     struct State: Equatable {

@@ -52,3 +52,9 @@ public struct MangaStatistics: Decodable {
 extension MangaStatistics: Equatable { }
 
 extension MangaStatistics.MangaRating: Equatable { }
+
+public extension MangaStatisticsContainer {
+    init(statistics: [UUID: MangaStatistics]) {
+        self.statistics = statistics
+    }
+}

@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Nuke
 import ModelKit
 import Utils
+import Logger
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {

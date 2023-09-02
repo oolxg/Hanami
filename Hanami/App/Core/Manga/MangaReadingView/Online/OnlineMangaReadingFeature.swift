@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct OnlineMangaReadingFeature: Reducer {
     struct State: Equatable {
@@ -153,9 +154,11 @@ struct OnlineMangaReadingFeature: Reducer {
                         state.pageIndex = state.startFromLastPage ? state.pagesCount! - 1 : 0
                     }
                     
-                    return imageClient
-                        .prefetchImages(state.pagesURLs!)
-                        .fireAndForget()
+                    
+                    
+                    imageClient.prefetchImages(with: state.pagesURLs!)
+                    
+                    return .none
                     
                 case .failure(let error):
                     logger.error(

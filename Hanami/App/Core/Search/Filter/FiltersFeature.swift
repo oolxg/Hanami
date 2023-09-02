@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Utils
+import Logger
 
 struct FiltersFeature: Reducer {
     struct State: Equatable {
@@ -51,7 +52,7 @@ struct FiltersFeature: Reducer {
     
     enum Action {
         case fetchFilterTagsIfNeeded
-        case filterListDownloaded(Result<Response<[Tag]>, AppError>)
+        case filterListFetched(Result<IdentifiedArrayOf<FiltersTag>, AppError>)
         case filterTagButtonTapped(FiltersTag)
         case resetFilterButtonPressed
         
@@ -71,24 +72,30 @@ struct FiltersFeature: Reducer {
         case .fetchFilterTagsIfNeeded:
             guard state.allTags.isEmpty else { return .none }
             
-            return searchClient.fetchTags()
-                .receive(on: mainQueue)
-                .catchToEffect(Action.filterListDownloaded)
-            
-        case .filterListDownloaded(let result):
-            switch result {
-            case .success(let response):
-                state.allTags = response.data
-                    .map { FiltersTag(tag: $0, state: .notSelected) }
-                    .sorted(by: <)
-                    .asIdentifiedArray
+            return .run { send in
                 
-                return .none
-                
-            case .failure(let error):
-                logger.error("Failed to load list of filters: \(error)")
-                return .none
+                do {
+                    let tags = try await searchClient.fetchTags()
+                        .data
+                        .map { FiltersTag(tag: $0, state: .notSelected) }
+                        .sorted(by: <)
+                        .asIdentifiedArray
+                    
+                    await send(.filterListFetched(.success(tags)))
+                } catch {
+                    if let error = error as? AppError {
+                        await send(.filterListFetched(.failure(error)))
+                    }
+                }
             }
+            
+        case .filterListFetched(.success(let tags)):
+            state.allTags = tags
+            return .none
+            
+        case .filterListFetched(.failure(let error)):
+            logger.error("Failed to load list of filters: \(error)")
+            return .none
             
         case .filterTagButtonTapped(let tappedTag):
             state.allTags[id: tappedTag.id]?.toggleState()

@@ -197,7 +197,7 @@ struct PagesFeature: Reducer {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case let .pageIndexButtonTapped(newIndex):
+            case .pageIndexButtonTapped(let newIndex):
                 guard newIndex != state.currentPageIndex, newIndex >= 0, newIndex < state.pagesCount else {
                     return .none
                 }
@@ -205,16 +205,16 @@ struct PagesFeature: Reducer {
                 let chapterIDs = state.volumeTabStatesOnCurrentPage.flatMap(\.childrenChapterDetailsIDs)
                 
                 return .concatenate(
-                    .cancel(ids: chapterIDs.map { ChapterFeature.CancelChapterFetch(id: $0) }),
+                    .merge(chapterIDs.map { .cancel(id: ChapterFeature.CancelChapterFetch(id: $0)) }),
                     
                     .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
                 )
                 
-            case let .changePageAfterEffectCancellation(newPageIndex):
+            case .changePageAfterEffectCancellation(let newPageIndex):
                 state.currentPageIndex = newPageIndex
                 return .none
                 
-            case let .volumeTabAction(volumeID, .userDeletedLastChapterInVolume(mangaID)):
+            case .volumeTabAction(let volumeID, .userDeletedLastChapterInVolume(let mangaID)):
                 state.volumeTabStatesOnCurrentPage.remove(id: volumeID)
                 
                 if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
@@ -227,7 +227,7 @@ struct PagesFeature: Reducer {
                 
                 return .none
                 
-            case let .userDeletedAllCachedChapters(mangaID):
+            case .userDeletedAllCachedChapters(let mangaID):
                 return mangaClient
                     .deleteCoverArt(mangaID, cacheClient)
                     .fireAndForget()

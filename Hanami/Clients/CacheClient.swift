@@ -120,14 +120,14 @@ struct CacheClient {
 extension CacheClient: DependencyKey {
     static let liveValue = CacheClient(
         cacheImage: { image, imageName in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     try? imageStorage.setObject(image, forKey: imageName, expiry: .never)
                 }
             }
         },
         removeImage: { imageName in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     try? imageStorage.removeObject(forKey: imageName)
                 }
@@ -138,7 +138,7 @@ extension CacheClient: DependencyKey {
             return result
         },
         clearCache: {
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     try? imageStorage.removeAll()
                 }
@@ -164,14 +164,14 @@ extension CacheClient: DependencyKey {
             return nil
         },
         replaceCachedChaptersInMemory: { mangaID, chapterIDs in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     cachedChapterIDsStorage.setObject(chapterIDs, forKey: mangaID)
                 }
             }
         },
         saveCachedChapterInMemory: { mangaID, chapterID in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     if var savedChapters = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                         savedChapters.insert(chapterID)
@@ -196,7 +196,7 @@ extension CacheClient: DependencyKey {
             .eraseToEffect()
         },
         removeAllCachedChapterIDsFromMemory: { mangaID in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     // we have to store empty set for recently deleted manga to avoid some UI bugs
                     cachedChapterIDsStorage.setObject([], forKey: mangaID)
@@ -204,7 +204,7 @@ extension CacheClient: DependencyKey {
             }
         },
         removeCachedChapterIDFromMemory: { mangaID, chapterID in
-            .fireAndForget {
+            .run { _ in
                 cacheQueue.async {
                     if var cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                         // its already cached chapters from this manga

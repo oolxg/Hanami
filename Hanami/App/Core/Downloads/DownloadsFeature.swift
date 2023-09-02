@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import ModelKit
+import Logger
 
 struct DownloadsFeature: Reducer {
     struct State: Equatable {
@@ -62,8 +63,9 @@ struct DownloadsFeature: Reducer {
                     }
                     
                     let coverArtPaths = state.cachedMangaThumbnailStates.map(\.thumbnailURL).compactMap { $0 }
+                    imageClient.prefetchImages(with: coverArtPaths)
                     
-                    return imageClient.prefetchImages(coverArtPaths).fireAndForget()
+                    return .none
                     
                 case .failure(let error):
                     logger.error("Failed to retrieve all cached manga from disk: \(error)")

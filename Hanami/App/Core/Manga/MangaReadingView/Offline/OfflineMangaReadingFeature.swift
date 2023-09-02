@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Utils
 import ModelKit
+import Logger
 
 struct OfflineMangaReadingFeature: ReducerProtocol {
     struct State: Equatable {
@@ -71,29 +72,18 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-            var effects: [EffectTask<Action>] = [
-                imageClient
-                    .prefetchImages(state.cachedPagesPaths.compactMap { $0 })
-                    .fireAndForget()
-            ]
-            
-            if state.sameScanlationGroupChapters.isEmpty {
-                let mangaID = state.mangaID
-                let scanlationGroupID = state.chapter.scanlationGroupID
-                effects.append(
-                    databaseClient
-                        .retrieveAllChaptersForManga(mangaID: mangaID, scanlationGroupID: scanlationGroupID)
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.sameScanlationGroupChaptersRetrieved)
-                )
-            }
+            imageClient.prefetchImages(with: state.cachedPagesPaths.compactMap { $0 })
             
             return .concatenate(
                 settingsClient.retireveSettingsConfig()
                     .receive(on: mainQueue)
                     .catchToEffect(Action.settingsConfigRetrieved),
                 
-                .merge(effects)
+                state.sameScanlationGroupChapters.isEmpty == false ? .none :
+                    databaseClient
+                        .retrieveAllChaptersForManga(mangaID: state.mangaID, scanlationGroupID: state.chapter.scanlationGroupID)
+                        .receive(on: mainQueue)
+                        .catchToEffect(Action.sameScanlationGroupChaptersRetrieved)
             )
             
         case .settingsConfigRetrieved(let result):

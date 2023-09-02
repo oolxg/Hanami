@@ -10,13 +10,14 @@ import ComposableArchitecture
 import class SwiftUI.UIApplication
 import ModelKit
 import Utils
+import Logger
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {
         var foundManga: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var filtersState = FiltersFeature.State()
         
-        var searchResultsFetched = false
+        var searchResultDidFetch = false
         var isLoading = false
         
         @BindingState var searchSortOption = FiltersFeature.QuerySortOption.relevance
@@ -25,7 +26,7 @@ struct SearchFeature: ReducerProtocol {
         
         @BindingState var searchText = ""
         
-        var lastSuccessfulRequestParams: SearchParams?
+        var lastSuccessfulSearchParams: SearchParams?
         
         var searchHistory: IdentifiedArrayOf<SearchRequest> = []
     }
@@ -38,7 +39,7 @@ struct SearchFeature: ReducerProtocol {
         case userTappedOnSearchHistory(SearchRequest)
         case searchForManga
         case cancelSearchButtonTapped
-        case searchResultDownloaded(Result<Response<[Manga]>, AppError>, requestParams: SearchParams?)
+        case searchResultFetched(Result<Response<[Manga]>, AppError>, searchParams: SearchParams?)
         case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
         
         case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
@@ -102,20 +103,28 @@ struct SearchFeature: ReducerProtocol {
                 state.filtersState.allTags = searchRequest.params.tags
                 state.searchText = searchRequest.params.searchQuery
                 
-                state.searchResultsFetched = false
+                state.searchResultDidFetch = false
                 state.isLoading = true
                 
-                return searchClient.makeSearchRequest(searchRequest.params)
-                    .delay(for: .seconds(0.4), scheduler: mainQueue)
-                    .receive(on: mainQueue)
-                    .catchToEffect { .searchResultDownloaded($0, requestParams: nil) }
-                    .cancellable(id: CancelSearch(), cancelInFlight: true)
+                return .run { send in
+                    do {
+                        let mangaListResponse = try await searchClient.makeSearchRequest(with: searchRequest.params)
+                        
+                        try await Task.sleep(seconds: 0.4)
+                        await send(.searchResultFetched(.success(mangaListResponse), searchParams: nil))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.searchResultFetched(.failure(error), searchParams: nil))
+                        }
+                    }
+                }
+                .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
             case .cancelSearchButtonTapped:
                 state.searchText = ""
                 state.foundManga.removeAll()
-                state.searchResultsFetched = false
-                state.lastSuccessfulRequestParams = nil
+                state.searchResultDidFetch = false
+                state.lastSuccessfulSearchParams = nil
                 state.isLoading = false
                 
                 return .cancel(id: CancelSearch())
@@ -136,53 +145,56 @@ struct SearchFeature: ReducerProtocol {
                     sortOptionOrder: state.searchSortOptionOrder
                 )
                 
-                guard searchParams != state.lastSuccessfulRequestParams else {
+                guard searchParams != state.lastSuccessfulSearchParams else {
                     return .none
                 }
                 
-                state.searchResultsFetched = false
+                state.searchResultDidFetch = false
                 state.isLoading = true
                 state.foundManga.removeAll()
                 
-                return searchClient.makeSearchRequest(searchParams)
-                    .delay(for: .seconds(0.4), scheduler: mainQueue)
-                    .receive(on: mainQueue)
-                    .catchToEffect { .searchResultDownloaded($0, requestParams: searchParams) }
-                    .cancellable(id: CancelSearch(), cancelInFlight: true)
-                
-                
-            case .searchResultDownloaded(let result, let requestParams):
-                state.isLoading = false
-                
-                switch result {
-                case .success(let response):
-                    state.lastSuccessfulRequestParams = requestParams
-                    state.searchResultsFetched = true
-                    state.foundManga = response.data
-                        .map { MangaThumbnailFeature.State(manga: $0) }
-                        .asIdentifiedArray
-                    
-                    if !state.foundManga.isEmpty {
-                        UIApplication.shared.endEditing()
+                return .run { send in
+                    do {
+                        let mangaListResponse = try await searchClient.makeSearchRequest(with: searchParams)
+                        
+                        try await Task.sleep(seconds: 0.4)
+                        await send(.searchResultFetched(.success(mangaListResponse), searchParams: searchParams))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.searchResultFetched(.failure(error), searchParams: nil))
+                        }
                     }
-                    
-                    var effects = [
-                        mangaClient.fetchStatistics(response.data.map(\.id))
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.mangaStatisticsFetched)
-                    ]
-                    
-                    if let requestParams {
-                        effects.append(.task { .updateSearchHistory(requestParams) })
-                    }
-                    
-                    return .merge(effects)
-                    
-                case .failure(let error):
-                    logger.error("Failed to make search request: \(error)")
-                    hudClient.show(message: error.description)
-                    return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 }
+                .cancellable(id: CancelSearch(), cancelInFlight: true)
+                
+            case .searchResultFetched(.success(let response), let searchParams):
+                state.isLoading = false
+                state.lastSuccessfulSearchParams = searchParams
+                state.searchResultDidFetch = true
+                state.foundManga = response.data
+                    .map { MangaThumbnailFeature.State(manga: $0) }
+                    .asIdentifiedArray
+                
+                if !state.foundManga.isEmpty {
+                    UIApplication.shared.endEditing()
+                }
+                
+                var effects = [
+                    mangaClient.fetchStatistics(response.data.map(\.id))
+                        .receive(on: mainQueue)
+                        .catchToEffect(Action.mangaStatisticsFetched)
+                ]
+                
+                if let searchParams {
+                    effects.append(.task { .updateSearchHistory(searchParams) })
+                }
+                
+                return .merge(effects)
+                
+            case .searchResultFetched(.failure(let error), _):
+                logger.error("Failed to make search request: \(error)")
+                hudClient.show(message: error.description)
+                return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 
             case .mangaStatisticsFetched(let result):
                 switch result {
@@ -204,9 +216,12 @@ struct SearchFeature: ReducerProtocol {
                 return .merge(
                     .cancel(id: CancelSearch()),
                     
-                    .task { .searchForManga }
-                        .debounce(id: DebounceForSearch(), for: 0.8, scheduler: mainQueue)
-                        .eraseToEffect()
+                    .run { send in
+                        try await withTaskCancellation(id: DebounceForSearch(), cancelInFlight: true) {
+                            try await Task.sleep(seconds: 0.8)
+                            await send(.searchForManga)
+                        }
+                    }
                 )
                 
             case .binding:

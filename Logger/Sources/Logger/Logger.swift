@@ -7,10 +7,10 @@
 
 import Foundation
 import SwiftyBeaver
-import ComposableArchitecture
+import Dependencies
 import Utils
 
-struct Logger {
+public struct Logger {
     private let logger: SwiftyBeaver.Type = {
         let log = SwiftyBeaver.self
         let file = FileDestination()
@@ -39,32 +39,32 @@ struct Logger {
         return log
     }()
     
-    func error(_ message: Any, context: Any? = nil) {
+    public func error(_ message: Any, context: Any? = nil) {
         logger.error(message, context: context)
     }
     
-    func warning(_ message: Any, context: Any? = nil) {
+    public func warning(_ message: Any, context: Any? = nil) {
         logger.warning(message, context: context)
     }
     
-    func info(_ message: Any, context: Any? = nil) {
+    public func info(_ message: Any, context: Any? = nil) {
         logger.info(message, context: context)
     }
     
-    func debug(_ message: Any, context: Any? = nil) {
+    public func debug(_ message: Any, context: Any? = nil) {
         logger.debug(message, context: context)
     }
     
-    func verbose(_ message: Any, context: Any? = nil) {
+    public func verbose(_ message: Any, context: Any? = nil) {
         logger.verbose(message, context: context)
     }
 }
 
 extension Logger: DependencyKey {
-    static let liveValue = Logger()
+    public static let liveValue = Logger()
 }
 
-extension DependencyValues {
+public extension DependencyValues {
     var logger: Logger {
         get { self[Logger.self] }
         set { self[Logger.self] = newValue }

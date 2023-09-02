@@ -22,7 +22,6 @@
 		0829E20828F896C30009A907 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20728F896C30009A907 /* AuthClient.swift */; };
 		0859979528F4C4170095422C /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979428F4C4170095422C /* SettingsFeature.swift */; };
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
-		0859979C28F6DBE50095422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979B28F6DBE50095422C /* Logger.swift */; };
 		087DB9E02A79C738002D0277 /* Cache in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9DF2A79C738002D0277 /* Cache */; };
 		087DB9E32A79C749002D0277 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E22A79C749002D0277 /* NukeUI */; };
 		087DB9E62A79C759002D0277 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E52A79C759002D0277 /* SwiftyBeaver */; };
@@ -36,6 +35,7 @@
 		08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45D2902A9F5001EECD9 /* AuthorView.swift */; };
 		08C69A8A2A7B109D006D6369 /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 08C69A892A7B109D006D6369 /* UIComponents */; };
 		08CF177A29B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CF177929B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift */; };
+		08D7306C2AA2766900038543 /* Logger in Frameworks */ = {isa = PBXBuildFile; productRef = 08D7306B2AA2766900038543 /* Logger */; };
 		08E0B078293EC0C60021D5EC /* ChapterLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E0B077293EC0C60021D5EC /* ChapterLoaderFeature.swift */; };
 		08E6218C2A79D138001B0318 /* UIExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 08E6218B2A79D138001B0318 /* UIExtensions */; };
 		08E621902A7B0E6A001B0318 /* UITheme in Frameworks */ = {isa = PBXBuildFile; productRef = 08E6218F2A7B0E6A001B0318 /* UITheme */; };
@@ -135,7 +135,7 @@
 		0829E20728F896C30009A907 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		0859979B28F6DBE50095422C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		086E3A872AA274E300FE65C8 /* Logger */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Logger; sourceTree = "<group>"; };
 		088934AC29C66F3D00AA81D4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		088934AE29C7365500AA81D4 /* MangaChapterLoaderFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaChapterLoaderFeature.swift; sourceTree = "<group>"; };
 		088934B129C738EF00AA81D4 /* MangaChapterLoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaChapterLoaderView.swift; sourceTree = "<group>"; };
@@ -213,6 +213,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08D7306C2AA2766900038543 /* Logger in Frameworks */,
 				08C69A8A2A7B109D006D6369 /* UIComponents in Frameworks */,
 				087DB9E92A79C766002D0277 /* PopupView in Frameworks */,
 				081FF3052A79CF4A00C444E4 /* ModelKit in Frameworks */,
@@ -262,20 +263,6 @@
 				080D1DB7294FDD99008B813C /* CoreDataVersion.swift */,
 			);
 			path = Migration;
-			sourceTree = "<group>";
-		};
-		080D1DB9294FDEC5008B813C /* UI */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = UI;
-			sourceTree = "<group>";
-		};
-		080D1DBA294FDEE8008B813C /* DataType */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = DataType;
 			sourceTree = "<group>";
 		};
 		080D1DBB294FDF1C008B813C /* Database */ = {
@@ -373,20 +360,6 @@
 			path = Filter;
 			sourceTree = "<group>";
 		};
-		2220E151283123FD0046F08A /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
-		2220E15228312D060046F08A /* Component */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Component;
-			sourceTree = "<group>";
-		};
 		2220E15528312D270046F08A /* MangaThumbnail */ = {
 			isa = PBXGroup;
 			children = (
@@ -401,8 +374,6 @@
 			children = (
 				080D1DBC294FDF4B008B813C /* Networking */,
 				080D1DBB294FDF1C008B813C /* Database */,
-				080D1DBA294FDEE8008B813C /* DataType */,
-				080D1DB9294FDEC5008B813C /* UI */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -469,6 +440,7 @@
 		224C656F2827204000AAEF2E = {
 			isa = PBXGroup;
 			children = (
+				086E3A872AA274E300FE65C8 /* Logger */,
 				08E6218E2A7B0E11001B0318 /* UITheme */,
 				08E6218D2A79D181001B0318 /* UIComponents */,
 				08A358842A79C4B4002C298D /* Utils */,
@@ -501,7 +473,6 @@
 				229DA9EE28725F5E00C6EF91 /* Info.plist */,
 				226ADDE0287DB52800C3E55F /* Clients */,
 				222A03612871AF9900D5B588 /* Database */,
-				2220E151283123FD0046F08A /* Utils */,
 				2220E15C283145130046F08A /* Extension */,
 				229F8D88282DB2E900761054 /* App */,
 				224C657F2827204300AAEF2E /* Assets.xcassets */,
@@ -531,7 +502,6 @@
 				228DD04D28A4746600F70162 /* ImageClient.swift */,
 				0829E20728F896C30009A907 /* AuthClient.swift */,
 				228DD04F28A5278300F70162 /* HUDClient.swift */,
-				0859979B28F6DBE50095422C /* Logger.swift */,
 			);
 			path = Clients;
 			sourceTree = "<group>";
@@ -568,7 +538,6 @@
 		229B2C2F282859560028015B /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				2220E15228312D060046F08A /* Component */,
 				2220E15528312D270046F08A /* MangaThumbnail */,
 				2245D4BC284109A4005B1C83 /* Search */,
 				2220E1632832A8910046F08A /* Manga */,
@@ -669,6 +638,7 @@
 				08E6218B2A79D138001B0318 /* UIExtensions */,
 				08E6218F2A7B0E6A001B0318 /* UITheme */,
 				08C69A892A7B109D006D6369 /* UIComponents */,
+				08D7306B2AA2766900038543 /* Logger */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -869,7 +839,6 @@
 				222A03722872006200D5B588 /* HanamiAppStore.swift in Sources */,
 				222A036C2871D93A00D5B588 /* Encodable.swift in Sources */,
 				222A03402870F6E200D5B588 /* Model.xcdatamodeld in Sources */,
-				0859979C28F6DBE50095422C /* Logger.swift in Sources */,
 				22F4A85728AB29C9008C11A7 /* VolumeTabFeature.swift in Sources */,
 				2220E15428312D1F0046F08A /* MangaThumbnailView.swift in Sources */,
 				0859979728F4C4230095422C /* SettingsView.swift in Sources */,
@@ -1327,6 +1296,10 @@
 		08C69A892A7B109D006D6369 /* UIComponents */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = UIComponents;
+		};
+		08D7306B2AA2766900038543 /* Logger */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Logger;
 		};
 		08E6218B2A79D138001B0318 /* UIExtensions */ = {
 			isa = XCSwiftPackageProductDependency;

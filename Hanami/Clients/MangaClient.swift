@@ -318,3 +318,129 @@ extension MangaClient: DependencyKey {
         }
     )
 }
+/*
+public protocol MangaClientAsync1 {
+    func fetchMangaChapters(for: UUID, scanlationGroupID: UUID?, translatedLanguage: String?) throws -> VolumesContainer
+    func fetchStatistics(_ mangaIDs: [UUID]) -> EffectPublisher<MangaStatisticsContainer, AppError>
+    func fetchAllCoverArtsForManga(_ mangaID: UUID) -> EffectPublisher<Response<[CoverArtInfo]>, AppError>
+    func fetchChapterDetails(_ chapterID: UUID) -> EffectPublisher<Response<ChapterDetails>, AppError>
+    func fetchScanlationGroup(_ scanlationGroupID: UUID) -> EffectPublisher<Response<ScanlationGroup>, AppError>
+    func fetchPagesInfo(_ chapterID: UUID) -> EffectPublisher<ChapterPagesInfo, AppError>
+    func fetchCoverArtInfo(_ coverArtID: UUID) -> EffectPublisher<Response<CoverArtInfo>, AppError>
+    func fetchAuthorByID(_ authorID: UUID) -> EffectPublisher<Response<Author>, AppError>
+    func fetchMangaFeed(_ mangaID: UUID, _ offset: Int) -> EffectPublisher<Response<[ChapterDetails]>, AppError>
+    
+    // MARK: - Actions inside App
+    func getMangaPageForReadingChapter(_ chapterIndex: Double?, _ pages: [IdentifiedArrayOf<VolumeTabFeature.State>]) -> Int?
+    func computeNextChapterIndex(_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
+    func computeChapterIndex(_ chapterIndexToFind: Double?, _ chapters: [Chapter]?) -> Int?
+    func computePreviousChapterIndex(_ currentChapterIndex: Double?, _ chapters: [Chapter]?) -> Int?
+    func findDidReadChapterOnMangaPag (_ chapterIndex: Double?, IdentifiedArrayOf<VolumeTabFeature.State>) -> (volumeID: UUID, chapterID: UUID)?
+    func saveCoverArt(_ coverArt: UIImage, _ mangaID: UUID, _ cacheClient: CacheClient) -> EffectTask<Never>
+    func deleteCoverArt(_ mangaID: UUID, _ cacheClient: CacheClient) -> EffectTask<Never>
+    func saveChapterPage(_ chapterPage: UIImage, _ chapterPageIndex: Int, _ chapterID: UUID, _ cacheClient: CacheClient) -> EffectTask<Never>
+    func removeCachedPagesForChapter(_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> EffectTask<Never>
+    func isCoverArtCached(_ mangaID: UUID, _ cacheClient: CacheClient) -> Bool
+    func getPathsForCachedChapterPages(_ chapterID: UUID, _ pagesCount: Int, _ cacheClient: CacheClient) -> [URL?]
+    func getCoverArtPath(_ mangaID: UUID, _ cacheClient: CacheClient) -> URL?
+}
+
+struct MangaClientAsync {
+    func fetchMangaChapters(for mangaID: UUID, scanlationGroupID: UUID?, translatedLanguage: String?) async throws -> VolumesContainer {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.mangadex.org"
+        components.path = "/manga/\(mangaID.uuidString.lowercased())/aggregate"
+        
+        components.queryItems = []
+        
+        if let scanlationGroupID {
+            components.queryItems!.append(
+                URLQueryItem(name: "groups[]", value: scanlationGroupID.uuidString.lowercased())
+            )
+        }
+        
+        if let translatedLanguage {
+            components.queryItems!.append(
+                URLQueryItem(name: "translatedLanguage[]", value: translatedLanguage)
+            )
+        }
+        
+        guard let url = components.url else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: VolumesContainer.self)
+    }
+    
+    func fetchStatistics(for mangaIDs: [UUID]) async throws -> MangaStatisticsContainer {
+        guard !mangaIDs.isEmpty else {
+            return MangaStatisticsContainer(statistics: [:])
+        }
+        
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.mangadex.org"
+        components.path = "/statistics/manga"
+        components.queryItems = mangaIDs.map {
+            URLQueryItem(name: "manga[]", value: $0.uuidString.lowercased())
+        }
+        
+        guard let url = components.url else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: MangaStatisticsContainer.self)
+    }
+    
+    func fetchAllCoverArtsForManga(_ mangaID: UUID) async throws -> Response<[CoverArtInfo]> {
+        let mangaIDString = mangaID.uuidString.lowercased()
+        guard let url = URL(string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaIDString)&limit=100") else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: Response<[CoverArtInfo]>.self)
+    }
+    
+    func fetchChapterDetails(for chapterID: UUID) async throws -> Response<ChapterDetails> {
+        let chapterIDString = chapterID.uuidString.lowercased()
+        guard let url = URL(string: "https://api.mangadex.org/chapter/\(chapterIDString)?includes[]=scanlation_group") else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: Response<ChapterDetails>.self)
+    }
+    
+    func fetchScanlationGroup(scanlationGroupID: UUID) async throws -> Response<ScanlationGroup> {
+        let scanlationGroupIDString = scanlationGroupID.uuidString.lowercased()
+        guard let url = URL(string: "https://api.mangadex.org/group/\(scanlationGroupIDString)") else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: Response<ScanlationGroup>.self)
+    }
+    
+    func fetchPagesInfo(chapterID: UUID) async throws -> ChapterPagesInfo {
+        let chapterIDString = chapterID.uuidString.lowercased()
+        guard let url = URL(string: "https://api.mangadex.org/at-home/server/\(chapterIDString)") else {
+            throw AppError.networkError(
+                URLError(.badURL)
+            )
+        }
+        
+        return try await URLSession.shared.get(url: url, decodeResponseAs: ChapterPagesInfo.self)
+    }
+    
+    // https://www.kodeco.com/books/real-world-ios-by-tutorials/v1.0/chapters/3-data-layer-networking
+}
+*/
