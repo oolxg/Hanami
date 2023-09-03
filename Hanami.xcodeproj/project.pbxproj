@@ -24,7 +24,6 @@
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		087DB9E02A79C738002D0277 /* Cache in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9DF2A79C738002D0277 /* Cache */; };
 		087DB9E32A79C749002D0277 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E22A79C749002D0277 /* NukeUI */; };
-		087DB9E62A79C759002D0277 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E52A79C759002D0277 /* SwiftyBeaver */; };
 		087DB9E92A79C766002D0277 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E82A79C766002D0277 /* PopupView */; };
 		087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EB2A79C774002D0277 /* WrappingHStack */; };
 		087DB9EF2A79CA00002D0277 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EE2A79CA00002D0277 /* ComposableArchitecture */; };
@@ -33,6 +32,7 @@
 		088934B229C738EF00AA81D4 /* MangaChapterLoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088934B129C738EF00AA81D4 /* MangaChapterLoaderView.swift */; };
 		08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45B290169FB001EECD9 /* AuthorFeature.swift */; };
 		08A8F45E2902A9F5001EECD9 /* AuthorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A8F45D2902A9F5001EECD9 /* AuthorView.swift */; };
+		08B5C58E2AA5074E00ECE4B8 /* ImageClient in Frameworks */ = {isa = PBXBuildFile; productRef = 08B5C58D2AA5074E00ECE4B8 /* ImageClient */; };
 		08C69A8A2A7B109D006D6369 /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 08C69A892A7B109D006D6369 /* UIComponents */; };
 		08CF177A29B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CF177929B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift */; };
 		08D7306C2AA2766900038543 /* Logger in Frameworks */ = {isa = PBXBuildFile; productRef = 08D7306B2AA2766900038543 /* Logger */; };
@@ -69,7 +69,6 @@
 		2274193F2886EC6900ACAA24 /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2274193E2886EC6900ACAA24 /* DownloadsView.swift */; };
 		228D8D55287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */; };
 		228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */; };
-		228DD04E28A4746600F70162 /* ImageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228DD04D28A4746600F70162 /* ImageClient.swift */; };
 		228DD05028A5278300F70162 /* HUDClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228DD04F28A5278300F70162 /* HUDClient.swift */; };
 		228FA49D288DBB5500369529 /* CacheClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228FA49C288DBB5500369529 /* CacheClient.swift */; };
 		229F8D8B282DB34C00761054 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229F8D8A282DB34C00761054 /* RootView.swift */; };
@@ -144,6 +143,7 @@
 		08A358842A79C4B4002C298D /* Utils */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Utils; sourceTree = "<group>"; };
 		08A8F45B290169FB001EECD9 /* AuthorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorFeature.swift; sourceTree = "<group>"; };
 		08A8F45D2902A9F5001EECD9 /* AuthorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorView.swift; sourceTree = "<group>"; };
+		08B5C58C2AA5071500ECE4B8 /* ImageClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ImageClient; sourceTree = "<group>"; };
 		08C237CB2A322646003E122D /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		08CF177929B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMangaViewLoaderFeature.swift; sourceTree = "<group>"; };
 		08D358E02A79BB7F001406D1 /* ModelKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ModelKit; sourceTree = "<group>"; };
@@ -185,7 +185,6 @@
 		2274193E2886EC6900ACAA24 /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		228D8D51287B2DD000F988CC /* ChapterDetailsMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterDetailsMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		228D8D53287B2DD000F988CC /* MangaMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		228DD04D28A4746600F70162 /* ImageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageClient.swift; sourceTree = "<group>"; };
 		228DD04F28A5278300F70162 /* HUDClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDClient.swift; sourceTree = "<group>"; };
 		228FA49C288DBB5500369529 /* CacheClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheClient.swift; sourceTree = "<group>"; };
 		229DA9EE28725F5E00C6EF91 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -223,9 +222,9 @@
 				087DB9EF2A79CA00002D0277 /* ComposableArchitecture in Frameworks */,
 				087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */,
 				08E6218C2A79D138001B0318 /* UIExtensions in Frameworks */,
-				087DB9E62A79C759002D0277 /* SwiftyBeaver in Frameworks */,
 				081FF3032A79CF0800C444E4 /* Utils in Frameworks */,
 				087DB9E32A79C749002D0277 /* NukeUI in Frameworks */,
+				08B5C58E2AA5074E00ECE4B8 /* ImageClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,6 +439,7 @@
 		224C656F2827204000AAEF2E = {
 			isa = PBXGroup;
 			children = (
+				08B5C58C2AA5071500ECE4B8 /* ImageClient */,
 				086E3A872AA274E300FE65C8 /* Logger */,
 				08E6218E2A7B0E11001B0318 /* UITheme */,
 				08E6218D2A79D181001B0318 /* UIComponents */,
@@ -499,7 +499,6 @@
 				228FA49C288DBB5500369529 /* CacheClient.swift */,
 				2225265E28B1627E009F6FA3 /* HapticClient.swift */,
 				22D0CA6F287DE15F005D06ED /* HomeClient.swift */,
-				228DD04D28A4746600F70162 /* ImageClient.swift */,
 				0829E20728F896C30009A907 /* AuthClient.swift */,
 				228DD04F28A5278300F70162 /* HUDClient.swift */,
 			);
@@ -628,7 +627,6 @@
 			packageProductDependencies = (
 				087DB9DF2A79C738002D0277 /* Cache */,
 				087DB9E22A79C749002D0277 /* NukeUI */,
-				087DB9E52A79C759002D0277 /* SwiftyBeaver */,
 				087DB9E82A79C766002D0277 /* PopupView */,
 				087DB9EB2A79C774002D0277 /* WrappingHStack */,
 				087DB9EE2A79CA00002D0277 /* ComposableArchitecture */,
@@ -639,6 +637,7 @@
 				08E6218F2A7B0E6A001B0318 /* UITheme */,
 				08C69A892A7B109D006D6369 /* UIComponents */,
 				08D7306B2AA2766900038543 /* Logger */,
+				08B5C58D2AA5074E00ECE4B8 /* ImageClient */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -715,7 +714,6 @@
 			packageReferences = (
 				087DB9DE2A79C738002D0277 /* XCRemoteSwiftPackageReference "Cache" */,
 				087DB9E12A79C749002D0277 /* XCRemoteSwiftPackageReference "Nuke" */,
-				087DB9E42A79C759002D0277 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				087DB9E72A79C766002D0277 /* XCRemoteSwiftPackageReference "PopupView" */,
 				087DB9EA2A79C774002D0277 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				087DB9ED2A79CA00002D0277 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
@@ -791,7 +789,6 @@
 				080D1DB6294FDD7C008B813C /* CoreDataMigrationStep.swift in Sources */,
 				229F8D8B282DB34C00761054 /* RootView.swift in Sources */,
 				080D1DC0294FDFE0008B813C /* NSManagedObjectModel+Compatbile.swift in Sources */,
-				228DD04E28A4746600F70162 /* ImageClient.swift in Sources */,
 				22D0CA72287DE2D2005D06ED /* SearchClient.swift in Sources */,
 				0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */,
 				2220E1672832A9280046F08A /* OnlineMangaView.swift in Sources */,
@@ -1216,14 +1213,6 @@
 				version = 11.6.4;
 			};
 		};
-		087DB9E42A79C759002D0277 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		087DB9E72A79C766002D0277 /* XCRemoteSwiftPackageReference "PopupView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/PopupView";
@@ -1273,11 +1262,6 @@
 			package = 087DB9E12A79C749002D0277 /* XCRemoteSwiftPackageReference "Nuke" */;
 			productName = NukeUI;
 		};
-		087DB9E52A79C759002D0277 /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 087DB9E42A79C759002D0277 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
-		};
 		087DB9E82A79C766002D0277 /* PopupView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 087DB9E72A79C766002D0277 /* XCRemoteSwiftPackageReference "PopupView" */;
@@ -1292,6 +1276,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 087DB9ED2A79CA00002D0277 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		08B5C58D2AA5074E00ECE4B8 /* ImageClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageClient;
 		};
 		08C69A892A7B109D006D6369 /* UIComponents */ = {
 			isa = XCSwiftPackageProductDependency;

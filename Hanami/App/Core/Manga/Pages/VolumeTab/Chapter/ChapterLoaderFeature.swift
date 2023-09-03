@@ -11,6 +11,7 @@ import ComposableArchitecture
 import ModelKit
 import Utils
 import Logger
+import ImageClient
 
 struct ChapterLoaderFeature: Reducer {
     struct State: Equatable {

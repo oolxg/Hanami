@@ -12,6 +12,7 @@ import ModelKit
 import Utils
 import DataTypeExtensions
 import Logger
+import ImageClient
 
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: Reducer {

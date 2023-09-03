@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Utils
 import ModelKit
 import Logger
+import ImageClient
 
 struct OfflineMangaReadingFeature: ReducerProtocol {
     struct State: Equatable {

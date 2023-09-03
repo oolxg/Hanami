@@ -11,6 +11,7 @@ import class SwiftUI.UIImage
 import ModelKit
 import Utils
 import Logger
+import ImageClient
 
 struct OnlineMangaViewLoaderFeature: Reducer {
     struct State: Equatable {
@@ -98,7 +99,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                 state.pagesCount = pagesURLs.count
                 
                 return .merge(
-                    .run { [chapterID = state.chapterID] send in
+                    .run { send in
                         for (i, pageURL) in pagesURLs.enumerated() {
                             do {
                                 let image = try await imageClient.downloadImage(from: pageURL)

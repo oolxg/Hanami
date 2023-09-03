@@ -11,6 +11,7 @@ import ModelKit
 import Utils
 import DataTypeExtensions
 import Logger
+import ImageClient
 
 struct HomeFeature: Reducer {
     struct State: Equatable {

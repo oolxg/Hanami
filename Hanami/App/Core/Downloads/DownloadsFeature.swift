@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 import Logger
+import ImageClient
 
 struct DownloadsFeature: Reducer {
     struct State: Equatable {
