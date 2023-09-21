@@ -45,14 +45,13 @@ struct MangaThumbnailFeature: Reducer {
         var id: UUID { manga.id }
     }
     
-    enum Action: BindableAction {
+    enum Action {
         case onAppear
         case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
         case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
-        case userLeftMangaView
         case onlineMangaAction(OnlineMangaFeature.Action)
         case offlineMangaAction(OfflineMangaFeature.Action)
-        case binding(BindingAction<State>)
+        case navLinkValueDidChange(to: Bool)
     }
     
     @Dependency(\.mangaClient) private var mangaClient
@@ -61,7 +60,6 @@ struct MangaThumbnailFeature: Reducer {
     @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
-        BindingReducer()
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -117,17 +115,13 @@ struct MangaThumbnailFeature: Reducer {
                 state.navigationLinkActive = false
                 return .none
                 
-            // action only to hijack it in DownloadsFeature
-            case .userLeftMangaView:
+            case .navLinkValueDidChange:
                 return .none
                 
             case .onlineMangaAction:
                 return .none
                 
             case .offlineMangaAction:
-                return .none
-                
-            case .binding:
                 return .none
             }
         }

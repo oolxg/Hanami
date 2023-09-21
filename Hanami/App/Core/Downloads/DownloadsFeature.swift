@@ -78,7 +78,7 @@ struct DownloadsFeature: Reducer {
                     .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()
                 
-            case .cachedMangaThumbnailAction(_, .userLeftMangaView):
+            case .cachedMangaThumbnailAction(_, .navLinkValueDidChange(false)):
                 return .task { .initDownloads }
                     .delay(for: .seconds(0.2), scheduler: mainQueue)
                     .eraseToEffect()

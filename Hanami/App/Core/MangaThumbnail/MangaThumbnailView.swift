@@ -17,6 +17,7 @@ struct MangaThumbnailView: View {
     let blurRadius: CGFloat
     
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isNavLinkActive = false
     
     private struct ViewState: Equatable {
         let online: Bool
@@ -50,9 +51,7 @@ struct MangaThumbnailView: View {
         }
         .frame(height: 170)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture {
-            ViewStore(store).binding(\.$navigationLinkActive).wrappedValue.toggle()
-        }
+        .onTapGesture { isNavLinkActive = true }
         .overlay(navigationLink)
         .overlay {
             RoundedRectangle(cornerRadius: 12)
@@ -83,6 +82,9 @@ extension MangaThumbnailView {
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
+            .onChange(of: isNavLinkActive) { newValue in
+                viewStore.send(.navLinkValueDidChange(to: newValue))
+            }
         }
     }
     
@@ -111,13 +113,11 @@ extension MangaThumbnailView {
     }
     
     private var navigationLink: some View {
-        WithViewStore(store) { viewStore in
-            NavigationLink(
-                isActive: viewStore.binding(\.$navigationLinkActive),
-                destination: { mangaView },
-                label: { EmptyView() }
-            )
-        }
+        NavigationLink(
+            isActive: $isNavLinkActive,
+            destination: { mangaView },
+            label: { EmptyView() }
+        )
     }
     
     private var mangaView: some View {

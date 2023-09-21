@@ -12,7 +12,8 @@ public struct ImageClient {
     }
 
     public func prefetchImages(with urls: [URL]) {
-        prefetcher.startPrefetching(with: urls)
+        // this call causes memory leak!!
+//        prefetcher.startPrefetching(with: urls)
     }
     
     public func downloadImage(from url: URL) async throws -> UIImage {
