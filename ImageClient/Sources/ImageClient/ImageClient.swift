@@ -1,19 +1,18 @@
 import Dependencies
-import Nuke
+import Kingfisher
 import Foundation
 import class SwiftUI.UIImage
 import Utils
 
 public struct ImageClient {
-    private let prefetcher: ImagePrefetcher
-    
-    init(prefetcher: ImagePrefetcher) {
-        self.prefetcher = prefetcher
-    }
-
     public func prefetchImages(with urls: [URL]) {
-        // this call causes memory leak!!
-//        prefetcher.startPrefetching(with: urls)
+        ImagePrefetcher(
+            urls: urls,
+            options: [
+                .alsoPrefetchToMemory,
+                .backgroundDecode
+            ]
+        ).start()
     }
     
     public func downloadImage(from url: URL) async throws -> UIImage {
@@ -35,11 +34,18 @@ public struct ImageClient {
         
         return image
     }
+    
+    public func clearCache() {
+        Task {
+            try? KingfisherManager.shared.cache.diskStorage.removeAll()
+            KingfisherManager.shared.cache.memoryStorage.removeAll()
+        }
+    }
 }
 
 extension ImageClient: DependencyKey {
     public static let liveValue = {
-        ImageClient(prefetcher: ImagePrefetcher(destination: .memoryCache, maxConcurrentRequestCount: 5))
+        ImageClient()
     }()
 }
 

@@ -155,8 +155,6 @@ struct OnlineMangaReadingFeature: Reducer {
                         state.pageIndex = state.startFromLastPage ? state.pagesCount! - 1 : 0
                     }
                     
-                    
-                    
                     imageClient.prefetchImages(with: state.pagesURLs!)
                     
                     return .none

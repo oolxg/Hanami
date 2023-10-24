@@ -45,16 +45,16 @@ struct OnlineMangaFeature: Reducer {
         // MARK: END Props for view
         
         // MARK: - Props for MangaReadingView
-        @BindingState var isUserOnReadingView = false
+        var isMangaReadingViewPresented = false
         var mangaReadingViewState: OnlineMangaReadingFeature.State? {
-            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
+            didSet { isMangaReadingViewPresented = mangaReadingViewState.hasValue }
         }
         // MARK: END Props for MangaReadingView
         
         // MARK: - Props for inner states/views
         var authorViewState: AuthorFeature.State?
         var chapterLoaderState: MangaChapterLoaderFeature.State?
-        @BindingState var showAuthorView = false
+        var showAuthorView = false
         // MARK: END Props for inner states/views
         
         // MARK: - Behavior props
@@ -72,7 +72,7 @@ struct OnlineMangaFeature: Reducer {
         var id: String { rawValue }
     }
     
-    enum Action: BindableAction {
+    enum Action {
         // MARK: - Actions to be called from view
         case onAppear
         case navigationTabButtonTapped(Tab)
@@ -82,6 +82,8 @@ struct OnlineMangaFeature: Reducer {
         case startReadingButtonTapped
         case userTappedOnFirstChapterOption(ChapterDetails)
         case userTappedOnChapterLoaderButton
+        case showAuthorViewValueDidChange(to: Bool)
+        case nowReadingViewStateDidUpdate(to: Bool)
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
@@ -99,9 +101,6 @@ struct OnlineMangaFeature: Reducer {
         case authorViewAction(AuthorFeature.Action)
         case chapterLoaderAcion(MangaChapterLoaderFeature.Action)
 
-        // MARK: - Binding
-        case binding(BindingAction<State>)
-        
         // MARK: - Actions for saving chapters for offline reading
         case coverArtForCachingFetched(Result<UIImage, AppError>)
     }
@@ -118,7 +117,6 @@ struct OnlineMangaFeature: Reducer {
     @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
-        BindingReducer()
         Reduce { state, action in
             struct FirstChapterCancel: Hashable { let chapterID: UUID }
             switch action {
@@ -421,6 +419,14 @@ struct OnlineMangaFeature: Reducer {
                 
                 return .none
                 
+            case .showAuthorViewValueDidChange(let newValue):
+                state.showAuthorView = newValue
+                return .none
+                
+            case .nowReadingViewStateDidUpdate(let newValue):
+                state.isMangaReadingViewPresented = newValue
+                return .none
+                
             case .mangaReadingViewAction:
                 return .none
                 
@@ -431,9 +437,6 @@ struct OnlineMangaFeature: Reducer {
                 return .none
                 
             case .authorViewAction:
-                return .none
-                
-            case .binding:
                 return .none
                 
             case .chapterLoaderAcion:
@@ -517,7 +520,7 @@ struct OnlineMangaFeature: Reducer {
                 
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
-                defer { state.isUserOnReadingView = false }
+                defer { state.isMangaReadingViewPresented = false }
                 
                 state.lastReadChapterID = state.mangaReadingViewState?.chapterID
                 

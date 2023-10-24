@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import NukeUI
+import Kingfisher
 import typealias IdentifiedCollections.IdentifiedArrayOf
 import Utils
 
@@ -83,29 +83,27 @@ public struct VerticalReaderView: View {
         }
     }
     
-    @MainActor @ViewBuilder private func cell(for page: Page) -> some View {
+    @ViewBuilder private func cell(for page: Page) -> some View {
         ZoomableScrollView {
-            LazyImage(url: page.url) { state in
-                if let image = state.image {
-                    image
-                        .resizingMode(.aspectFit)
-                        .offset { rect in
-                            pages[page.index].rect = rect
-                        }
-                        .onAppear {
-                            if let imgSize = state.imageContainer?.image.size {
-                                let ratio = DeviceUtil.deviceScreenSize.width / imgSize.width
-                                pages[page.index].height = imgSize.height * ratio
-                            }
-                        }
-                } else if state.isLoading || state.error != nil {
-                    ProgressView(value: state.progress.fraction)
+            KFImage(page.url)
+                .placeholder { progress in
+                    ProgressView(value: progress.fractionCompleted)
                         .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
                         .frame(width: 50, height: 50)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         .tint(.theme.accent)
                 }
-            }
+                .onSuccess { success in
+                    let imageSize = success.image.size
+                    print(imageSize)
+                    let ratio = DeviceUtil.deviceScreenSize.width / imageSize.width
+                    pages[page.index].height = imageSize.height * ratio
+                }
+                .resizable()
+                .scaledToFit()
+                .offset { rect in
+                    pages[page.index].rect = rect
+                }
         }
         .frame(height: page.height)
         .frame(maxWidth: .infinity)

@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
-        .package(url: "https://github.com/kean/Nuke", from: "11.6.4"),
+        .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
         .package(path: "../Utils")
     ],
     targets: [
@@ -27,7 +27,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "Utils", package: "Utils"),
-                .product(name: "Nuke", package: "Nuke")
+                .product(name: "Kingfisher", package: "Kingfisher")
             ]
         ),
         .testTarget(

@@ -28,10 +28,10 @@ struct OfflineMangaFeature: Reducer {
         var lastReadChapter: CoreDataChapterDetailsEntry?
         
         // MARK: - Props for MangaReadingView
-        @BindingState var isUserOnReadingView = false
+        var isMangaReadingViewPresented = false
         
         var mangaReadingViewState: OfflineMangaReadingFeature.State? {
-            didSet { isUserOnReadingView = mangaReadingViewState.hasValue }
+            didSet { isMangaReadingViewPresented = mangaReadingViewState.hasValue }
         }
     }
     
@@ -42,12 +42,13 @@ struct OfflineMangaFeature: Reducer {
         var id: String { rawValue }
     }
     
-    enum Action: BindableAction {
+    enum Action {
         // MARK: - Actions to be called from view
         case onAppear
         case continueReadingButtonTapped
         case deleteMangaButtonTapped
         case mangaTabButtonTapped(Tab)
+        case nowReadingViewStateDidUpdate(to: Bool)
 
         // MARK: - Actions to be called from reducer
         case cachedChaptersRetrieved(Result<[CoreDataChapterDetailsEntry], AppError>)
@@ -57,9 +58,6 @@ struct OfflineMangaFeature: Reducer {
         // MARK: - Substate actions
         case mangaReadingViewAction(OfflineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
-        
-        // MARK: - Binding
-        case binding(BindingAction<State>)
     }
     
     @Dependency(\.databaseClient) private var databaseClient
@@ -70,7 +68,6 @@ struct OfflineMangaFeature: Reducer {
     @Dependency(\.mainQueue) private var mainQueue
     
     var body: some Reducer<State, Action> {
-        BindingReducer()
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -190,7 +187,8 @@ struct OfflineMangaFeature: Reducer {
             case .mangaReadingViewAction:
                 return .none
                 
-            case .binding:
+            case .nowReadingViewStateDidUpdate(let newValue):
+                state.isMangaReadingViewPresented = newValue
                 return .none
             }
         }
@@ -231,7 +229,7 @@ struct OfflineMangaFeature: Reducer {
                 return .merge(effects)
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
-                defer { state.isUserOnReadingView = false }
+                defer { state.isMangaReadingViewPresented = false }
                 
                 state.lastReadChapter = CoreDataChapterDetailsEntry(
                     chapter: state.mangaReadingViewState!.chapter,

@@ -169,7 +169,7 @@ extension FiltersView {
         isActive: Binding<Bool>,
         _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FiltersTagProtocol {
-        WithViewStore(store.actionless) { viewStore in
+        WithViewStore(store) { viewStore in
             NavigationLink(isActive: isActive) {
                 content()
             } label: {

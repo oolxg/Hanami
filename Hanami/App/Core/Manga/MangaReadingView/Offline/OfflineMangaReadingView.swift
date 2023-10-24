@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import NukeUI
+import Kingfisher
 import UIComponents
 
 struct OfflineMangaReadingView: View {
@@ -89,7 +89,7 @@ extension OfflineMangaReadingView {
         }
     }
     
-    @MainActor private var horizontalReader: some View {
+    private var horizontalReader: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(
                 selection: viewStore.binding(
@@ -102,15 +102,14 @@ extension OfflineMangaReadingView {
                 
                 ForEach(viewStore.cachedPagesPaths.indices, id: \.self) { pagePathIndex in
                     ZoomableScrollView {
-                        LazyImage(url: viewStore.cachedPagesPaths[pagePathIndex]) { state in
-                            if let image = state.image {
-                                image.resizingMode(.aspectFit)
-                            } else if state.isLoading || state.error.hasValue {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                    .tint(.theme.accent)
+                        KFImage(viewStore.cachedPagesPaths[pagePathIndex])
+                            .placeholder { progress in
+                                ProgressView(value: progress.fractionCompleted)
+                                    .defaultWithProgress()
+                                    .frame(width: 30, height: 30)
                             }
-                        }
+                            .resizable()
+                            .scaledToFit()
                     }
                 }
                 .opacity(mainBlockOpacity)

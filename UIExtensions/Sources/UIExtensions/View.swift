@@ -10,6 +10,10 @@ import SwiftUI
 import UIComponents
 
 public extension View {
+    func redactedWithShimmering() -> some View {
+        redacted(if: true)
+    }
+    
     func redacted(if condition: @autoclosure () -> Bool) -> some View {
         redacted(reason: condition() ? .placeholder : []).shimmering(active: condition())
     }

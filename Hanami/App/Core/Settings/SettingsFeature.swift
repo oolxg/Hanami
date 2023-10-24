@@ -7,7 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
-import Nuke
+import Kingfisher
 import ModelKit
 import Utils
 import Logger
@@ -46,6 +46,7 @@ struct SettingsFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     @Dependency(\.cacheClient) private var cacheClient
+    @Dependency(\.imageClient) private var imageClient
 
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -90,10 +91,8 @@ struct SettingsFeature: ReducerProtocol {
                 return .none
                 
             case .clearImageCacheButtonTapped:
-                return .fireAndForget {
-                    Nuke.DataLoader.sharedUrlCache.removeAllCachedResponses()
-                    Nuke.ImageCache.shared.removeAll()
-                }
+                imageClient.clearCache()
+                return .none
                 
             case .clearMangaCacheConfirmed:
                 return .concatenate(

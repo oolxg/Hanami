@@ -23,7 +23,6 @@
 		0859979528F4C4170095422C /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979428F4C4170095422C /* SettingsFeature.swift */; };
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		087DB9E02A79C738002D0277 /* Cache in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9DF2A79C738002D0277 /* Cache */; };
-		087DB9E32A79C749002D0277 /* NukeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E22A79C749002D0277 /* NukeUI */; };
 		087DB9E92A79C766002D0277 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E82A79C766002D0277 /* PopupView */; };
 		087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EB2A79C774002D0277 /* WrappingHStack */; };
 		087DB9EF2A79CA00002D0277 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EE2A79CA00002D0277 /* ComposableArchitecture */; };
@@ -37,6 +36,7 @@
 		08CF177A29B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CF177929B9F1F500A91E94 /* OnlineMangaViewLoaderFeature.swift */; };
 		08D7306C2AA2766900038543 /* Logger in Frameworks */ = {isa = PBXBuildFile; productRef = 08D7306B2AA2766900038543 /* Logger */; };
 		08E0B078293EC0C60021D5EC /* ChapterLoaderFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E0B077293EC0C60021D5EC /* ChapterLoaderFeature.swift */; };
+		08E206FD2AE6BCE3005CF305 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 08E206FC2AE6BCE3005CF305 /* Kingfisher */; };
 		08E6218C2A79D138001B0318 /* UIExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 08E6218B2A79D138001B0318 /* UIExtensions */; };
 		08E621902A7B0E6A001B0318 /* UITheme in Frameworks */ = {isa = PBXBuildFile; productRef = 08E6218F2A7B0E6A001B0318 /* UITheme */; };
 		08F59DC5296F0F8300FF6A0A /* LocalizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08F59DC4296F0F8300FF6A0A /* LocalizationSettingsView.swift */; };
@@ -214,6 +214,7 @@
 			files = (
 				08D7306C2AA2766900038543 /* Logger in Frameworks */,
 				08C69A8A2A7B109D006D6369 /* UIComponents in Frameworks */,
+				08E206FD2AE6BCE3005CF305 /* Kingfisher in Frameworks */,
 				087DB9E92A79C766002D0277 /* PopupView in Frameworks */,
 				081FF3052A79CF4A00C444E4 /* ModelKit in Frameworks */,
 				081FF3072A79CF4F00C444E4 /* DataTypeExtensions in Frameworks */,
@@ -223,7 +224,6 @@
 				087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */,
 				08E6218C2A79D138001B0318 /* UIExtensions in Frameworks */,
 				081FF3032A79CF0800C444E4 /* Utils in Frameworks */,
-				087DB9E32A79C749002D0277 /* NukeUI in Frameworks */,
 				08B5C58E2AA5074E00ECE4B8 /* ImageClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -626,7 +626,6 @@
 			name = Hanami;
 			packageProductDependencies = (
 				087DB9DF2A79C738002D0277 /* Cache */,
-				087DB9E22A79C749002D0277 /* NukeUI */,
 				087DB9E82A79C766002D0277 /* PopupView */,
 				087DB9EB2A79C774002D0277 /* WrappingHStack */,
 				087DB9EE2A79CA00002D0277 /* ComposableArchitecture */,
@@ -638,6 +637,7 @@
 				08C69A892A7B109D006D6369 /* UIComponents */,
 				08D7306B2AA2766900038543 /* Logger */,
 				08B5C58D2AA5074E00ECE4B8 /* ImageClient */,
+				08E206FC2AE6BCE3005CF305 /* Kingfisher */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -713,10 +713,10 @@
 			mainGroup = 224C656F2827204000AAEF2E;
 			packageReferences = (
 				087DB9DE2A79C738002D0277 /* XCRemoteSwiftPackageReference "Cache" */,
-				087DB9E12A79C749002D0277 /* XCRemoteSwiftPackageReference "Nuke" */,
 				087DB9E72A79C766002D0277 /* XCRemoteSwiftPackageReference "PopupView" */,
 				087DB9EA2A79C774002D0277 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				087DB9ED2A79CA00002D0277 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				08E206FB2AE6BCE3005CF305 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = 224C65792827204100AAEF2E /* Products */;
 			projectDirPath = "";
@@ -1205,14 +1205,6 @@
 				minimumVersion = 6.0.0;
 			};
 		};
-		087DB9E12A79C749002D0277 /* XCRemoteSwiftPackageReference "Nuke" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kean/Nuke";
-			requirement = {
-				kind = exactVersion;
-				version = 11.6.4;
-			};
-		};
 		087DB9E72A79C766002D0277 /* XCRemoteSwiftPackageReference "PopupView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/exyte/PopupView";
@@ -1237,6 +1229,14 @@
 				version = 0.58.0;
 			};
 		};
+		08E206FB2AE6BCE3005CF305 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.9.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1256,11 +1256,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 087DB9DE2A79C738002D0277 /* XCRemoteSwiftPackageReference "Cache" */;
 			productName = Cache;
-		};
-		087DB9E22A79C749002D0277 /* NukeUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 087DB9E12A79C749002D0277 /* XCRemoteSwiftPackageReference "Nuke" */;
-			productName = NukeUI;
 		};
 		087DB9E82A79C766002D0277 /* PopupView */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1288,6 +1283,11 @@
 		08D7306B2AA2766900038543 /* Logger */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Logger;
+		};
+		08E206FC2AE6BCE3005CF305 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 08E206FB2AE6BCE3005CF305 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		08E6218B2A79D138001B0318 /* UIExtensions */ = {
 			isa = XCSwiftPackageProductDependency;

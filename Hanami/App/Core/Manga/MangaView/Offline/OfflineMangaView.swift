@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import NukeUI
+import Kingfisher
 import ModelKit
 import Utils
 import UIComponents
@@ -31,6 +31,7 @@ struct OfflineMangaView: View {
         let coverArtPath: URL?
         let selectedTab: OfflineMangaFeature.Tab
         let lastReadChapterAvailable: Bool
+        let isMangaReadingViewPresented: Bool
         
         init(state: OfflineMangaFeature.State) {
             manga = state.manga
@@ -38,6 +39,7 @@ struct OfflineMangaView: View {
             coverArtPath = state.coverArtPath
             selectedTab = state.selectedTab
             lastReadChapterAvailable = state.lastReadChapter.hasValue && state.pagesState.hasValue
+            isMangaReadingViewPresented = state.isMangaReadingViewPresented
         }
     }
     
@@ -77,7 +79,13 @@ struct OfflineMangaView: View {
             .navigationBarHidden(true)
             .coordinateSpace(name: "scroll")
             .ignoresSafeArea(edges: .top)
-            .fullScreenCover(isPresented: ViewStore(store).binding(\.$isUserOnReadingView), content: mangaReadingView)
+            .fullScreenCover(
+                isPresented: viewStore.binding(
+                    get: \.isMangaReadingViewPresented,
+                    send: OfflineMangaFeature.Action.nowReadingViewStateDidUpdate
+                ),
+                content: mangaReadingView
+            )
             .tint(.theme.accent)
         }
     }
@@ -100,7 +108,7 @@ extension OfflineMangaView {
     }
     
     private var footer: some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack(spacing: 0) {
                 Text("All information on this page provided by ")
                 
@@ -114,13 +122,16 @@ extension OfflineMangaView {
         }
     }
     
-    @MainActor private var header: some View {
+    private var header: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                LazyImage(url: viewStore.coverArtPath, resizingMode: .aspectFill)
+                KFImage(viewStore.coverArtPath)
+                    .onlyFromCache()
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
                     .overlay(headerOverlay)
                     .cornerRadius(0)
@@ -131,7 +142,7 @@ extension OfflineMangaView {
     }
     
     private var headerOverlay: some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
                     colors: [ .theme.background.opacity(0.1), .theme.background.opacity(0.8) ],
@@ -207,7 +218,7 @@ extension OfflineMangaView {
         ) {
             Button("Delete", role: .destructive) {
                 self.dismiss()
-                ViewStore(store).send(.deleteMangaButtonTapped)
+                ViewStore(store, observe: { _ in 0 }).send(.deleteMangaButtonTapped)
             }
             
             Button("Cancel", role: .cancel) {
@@ -232,7 +243,7 @@ extension OfflineMangaView {
     }
     
     private var mangaBodyView: some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             switch viewStore.selectedTab {
             case .chapters:
                 IfLetStore(
@@ -250,7 +261,7 @@ extension OfflineMangaView {
     }
     
     private var aboutTab: some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 if !viewStore.manga.authors.isEmpty {
                     VStack(alignment: .leading) {
@@ -289,7 +300,7 @@ extension OfflineMangaView {
     }
     
     private var tags: some View {
-        WithViewStore(store.actionless, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading) {
                 Text("Tags")
                     .font(.headline)
@@ -353,7 +364,7 @@ extension OfflineMangaView {
     
     private var continueReadingButton: some View {
         Button {
-            ViewStore(store).send(.continueReadingButtonTapped)
+            ViewStore(store, observe: { _ in 0 }).send(.continueReadingButtonTapped)
         } label: {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.theme.accent)

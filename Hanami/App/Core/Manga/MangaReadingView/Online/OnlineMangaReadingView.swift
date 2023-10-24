@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import NukeUI
+import Kingfisher
 import UIComponents
 
 struct OnlineMangaReadingView: View {
@@ -94,7 +94,7 @@ extension OnlineMangaReadingView {
         }
     }
     
-    @MainActor private var horizontalReader: some View {
+    private var horizontalReader: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             TabView(
                 selection: viewStore.binding(
@@ -117,22 +117,19 @@ extension OnlineMangaReadingView {
         }
     }
     
-    @MainActor private var pagesList: some View {
+    private var pagesList: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             ForEach(viewStore.pagesURLs.indices, id: \.self) { pageIndex in
                 ZoomableScrollView {
-                    LazyImage(url: viewStore.pagesURLs[pageIndex]) { state in
-                        if let image = state.image {
-                            image.resizingMode(.aspectFit)
-                        } else if state.isLoading || state.error.hasValue {
-                            ProgressView(value: state.progress.fraction)
-                                .progressViewStyle(GaugeProgressStyle(strokeColor: .theme.accent))
-                                .frame(width: 50, height: 50)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                                .tint(.theme.accent)
+                    KFImage(viewStore.pagesURLs[pageIndex])
+                        .placeholder { progress in
+                            ProgressView(value: progress.fractionCompleted)
+                                .defaultWithProgress()
+                                .frame(width: 30, height: 30)
                         }
-                    }
-                    .id(pageIndex)
+                        .resizable()
+                        .scaledToFit()
+                        .id(pageIndex)
                 }
             }
         }

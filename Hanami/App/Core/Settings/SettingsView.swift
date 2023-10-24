@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import NukeUI
+import Kingfisher
 import Utils
 import ModelKit
 

@@ -7,7 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
-import NukeUI
+import Kingfisher
 import WrappingHStack
 import ModelKit
 import Utils
@@ -36,7 +36,7 @@ struct MangaThumbnailView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             coverArt
-            
+
             ZStack(alignment: .topLeading) {
                 if colorScheme == .dark {
                     Color.theme.darkGray
@@ -76,7 +76,7 @@ extension MangaThumbnailView {
                 
                 if let mangaDescription = viewStore.manga.description {
                     Text(LocalizedStringKey(mangaDescription))
-                        .lineLimit(8)
+                        .lineLimit(6)
                         .foregroundColor(.theme.foreground)
                         .font(.footnote)
                 }
@@ -88,28 +88,21 @@ extension MangaThumbnailView {
         }
     }
     
-    @MainActor private var coverArt: some View {
+    private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            LazyImage(url: viewStore.thumbnailURL) { state in
-                ZStack {
-                    if let image = state.image {
-                        image
-                            .resizingMode(.aspectFill)
-                            .frame(width: 120)
-                    } else {
-                        Color.theme.darkGray
-                            .frame(width: 120)
-                    }
+            KFImage(viewStore.thumbnailURL)
+                .placeholder {
+                    Color.theme.darkGray
+                        .redactedWithShimmering()
                 }
-                .redacted(if: state.image.isNil)
-            }
-            .animation(viewStore.online ? .linear : nil)
+                .resizable()
+                .overlay {
+                    Rectangle()
+                        .stroke(lineWidth: 1.5)
+                        .fill(colorScheme == .light ? .black : .clear)
+                }
         }
-        .overlay {
-            Rectangle()
-                .stroke(lineWidth: 1.5)
-                .fill(colorScheme == .light ? .black : .clear)
-        }
+        .frame(width: 120, height: 170, alignment: .center)
     }
     
     private var navigationLink: some View {
@@ -209,7 +202,7 @@ extension MangaThumbnailView {
                         .lineLimit(3)
                         .foregroundColor(.theme.foreground)
                         .font(.callout)
-                        .redacted(if: true)
+                        .redactedWithShimmering()
                     
                     skeletonRating
                     
@@ -223,7 +216,7 @@ extension MangaThumbnailView {
                     }
                     .lineLimit(1)
                     .font(.footnote)
-                    .redacted(if: true)
+                    .redactedWithShimmering()
                 }
                 .padding(10)
             }
@@ -240,7 +233,7 @@ extension MangaThumbnailView {
     
     @ViewBuilder private static func skeletonCoverArt(colorScheme: ColorScheme) -> some View {
         Color.theme.darkGray
-            .redacted(if: true)
+            .redactedWithShimmering()
             .frame(width: 120)
             .overlay {
                 Rectangle()

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import NukeUI
+import Kingfisher
 import UIExtensions
 import Utils
 
@@ -38,10 +38,11 @@ struct AboutView: View {
 }
 
 extension AboutView {
-    @MainActor private var header: some View {
+    private var header: some View {
         HStack {
-            LazyImage(url: Defaults.Links.githubAvatarLink)
-                .aspectRatio(contentMode: .fit)
+            KFImage(Defaults.Links.githubAvatarLink)
+                .resizable()
+                .scaledToFit()
                 .frame(width: 100, height: 100)
                 .clipShape(Circle())
                 .onTapGesture { openURL(Defaults.Links.githubUserLink) }
