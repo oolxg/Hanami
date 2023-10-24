@@ -17,46 +17,58 @@ struct MangaThumbnailView: View {
     let blurRadius: CGFloat
     
     @Environment(\.colorScheme) private var colorScheme
-    @State private var isNavLinkActive = false
     
     private struct ViewState: Equatable {
         let online: Bool
         let manga: Manga
         let mangaStatistics: MangaStatistics?
         let thumbnailURL: URL?
+        let isMangaViewPresented: Bool
         
         init(state: MangaThumbnailFeature.State) {
             online = state.online
             manga = state.manga
             mangaStatistics = state.mangaStatistics
             thumbnailURL = state.thumbnailURL
+            isMangaViewPresented = state.isMangaViewPresented
         }
     }
     
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            coverArt
-
-            ZStack(alignment: .topLeading) {
-                if colorScheme == .dark {
-                    Color.theme.darkGray
-                        .opacity(0.6)
-                } else {
-                    Color.clear
+        WithViewStore(store, observe: ViewState.init) { viewStore in
+            HStack(alignment: .top, spacing: 0) {
+                coverArt
+                
+                ZStack(alignment: .topLeading) {
+                    if colorScheme == .dark {
+                        Color.theme.darkGray
+                            .opacity(0.6)
+                    } else {
+                        Color.clear
+                    }
+                    
+                    textBlock
+                        .padding(10)
                 }
-
-                textBlock
-                    .padding(10)
             }
-        }
-        .frame(height: 170)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture { isNavLinkActive = true }
-        .overlay(navigationLink)
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(lineWidth: 1.5)
-                .fill(colorScheme == .light ? .black : .clear)
+            .frame(height: 170)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(lineWidth: 1.5)
+                    .fill(colorScheme == .light ? .black : .clear)
+            }
+            .onTapGesture { viewStore.send(.navLinkValueDidChange(to: true)) }
+            .overlay {
+                NavigationLink(
+                    isActive: viewStore.binding(
+                        get: \.isMangaViewPresented,
+                        send: MangaThumbnailFeature.Action.navLinkValueDidChange
+                    ),
+                    destination: { mangaView },
+                    label: { EmptyView() }
+                )
+            }
         }
     }
 }
@@ -82,9 +94,6 @@ extension MangaThumbnailView {
                 }
             }
             .onAppear { viewStore.send(.onAppear) }
-            .onChange(of: isNavLinkActive) { newValue in
-                viewStore.send(.navLinkValueDidChange(to: newValue))
-            }
         }
     }
     
@@ -103,14 +112,6 @@ extension MangaThumbnailView {
                 }
         }
         .frame(width: 120, height: 170, alignment: .center)
-    }
-    
-    private var navigationLink: some View {
-        NavigationLink(
-            isActive: $isNavLinkActive,
-            destination: { mangaView },
-            label: { EmptyView() }
-        )
     }
     
     private var mangaView: some View {
@@ -248,14 +249,14 @@ extension MangaThumbnailView {
                 Image(systemName: "star.fill")
                 
                 Text(String.placeholder(length: 3))
-                    .redacted(if: true)
+                    .redactedWithShimmering()
             }
             
             HStack(alignment: .top, spacing: 0) {
                 Image(systemName: "bookmark.fill")
                 
                 Text(String.placeholder(length: 7))
-                    .redacted(if: true)
+                    .redactedWithShimmering()
             }
         }
         .font(.caption)

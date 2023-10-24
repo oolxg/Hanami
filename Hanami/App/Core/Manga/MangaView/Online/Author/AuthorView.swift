@@ -7,14 +7,25 @@
 
 import SwiftUI
 import ComposableArchitecture
+import ModelKit
 
 struct AuthorView: View {
     let store: StoreOf<AuthorFeature>
     let blurRadius: CGFloat
     @Environment(\.dismiss) private var dismiss
     
+    private struct ViewState: Equatable {
+        let author: Author?
+        let authorTitlesCount: Int
+        
+        init(state: AuthorFeature.State) {
+            author = state.author
+            authorTitlesCount = state.mangaThumbnailStates.count
+        }
+    }
+    
     var body: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             NavigationView {
                 VStack {
                     Text("by oolxg")
@@ -56,7 +67,7 @@ extension AuthorView {
     }
     
     private var biograpySection: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 if let bio = viewStore.author?.attributes.biography?.availableText {
                     Text("Biography")
@@ -75,9 +86,9 @@ extension AuthorView {
     }
     
     private var mangaList: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading) {
-                Text("Works (\(viewStore.mangaThumbnailStates.count))")
+                Text("Works (\(viewStore.authorTitlesCount))")
                     .font(.headline)
                     .fontWeight(.black)
                     .padding(.bottom, 10)

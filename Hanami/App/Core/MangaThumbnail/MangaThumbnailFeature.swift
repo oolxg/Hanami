@@ -41,7 +41,7 @@ struct MangaThumbnailFeature: Reducer {
         }
         
         var online: Bool { onlineMangaState.hasValue }
-        @BindingState var navigationLinkActive = false
+        var isMangaViewPresented = false
         var id: UUID { manga.id }
     }
     
@@ -63,17 +63,19 @@ struct MangaThumbnailFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                if state.online, state.onlineMangaState!.coverArtURL256.isNil, let coverArtID = state.manga.coverArtID {
+                guard state.thumbnailURL.isNil else { return .none }
+                
+                if state.online, let coverArtID = state.manga.coverArtID {
                     return mangaClient
                         .fetchCoverArtInfo(coverArtID)
                         .catchToEffect(Action.thumbnailInfoLoaded)
-                } else if !state.online && state.offlineMangaState!.coverArtPath.isNil {
+                } else {
                     state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
                         state.manga.id, cacheClient
                     )
+                    
+                    return .none
                 }
-                
-                return .none
                 
             case .mangaStatisticsFetched(let result):
                 switch result {
@@ -112,10 +114,11 @@ struct MangaThumbnailFeature: Reducer {
                 }
                 
             case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
-                state.navigationLinkActive = false
+                state.isMangaViewPresented = false
                 return .none
                 
-            case .navLinkValueDidChange:
+            case .navLinkValueDidChange(let newValue):
+                state.isMangaViewPresented = newValue
                 return .none
                 
             case .onlineMangaAction:
