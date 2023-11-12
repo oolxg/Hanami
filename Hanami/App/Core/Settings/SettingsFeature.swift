@@ -11,6 +11,7 @@ import Kingfisher
 import ModelKit
 import Utils
 import Logger
+import SettingsClient
 
 struct SettingsFeature: ReducerProtocol {
     struct State: Equatable {
@@ -56,9 +57,16 @@ struct SettingsFeature: ReducerProtocol {
                 return .merge(
                     .task { .recomputeCacheSize },
 
-                    settingsClient.retireveSettingsConfig()
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.settingsConfigRetrieved)
+                    .run { send in
+                        do {
+                            let config = try await settingsClient.retireveSettingsConfig()
+                            await send(.settingsConfigRetrieved(.success(config)))
+                        } catch {
+                            if let error = error as? AppError {
+                                await send(.settingsConfigRetrieved(.failure(error)))
+                            }
+                        }
+                    }
                 )
                 
             case .settingsConfigRetrieved(let result):
@@ -70,7 +78,8 @@ struct SettingsFeature: ReducerProtocol {
                 case .failure(let error):
                     logger.error("Failed to retrieve settings config: \(error)")
                     // for the case when app launched for the first time
-                    return settingsClient.updateSettingsConfig(state.config).fireAndForget()
+                    settingsClient.updateSettingsConfig(state.config)
+                    return .none
                 }
                 
             case .recomputeCacheSize:
@@ -155,7 +164,8 @@ struct SettingsFeature: ReducerProtocol {
                 fallthrough
                 
             case .binding:
-                return settingsClient.updateSettingsConfig(state.config).fireAndForget()
+                settingsClient.updateSettingsConfig(state.config)
+                return .none
             }
         }
     }

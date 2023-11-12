@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		080B17BE2AE87CA2002F780C /* SettingsClient in Frameworks */ = {isa = PBXBuildFile; productRef = 080B17BD2AE87CA2002F780C /* SettingsClient */; };
 		080D1DB3294FDD3C008B813C /* CoreDataMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB2294FDD3C008B813C /* CoreDataMigrator.swift */; };
 		080D1DB6294FDD7C008B813C /* CoreDataMigrationStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB5294FDD7C008B813C /* CoreDataMigrationStep.swift */; };
 		080D1DB8294FDD99008B813C /* CoreDataVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 080D1DB7294FDD99008B813C /* CoreDataVersion.swift */; };
@@ -18,8 +19,8 @@
 		081FF3032A79CF0800C444E4 /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 081FF3022A79CF0800C444E4 /* Utils */; };
 		081FF3052A79CF4A00C444E4 /* ModelKit in Frameworks */ = {isa = PBXBuildFile; productRef = 081FF3042A79CF4A00C444E4 /* ModelKit */; };
 		081FF3072A79CF4F00C444E4 /* DataTypeExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 081FF3062A79CF4F00C444E4 /* DataTypeExtensions */; };
-		0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20528F88AF30009A907 /* SettingsClient.swift */; };
 		0829E20828F896C30009A907 /* AuthClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0829E20728F896C30009A907 /* AuthClient.swift */; };
+		0837E3512AEA90D9000963BA /* SearchClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0837E3502AEA90D9000963BA /* SearchClient.swift */; };
 		0859979528F4C4170095422C /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979428F4C4170095422C /* SettingsFeature.swift */; };
 		0859979728F4C4230095422C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859979628F4C4230095422C /* SettingsView.swift */; };
 		087DB9E02A79C738002D0277 /* Cache in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9DF2A79C738002D0277 /* Cache */; };
@@ -78,7 +79,6 @@
 		22C49A7A288B579F000A96B9 /* OfflineMangaFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C49A79288B579F000A96B9 /* OfflineMangaFeature.swift */; };
 		22C49A7C288B57B1000A96B9 /* OfflineMangaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C49A7B288B57B1000A96B9 /* OfflineMangaView.swift */; };
 		22D0CA70287DE15F005D06ED /* HomeClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D0CA6F287DE15F005D06ED /* HomeClient.swift */; };
-		22D0CA72287DE2D2005D06ED /* SearchClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D0CA71287DE2D2005D06ED /* SearchClient.swift */; };
 		22D74BFA287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */; };
 		22D74BFC287AE115000616D3 /* MangaMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */; };
 		22F4A85428AB29C9008C11A7 /* VolumeTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F4A84D28AB29C9008C11A7 /* VolumeTabView.swift */; };
@@ -121,6 +121,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		080B17BC2AE87B95002F780C /* SettingsClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SettingsClient; sourceTree = "<group>"; };
 		080D1DB2294FDD3C008B813C /* CoreDataMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataMigrator.swift; sourceTree = "<group>"; };
 		080D1DB5294FDD7C008B813C /* CoreDataMigrationStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataMigrationStep.swift; sourceTree = "<group>"; };
 		080D1DB7294FDD99008B813C /* CoreDataVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataVersion.swift; sourceTree = "<group>"; };
@@ -130,8 +131,8 @@
 		080D1DC6294FF685008B813C /* SearchRequestMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchRequestMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		080D1DC7294FF685008B813C /* SearchRequestMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchRequestMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		080D1DCD294FFAE6008B813C /* SearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRequest.swift; sourceTree = "<group>"; };
-		0829E20528F88AF30009A907 /* SettingsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsClient.swift; sourceTree = "<group>"; };
 		0829E20728F896C30009A907 /* AuthClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthClient.swift; sourceTree = "<group>"; };
+		0837E3502AEA90D9000963BA /* SearchClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchClient.swift; sourceTree = "<group>"; };
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		086E3A872AA274E300FE65C8 /* Logger */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Logger; sourceTree = "<group>"; };
@@ -195,7 +196,6 @@
 		22C49A79288B579F000A96B9 /* OfflineMangaFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMangaFeature.swift; sourceTree = "<group>"; };
 		22C49A7B288B57B1000A96B9 /* OfflineMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMangaView.swift; sourceTree = "<group>"; };
 		22D0CA6F287DE15F005D06ED /* HomeClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeClient.swift; sourceTree = "<group>"; };
-		22D0CA71287DE2D2005D06ED /* SearchClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchClient.swift; sourceTree = "<group>"; };
 		22D74BF6287AE115000616D3 /* ChapterDetailsMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChapterDetailsMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		22D74BF8287AE115000616D3 /* MangaMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		22F4A84D28AB29C9008C11A7 /* VolumeTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VolumeTabView.swift; sourceTree = "<group>"; };
@@ -224,6 +224,7 @@
 				087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */,
 				08E6218C2A79D138001B0318 /* UIExtensions in Frameworks */,
 				081FF3032A79CF0800C444E4 /* Utils in Frameworks */,
+				080B17BE2AE87CA2002F780C /* SettingsClient in Frameworks */,
 				08B5C58E2AA5074E00ECE4B8 /* ImageClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -439,6 +440,7 @@
 		224C656F2827204000AAEF2E = {
 			isa = PBXGroup;
 			children = (
+				080B17BC2AE87B95002F780C /* SettingsClient */,
 				08B5C58C2AA5071500ECE4B8 /* ImageClient */,
 				086E3A872AA274E300FE65C8 /* Logger */,
 				08E6218E2A7B0E11001B0318 /* UITheme */,
@@ -493,9 +495,8 @@
 			isa = PBXGroup;
 			children = (
 				222A03652871B9D800D5B588 /* DatabaseClient.swift */,
-				0829E20528F88AF30009A907 /* SettingsClient.swift */,
+				0837E3502AEA90D9000963BA /* SearchClient.swift */,
 				226C05B8287DD6EB00BA0E5C /* MangaClient.swift */,
-				22D0CA71287DE2D2005D06ED /* SearchClient.swift */,
 				228FA49C288DBB5500369529 /* CacheClient.swift */,
 				2225265E28B1627E009F6FA3 /* HapticClient.swift */,
 				22D0CA6F287DE15F005D06ED /* HomeClient.swift */,
@@ -638,6 +639,7 @@
 				08D7306B2AA2766900038543 /* Logger */,
 				08B5C58D2AA5074E00ECE4B8 /* ImageClient */,
 				08E206FC2AE6BCE3005CF305 /* Kingfisher */,
+				080B17BD2AE87CA2002F780C /* SettingsClient */,
 			);
 			productName = Smuggler;
 			productReference = 224C65782827204100AAEF2E /* Hanami - Manga Reader.app */;
@@ -789,8 +791,6 @@
 				080D1DB6294FDD7C008B813C /* CoreDataMigrationStep.swift in Sources */,
 				229F8D8B282DB34C00761054 /* RootView.swift in Sources */,
 				080D1DC0294FDFE0008B813C /* NSManagedObjectModel+Compatbile.swift in Sources */,
-				22D0CA72287DE2D2005D06ED /* SearchClient.swift in Sources */,
-				0829E20628F88AF30009A907 /* SettingsClient.swift in Sources */,
 				2220E1672832A9280046F08A /* OnlineMangaView.swift in Sources */,
 				22F4A85528AB29C9008C11A7 /* ChapterView.swift in Sources */,
 				22C49A7A288B579F000A96B9 /* OfflineMangaFeature.swift in Sources */,
@@ -818,6 +818,7 @@
 				2274193F2886EC6900ACAA24 /* DownloadsView.swift in Sources */,
 				08A8F45C290169FB001EECD9 /* AuthorFeature.swift in Sources */,
 				228D8D57287B2DD000F988CC /* MangaMO+CoreDataProperties.swift in Sources */,
+				0837E3512AEA90D9000963BA /* SearchClient.swift in Sources */,
 				22F4A85628AB29C9008C11A7 /* ChapterFeature.swift in Sources */,
 				22D0CA70287DE15F005D06ED /* HomeClient.swift in Sources */,
 				228DD05028A5278300F70162 /* HUDClient.swift in Sources */,
@@ -1006,7 +1007,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1027,7 +1028,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.25.4;
+				MARKETING_VERSION = 0.25.5;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1047,7 +1048,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1068,7 +1069,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.25.4;
+				MARKETING_VERSION = 0.25.5;
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1240,6 +1241,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		080B17BD2AE87CA2002F780C /* SettingsClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SettingsClient;
+		};
 		081FF3022A79CF0800C444E4 /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;

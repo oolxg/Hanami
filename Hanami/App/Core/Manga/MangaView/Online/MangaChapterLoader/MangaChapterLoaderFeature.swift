@@ -10,6 +10,7 @@ import ComposableArchitecture
 import ModelKit
 import Utils
 import Logger
+import SettingsClient
 
 struct MangaChapterLoaderFeature: Reducer {
     struct State: Equatable {
@@ -50,9 +51,16 @@ struct MangaChapterLoaderFeature: Reducer {
                     .receive(on: mainQueue)
                     .catchToEffect { Action.feedFetched($0, currentOffset: 0) },
                 
-                settingsClient.retireveSettingsConfig()
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.settingsConfigRetrieved)
+                .run { send in
+                    do {
+                        let config = try await settingsClient.retireveSettingsConfig()
+                        await send(.settingsConfigRetrieved(.success(config)))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.settingsConfigRetrieved(.failure(error)))
+                        }
+                    }
+                }
             )
             
         case .settingsConfigRetrieved(let result):

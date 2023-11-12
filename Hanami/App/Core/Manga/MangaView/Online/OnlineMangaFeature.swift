@@ -13,6 +13,7 @@ import Utils
 import DataTypeExtensions
 import Logger
 import ImageClient
+import SettingsClient
 
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: Reducer {
@@ -206,9 +207,16 @@ struct OnlineMangaFeature: Reducer {
                     return .none
                 }
                 
-                return settingsClient.retireveSettingsConfig()
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.settingsConfigRetrieved)
+                return .run { send in
+                    do {
+                        let config = try await settingsClient.retireveSettingsConfig()
+                        await send(.settingsConfigRetrieved(.success(config)))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.settingsConfigRetrieved(.failure(error)))
+                        }
+                    }
+                }
                 
             case .userTappedOnFirstChapterOption(let chapter):
                 if let url = chapter.attributes.externalURL {

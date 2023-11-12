@@ -12,6 +12,7 @@ import ModelKit
 import Utils
 import Logger
 import ImageClient
+import SettingsClient
 
 struct OnlineMangaViewLoaderFeature: Reducer {
     struct State: Equatable {

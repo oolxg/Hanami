@@ -243,7 +243,7 @@ struct SearchFeature: ReducerProtocol {
     }
 }
 
-struct SearchParams: Equatable {
+public struct SearchParams: Equatable {
     let searchQuery: String
     let resultsCount: Int
     let tags: IdentifiedArrayOf<FiltersFeature.FiltersTag>

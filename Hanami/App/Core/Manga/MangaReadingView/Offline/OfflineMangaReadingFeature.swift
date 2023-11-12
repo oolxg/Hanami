@@ -11,6 +11,7 @@ import Utils
 import ModelKit
 import Logger
 import ImageClient
+import SettingsClient
 
 struct OfflineMangaReadingFeature: ReducerProtocol {
     struct State: Equatable {
@@ -76,9 +77,16 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             imageClient.prefetchImages(with: state.cachedPagesPaths.compactMap { $0 })
             
             return .concatenate(
-                settingsClient.retireveSettingsConfig()
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.settingsConfigRetrieved),
+                .run { send in
+                    do {
+                        let config = try await settingsClient.retireveSettingsConfig()
+                        await send(.settingsConfigRetrieved(.success(config)))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.settingsConfigRetrieved(.failure(error)))
+                        }
+                    }
+                },
                 
                 state.sameScanlationGroupChapters.isEmpty == false ? .none :
                     databaseClient

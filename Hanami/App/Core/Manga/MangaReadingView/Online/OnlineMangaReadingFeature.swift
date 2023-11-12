@@ -11,6 +11,7 @@ import ModelKit
 import Utils
 import Logger
 import ImageClient
+import SettingsClient
 
 struct OnlineMangaReadingFeature: Reducer {
     struct State: Equatable {
@@ -99,10 +100,17 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 DeviceUtil.disableScreenAutoLock()
                 
-                var effects = [
-                    settingsClient.retireveSettingsConfig()
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.settingsConfigRetrieved)
+                var effects: [EffectTask<Action>] = [
+                    .run { send in
+                        do {
+                            let config = try await settingsClient.retireveSettingsConfig()
+                            await send(.settingsConfigRetrieved(.success(config)))
+                        } catch {
+                            if let error = error as? AppError {
+                                await send(.settingsConfigRetrieved(.failure(error)))
+                            }
+                        }
+                    }
                 ]
                 
                 if state.pagesURLs.isNil {

@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Dependencies
 import ModelKit
 import Utils
 
-extension DependencyValues {
+public extension DependencyValues {
     var searchClient: SearchClient {
         get { self[SearchClient.self] }
         set { self[SearchClient.self] = newValue }
     }
 }
 
-struct SearchClient {
+public struct SearchClient {
     public func makeSearchRequest(with searchParams: SearchParams) async throws -> Response<[Manga]> {
         var components = URLComponents()
         
@@ -67,5 +67,5 @@ struct SearchClient {
 }
 
 extension SearchClient: DependencyKey {
-    static let liveValue = SearchClient()
+    public static let liveValue = SearchClient()
 }
