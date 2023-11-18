@@ -7,10 +7,11 @@
 
 import SwiftUI
 import ComposableArchitecture
+import HUD
 
 struct RootView: View {
     let store: StoreOf<RootFeature>
-    @StateObject private var hudState = HUDClient.liveValue
+    @StateObject private var hud = HUD.liveValue
     @Environment(\.scenePhase) private var scenePhase
     
     private struct ViewState: Equatable {
@@ -79,10 +80,10 @@ struct RootView: View {
                 .tag(RootFeature.Tab.settings)
             }
             .hud(
-                isPresented: $hudState.isPresented,
-                message: hudState.message,
-                iconName: hudState.iconName,
-                backgroundColor: hudState.backgroundColor
+                isPresented: $hud.isPresented,
+                message: hud.message,
+                iconName: hud.iconName,
+                backgroundColor: hud.backgroundColor
             )
             .autoBlur(radius: viewStore.blurRadius)
             .onChange(of: scenePhase) { viewStore.send(.scenePhaseChanged($0)) }

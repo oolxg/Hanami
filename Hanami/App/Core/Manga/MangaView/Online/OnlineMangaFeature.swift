@@ -111,7 +111,7 @@ struct OnlineMangaFeature: Reducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.settingsClient) private var settingsClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.openURL) private var openURL
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
@@ -172,7 +172,7 @@ struct OnlineMangaFeature: Reducer {
                 
             case .refreshButtonTapped:
                 if let lastRefreshedAt = state.lastRefreshedAt, (.now - lastRefreshedAt) < 10 {
-                    hudClient.show(
+                    hud.show(
                         message: "Wait a little to refresh this page",
                         iconName: "clock",
                         backgroundColor: .theme.yellow
@@ -246,7 +246,7 @@ struct OnlineMangaFeature: Reducer {
                     let allowHaptic = state.pagesState.hasValue
                     
                     if state.pagesState.hasValue {
-                        hudClient.show(message: "Updated!", backgroundColor: .theme.green)
+                        hud.show(message: "Updated!", backgroundColor: .theme.green)
                     }
                     
                     let currentPageIndex = state.pagesState?.currentPageIndex
@@ -273,7 +273,7 @@ struct OnlineMangaFeature: Reducer {
                         ]
                     )
                     
-                    hudClient.show(message: "Failed to fetch: \(error.description)")
+                    hud.show(message: "Failed to fetch: \(error.description)")
                     
                     state.isErrorOccured = true
                     
@@ -322,7 +322,7 @@ struct OnlineMangaFeature: Reducer {
                             "mangaName": "\(state.manga.title)"
                         ]
                     )
-                    hudClient.show(message: error.description)
+                    hud.show(message: error.description)
                     return .none
                 }
                 
@@ -342,7 +342,7 @@ struct OnlineMangaFeature: Reducer {
                     return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
                     
                 case .failure(let error):
-                    hudClient.show(message: "Failed to fetch chapter\n\(error.description)", backgroundColor: .red)
+                    hud.show(message: "Failed to fetch chapter\n\(error.description)", backgroundColor: .red)
                     return .none
                 }
                 

@@ -13,6 +13,7 @@ import Utils
 import Logger
 import ImageClient
 import SettingsClient
+import HUD
 
 struct ChapterLoaderFeature: Reducer {
     struct State: Equatable {
@@ -53,7 +54,7 @@ struct ChapterLoaderFeature: Reducer {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.databaseClient) private var databaseClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.logger) private var logger
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.mainQueue) private var mainQueue
@@ -249,7 +250,7 @@ struct ChapterLoaderFeature: Reducer {
                     ]
                 )
                 
-                hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
+                hud.show(message: "Failed to cache chapter \(chapter.chapterName)")
                 
                 state.cachedChaptersStates.insertOrUpdateByID(
                     .init(
@@ -312,7 +313,7 @@ struct ChapterLoaderFeature: Reducer {
                 "Failed to cache chapter \(chapter.chapterName)\n\(error.description)"
             }
             
-            hudClient.show(message: msg)
+            hud.show(message: msg)
             
             var effects: [EffectTask<Action>] = [
                 databaseClient

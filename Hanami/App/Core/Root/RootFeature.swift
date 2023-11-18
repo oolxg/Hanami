@@ -11,6 +11,7 @@ import Foundation
 import Utils
 import DataTypeExtensions
 import Logger
+import AuthClient
 
 struct RootFeature: Reducer {
     struct State: Equatable {
@@ -30,7 +31,7 @@ struct RootFeature: Reducer {
     
     enum Action {
         case tabChanged(Tab)
-        case appAuthCompleted(Result<Void, AppError>)
+        case appAuthCompleted(Bool)
         case scenePhaseChanged(ScenePhase)
         case homeAction(HomeFeature.Action)
         case searchAction(SearchFeature.Action)
@@ -84,10 +85,19 @@ struct RootFeature: Reducer {
 
                     guard state.isAppLocked else { return .none }
                     
-                    return authClient.makeAuth()
-                        .receive(on: mainQueue)
-                        .eraseToEffect(Action.appAuthCompleted)
-                        .cancellable(id: CancelAuth())
+                    return .run { send in
+                        do {
+                            let isAuthenticated = try await authClient.makeAuth()
+                            
+                            await send(.appAuthCompleted(isAuthenticated))
+                        } catch {
+                            if let error = error as? AppError {
+                                await send(.appAuthCompleted(false))
+                            }
+                        }
+
+                    }
+                    .cancellable(id: CancelAuth())
                     
                 @unknown default:
                     logger.info("New ScenePhase arrived!")
@@ -100,21 +110,27 @@ struct RootFeature: Reducer {
                     return .none
                 }
                 
-                return authClient.makeAuth()
-                    .receive(on: mainQueue)
-                    .eraseToEffect(Action.appAuthCompleted)
-                    .cancellable(id: CancelAuth())
+                return .run { send in
+                    do {
+                        let isAuthenticated = try await authClient.makeAuth()
+                        
+                        await send(.appAuthCompleted(isAuthenticated))
+                    } catch {
+                        if let error = error as? AppError {
+                            await send(.appAuthCompleted(false))
+                        }
+                    }
+
+                }
+                .cancellable(id: CancelAuth())
                 
-            case .appAuthCompleted(let result):
-                switch result {
-                case .success:
+            case .appAuthCompleted(let isAuthenticated):
+                if isAuthenticated {
                     state.appLastUsedAt = .now
                     state.isAppLocked = false
-                    return .none
-                    
-                case .failure:
-                    return .none
                 }
+                
+                return .none
                 
             case .homeAction:
                 return .none

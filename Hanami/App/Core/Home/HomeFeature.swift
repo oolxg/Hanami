@@ -12,6 +12,7 @@ import Utils
 import DataTypeExtensions
 import Logger
 import ImageClient
+import HUD
 
 struct HomeFeature: Reducer {
     struct State: Equatable {
@@ -52,7 +53,7 @@ struct HomeFeature: Reducer {
     }
     
     @Dependency(\.homeClient) private var homeClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mangaClient) private var mangaClient
@@ -77,7 +78,7 @@ struct HomeFeature: Reducer {
                 
             case .refreshButtonTapped:
                 guard state.lastRefreshDate.isNil || .now - state.lastRefreshDate! > 10 else {
-                    hudClient.show(
+                    hud.show(
                         message: "Wait a little to refresh home page",
                         iconName: "clock",
                         backgroundColor: .theme.yellow
@@ -169,13 +170,16 @@ struct HomeFeature: Reducer {
                 switch result {
                 case .success(let response):
                     let mangaIDsList = state[keyPath: keyPath].map(\.id)
-                    let fetchedMangaIDsList = Array(response.data.map(\.id)[0..<25])
+                    
+                    let range = 0..<min(response.data.count, 25)
+                    
+                    let fetchedMangaIDsList = Array(response.data.map(\.id)[range])
                     
                     guard mangaIDsList != fetchedMangaIDsList else {
                         return .none
                     }
                     
-                    state[keyPath: keyPath] = response.data[0..<25]
+                    state[keyPath: keyPath] = response.data[range]
                         .map { MangaThumbnailFeature.State(manga: $0) }
                         .asIdentifiedArray
                     
@@ -192,7 +196,7 @@ struct HomeFeature: Reducer {
                         .catchToEffect { .statisticsFetched($0, keyPath) }
                     
                 case .failure(let error):
-                    hudClient.show(message: error.description)
+                    hud.show(message: error.description)
                     state.lastRefreshDate = nil
                     logger.error(
                         "Failed to load manga list: \(error)",

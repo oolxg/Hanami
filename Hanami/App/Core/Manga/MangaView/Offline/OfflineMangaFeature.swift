@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Utils
 import ModelKit
 import Logger
+import HUD
 
 struct OfflineMangaFeature: Reducer {
     struct State: Equatable {
@@ -63,7 +64,7 @@ struct OfflineMangaFeature: Reducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.cacheClient) private var cacheClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
@@ -196,7 +197,7 @@ struct OfflineMangaFeature: Reducer {
             switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
                 guard let retrievedChapter = databaseClient.retrieveChapter(chapterID: chapter.id) else {
-                    hudClient.show(message: "😢 Error on retrieving saved chapter")
+                    hud.show(message: "😢 Error on retrieving saved chapter")
                     return .none
                 }
                 

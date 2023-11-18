@@ -60,7 +60,17 @@ extension HomeClient: DependencyKey {
             return URLSession.shared.get(url: url, decodeResponseAs: Response<[CustomMangaList]>.self)
         },
         getCurrentSeasonTitlesListID: { mangaLists in
-            let sorted = mangaLists.sorted { lhs, rhs in
+            var mangaLists = mangaLists.filter { list in
+                let name = list.attributes.name
+                let pattern = #"^Seasonal: (Winter|Spring|Fall|Summer) \d{4}$"#
+                let regex = try! NSRegularExpression(pattern: pattern, options: [])
+                let range = NSRange(location: 0, length: name.utf16.count)
+                let matches = regex.matches(in: name, options: [], range: range)
+                
+                return !matches.isEmpty
+            }
+            
+            mangaLists.sort { lhs, rhs in
                 let lhsYear = lhs.attributes.name.suffix(4)
                 let rhsYear = rhs.attributes.name.suffix(4)
                 
@@ -84,7 +94,7 @@ extension HomeClient: DependencyKey {
                 return lhsPriority < rhsPriority
             }
             
-            return sorted.last!
+            return mangaLists.last!
         },
         fetchCustomTitlesList: { seasonalTitlesListID in
             var components = URLComponents()

@@ -6,27 +6,28 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import Dependencies
+import UITheme
 
-extension DependencyValues {
-    var hudClient: HUDClient {
-        get { self[HUDClient.self] }
-        set { self[HUDClient.self] = newValue }
+public extension DependencyValues {
+    var hud: HUD {
+        get { self[HUD.self] }
+        set { self[HUD.self] = newValue }
     }
 }
 
-final class HUDClient: ObservableObject, DependencyKey {
-    @Published var isPresented = false
-    private(set) var message = ""
-    private(set) var iconName: String?
-    private(set) var backgroundColor: Color = .theme.red
+public final class HUD: ObservableObject, DependencyKey {
+    @Published public var isPresented = false
+    public private(set) var message = ""
+    public private(set) var iconName: String?
+    public private(set) var backgroundColor: Color = .theme.red
     private var workItem: DispatchWorkItem?
     
-    static let liveValue = HUDClient()
+    public static let liveValue = HUD()
     
     private init () { }
     
-    func show(message: String, iconName: String? = nil, hideAfter: Double = 2.5, backgroundColor: Color = .theme.red) {
+    public func show(message: String, iconName: String? = nil, hideAfter: Double = 2.5, backgroundColor: Color = .theme.red) {
         self.message = message
         self.iconName = iconName
         self.backgroundColor = backgroundColor

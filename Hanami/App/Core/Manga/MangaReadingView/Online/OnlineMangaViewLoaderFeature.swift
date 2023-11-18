@@ -13,6 +13,7 @@ import Utils
 import Logger
 import ImageClient
 import SettingsClient
+import HUD
 
 struct OnlineMangaViewLoaderFeature: Reducer {
     struct State: Equatable {
@@ -35,7 +36,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
     
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.mangaClient) private var mangaClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.logger) private var logger
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.databaseClient) private var databaseClient
@@ -131,7 +132,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                     ]
                 )
                 
-                hudClient.show(message: "Failed to cache chapter \(chapter.chapterName)")
+                hud.show(message: "Failed to cache chapter \(chapter.chapterName)")
                 
                 return .merge(
                     .cancel(id: CancelChapterCache()),

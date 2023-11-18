@@ -12,6 +12,7 @@ import ModelKit
 import Logger
 import ImageClient
 import SettingsClient
+import HUD
 
 struct OfflineMangaReadingFeature: ReducerProtocol {
     struct State: Equatable {
@@ -57,7 +58,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     }
     
     @Dependency(\.mangaClient) private var mangaClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.settingsClient) private var settingsClient
@@ -174,7 +175,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
             
             guard let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount else {
-                hudClient.show(message: "🙁 Internal error occured.")
+                hud.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }
             
@@ -197,13 +198,13 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             )
             
             guard let nextChapterIndex else {
-                hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
+                hud.show(message: "🙁 You've read the last chapter from this scanlation group.")
                 return .task { .userLeftMangaReadingView }
             }
             
             let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
             guard let pagesCount = databaseClient.retrieveChapter(chapterID: nextChapter.id)?.pagesCount else {
-                hudClient.show(message: "🙁 Internal error occured.")
+                hud.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }
             
@@ -226,14 +227,14 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             )
             
             guard let previousChapterIndex else {
-                hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
+                hud.show(message: "🤔 You've read the first chapter from this scanlation group.")
                 return .task { .userLeftMangaReadingView }
             }
             
             let previousChapter = state.sameScanlationGroupChapters[previousChapterIndex]
             
             guard let pagesCount = databaseClient.retrieveChapter(chapterID: previousChapter.id)?.pagesCount else {
-                hudClient.show(message: "🙁 Internal error occured.")
+                hud.show(message: "🙁 Internal error occured.")
                 return .task { .userLeftMangaReadingView }
             }
             

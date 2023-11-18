@@ -11,6 +11,7 @@ import class SwiftUI.UIApplication
 import ModelKit
 import Utils
 import Logger
+import HUD
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {
@@ -51,7 +52,7 @@ struct SearchFeature: ReducerProtocol {
     @Dependency(\.searchClient) private var searchClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticClient) private var hapticClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
@@ -193,7 +194,7 @@ struct SearchFeature: ReducerProtocol {
                 
             case .searchResultFetched(.failure(let error), _):
                 logger.error("Failed to make search request: \(error)")
-                hudClient.show(message: error.description)
+                hud.show(message: error.description)
                 return hapticClient.generateNotificationFeedback(.error).fireAndForget()
                 
             case .mangaStatisticsFetched(let result):

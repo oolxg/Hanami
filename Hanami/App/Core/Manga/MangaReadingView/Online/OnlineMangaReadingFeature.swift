@@ -12,6 +12,7 @@ import Utils
 import Logger
 import ImageClient
 import SettingsClient
+import HUD
 
 struct OnlineMangaReadingFeature: Reducer {
     struct State: Equatable {
@@ -86,7 +87,7 @@ struct OnlineMangaReadingFeature: Reducer {
     
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.settingsClient) private var settingsClient
-    @Dependency(\.hudClient) private var hudClient
+    @Dependency(\.hud) private var hud
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
@@ -267,7 +268,7 @@ struct OnlineMangaReadingFeature: Reducer {
                 )
                 
                 guard let nextChapterIndex else {
-                    hudClient.show(message: "🙁 You've read the last chapter from this scanlation group.")
+                    hud.show(message: "🙁 You've read the last chapter from this scanlation group.")
                     return .task { .userLeftMangaReadingView }
                 }
                 
@@ -293,7 +294,7 @@ struct OnlineMangaReadingFeature: Reducer {
                 )
                 
                 guard let previousChapterIndex else {
-                    hudClient.show(message: "🤔 You've read the first chapter from this scanlation group.")
+                    hud.show(message: "🤔 You've read the first chapter from this scanlation group.")
                     return .task { .userLeftMangaReadingView }
                 }
                 
