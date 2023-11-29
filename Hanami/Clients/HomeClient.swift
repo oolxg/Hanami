@@ -20,7 +20,7 @@ extension DependencyValues {
 struct HomeClient {
     let fetchLastUpdates: () -> EffectPublisher<Response<[Manga]>, AppError>
     let fetchAllSeasonalTitlesLists: () -> EffectPublisher<Response<[CustomMangaList]>, AppError>
-    let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> CustomMangaList
+    let getCurrentSeasonTitlesListID: (_ mangaLists: [CustomMangaList]) -> CustomMangaList?
     let fetchCustomTitlesList: (_ seasonalTitlesListID: UUID) -> EffectPublisher<Response<CustomMangaList>, AppError>
     let fetchMangaByIDs: ([UUID]) -> EffectPublisher<Response<[Manga]>, AppError>
     let fetchAwardWinningManga: () -> EffectPublisher<Response<[Manga]>, AppError>
@@ -63,7 +63,8 @@ extension HomeClient: DependencyKey {
             var mangaLists = mangaLists.filter { list in
                 let name = list.attributes.name
                 let pattern = #"^Seasonal: (Winter|Spring|Fall|Summer) \d{4}$"#
-                let regex = try! NSRegularExpression(pattern: pattern, options: [])
+                let regex = try? NSRegularExpression(pattern: pattern, options: [])
+                guard let regex else { return true }
                 let range = NSRange(location: 0, length: name.utf16.count)
                 let matches = regex.matches(in: name, options: [], range: range)
                 
@@ -94,7 +95,7 @@ extension HomeClient: DependencyKey {
                 return lhsPriority < rhsPriority
             }
             
-            return mangaLists.last!
+            return mangaLists.last
         },
         fetchCustomTitlesList: { seasonalTitlesListID in
             var components = URLComponents()

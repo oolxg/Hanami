@@ -10,7 +10,8 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "HUD",
-            targets: ["HUD"]),
+            targets: ["HUD"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
@@ -23,12 +24,12 @@ let package = Package(
             name: "HUD",
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
-                .product(name: "UITheme", package: "UITheme"),
+                .product(name: "UITheme", package: "UITheme")
             ]
         ),
         .testTarget(
             name: "HUDTests",
             dependencies: ["HUD"]
-        ),
+        )
     ]
 )

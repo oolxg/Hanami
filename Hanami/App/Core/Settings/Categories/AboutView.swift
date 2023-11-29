@@ -47,7 +47,7 @@ extension AboutView {
                 .clipShape(Circle())
                 .onTapGesture { openURL(Defaults.Links.githubUserLink) }
             
-            Text("Hey-hey 🖖, my name is Oleg!")
+            Text("Hey-hey 🖖, i'm Oleg!")
         }
     }
     
@@ -118,7 +118,7 @@ extension AboutView {
     
     private var footer: some View {
         VStack(spacing: 5) {
-            Text("From 🇩🇪 with ❤️")
+            Text("From 🇩🇪 by 🇷🇺 with ❤️")
                 .foregroundColor(.theme.secondaryText)
                 .font(.caption)
                 .frame(maxWidth: .infinity, alignment: .center)

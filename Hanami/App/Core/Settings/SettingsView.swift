@@ -28,8 +28,6 @@ struct SettingsView: View {
                 List {
                     localizationSection
                     
-                    readingSection
-                    
                     privacySection
                     
                     appearanceSection
@@ -78,9 +76,16 @@ extension SettingsView {
                     LocalizationSettingsView(selectedLanugauge: viewStore.binding(\.$config.iso639Language))
                         .environment(\.colorScheme, colorScheme)
                 }
+                
+                Picker("Reading format", selection: viewStore.binding(\.$config.readingFormat)) {
+                    ForEach(SettingsConfig.ReadingFormat.allCases, id: \.self) { readingFormat in
+                        Text(readingFormat.rawValue).tag(readingFormat)
+                    }
+                }
+                .pickerStyle(.menu)
             }
         } header: {
-            Text("Localization")
+            Text("Reading")
         }
     }
     
@@ -170,21 +175,6 @@ extension SettingsView {
             }
         } header: {
             Text("Appearance")
-        }
-    }
-    
-    private var readingSection: some View {
-        Section {
-            WithViewStore(store) { viewStore in
-                Picker("Reading format", selection: viewStore.binding(\.$config.readingFormat)) {
-                    ForEach(SettingsConfig.ReadingFormat.allCases, id: \.self) { readingFormat in
-                        Text(readingFormat.rawValue).tag(readingFormat)
-                    }
-                }
-                .pickerStyle(.menu)
-            }
-        } header: {
-            Text("Reading")
         }
     }
 }

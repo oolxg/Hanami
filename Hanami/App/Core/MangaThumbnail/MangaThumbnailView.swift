@@ -102,7 +102,7 @@ extension MangaThumbnailView {
             KFImage(viewStore.thumbnailURL)
                 .placeholder {
                     Color.theme.darkGray
-                        .redactedWithShimmering()
+//                        .redactedWithShimmering()
                 }
                 .resizable()
                 .overlay {

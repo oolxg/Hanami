@@ -147,7 +147,9 @@ struct HomeFeature: Reducer {
             case .allSeasonalListsFetched(let result):
                 switch result {
                 case .success(let response):
-                    let seasonaMangalList = homeClient.getCurrentSeasonTitlesListID(response.data)
+                    guard let seasonaMangalList = homeClient.getCurrentSeasonTitlesListID(response.data) else {
+                        return .none
+                    }
                     
                     let seasonalMangaIDs = seasonaMangalList.relationships
                         .filter { $0.type == .manga }
