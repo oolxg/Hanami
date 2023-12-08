@@ -14,14 +14,13 @@ import Logger
 import ImageClient
 import SettingsClient
 import HUD
+import CacheClient
 
 struct ChapterLoaderFeature: Reducer {
     struct State: Equatable {
         let parentManga: Manga
         let online: Bool
-        
         var cachedChaptersStates = Set<CachedChapterState>()
-        
         var useHighResImagesForCaching: Bool?
     }
     
@@ -62,13 +61,18 @@ struct ChapterLoaderFeature: Reducer {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         struct CancelChapterCache: Hashable { let id: UUID }
-        
         switch action {
         case .retrieveCachedChaptersFromMemory:
-            return cacheClient
-                .retrieveFromMemoryCachedChapters(state.parentManga.id)
-                .receive(on: mainQueue)
-                .catchToEffect(Action.savedInMemoryChaptersRetrieved)
+            let mangaID = state.parentManga.id
+            return .run { send in
+                let chapterIDs = try? await cacheClient.retrieveFromMemoryCachedChapters(for: mangaID)
+                
+                if let chapterIDs {
+                    await send(.savedInMemoryChaptersRetrieved(.success(chapterIDs)))
+                } else {
+                    await send(.savedInMemoryChaptersRetrieved(.failure(.notFound)))
+                }
+            }
             
         case .savedInMemoryChaptersRetrieved(let result):
             switch result {
@@ -112,9 +116,9 @@ struct ChapterLoaderFeature: Reducer {
                     )
                 }
                 
-                return cacheClient
-                    .replaceCachedChaptersInMemory(state.parentManga.id, cachedChapterIDs)
-                    .fireAndForget()
+                cacheClient.replaceCachedChaptersInMemory(mangaID: state.parentManga.id, chapterIDs: cachedChapterIDs)
+                
+                return .none
                 
             case .failure(let error):
                 logger.info(
@@ -127,27 +131,19 @@ struct ChapterLoaderFeature: Reducer {
         case .chapterDeletionConfirmed(let chapterID):
             state.cachedChaptersStates.removeAll(where: { $0.id == chapterID })
             
-            var effects: [EffectTask<Action>] = [
+            cacheClient.removeCachedChapterIDFromMemory(for: state.parentManga.id, chapterID: chapterID)
+            
+            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
+                mangaClient.removeCachedPagesForChapter(chapterID, pagesCount: pagesCount, using: cacheClient)
+            }
+            
+            return .merge(
                 databaseClient
                     .deleteChapter(chapterID: chapterID)
                     .fireAndForget(),
                 
-                cacheClient
-                    .removeCachedChapterIDFromMemory(state.parentManga.id, chapterID)
-                    .fireAndForget(),
-                
-                    .cancel(id: CancelChapterCache(id: chapterID))
-            ]
-            
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
-                effects.append(
-                    mangaClient
-                        .removeCachedPagesForChapter(chapterID, pagesCount, cacheClient)
-                        .fireAndForget()
-                )
-            }
-            
-            return .merge(effects)
+                .cancel(id: CancelChapterCache(id: chapterID))
+            )
             
         case .downloadChapterButtonTapped(let chapter):
             state.cachedChaptersStates.insertOrUpdateByID(
@@ -159,23 +155,14 @@ struct ChapterLoaderFeature: Reducer {
                 )
             )
             
-            return .concatenate(
-                // need to retrieve `SettingsConfig` each time, because user can update it and we have no listeners on this updates
-                .run { send in
-                    do {
-                        let config = try await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(.success(config)))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.settingsConfigRetrieved(.failure(error)))
-                        }
-                    }
-                },
-                
-                mangaClient.fetchPagesInfo(chapter.id)
-                    .receive(on: mainQueue)
-                    .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter) }
-            )
+            // need to retrieve `SettingsConfig` each time, because user can update it and we have no listeners on this updates
+            return .run { send in
+                    let settingsConfigResult = await settingsClient.retireveSettingsConfig()
+                    await send(.settingsConfigRetrieved(settingsConfigResult))
+                    
+                    let pagesInfoResult = await mangaClient.fetchPagesInfo(for: chapter.id)
+                    await send(.pagesInfoForChapterCachingFetched(pagesInfoResult, chapter))
+                }
             
         case .settingsConfigRetrieved(let result):
             switch result {
@@ -202,34 +189,20 @@ struct ChapterLoaderFeature: Reducer {
                     )
                 )
                 
-                var effects: [EffectTask<Action>] = [
+                return .merge(
                     .run { send in
                         for (i, pageURL) in pagesURLs.enumerated() {
-                            do {
-                                let page = try await imageClient.downloadImage(from: pageURL)
-                                await send(
-                                    .chapterPageForCachingFetched(
-                                        .success(page),
-                                        chapter: chapter,
-                                        pageIndex: i
-                                    )
+                            let result = await imageClient.downloadImage(from: pageURL)
+                            await send(
+                                .chapterPageForCachingFetched(
+                                    result,
+                                    chapter: chapter,
+                                    pageIndex: i
                                 )
-                            } catch {
-                                if let error = error as? AppError {
-                                    await send(
-                                        .chapterPageForCachingFetched(
-                                            .failure(error),
-                                            chapter: chapter,
-                                            pageIndex: i
-                                        )
-                                    )
-                                }
-                            }
+                            )
                         }
-                    }
-                ]
-                
-                effects.append(
+                    },
+                    
                     databaseClient.saveChapterDetails(
                         chapter,
                         pagesCount: pagesURLs.count,
@@ -237,9 +210,7 @@ struct ChapterLoaderFeature: Reducer {
                     )
                     .fireAndForget()
                 )
-                
-                return .merge(effects)
-                    .cancellable(id: CancelChapterCache(id: chapter.id))
+                .cancellable(id: CancelChapterCache(id: chapter.id))
                 
             case .failure(let error):
                 logger.error(
@@ -286,16 +257,10 @@ struct ChapterLoaderFeature: Reducer {
                 )
             )
             
-            return .merge(
-                mangaClient
-                    .saveChapterPage(chapterPage, pageIndex, chapter.id, cacheClient)
-                    .cancellable(id: CancelChapterCache(id: chapter.id))
-                    .fireAndForget(),
-                
-                cacheClient
-                    .saveCachedChapterInMemory(state.parentManga.id, chapter.id)
-                    .fireAndForget()
-            )
+            cacheClient.saveCachedChapterInMemory(mangaID: state.parentManga.id, chapterID: chapter.id)
+            mangaClient.saveChapterPage(chapterPage, withIndex: pageIndex, chapterID: chapter.id, using: cacheClient)
+            
+            return .none
             
         case .chapterPageForCachingFetched(.failure(let error), let chapter, let pageIndex):
             logger.error(
@@ -315,14 +280,6 @@ struct ChapterLoaderFeature: Reducer {
             
             hud.show(message: msg)
             
-            var effects: [EffectTask<Action>] = [
-                databaseClient
-                    .deleteChapter(chapterID: chapter.id)
-                    .fireAndForget(),
-                
-                .cancel(id: CancelChapterCache(id: chapter.id))
-            ]
-            
             state.cachedChaptersStates.insertOrUpdateByID(
                 .init(
                     id: chapter.id,
@@ -333,12 +290,16 @@ struct ChapterLoaderFeature: Reducer {
             )
             
             if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
-                effects.append(
-                    mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount, cacheClient).fireAndForget()
-                )
+                mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount, using: cacheClient)
             }
             
-            return .merge(effects)
+            return .merge(
+                databaseClient
+                    .deleteChapter(chapterID: chapter.id)
+                    .fireAndForget(),
+                
+                .cancel(id: CancelChapterCache(id: chapter.id))
+            )
         }
     }
 }

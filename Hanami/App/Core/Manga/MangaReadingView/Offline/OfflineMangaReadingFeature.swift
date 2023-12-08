@@ -79,14 +79,8 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             
             return .concatenate(
                 .run { send in
-                    do {
-                        let config = try await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(.success(config)))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.settingsConfigRetrieved(.failure(error)))
-                        }
-                    }
+                    let result = await settingsClient.retireveSettingsConfig()
+                    await send(.settingsConfigRetrieved(result))
                 },
                 
                 state.sameScanlationGroupChapters.isEmpty == false ? .none :
@@ -102,7 +96,9 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 state.readingFormat = config.readingFormat
                 
                 state.cachedPagesPaths = mangaClient.getPathsForCachedChapterPages(
-                    state.chapter.id, state.pagesCount, cacheClient
+                    chapterID: state.chapter.id, 
+                    pagesCount: state.pagesCount,
+                    using: cacheClient
                 )
                 
                 if state.readingFormat == .rightToLeft {
@@ -165,14 +161,14 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 return .none
             }
             
-            let chapterIndex = mangaClient.computeChapterIndex(
-                newChapterIndex, state.sameScanlationGroupChapters.map(\.asChapter)
+            let chapterIndex = mangaClient.getChapterIndex(
+                chapterIndexToFind: newChapterIndex, 
+                scanlationGroupChapters: state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
             guard let chapterIndex else { fatalError("Here must be chapterIndex!") }
             
             let chapter = state.sameScanlationGroupChapters[chapterIndex]
-            
             
             guard let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount else {
                 hud.show(message: "🙁 Internal error occured.")
@@ -193,8 +189,9 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             return .task { .userStartedReadingChapter }
             
         case .moveToNextChapter:
-            let nextChapterIndex = mangaClient.computeNextChapterIndex(
-                state.chapter.attributes.index, state.sameScanlationGroupChapters.map(\.asChapter)
+            let nextChapterIndex = mangaClient.getNextChapterIndex(
+                currentChapterIndex: state.chapter.attributes.index, 
+                scanlationGroupChapters: state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
             guard let nextChapterIndex else {
@@ -222,8 +219,9 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
             return .task { .userStartedReadingChapter }
             
         case .moveToPreviousChapter:
-            let previousChapterIndex = mangaClient.computePreviousChapterIndex(
-                state.chapter.attributes.index, state.sameScanlationGroupChapters.map(\.asChapter)
+            let previousChapterIndex = mangaClient.getPrevChapterIndex(
+                currentChapterIndex: state.chapter.attributes.index,
+                scanlationGroupChapters: state.sameScanlationGroupChapters.map(\.asChapter)
             )
             
             guard let previousChapterIndex else {

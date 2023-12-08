@@ -26,7 +26,7 @@ public struct SettingsClient {
         }
     }
     
-    public func retireveSettingsConfig() async throws -> SettingsConfig {
+    public func retireveSettingsConfig() async -> Result<SettingsConfig, AppError> {
         let task = Task {
             let data = UserDefaults.standard.object(forKey: Defaults.Storage.settingsConfig) as? Data
             
@@ -37,7 +37,11 @@ public struct SettingsClient {
             return config
         }
         
-        return try await task.value
+        do {
+            return .success(try await task.value)
+        } catch {
+            return .failure(AppError.notFound)
+        }
     }
 }
 

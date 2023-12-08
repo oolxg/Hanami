@@ -115,12 +115,12 @@ struct ChapterFeature: ReducerProtocol {
                         } else if state.online {
                             // chapter is not cached, need to fetch
                             effects.append(
-                                mangaClient.fetchChapterDetails(chapterID)
-                                    .delay(for: .seconds(0.3), scheduler: mainQueue)
-                                    .receive(on: mainQueue)
-                                    .catchToEffect(Action.chapterDetailsFetched)
-                                    .animation(.linear)
-                                    .cancellable(id: CancelChapterFetch(id: chapterID), cancelInFlight: true)
+                                .run { send in
+                                    try await Task.sleep(seconds: 0.3)
+                                    let result = await mangaClient.fetchChapterDetails(for: chapterID)
+                                    await send(.chapterDetailsFetched(result))
+                                }
+                                .cancellable(id: CancelChapterFetch(id: chapterID), cancelInFlight: true)
                             )
                         }
                     }

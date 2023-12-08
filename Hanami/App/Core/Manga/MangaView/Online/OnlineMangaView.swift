@@ -248,7 +248,7 @@ extension OnlineMangaView {
                     }
                     .resizable()
                     .scaledToFill()
-                    .animation(nil)
+                    .animation(nil, value: true)
                     .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
                     .overlay(headerOverlay)
                     .cornerRadius(0)

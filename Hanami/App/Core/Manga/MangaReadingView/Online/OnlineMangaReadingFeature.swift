@@ -103,34 +103,31 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 var effects: [EffectTask<Action>] = [
                     .run { send in
-                        do {
-                            let config = try await settingsClient.retireveSettingsConfig()
-                            await send(.settingsConfigRetrieved(.success(config)))
-                        } catch {
-                            if let error = error as? AppError {
-                                await send(.settingsConfigRetrieved(.failure(error)))
-                            }
-                        }
+                        let result = await settingsClient.retireveSettingsConfig()
+                        await send(.settingsConfigRetrieved(result))
                     }
                 ]
                 
                 if state.pagesURLs.isNil {
                     effects.append(
-                        mangaClient.fetchPagesInfo(state.chapterID)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.chapterPagesInfoFetched)
+                        .run { [chapterID = state.chapterID] send in
+                            let result = await mangaClient.fetchPagesInfo(for: chapterID)
+                            await send(.chapterPagesInfoFetched(result))
+                        }
                     )
                 }
                 
                 if state.sameScanlationGroupChapters.isEmpty {
                     effects.append(
-                        mangaClient.fetchMangaChapters(
-                            state.manga.id,
-                            state.scanlationGroupID,
-                            state.translatedLanguage
-                        )
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.sameScanlationGroupChaptersFetched)
+                        .run { [mangaID = state.manga.id, scanlationGroupID = state.scanlationGroupID, lang = state.translatedLanguage] send in
+                            let result = await mangaClient.fetchChapters(
+                                forManga: mangaID,
+                                scanlationGroupID: scanlationGroupID,
+                                translatedLanguage: lang
+                            )
+                            
+                            await send(.sameScanlationGroupChaptersFetched(result))
+                        }
                     )
                 }
                 
@@ -240,8 +237,9 @@ struct OnlineMangaReadingFeature: Reducer {
                 guard newChapterIndex != state.chapterIndex else {
                     return .none
                 }
-                let chapterIndex = mangaClient.computeChapterIndex(
-                    newChapterIndex, state.sameScanlationGroupChapters
+                let chapterIndex = mangaClient.getChapterIndex(
+                    chapterIndexToFind: newChapterIndex,
+                    scanlationGroupChapters: state.sameScanlationGroupChapters
                 )
                 
                 guard let chapterIndex else { fatalError("Here must be chapterIndex!") }
@@ -263,8 +261,9 @@ struct OnlineMangaReadingFeature: Reducer {
                 return .task { .userStartedReadingChapter }
                 
             case .moveToNextChapter:
-                let nextChapterIndex = mangaClient.computeNextChapterIndex(
-                    state.chapterIndex, state.sameScanlationGroupChapters
+                let nextChapterIndex = mangaClient.getNextChapterIndex(
+                    currentChapterIndex: state.chapterIndex, 
+                    scanlationGroupChapters: state.sameScanlationGroupChapters
                 )
                 
                 guard let nextChapterIndex else {
@@ -289,8 +288,9 @@ struct OnlineMangaReadingFeature: Reducer {
                 return .task { .userStartedReadingChapter }
                 
             case .moveToPreviousChapter:
-                let previousChapterIndex = mangaClient.computePreviousChapterIndex(
-                    state.chapterIndex, state.sameScanlationGroupChapters
+                let previousChapterIndex = mangaClient.getPrevChapterIndex(
+                    currentChapterIndex: state.chapterIndex,
+                    scanlationGroupChapters: state.sameScanlationGroupChapters
                 )
                 
                 guard let previousChapterIndex else {

@@ -319,7 +319,7 @@ extension HomeView {
             toolbar { showMostFollowed = false }
         }
         .onAppear {
-            ViewStore(store).send(.onAppearMostFollewedManga)
+            ViewStore(store, observe: { $0 }).send(.onAppearMostFollewedManga)
         }
     }
 }
@@ -399,7 +399,7 @@ extension HomeView {
             toolbar { showAwardWinning = false }
         }
         .onAppear {
-            ViewStore(store).send(.onAppearAwardWinningManga)
+            ViewStore(store, observe: { $0 }).send(.onAppearAwardWinningManga)
         }
     }
     

@@ -12,6 +12,11 @@
   </a>
 </p>
 
+## Important ❗️
+
+<p>My Apple Developer subscription has expired, preventing me from uploading new releases of the app to TestFlight.</p>
+<p>If you enjoy using my app, I kindly request your support through donations.</p>
+
 Screenshots
 -------------
 <div align="center">
@@ -74,3 +79,4 @@ Thanks to [EhPanda](https://github.com/EhPanda-Team/EhPanda) from where I kindly
 </a>
 
 <sub><sub>Small bottom text to get your attention and tell you that this app does not collect or share any information about you with anyone.</sub></sub>
+

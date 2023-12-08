@@ -29,8 +29,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
         case cancelDownloadButtonTapped
         case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
         case pagesInfoForChapterCachingFetched(Result<ChapterPagesInfo, AppError>, chapter: ChapterDetails)
-        case chapterPageForCachingFetched(image: UIImage, chapter: ChapterDetails, pageIndex: Int)
-        case didFailToFetchChapterPageForCaching(error: AppError, chapterID: UUID)
+        case chapterPageForCachingFetched(Result<UIImage, AppError>, chapter: ChapterDetails, pageIndex: Int)
         case chapterCached
     }
     
@@ -50,32 +49,30 @@ struct OnlineMangaViewLoaderFeature: Reducer {
         switch action {
         case .downloadChapterButtonTapped:
             if databaseClient.retrieveChapter(chapterID: state.chapterID).isNil {
-                return mangaClient.fetchChapterDetails(state.chapterID)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.chapterDetailsFetched)
+                return .run { [chapterID = state.chapterID] send in
+                    let result = await mangaClient.fetchChapterDetails(for: chapterID)
+                    await send(.chapterDetailsFetched(result))
+                }
             }
             
             return .none
             
         case .cancelDownloadButtonTapped:
+            cacheClient.removeCachedChapterIDFromMemory(
+                for: state.parentManga.id,
+                chapterID: state.chapterID
+            )
+            
             var effects: [EffectTask<Action>] = [
                 databaseClient
                     .deleteChapter(chapterID: state.chapterID)
-                    .fireAndForget(),
-                
-                cacheClient
-                    .removeCachedChapterIDFromMemory(state.parentManga.id, state.chapterID)
                     .fireAndForget(),
                 
                 .cancel(id: CancelChapterCache())
             ]
             
             if let pagesCount = databaseClient.retrieveChapter(chapterID: state.chapterID)?.pagesCount {
-                effects.append(
-                    mangaClient
-                        .removeCachedPagesForChapter(state.chapterID, pagesCount, cacheClient)
-                        .fireAndForget()
-                )
+                mangaClient.removeCachedPagesForChapter(state.chapterID, pagesCount: pagesCount, using: cacheClient)
             }
             
             return .merge(effects)
@@ -85,9 +82,10 @@ struct OnlineMangaViewLoaderFeature: Reducer {
             case .success(let response):
                 let chapter = response.data
                 
-                return mangaClient.fetchPagesInfo(chapter.id)
-                    .receive(on: mainQueue)
-                    .catchToEffect { .pagesInfoForChapterCachingFetched($0, chapter: chapter) }
+                return .run { send in
+                    let result = await mangaClient.fetchPagesInfo(for: chapter.id)
+                    await send(.pagesInfoForChapterCachingFetched(result, chapter: chapter))
+                }
                 
             case .failure(let error):
                 logger.error("Can't fetch chapterDetails for caching in OnlineMangaViewLoaderFeature: \(error)")
@@ -103,14 +101,8 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                 return .merge(
                     .run { send in
                         for (i, pageURL) in pagesURLs.enumerated() {
-                            do {
-                                let image = try await imageClient.downloadImage(from: pageURL)
-                                await send(.chapterPageForCachingFetched(image: image, chapter: chapter, pageIndex: i))
-                            } catch {
-                                if let error = error as? AppError {
-                                    await send(.didFailToFetchChapterPageForCaching(error: error, chapterID: chapter.id))
-                                }
-                            }
+                            let result = await imageClient.downloadImage(from: pageURL)
+                            await send(.chapterPageForCachingFetched(result, chapter: chapter, pageIndex: i))
                         }
                     },
                     
@@ -142,43 +134,38 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                         .fireAndForget()
                 )
             }
-        case .chapterPageForCachingFetched(let chapterPage, let chapter, let  pageIndex):
+            
+        case .chapterPageForCachingFetched(.success(let chapterPage), let chapter, let pageIndex):
             state.pagesFetched += 1
             
-            return .merge(
-                mangaClient
-                    .saveChapterPage(chapterPage, pageIndex, chapter.id, cacheClient)
-                    .cancellable(id: CancelChapterCache())
-                    .fireAndForget(),
-                
-                cacheClient
-                    .saveCachedChapterInMemory(state.parentManga.id, chapter.id)
-                    .fireAndForget(),
-                
-                state.pagesFetched == state.pagesCount ? .task { .chapterCached } : .none
-            )
+            cacheClient.saveCachedChapterInMemory(mangaID: state.parentManga.id, chapterID: chapter.id)
+            mangaClient.saveChapterPage(chapterPage, withIndex: pageIndex, chapterID: chapter.id, using: cacheClient)
             
+            let pagesCount = state.pagesCount
+            let pagesFetched = state.pagesFetched
             
-        case .didFailToFetchChapterPageForCaching(let error, let chapterID):
+            return .run { send in
+                if pagesCount == pagesFetched {
+                    await send(.chapterCached)
+                }
+            }
+            
+        case .chapterPageForCachingFetched(.failure(let error), let chapter, _):
             logger.error(
                 "Failed to fetch image for caching in OnlineMangaViewLoaderFeature: \(error.description)"
             )
             
-            var effects: [EffectTask<Action>] = [
-                databaseClient
-                    .deleteChapter(chapterID: chapterID)
-                    .fireAndForget(),
-                
-                    .cancel(id: CancelChapterCache())
-            ]
-            
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
-                effects.append(
-                    mangaClient.removeCachedPagesForChapter(chapterID, pagesCount, cacheClient).fireAndForget()
-                )
+            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
+                mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount, using: cacheClient)
             }
             
-            return .merge(effects)
+            return .merge(
+                databaseClient
+                    .deleteChapter(chapterID: chapter.id)
+                    .fireAndForget(),
+                
+                .cancel(id: CancelChapterCache())
+            )
             
             // to be hijacked in OnlineMangaReadingViewFeature
         case .chapterCached:

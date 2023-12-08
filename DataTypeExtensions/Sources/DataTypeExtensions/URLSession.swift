@@ -9,7 +9,7 @@ import Foundation
 import struct ComposableArchitecture.EffectPublisher
 import Utils
 
-extension URLSession {
+public extension URLSession {
     func get<T: Decodable>(url: URL, decodeResponseAs _: T.Type, decoder: JSONDecoder = AppUtil.decoder) -> EffectPublisher<T, AppError> {
         var request = URLRequest(url: url)
         
@@ -35,7 +35,7 @@ extension URLSession {
             .eraseToEffect()
     }
     
-    func get<T: Decodable>(url: URL, decodeResponseAs _: T.Type, decoder: JSONDecoder = AppUtil.decoder) async throws -> T {
+    func get<T: Decodable>(url: URL, decodeResponseAs _: T.Type, decoder: JSONDecoder = AppUtil.decoder) async -> Result<T, AppError> {
         var request = URLRequest(url: url)
         
         let userAgent = "Hanami/\(AppUtil.version) (\(DeviceUtil.deviceName); \(DeviceUtil.fullOSName))"
@@ -43,21 +43,42 @@ extension URLSession {
         request.timeoutInterval = 15
         request.cachePolicy = .reloadIgnoringLocalCacheData
         
-        let (payload, response) = try await URLSession.shared.data(for: request)
+        let payload: Data
+        let response: URLResponse
+        
+        do {
+            (payload, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            if let urlErr = error as? URLError {
+                return .failure(.networkError(urlErr))
+            } else {
+                return .failure(.unknownError(error))
+            }
+        }
         
         guard let response = response as? HTTPURLResponse else {
-            throw AppError.networkError(URLError(.unknown))
+            return .failure(AppError.networkError(URLError(.unknown)))
         }
         
         guard (200..<300).contains(response.statusCode) else {
-            throw AppError.networkError(
-                URLError(
-                    URLError.Code(rawValue: response.statusCode),
-                    userInfo: ["url": response.url]
+            return .failure(
+                AppError.networkError(
+                    URLError(
+                        URLError.Code(rawValue: response.statusCode),
+                        userInfo: ["url": response.url]
+                    )
                 )
             )
         }
         
-        return try decoder.decode(T.self, from: payload)
+        do {
+            return .success(try decoder.decode(T.self, from: payload))
+        } catch {
+            if let decodingError = error as? DecodingError {
+                return .failure(.decodingError(decodingError))
+            } else {
+                return .failure(.unknownError(error))
+            }
+        }
     }
 }

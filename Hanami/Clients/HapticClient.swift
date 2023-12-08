@@ -10,29 +10,27 @@ import SwiftUI
 import ComposableArchitecture
 import Utils
 
-extension DependencyValues {
+public extension DependencyValues {
     var hapticClient: HapticClient {
         get { self[HapticClient.self] }
         set { self[HapticClient.self] = newValue }
     }
 }
 
-struct HapticClient {
-    let generateFeedback: (UIImpactFeedbackGenerator.FeedbackStyle) -> EffectTask<Never>
-    let generateNotificationFeedback: (UINotificationFeedbackGenerator.FeedbackType) -> EffectTask<Never>
+public struct HapticClient {
+    public func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        Task {
+            HapticUtil.generateFeedback(style: style)
+        }
+    }
+    
+    public func generateNotificationFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+        Task {
+            HapticUtil.generateNotificationFeedback(style: style)
+        }
+    }
 }
 
 extension HapticClient: DependencyKey {
-    static let liveValue: HapticClient = .init(
-        generateFeedback: { style in
-            .run { _ in
-                HapticUtil.generateFeedback(style: style)
-            }
-        },
-        generateNotificationFeedback: { style in
-            .run { _ in
-                HapticUtil.generateNotificationFeedback(style: style)
-            }
-        }
-    )
+    public static let liveValue: HapticClient = HapticClient()
 }

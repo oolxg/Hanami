@@ -52,7 +52,7 @@ struct FiltersFeature: Reducer {
     
     enum Action {
         case fetchFilterTagsIfNeeded
-        case filterListFetched(Result<IdentifiedArrayOf<FiltersTag>, AppError>)
+        case filterListFetched(Result<Response<[Tag]>, AppError>)
         case filterTagButtonTapped(FiltersTag)
         case resetFilterButtonPressed
         
@@ -73,24 +73,16 @@ struct FiltersFeature: Reducer {
             guard state.allTags.isEmpty else { return .none }
             
             return .run { send in
-                
-                do {
-                    let tags = try await searchClient.fetchTags()
-                        .data
-                        .map { FiltersTag(tag: $0, state: .notSelected) }
-                        .sorted(by: <)
-                        .asIdentifiedArray
-                    
-                    await send(.filterListFetched(.success(tags)))
-                } catch {
-                    if let error = error as? AppError {
-                        await send(.filterListFetched(.failure(error)))
-                    }
-                }
+                let result = await searchClient.fetchTags()
+                await send(.filterListFetched(result))
             }
             
-        case .filterListFetched(.success(let tags)):
-            state.allTags = tags
+        case .filterListFetched(.success(let response)):
+            state.allTags = response
+                .data
+                .map { FiltersTag(tag: $0, state: .notSelected) }
+                .sorted(by: <)
+                .asIdentifiedArray
             return .none
             
         case .filterListFetched(.failure(let error)):
@@ -99,7 +91,8 @@ struct FiltersFeature: Reducer {
             
         case .filterTagButtonTapped(let tappedTag):
             state.allTags[id: tappedTag.id]?.toggleState()
-            return hapticClient.generateFeedback(.light).fireAndForget()
+            hapticClient.generateFeedback(style: .light)
+            return .none
             
         case .resetFilterButtonPressed:
             for tagID in state.allTags.map(\.id) {
@@ -131,7 +124,9 @@ struct FiltersFeature: Reducer {
                 state.mangaStatuses[id: tagContainer.id]!.state = .selected
             }
             
-            return hapticClient.generateFeedback(.light).fireAndForget()
+            hapticClient.generateFeedback(style: .light)
+            
+            return .none
             
         case .contentRatingButtonTapped(let tagContainer):
             if tagContainer.state == .selected {
@@ -151,7 +146,9 @@ struct FiltersFeature: Reducer {
                 state.contentRatings[id: safeTagID]!.state = .notSelected
             }
             
-            return hapticClient.generateFeedback(.light).fireAndForget()
+            hapticClient.generateFeedback(style: .light)
+            
+            return .none
             
         case .publicationDemographicButtonTapped(let tagContainer):
             if tagContainer.state == .selected {
@@ -160,7 +157,9 @@ struct FiltersFeature: Reducer {
                 state.publicationDemographics[id: tagContainer.id]!.state = .selected
             }
             
-            return hapticClient.generateFeedback(.light).fireAndForget()
+            hapticClient.generateFeedback(style: .light)
+            
+            return .none
         }
     }
     

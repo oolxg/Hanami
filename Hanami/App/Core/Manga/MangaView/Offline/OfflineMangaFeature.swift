@@ -99,9 +99,10 @@ struct OfflineMangaFeature: Reducer {
                         chaptersDetailsList: chapters.map(\.chapter),
                         chaptersPerPages: 10
                     )
-                    return cacheClient
-                        .replaceCachedChaptersInMemory(state.manga.id, chaptersIDsSet)
-                        .fireAndForget()
+                    
+                    cacheClient.replaceCachedChaptersInMemory(mangaID: state.manga.id, chapterIDs: chaptersIDsSet)
+                    
+                    return .none
                     
                 case .failure(let error):
                     logger.error(
@@ -148,27 +149,20 @@ struct OfflineMangaFeature: Reducer {
             case .chaptersForMangaDeletionRetrieved(let result):
                 switch result {
                 case .success(let chapters):
-                    var effects: [EffectTask<Action>] = [
-                        databaseClient
-                            .deleteManga(mangaID: state.manga.id)
-                            .fireAndForget(),
-                        
-                        cacheClient
-                            .removeAllCachedChapterIDsFromMemory(state.manga.id)
-                            .fireAndForget(),
-                        
-                        mangaClient
-                            .deleteCoverArt(state.manga.id, cacheClient)
-                            .fireAndForget()
-                    ]
+                    cacheClient.removeAllCachedChapterIDsFromMemory(for: state.manga.id)
+                    mangaClient.deleteCoverArt(for: state.manga.id, using: cacheClient)
                     
-                    effects += chapters.map { chapterEntity in
-                        mangaClient
-                            .removeCachedPagesForChapter(chapterEntity.chapter.id, chapterEntity.pagesCount, cacheClient)
-                            .fireAndForget()
+                    for chapterEntity in chapters {
+                        mangaClient.removeCachedPagesForChapter(
+                            chapterEntity.chapter.id,
+                            pagesCount: chapterEntity.pagesCount,
+                            using: cacheClient
+                        )
                     }
                     
-                    return .merge(effects)
+                    return databaseClient
+                        .deleteManga(mangaID: state.manga.id)
+                        .fireAndForget()
                     
                 case .failure(let error):
                     logger.error(
@@ -218,10 +212,21 @@ struct OfflineMangaFeature: Reducer {
                     )
                     .fireAndForget()
                 ]
-                if let pageIndex = mangaClient.getMangaPageForReadingChapter(
-                    state.mangaReadingViewState?.chapter.attributes.index,
-                    state.pagesState!.splitIntoPagesVolumeTabStates
-                ) {
+                
+                let pages = state.pagesState!.splitIntoPagesVolumeTabStates
+                let chapterIndex = state.mangaReadingViewState?.chapter.attributes.index
+                var pageIndex: Int?
+                
+                for (i, page) in pages.enumerated() {
+                    for volumeState in page {
+                        // swiftlint:disable:next for_where
+                        if volumeState.chapterStates.first(where: { $0.chapter.index == chapterIndex }).hasValue {
+                            pageIndex = i
+                        }
+                    }
+                }
+                
+                if let pageIndex {
                     effects.append(
                         .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
                     )
@@ -240,9 +245,19 @@ struct OfflineMangaFeature: Reducer {
                 let chapterIndex = state.mangaReadingViewState!.chapter.attributes.index
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
                 
-                guard let info = mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
-                    return .none
+                var info: (volumeID: UUID, chapterID: UUID)?
+                
+                for volumeStateID in volumes.ids {
+                    for chapterStateID in volumes[id: volumeStateID]!.chapterStates.ids {
+                        let chapterState = volumes[id: volumeStateID]!.chapterStates[id: chapterStateID]!
+                        
+                        if chapterState.chapter.index == chapterIndex {
+                            info = (volumeID: volumeStateID, chapterID: chapterStateID)
+                        }
+                    }
                 }
+                
+                guard let info else { return .none }
                 
                 // chapterState, on which user has left MangaReadingView
                 let chapterState = state.pagesState!

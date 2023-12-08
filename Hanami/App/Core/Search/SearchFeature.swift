@@ -108,16 +108,10 @@ struct SearchFeature: ReducerProtocol {
                 state.isLoading = true
                 
                 return .run { send in
-                    do {
-                        let mangaListResponse = try await searchClient.makeSearchRequest(with: searchRequest.params)
-                        
-                        try await Task.sleep(seconds: 0.4)
-                        await send(.searchResultFetched(.success(mangaListResponse), searchParams: nil))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.searchResultFetched(.failure(error), searchParams: nil))
-                        }
-                    }
+                    let reult = await searchClient.makeSearchRequest(with: searchRequest.params)
+                    
+                    try await Task.sleep(seconds: 0.4)
+                    await send(.searchResultFetched(reult, searchParams: nil))
                 }
                 .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
@@ -155,16 +149,10 @@ struct SearchFeature: ReducerProtocol {
                 state.foundManga.removeAll()
                 
                 return .run { send in
-                    do {
-                        let mangaListResponse = try await searchClient.makeSearchRequest(with: searchParams)
-                        
-                        try await Task.sleep(seconds: 0.4)
-                        await send(.searchResultFetched(.success(mangaListResponse), searchParams: searchParams))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.searchResultFetched(.failure(error), searchParams: nil))
-                        }
-                    }
+                    let result = await searchClient.makeSearchRequest(with: searchParams)
+                    
+                    try await Task.sleep(seconds: 0.4)
+                    await send(.searchResultFetched(result, searchParams: searchParams))
                 }
                 .cancellable(id: CancelSearch(), cancelInFlight: true)
                 
@@ -180,22 +168,20 @@ struct SearchFeature: ReducerProtocol {
                     UIApplication.shared.endEditing()
                 }
                 
-                var effects = [
-                    mangaClient.fetchStatistics(response.data.map(\.id))
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.mangaStatisticsFetched)
-                ]
-                
-                if let searchParams {
-                    effects.append(.task { .updateSearchHistory(searchParams) })
+                return .run { send in
+                    let result = await mangaClient.fetchStatistics(for: response.data.map(\.id))
+                    await send(.mangaStatisticsFetched(result))
+                    
+                    if let searchParams {
+                        await send(.updateSearchHistory(searchParams))
+                    }
                 }
-                
-                return .merge(effects)
                 
             case .searchResultFetched(.failure(let error), _):
                 logger.error("Failed to make search request: \(error)")
                 hud.show(message: error.description)
-                return hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                hapticClient.generateNotificationFeedback(style: .error)
+                return .none
                 
             case .mangaStatisticsFetched(let result):
                 switch result {

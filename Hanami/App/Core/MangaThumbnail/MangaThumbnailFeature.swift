@@ -10,6 +10,7 @@ import ComposableArchitecture
 import ModelKit
 import Utils
 import Logger
+import MangaClient
 
 struct MangaThumbnailFeature: Reducer {
     struct State: Equatable, Identifiable {
@@ -66,12 +67,13 @@ struct MangaThumbnailFeature: Reducer {
                 guard state.thumbnailURL.isNil else { return .none }
                 
                 if state.online, let coverArtID = state.manga.coverArtID {
-                    return mangaClient
-                        .fetchCoverArtInfo(coverArtID)
-                        .catchToEffect(Action.thumbnailInfoLoaded)
+                    return .run { send in
+                        let result = await mangaClient.fetchCoverArtInfo(for: coverArtID)
+                        await send(.thumbnailInfoLoaded(result))
+                    }
                 } else {
                     state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
-                        state.manga.id, cacheClient
+                        for: state.manga.id, using: cacheClient
                     )
                     
                     return .none

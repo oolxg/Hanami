@@ -15,24 +15,24 @@ public struct ImageClient {
         ).start()
     }
     
-    public func downloadImage(from url: URL) async throws -> UIImage {
+    public func downloadImage(from url: URL) async -> Result<UIImage, AppError> {
         let data: Data
         
         do {
             data = try await URLSession.shared.data(from: url).0
         } catch {
             if let urlError = error as? URLError {
-                throw AppError.networkError(urlError)
+                return .failure(AppError.networkError(urlError))
             } else {
-                throw AppError.unknownError(error)
+                return .failure(AppError.unknownError(error))
             }
         }
         
         guard let image = UIImage(data: data) else {
-            throw AppError.imageError("Failed to decode image.")
+            return .failure(AppError.imageError("Failed to decode image."))
         }
         
-        return image
+        return .success(image)
     }
     
     public func clearCache() {

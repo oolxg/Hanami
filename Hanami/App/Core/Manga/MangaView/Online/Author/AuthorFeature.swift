@@ -48,9 +48,11 @@ struct AuthorFeature: Reducer {
             case .onAppear:
                 guard state.author.isNil else { return .none }
                 
-                return mangaClient.fetchAuthorByID(state.authorID)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.authorInfoFetched)
+                return .run { [authorID = state.authorID] send in
+                    let result = await mangaClient.fetchAuthor(authorID: authorID)
+                    await send(.authorInfoFetched(result))
+                    
+                }
                 
             case .authorInfoFetched(let result):
                 switch result {
@@ -63,9 +65,10 @@ struct AuthorFeature: Reducer {
                             .receive(on: mainQueue)
                             .catchToEffect(Action.authorsMangaFetched),
                         
-                        mangaClient.fetchStatistics(mangaIDs)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.mangaStatisticsFetched)
+                        .run { send in
+                            let result = await mangaClient.fetchStatistics(for: mangaIDs)
+                            await send(.mangaStatisticsFetched(result))
+                        }
                     )
                     
                 case .failure(let error):

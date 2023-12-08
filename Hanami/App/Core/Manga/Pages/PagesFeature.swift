@@ -228,9 +228,8 @@ struct PagesFeature: Reducer {
                 return .none
                 
             case .userDeletedAllCachedChapters(let mangaID):
-                return mangaClient
-                    .deleteCoverArt(mangaID, cacheClient)
-                    .fireAndForget()
+                mangaClient.deleteCoverArt(for: mangaID, using: cacheClient)
+                return .none
                 
             case .volumeTabAction:
                 return .none

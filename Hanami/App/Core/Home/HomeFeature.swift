@@ -83,9 +83,10 @@ struct HomeFeature: Reducer {
                         iconName: "clock",
                         backgroundColor: .theme.yellow
                     )
-                    return hapticClient
-                        .generateNotificationFeedback(.error)
-                        .fireAndForget()
+                    
+                    hapticClient.generateNotificationFeedback(style: .error)
+                    
+                    return .none
                 }
                 
                 state.isRefreshActionInProgress = true
@@ -103,17 +104,19 @@ struct HomeFeature: Reducer {
                 
                 struct UpdateDebounce: Hashable { }
                 
+                hapticClient.generateNotificationFeedback(style: .success)
+                
                 var effects = [
-                    hapticClient.generateNotificationFeedback(.success).fireAndForget(),
-                    
                     homeClient.fetchLastUpdates()
                         .receive(on: mainQueue)
                         .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
                         .cancellable(id: UpdateDebounce(), cancelInFlight: true),
                     
-                    .task { .refreshDelayCompleted }
-                        .delay(for: .seconds(3), scheduler: mainQueue)
-                        .eraseToEffect()
+                    .run { send in
+                        try await Task.sleep(seconds: 3)
+                        
+                        await send(.refreshDelayCompleted)
+                    }
                 ]
                 
                 if let seasonalListID = state.seasonalMangaListID {
@@ -193,9 +196,10 @@ struct HomeFeature: Reducer {
                     
                     imageClient.prefetchImages(with: coverArtURLs)
                     
-                    return mangaClient.fetchStatistics(response.data.map(\.id))
-                        .receive(on: mainQueue)
-                        .catchToEffect { .statisticsFetched($0, keyPath) }
+                    return .run { send in
+                        let result = await mangaClient.fetchStatistics(for: response.data.map(\.id))
+                        await send(.statisticsFetched(result, keyPath))
+                    }
                     
                 case .failure(let error):
                     hud.show(message: error.description)
@@ -204,7 +208,10 @@ struct HomeFeature: Reducer {
                         "Failed to load manga list: \(error)",
                         context: ["keyPath": "`\(keyPath.customDumpDescription)`"]
                     )
-                    return hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                    
+                    hapticClient.generateNotificationFeedback(style: .error)
+                    
+                    return .none
                 }
                 
             case .statisticsFetched(let result, let keyPath):

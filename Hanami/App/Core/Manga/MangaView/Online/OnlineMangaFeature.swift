@@ -91,7 +91,7 @@ struct OnlineMangaFeature: Reducer {
         case lastReadChapterRetrieved(Result<UUID, AppError>)
         case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
         case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
-        case chapterDetailsForContinueReadingFetched(Result<Response<ChapterDetails>, AppError>)
+        case chapterDetailsForReadingContinuationFetched(Result<Response<ChapterDetails>, AppError>)
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case firstChapterOptionRetrieved(Result<Response<ChapterDetails>, AppError>)
         case allFirstChaptersRetrieved
@@ -119,43 +119,37 @@ struct OnlineMangaFeature: Reducer {
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
-            struct FirstChapterCancel: Hashable { let chapterID: UUID }
             switch action {
             // MARK: - Actions to be called from view
             case .onAppear:
                 state.isErrorOccured = false
 
-                var effects = [
+                let fetchAllCoverArts = state.allCoverArtsInfo.isEmpty
+                let fetchPages = state.pagesState.isNil
+                let fetchStatistics = state.statistics.isNil
+                
+                return .merge(
+                    .run { [manga = state.manga] send in
+                        if fetchAllCoverArts {
+                            let results = await mangaClient.fetchAllCoverArts(forManga: manga.id)
+                            await send(.allCoverArtsInfoFetched(results))
+                        }
+                        
+                        if fetchPages {
+                            let result = await mangaClient.fetchChapters(forManga: manga.id)
+                            await send(.volumesRetrieved(result))
+                        }
+                        
+                        if fetchStatistics {
+                            let result = await mangaClient.fetchStatistics(for: [manga.id])
+                            await send(.mangaStatisticsDownloaded(result))
+                        }
+                    },
+                    
                     databaseClient.getLastReadChapterID(mangaID: state.manga.id)
                         .receive(on: mainQueue)
                         .catchToEffect(Action.lastReadChapterRetrieved)
-                ]
-                
-                if state.allCoverArtsInfo.isEmpty {
-                    effects.append(
-                        mangaClient.fetchAllCoverArtsForManga(state.manga.id)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.allCoverArtsInfoFetched)
-                    )
-                }
-                
-                if state.pagesState.isNil {
-                    effects.append(
-                        mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.volumesRetrieved)
-                    )
-                }
-                
-                if state.statistics.isNil {
-                    effects.append(
-                        mangaClient.fetchStatistics([state.manga.id])
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.mangaStatisticsDownloaded)
-                    )
-                }
-                
-                return .merge(effects)
+                )
                 
             case .navigationTabButtonTapped(let newTab):
                 state.selectedTab = newTab
@@ -177,28 +171,30 @@ struct OnlineMangaFeature: Reducer {
                         iconName: "clock",
                         backgroundColor: .theme.yellow
                     )
-                    return hapticClient
-                        .generateNotificationFeedback(.error)
-                        .fireAndForget()
+                    
+                    hapticClient.generateNotificationFeedback(style: .error)
+                    
+                    return .none
                 }
                 
                 state.lastRefreshedAt = .now
                 
-                return .merge(
-                    mangaClient.fetchMangaChapters(state.manga.id, nil, nil)
-                        .receive(on: mainQueue)
-                        .delay(for: .seconds(0.7), scheduler: mainQueue)
-                        .catchToEffect(Action.volumesRetrieved),
+                hapticClient.generateFeedback(style: .medium)
                     
-                    hapticClient.generateFeedback(.medium).fireAndForget()
-                )
+                return .run { [mangaID = state.manga.id] send in
+                    try await Task.sleep(seconds: 0.7)
+                    
+                    let result = await mangaClient.fetchChapters(forManga: mangaID)
+                    await send(.volumesRetrieved(result))
+                }
                 
             case .continueReadingButtonTapped:
                 guard let chapterID = state.lastReadChapterID else { return .none }
                 
-                return mangaClient.fetchChapterDetails(chapterID)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.chapterDetailsForContinueReadingFetched)
+                return .run { send in
+                    let result = await mangaClient.fetchChapterDetails(for: chapterID)
+                    await send(.chapterDetailsForReadingContinuationFetched(result))
+                }
                 
             // user wants to start reading manga from first chapter, have to retrieve preffered lang for reading
             case .startReadingButtonTapped:
@@ -208,14 +204,8 @@ struct OnlineMangaFeature: Reducer {
                 }
                 
                 return .run { send in
-                    do {
-                        let config = try await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(.success(config)))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.settingsConfigRetrieved(.failure(error)))
-                        }
-                    }
+                    let result = try await settingsClient.retireveSettingsConfig()
+                    await send(.settingsConfigRetrieved(result))
                 }
                 
             case .userTappedOnFirstChapterOption(let chapter):
@@ -262,7 +252,11 @@ struct OnlineMangaFeature: Reducer {
                         state.pagesState?.currentPageIndex = currentPageIndex
                     }
                     
-                    return allowHaptic ? hapticClient.generateNotificationFeedback(.success).fireAndForget() : .none
+                    if allowHaptic {
+                        hapticClient.generateNotificationFeedback(style: .success)
+                    }
+                    
+                    return .none
                     
                 case .failure(let error):
                     logger.error(
@@ -277,7 +271,9 @@ struct OnlineMangaFeature: Reducer {
                     
                     state.isErrorOccured = true
                     
-                    return hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                    hapticClient.generateNotificationFeedback(style: .error)
+                    
+                    return .none
                 }
                 
             case .lastReadChapterRetrieved(let result):
@@ -326,7 +322,7 @@ struct OnlineMangaFeature: Reducer {
                     return .none
                 }
                 
-            case .chapterDetailsForContinueReadingFetched(let result):
+            case .chapterDetailsForReadingContinuationFetched(let result):
                 switch result {
                 case .success(let response):
                     let chapter = response.data
@@ -356,14 +352,12 @@ struct OnlineMangaFeature: Reducer {
 
                     let firstChapterOptionsIDs = state.pagesState!.firstChapterOptionsIDs
                     
-                    return .merge(
-                        firstChapterOptionsIDs.map { chapterID in
-                            mangaClient.fetchChapterDetails(chapterID)
-                                .cancellable(id: FirstChapterCancel(chapterID: chapterID), cancelInFlight: true)
-                                .receive(on: mainQueue)
-                                .catchToEffect(Action.firstChapterOptionRetrieved)
+                    return .run { send in
+                        for chapterID in firstChapterOptionsIDs {
+                            let result = await mangaClient.fetchChapterDetails(for: chapterID)
+                            await send(.firstChapterOptionRetrieved(result))
                         }
-                    )
+                    }
                     
                 case .failure(let error):
                     logger.error("Failed to retrieve settings config: \(error)")
@@ -457,25 +451,18 @@ struct OnlineMangaFeature: Reducer {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterButtonTapped))),
                     .mangaReadingViewAction(.downloadChapterButtonTapped):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
-                if !mangaClient.isCoverArtCached(state.manga.id, cacheClient), let coverArtURL = state.mainCoverArtURL {
+                if !mangaClient.isCoverArtCached(forManga: state.manga.id, using: cacheClient), let coverArtURL = state.mainCoverArtURL {
                     return .run { send in
-                        do {
-                            let coverArt = try await imageClient.downloadImage(from: coverArtURL)
-                            await send(.coverArtForCachingFetched(.success(coverArt)))
-                        } catch {
-                            if let error = error as? AppError {
-                                await send(.coverArtForCachingFetched(.failure(error)))
-                            }
-                        }
+                        let result = try await imageClient.downloadImage(from: coverArtURL)
+                        await send(.coverArtForCachingFetched(result))
                     }
                 }
                 
                 return .none
                 
             case .coverArtForCachingFetched(.success(let coverArt)):
-                return mangaClient
-                    .saveCoverArt(coverArt, state.manga.id, cacheClient)
-                    .fireAndForget()
+                mangaClient.saveCoverArt(coverArt, from: state.manga.id, using: cacheClient)
+                return .none
                 
             case .coverArtForCachingFetched(.failure(let error)):
                 logger.error(
@@ -520,7 +507,18 @@ struct OnlineMangaFeature: Reducer {
                     .fireAndForget()
                 ]
                 
-                if let pageIndex = mangaClient.getMangaPageForReadingChapter(chapterIndex, volumes) {
+                var pageIndex: Int?
+                
+                for (i, page) in volumes.enumerated() {
+                    for volumeState in page {
+                        // swiftlint:disable:next for_where
+                        if volumeState.chapterStates.first(where: { $0.chapter.index == chapterIndex }).hasValue {
+                            pageIndex = i
+                        }
+                    }
+                }
+                
+                if let pageIndex {
                     effects.append(.task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) })
                 }
                 
@@ -535,9 +533,19 @@ struct OnlineMangaFeature: Reducer {
                 let chapterIndex = state.mangaReadingViewState!.chapterIndex
                 let volumes = state.pagesState!.volumeTabStatesOnCurrentPage
                 
-                guard let info = mangaClient.findDidReadChapterOnMangaPage(chapterIndex, volumes) else {
-                    return .none
+                var info: (volumeID: UUID, chapterID: UUID)?
+                
+                for volumeStateID in volumes.ids {
+                    for chapterStateID in volumes[id: volumeStateID]!.chapterStates.ids {
+                        let chapterState = volumes[id: volumeStateID]!.chapterStates[id: chapterStateID]!
+                        
+                        if chapterState.chapter.index == chapterIndex {
+                            info = (volumeID: volumeStateID, chapterID: chapterStateID)
+                        }
+                    }
                 }
+                
+                guard let info else { return .none }
                 
                 if state.pagesState!
                     .volumeTabStatesOnCurrentPage[id: info.volumeID]!

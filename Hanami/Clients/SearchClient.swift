@@ -18,7 +18,7 @@ public extension DependencyValues {
 }
 
 public struct SearchClient {
-    public func makeSearchRequest(with searchParams: SearchParams) async throws -> Response<[Manga]> {
+    public func makeSearchRequest(with searchParams: SearchParams) async -> Result<Response<[Manga]>, AppError> {
         var components = URLComponents()
         
         components.scheme = "https"
@@ -53,16 +53,16 @@ public struct SearchClient {
             .map { URLQueryItem(name: "status[]", value: $0.name) }
         
         guard let url = components.url else {
-            throw AppError.networkError(URLError(.badURL))
+            return .failure(AppError.networkError(URLError(.badURL)))
         }
         
-        return try await URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
+        return await URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)
     }
     
-    public func fetchTags() async throws -> Response<[Tag]> {
+    public func fetchTags() async -> Result<Response<[Tag]>, AppError> {
         let url = URL(string: "https://api.mangadex.org/manga/tag")!
         
-        return try await URLSession.shared.get(url: url, decodeResponseAs: Response<[Tag]>.self)
+        return await URLSession.shared.get(url: url, decodeResponseAs: Response<[Tag]>.self)
     }
 }
 

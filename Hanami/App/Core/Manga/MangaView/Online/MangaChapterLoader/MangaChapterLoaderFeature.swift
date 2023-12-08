@@ -45,23 +45,13 @@ struct MangaChapterLoaderFeature: Reducer {
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
         case .initLoader:
-            return .merge(
-                mangaClient
-                    .fetchMangaFeed(state.manga.id, 0)
-                    .receive(on: mainQueue)
-                    .catchToEffect { Action.feedFetched($0, currentOffset: 0) },
+            return .run { [mangaID = state.manga.id] send in
+                let settingsConfigResult = await settingsClient.retireveSettingsConfig()
+                await send(.settingsConfigRetrieved(settingsConfigResult))
                 
-                .run { send in
-                    do {
-                        let config = try await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(.success(config)))
-                    } catch {
-                        if let error = error as? AppError {
-                            await send(.settingsConfigRetrieved(.failure(error)))
-                        }
-                    }
-                }
-            )
+                let feedResult = await mangaClient.fetchFeed(forManga: mangaID, offset: 0)
+                await send(.feedFetched(feedResult, currentOffset: 0))
+            }
             
         case .settingsConfigRetrieved(let result):
             switch result {
@@ -80,10 +70,10 @@ struct MangaChapterLoaderFeature: Reducer {
                 state.chapters.append(contentsOf: response.data.asIdentifiedArray)
                 
                 if let total = response.total, total > currentOffset + 500 {
-                    return mangaClient
-                        .fetchMangaFeed(state.manga.id, currentOffset + 500)
-                        .receive(on: mainQueue)
-                        .catchToEffect { Action.feedFetched($0, currentOffset: currentOffset + 500) }
+                    return .run { [mangaID = state.manga.id] send in
+                        let result = await mangaClient.fetchFeed(forManga: mangaID, offset: currentOffset + 500)
+                        await send(.feedFetched(result, currentOffset: currentOffset + 500))
+                    }
                 }
                 
                 return .none
