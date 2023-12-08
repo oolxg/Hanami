@@ -107,7 +107,6 @@ struct OnlineMangaFeature: Reducer {
     }
     
     @Dependency(\.mangaClient) private var mangaClient
-    @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.settingsClient) private var settingsClient
@@ -451,7 +450,7 @@ struct OnlineMangaFeature: Reducer {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .downloadChapterButtonTapped))),
                     .mangaReadingViewAction(.downloadChapterButtonTapped):
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
-                if !mangaClient.isCoverArtCached(forManga: state.manga.id, using: cacheClient), let coverArtURL = state.mainCoverArtURL {
+                if !mangaClient.isCoverArtCached(forManga: state.manga.id), let coverArtURL = state.mainCoverArtURL {
                     return .run { send in
                         let result = try await imageClient.downloadImage(from: coverArtURL)
                         await send(.coverArtForCachingFetched(result))
@@ -461,7 +460,7 @@ struct OnlineMangaFeature: Reducer {
                 return .none
                 
             case .coverArtForCachingFetched(.success(let coverArt)):
-                mangaClient.saveCoverArt(coverArt, from: state.manga.id, using: cacheClient)
+                mangaClient.saveCoverArt(coverArt, from: state.manga.id)
                 return .none
                 
             case .coverArtForCachingFetched(.failure(let error)):

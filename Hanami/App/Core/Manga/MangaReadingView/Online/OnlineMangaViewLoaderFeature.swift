@@ -72,7 +72,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
             ]
             
             if let pagesCount = databaseClient.retrieveChapter(chapterID: state.chapterID)?.pagesCount {
-                mangaClient.removeCachedPagesForChapter(state.chapterID, pagesCount: pagesCount, using: cacheClient)
+                mangaClient.removeCachedPagesForChapter(state.chapterID, pagesCount: pagesCount)
             }
             
             return .merge(effects)
@@ -139,7 +139,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
             state.pagesFetched += 1
             
             cacheClient.saveCachedChapterInMemory(mangaID: state.parentManga.id, chapterID: chapter.id)
-            mangaClient.saveChapterPage(chapterPage, withIndex: pageIndex, chapterID: chapter.id, using: cacheClient)
+            mangaClient.saveChapterPage(chapterPage, withIndex: pageIndex, chapterID: chapter.id)
             
             let pagesCount = state.pagesCount
             let pagesFetched = state.pagesFetched
@@ -156,7 +156,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
             )
             
             if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
-                mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount, using: cacheClient)
+                mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount)
             }
             
             return .merge(

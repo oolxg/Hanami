@@ -14,6 +14,7 @@ public extension DependencyValues {
 }
 
 public struct MangaClient {
+    @Dependency(\.cacheClient) private var cacheClient
     // MARK: - Manage info for offline reading
     private func getCoverArtName(mangaID: UUID) -> String {
         "coverArt-\(mangaID.uuidString.lowercased())"
@@ -170,44 +171,44 @@ public struct MangaClient {
         return chapterIndex > 0 ? chapterIndex - 1 : nil
     }
     
-    public func saveCoverArt(_ coverArt: UIImage, from mangaID: UUID, using cacheClient: CacheClient) {
+    public func saveCoverArt(_ coverArt: UIImage, from mangaID: UUID) {
         let imageName = getCoverArtName(mangaID: mangaID)
         
         cacheClient.cacheImage(image: coverArt, withName: imageName)
     }
     
-    public func deleteCoverArt(for mangaID: UUID, using cacheClient: CacheClient) {
+    public func deleteCoverArt(for mangaID: UUID) {
         let imageName = getCoverArtName(mangaID: mangaID)
         
         cacheClient.removeImage(withName: imageName)
     }
     
-    public func saveChapterPage(_ chapterPage: UIImage, withIndex pageIndex: Int, chapterID: UUID, using cacheClient: CacheClient) {
+    public func saveChapterPage(_ chapterPage: UIImage, withIndex pageIndex: Int, chapterID: UUID) {
         let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
         
         cacheClient.cacheImage(image: chapterPage, withName: imageName)
     }
     
-    public func removeCachedPagesForChapter(_ chapterID: UUID, pagesCount: Int, using cacheClient: CacheClient) {
+    public func removeCachedPagesForChapter(_ chapterID: UUID, pagesCount: Int) {
         for pageIndex in 0..<pagesCount {
             let imageName = getChapterPageName(chapterID: chapterID, pageIndex: pageIndex)
             cacheClient.removeImage(withName: imageName)
         }
     }
     
-    public func isCoverArtCached(forManga mangaID: UUID, using cacheClient: CacheClient) -> Bool {
+    public func isCoverArtCached(forManga mangaID: UUID) -> Bool {
         let imageName = getCoverArtName(mangaID: mangaID)
         
         return cacheClient.isCached(imageName)
     }
     
-    public func getPathsForCachedChapterPages(chapterID: UUID, pagesCount: Int, using cacheClient: CacheClient) -> [URL?] {
+    public func getPathsForCachedChapterPages(chapterID: UUID, pagesCount: Int) -> [URL?] {
         (0..<pagesCount).indices.map { pageIndex in
             cacheClient.pathFor(image: getChapterPageName(chapterID: chapterID, pageIndex: pageIndex))
         }
     }
     
-    public func getCoverArtPath(for mangaID: UUID, using cacheClient: CacheClient) -> URL? {
+    public func getCoverArtPath(for mangaID: UUID) -> URL? {
         cacheClient.pathFor(image: getCoverArtName(mangaID: mangaID))
     }
 }

@@ -56,7 +56,6 @@ struct MangaThumbnailFeature: Reducer {
     }
     
     @Dependency(\.mangaClient) private var mangaClient
-    @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
@@ -72,9 +71,7 @@ struct MangaThumbnailFeature: Reducer {
                         await send(.thumbnailInfoLoaded(result))
                     }
                 } else {
-                    state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(
-                        for: state.manga.id, using: cacheClient
-                    )
+                    state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(for: state.manga.id)
                     
                     return .none
                 }

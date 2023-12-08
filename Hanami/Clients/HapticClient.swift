@@ -32,5 +32,5 @@ public struct HapticClient {
 }
 
 extension HapticClient: DependencyKey {
-    public static let liveValue: HapticClient = HapticClient()
+    public static let liveValue = HapticClient()
 }

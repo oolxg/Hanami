@@ -150,13 +150,12 @@ struct OfflineMangaFeature: Reducer {
                 switch result {
                 case .success(let chapters):
                     cacheClient.removeAllCachedChapterIDsFromMemory(for: state.manga.id)
-                    mangaClient.deleteCoverArt(for: state.manga.id, using: cacheClient)
+                    mangaClient.deleteCoverArt(for: state.manga.id)
                     
                     for chapterEntity in chapters {
                         mangaClient.removeCachedPagesForChapter(
                             chapterEntity.chapter.id,
-                            pagesCount: chapterEntity.pagesCount,
-                            using: cacheClient
+                            pagesCount: chapterEntity.pagesCount
                         )
                     }
                     

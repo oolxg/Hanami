@@ -59,7 +59,6 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.hud) private var hud
-    @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
@@ -97,8 +96,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
                 
                 state.cachedPagesPaths = mangaClient.getPathsForCachedChapterPages(
                     chapterID: state.chapter.id, 
-                    pagesCount: state.pagesCount,
-                    using: cacheClient
+                    pagesCount: state.pagesCount
                 )
                 
                 if state.readingFormat == .rightToLeft {

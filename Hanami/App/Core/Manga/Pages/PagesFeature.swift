@@ -191,7 +191,6 @@ struct PagesFeature: Reducer {
     }
     
     @Dependency(\.mainQueue) private var mainQueue
-    @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.mangaClient) private var mangaClient
     
     var body: some Reducer<State, Action> {
@@ -228,7 +227,7 @@ struct PagesFeature: Reducer {
                 return .none
                 
             case .userDeletedAllCachedChapters(let mangaID):
-                mangaClient.deleteCoverArt(for: mangaID, using: cacheClient)
+                mangaClient.deleteCoverArt(for: mangaID)
                 return .none
                 
             case .volumeTabAction:

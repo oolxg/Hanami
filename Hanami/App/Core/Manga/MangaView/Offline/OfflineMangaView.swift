@@ -63,7 +63,7 @@ struct OfflineMangaView: View {
                 if viewStore.lastReadChapterAvailable {
                     continueReadingButton
                         .frame(maxWidth: .infinity)
-                        .padding(.bottom, 5)
+                        .offset(y: 40)
                 }
             }
             .animation(.linear, value: isCoverArtDisappeared)
@@ -374,9 +374,10 @@ extension OfflineMangaView {
                     Text("Continue reading!")
                         .foregroundColor(.black)
                         .fontWeight(.semibold)
+                        .padding(.bottom, 15)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: 70)
                 .padding(.horizontal, 5)
         }
     }

@@ -274,13 +274,6 @@
 			path = Database;
 			sourceTree = "<group>";
 		};
-		080D1DBC294FDF4B008B813C /* Networking */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Networking;
-			sourceTree = "<group>";
-		};
 		080D1DCC294FFAD6008B813C /* CoreDataGenerated+Extension */ = {
 			isa = PBXGroup;
 			children = (
@@ -368,7 +361,6 @@
 		2220E15C283145130046F08A /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				080D1DBC294FDF4B008B813C /* Networking */,
 				080D1DBB294FDF1C008B813C /* Database */,
 			);
 			path = Extension;

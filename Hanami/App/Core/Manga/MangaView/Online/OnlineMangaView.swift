@@ -104,9 +104,15 @@ struct OnlineMangaView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                readingActionButton
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 5)
+                ZStack {
+                    if viewStore.areChaptersFetched {
+                        readingActionButton
+                            .frame(maxWidth: .infinity)
+                            .offset(y: 40)
+                    }
+                }
+                .transition(.move(edge: .bottom))
+                .animation(.linear, value: viewStore.areChaptersFetched)
             }
             .animation(.linear, value: isCoverArtDisappeared)
             .onAppear { viewStore.send(.onAppear) }
@@ -611,12 +617,11 @@ extension OnlineMangaView {
                         Text(viewStore.lastReadChapterAvailable ? "Continue reading!" : "Start reading!")
                             .foregroundColor(.black)
                             .fontWeight(.semibold)
+                            .padding(.bottom, 15)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
+                    .frame(height: 70)
                     .padding(.horizontal, 5)
             }
-            .opacity(viewStore.areChaptersFetched ? 1 : 0)
             .animation(.linear, value: viewStore.areChaptersFetched)
             .onChange(of: viewStore.firstChapterOptions.hasValue) { _ in
                 showFirstChaptersPopup = !viewStore.isMangaReadingViewPresented
