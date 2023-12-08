@@ -95,7 +95,6 @@ public struct VerticalReaderView: View {
                 }
                 .onSuccess { success in
                     let imageSize = success.image.size
-                    print(imageSize)
                     let ratio = DeviceUtil.deviceScreenSize.width / imageSize.width
                     pages[page.index].height = imageSize.height * ratio
                 }

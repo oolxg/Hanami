@@ -59,15 +59,13 @@ struct MangaThumbnailView: View {
                     .fill(colorScheme == .light ? .black : .clear)
             }
             .onTapGesture { viewStore.send(.navLinkValueDidChange(to: true)) }
-            .overlay {
-                NavigationLink(
-                    isActive: viewStore.binding(
-                        get: \.isMangaViewPresented,
-                        send: MangaThumbnailFeature.Action.navLinkValueDidChange
-                    ),
-                    destination: { mangaView },
-                    label: { EmptyView() }
+            .fullScreenCover(
+                isPresented: viewStore.binding(
+                    get: \.isMangaViewPresented,
+                    send: MangaThumbnailFeature.Action.navLinkValueDidChange
                 )
+            ) {
+                mangaView
             }
         }
     }
@@ -100,9 +98,9 @@ extension MangaThumbnailView {
     private var coverArt: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             KFImage(viewStore.thumbnailURL)
+                .retry(maxCount: 2, interval: .seconds(3))
                 .placeholder {
                     Color.theme.darkGray
-//                        .redactedWithShimmering()
                 }
                 .resizable()
                 .overlay {
@@ -124,6 +122,7 @@ extension MangaThumbnailView {
                     ),
                     blurRadius: blurRadius
                 )
+                .environment(\.colorScheme, colorScheme)
             } else {
                 OfflineMangaView(
                     store: store.scope(
@@ -132,6 +131,7 @@ extension MangaThumbnailView {
                     ),
                     blurRadius: blurRadius
                 )
+                .environment(\.colorScheme, colorScheme)
             }
         }
     }
@@ -203,7 +203,7 @@ extension MangaThumbnailView {
                         .lineLimit(3)
                         .foregroundColor(.theme.foreground)
                         .font(.callout)
-                        .redactedWithShimmering()
+                        .redacted(reason: .placeholder)
                     
                     skeletonRating
                     
@@ -217,7 +217,7 @@ extension MangaThumbnailView {
                     }
                     .lineLimit(1)
                     .font(.footnote)
-                    .redactedWithShimmering()
+                    .redacted(reason: .placeholder)
                 }
                 .padding(10)
             }
@@ -234,7 +234,7 @@ extension MangaThumbnailView {
     
     @ViewBuilder private static func skeletonCoverArt(colorScheme: ColorScheme) -> some View {
         Color.theme.darkGray
-            .redactedWithShimmering()
+            .redacted(reason: .placeholder)
             .frame(width: 120)
             .overlay {
                 Rectangle()
@@ -249,14 +249,14 @@ extension MangaThumbnailView {
                 Image(systemName: "star.fill")
                 
                 Text(String.placeholder(length: 3))
-                    .redactedWithShimmering()
+                    .redacted(reason: .placeholder)
             }
             
             HStack(alignment: .top, spacing: 0) {
                 Image(systemName: "bookmark.fill")
                 
                 Text(String.placeholder(length: 7))
-                    .redactedWithShimmering()
+                    .redacted(reason: .placeholder)
             }
         }
         .font(.caption)

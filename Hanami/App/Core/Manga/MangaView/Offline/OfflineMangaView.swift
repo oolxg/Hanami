@@ -87,6 +87,7 @@ struct OfflineMangaView: View {
                 content: mangaReadingView
             )
             .tint(.theme.accent)
+            .background(Color.theme.background)
         }
     }
 }
@@ -234,7 +235,7 @@ extension OfflineMangaView {
         Button {
             self.dismiss()
         } label: {
-            Image(systemName: "arrow.left")
+            Image(systemName: "xmark")
                 .foregroundColor(.theme.foreground)
                 .padding(.vertical)
         }
@@ -253,6 +254,7 @@ extension OfflineMangaView {
                     ),
                     then: PagesView.init
                 )
+                .environment(\.colorScheme, colorScheme)
             case .info:
                 aboutTab
             }
@@ -351,11 +353,11 @@ extension OfflineMangaView {
                 
                 ForEach(OfflineMangaFeature.Tab.allCases, content: makeTabLabel)
             }
+            .offset(x: isCoverArtDisappeared ? 0 : -40)
             .padding(.leading)
             .padding(.top, DeviceUtil.hasTopNotch ? 20 : 0)
             .padding(.bottom, 5)
         }
-        .offset(x: isCoverArtDisappeared ? 0 : -40)
         .animation(.linear(duration: 0.2), value: isCoverArtDisappeared)
         .background(Color.theme.background)
         .offset(y: headerOffset > 0 ? 0 : DeviceUtil.hasTopNotch ? -headerOffset / 10 : 20)

@@ -14,8 +14,8 @@ import UIComponents
 import Utils
 
 struct OnlineMangaView: View {
-    let store: StoreOf<OnlineMangaFeature>
-    let blurRadius: CGFloat
+    private let store: StoreOf<OnlineMangaFeature>
+    private let blurRadius: CGFloat
     @State private var headerOffset: CGFloat = 0
     @State private var showFirstChaptersPopup = false
     @State private var showChapterLoaderSheet = false
@@ -26,6 +26,11 @@ struct OnlineMangaView: View {
     
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -450
+    }
+    
+    init(store: StoreOf<OnlineMangaFeature>, blurRadius: CGFloat) {
+        self.store = store
+        self.blurRadius = blurRadius
     }
     
     private struct ViewState: Equatable {
@@ -75,15 +80,6 @@ struct OnlineMangaView: View {
                         } footer: {
                             footer
                         }
-                        .popup(isPresented: $showFirstChaptersPopup) {
-                            firstChaptersOptions
-                                .environment(\.colorScheme, colorScheme)
-                        } customize: {
-                            $0
-                                .closeOnTap(false)
-                                .closeOnTapOutside(true)
-                                .backgroundColor(.black.opacity(0.4))
-                        }
                         .sheet(isPresented: $showChapterLoaderSheet) {
                             IfLetStore(
                                 store.scope(
@@ -126,12 +122,21 @@ struct OnlineMangaView: View {
             .ignoresSafeArea(edges: .top)
             .fullScreenCover(
                 isPresented: viewStore.binding(
-                    get: \.isMangaReadingViewPresented, 
+                    get: \.isMangaReadingViewPresented,
                     send: OnlineMangaFeature.Action.nowReadingViewStateDidUpdate
                 ),
                 content: mangaReadingView
             )
+            .popup(isPresented: $showFirstChaptersPopup) {
+                firstChaptersOptions
+            } customize: {
+                $0
+                    .closeOnTap(false)
+                    .closeOnTapOutside(true)
+                    .backgroundColor(.black.opacity(0.4))
+            }
             .tint(.theme.accent)
+            .background(Color.theme.background)
         }
     }
 }
@@ -333,6 +338,7 @@ extension OnlineMangaView {
                             .padding(.bottom, 20)
                     }
                 )
+                .environment(\.colorScheme, colorScheme)
                 .animation(nil, value: viewStore.areChaptersFetched)
             case .info:
                 aboutTab
@@ -536,7 +542,7 @@ extension OnlineMangaView {
         Button {
             self.dismiss()
         } label: {
-            Image(systemName: "arrow.left")
+            Image(systemName: "xmark")
                 .foregroundColor(Color.theme.foreground)
                 .padding(.vertical)
         }
