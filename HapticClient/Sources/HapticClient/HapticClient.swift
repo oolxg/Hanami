@@ -7,11 +7,11 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import Dependencies
 import Utils
 
-public extension DependencyValues {
-    var hapticClient: HapticClient {
+extension DependencyValues {
+    public var hapticClient: HapticClient {
         get { self[HapticClient.self] }
         set { self[HapticClient.self] = newValue }
     }

@@ -101,37 +101,25 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 DeviceUtil.disableScreenAutoLock()
                 
-                var effects: [EffectTask<Action>] = [
-                    .run { send in
-                        let result = await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(result))
+                return .run { [state = state] send in
+                    let result = await settingsClient.retireveSettingsConfig()
+                    await send(.settingsConfigRetrieved(result))
+                    
+                    if state.pagesURLs.isNil {
+                        let result = await mangaClient.fetchPagesInfo(for: state.chapterID)
+                        await send(.chapterPagesInfoFetched(result))
                     }
-                ]
-                
-                if state.pagesURLs.isNil {
-                    effects.append(
-                        .run { [chapterID = state.chapterID] send in
-                            let result = await mangaClient.fetchPagesInfo(for: chapterID)
-                            await send(.chapterPagesInfoFetched(result))
-                        }
-                    )
+                    
+                    if state.sameScanlationGroupChapters.isEmpty {
+                        let result = await mangaClient.fetchChapters(
+                            forMangaWithID: state.manga.id,
+                            scanlationGroupID: state.scanlationGroupID,
+                            translatedLanguage: state.translatedLanguage
+                        )
+                        
+                        await send(.sameScanlationGroupChaptersFetched(result))
+                    }
                 }
-                
-                if state.sameScanlationGroupChapters.isEmpty {
-                    effects.append(
-                        .run { [mangaID = state.manga.id, scanlationGroupID = state.scanlationGroupID, lang = state.translatedLanguage] send in
-                            let result = await mangaClient.fetchChapters(
-                                forManga: mangaID,
-                                scanlationGroupID: scanlationGroupID,
-                                translatedLanguage: lang
-                            )
-                            
-                            await send(.sameScanlationGroupChaptersFetched(result))
-                        }
-                    )
-                }
-                
-                return .concatenate(effects)
                 
             case .settingsConfigRetrieved(let result):
                 switch result {
@@ -181,16 +169,16 @@ struct OnlineMangaReadingFeature: Reducer {
                 // we reached most left page of chapter
                 if newPageIndex == state.mostLeftPageIndex {
                     if state.readingFormat == .rightToLeft {
-                        return .task { .moveToNextChapter }
+                        return .run { await $0(.moveToNextChapter) }
                     } else {
-                        return .task { .moveToPreviousChapter }
+                        return .run { await $0(.moveToPreviousChapter) }
                     }
                 // we reached most right book of chapter
                 } else if newPageIndex == state.mostRightPageIndex {
                     if state.readingFormat == .rightToLeft {
-                        return .task { .moveToPreviousChapter }
+                        return .run { await $0(.moveToPreviousChapter) }
                     } else {
-                        return .task { .moveToNextChapter }
+                        return .run { await $0(.moveToNextChapter) }
                     }
                 }
                 
@@ -220,13 +208,13 @@ struct OnlineMangaReadingFeature: Reducer {
                     useHighResImagesForCaching: state.useHighQualityImages
                 )
                 
-                return .task { .loaderAction(.downloadChapterButtonTapped) }
+                return .run { await $0(.loaderAction(.downloadChapterButtonTapped)) }
                 
             case .cancelDownloadButtonTapped:
                 return .concatenate(
-                    .task { .loaderAction(.cancelDownloadButtonTapped) },
+                    .run { await $0(.loaderAction(.cancelDownloadButtonTapped)) },
                     
-                    .task { .chapterLoaderFinishedLoadCancellation }
+                    .run { await $0(.chapterLoaderFinishedLoadCancellation) }
                 )
                 
             case .chapterLoaderFinishedLoadCancellation:
@@ -258,17 +246,17 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return .task { .userStartedReadingChapter }
+                return .run { await $0(.userStartedReadingChapter) }
                 
             case .moveToNextChapter:
                 let nextChapterIndex = mangaClient.getNextChapterIndex(
-                    currentChapterIndex: state.chapterIndex, 
+                    currentChapterIndex: state.chapterIndex,
                     scanlationGroupChapters: state.sameScanlationGroupChapters
                 )
                 
                 guard let nextChapterIndex else {
                     hud.show(message: "🙁 You've read the last chapter from this scanlation group.")
-                    return .task { .userLeftMangaReadingView }
+                    return .run { await $0(.userLeftMangaReadingView) }
                 }
                 
                 let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
@@ -285,7 +273,7 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return .task { .userStartedReadingChapter }
+                return .run { await $0(.userStartedReadingChapter) }
                 
             case .moveToPreviousChapter:
                 let previousChapterIndex = mangaClient.getPrevChapterIndex(
@@ -295,7 +283,7 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 guard let previousChapterIndex else {
                     hud.show(message: "🤔 You've read the first chapter from this scanlation group.")
-                    return .task { .userLeftMangaReadingView }
+                    return .run { await $0(.userLeftMangaReadingView) }
                 }
                 
                 let previousChapter = state.sameScanlationGroupChapters[previousChapterIndex]
@@ -313,7 +301,7 @@ struct OnlineMangaReadingFeature: Reducer {
                 
                 state.sameScanlationGroupChapters = sameScanlationGroupChapters
                 
-                return .task { .userStartedReadingChapter }
+                return .run { await $0(.userStartedReadingChapter) }
                 
             case .userLeftMangaReadingView:
                 DeviceUtil.enableScreenAutoLock()

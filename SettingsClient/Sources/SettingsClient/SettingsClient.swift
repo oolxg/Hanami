@@ -19,6 +19,8 @@ public extension DependencyValues {
 }
 
 public struct SettingsClient {
+    private init() { }
+    
     public func updateSettingsConfig(_ config: SettingsConfig) {
         Task {
             let data = try? AppUtil.encoder.encode(config)
@@ -40,7 +42,7 @@ public struct SettingsClient {
         do {
             return .success(try await task.value)
         } catch {
-            return .failure(AppError.notFound)
+            return .failure(.notFound)
         }
     }
 }

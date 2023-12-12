@@ -104,14 +104,14 @@ struct OnlineMangaView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                ZStack {
+                VStack {
                     if viewStore.areChaptersFetched {
                         readingActionButton
                             .frame(maxWidth: .infinity)
+                            .transition(.move(edge: .bottom))
                             .offset(y: 40)
                     }
                 }
-                .transition(.move(edge: .bottom))
                 .animation(.linear, value: viewStore.areChaptersFetched)
             }
             .animation(.linear, value: isCoverArtDisappeared)

@@ -19,6 +19,8 @@ public extension DependencyValues {
 }
 
 public struct AuthClient {
+    private init() { }
+    
     public func makeAuth() async throws -> Bool {
         let context = LAContext()
         

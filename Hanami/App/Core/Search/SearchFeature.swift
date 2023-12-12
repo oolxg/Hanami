@@ -12,6 +12,7 @@ import ModelKit
 import Utils
 import Logger
 import HUD
+import HapticClient
 
 struct SearchFeature: ReducerProtocol {
     struct State: Equatable {
@@ -34,7 +35,7 @@ struct SearchFeature: ReducerProtocol {
     
     enum Action: BindableAction {
         case updateSearchHistory(SearchParams?)
-        case searchHistoryRetrieved(Result<[SearchRequest], Never>)
+        case searchHistoryRetrieved([SearchRequest])
         case userTappedOnDeleteSearchHistoryButton
         
         case userTappedOnSearchHistory(SearchRequest)
@@ -71,31 +72,30 @@ struct SearchFeature: ReducerProtocol {
                     
                     state.searchHistory.insert(req, at: 0)
                     
-                    return databaseClient.saveSearchRequest(req)
-                        .fireAndForget()
-                }
-                
-                return databaseClient.retrieveSearchRequests(suffixLength: Defaults.Search.maxSearchHistorySize)
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.searchHistoryRetrieved)
-                
-            case .searchHistoryRetrieved(let result):
-                switch result {
-                case .success(let searchHistory):
-                    state.searchHistory = searchHistory.asIdentifiedArray
-                    state.searchHistory.sort { $0.date > $1.date }
-                    return .none
+                    databaseClient.saveSearchRequest(req)
                     
-                case .failure:
                     return .none
                 }
+                
+                return .run { send in
+                    let history = await databaseClient.retrieveSearchRequestsHistory(
+                        suffixLength: Defaults.Search.maxSearchHistorySize
+                    )
+                    
+                    await send(.searchHistoryRetrieved(history))
+                }
+                
+            case .searchHistoryRetrieved(let history):
+                state.searchHistory = history.asIdentifiedArray
+                state.searchHistory.sort { $0.date > $1.date }
+                return .none
                 
             case .userTappedOnDeleteSearchHistoryButton:
                 state.searchHistory.removeAll()
                 
-                return databaseClient
-                    .deleteOldSearchRequests(keepLast: 0)
-                    .fireAndForget()
+                databaseClient.deleteOldSearchRequests(keepLast: 0)
+                
+                return .none
                 
             case .userTappedOnSearchHistory(let searchRequest):
                 state.filtersState.contentRatings = searchRequest.params.contentRatings
@@ -126,7 +126,7 @@ struct SearchFeature: ReducerProtocol {
                 
             case .searchForManga:
                 guard !state.searchText.isEmpty else {
-                    return .task { .cancelSearchButtonTapped }
+                    return .run { await $0(.cancelSearchButtonTapped) }
                 }
                 
                 let searchParams = SearchParams(
@@ -212,7 +212,7 @@ struct SearchFeature: ReducerProtocol {
                 )
                 
             case .binding:
-                return .task { .searchForManga }
+                return .run { await $0(.searchForManga) }
                 
             case .filtersAction:
                 return .none

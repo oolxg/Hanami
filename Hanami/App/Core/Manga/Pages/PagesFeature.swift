@@ -167,9 +167,8 @@ struct PagesFeature: Reducer {
             for page in splitIntoPagesVolumeTabStates {
                 for volumeState in page {
                     for chapterState in volumeState.chapterStates where (chapterState.chapter.index ?? .infinity) > 0 {
-                        if firstChapter.isNil {
-                            firstChapter = chapterState.chapter
-                        } else if (firstChapter!.index ?? .infinity) > (chapterState.chapter.index ?? .infinity) {
+                        let otherChapterIndex = chapterState.chapter.index
+                        if firstChapter.isNil || (firstChapter!.index ?? .infinity) > (otherChapterIndex ?? .infinity) {
                             firstChapter = chapterState.chapter
                         }
                     }
@@ -206,7 +205,7 @@ struct PagesFeature: Reducer {
                 return .concatenate(
                     .merge(chapterIDs.map { .cancel(id: ChapterFeature.CancelChapterFetch(id: $0)) }),
                     
-                    .task { .changePageAfterEffectCancellation(newPageIndex: newIndex) }
+                    .run { await $0(.changePageAfterEffectCancellation(newPageIndex: newIndex)) }
                 )
                 
             case .changePageAfterEffectCancellation(let newPageIndex):
@@ -219,9 +218,10 @@ struct PagesFeature: Reducer {
                 if state.volumeTabStatesOnCurrentPage.isEmpty && state.currentPageIndex != 0 {
                     state.currentPageIndex -= 1
                 } else if state.volumeTabStatesOnCurrentPage.isEmpty {
-                    return .task { .userDeletedAllCachedChapters(parentMangaID: mangaID) }
-                        .delay(for: .seconds(0.3), scheduler: mainQueue)
-                        .eraseToEffect()
+                    return .run { send in
+                        try await Task.sleep(seconds: 0.3)
+                        await send(.userDeletedAllCachedChapters(parentMangaID: mangaID))
+                    }
                 }
                 
                 return .none

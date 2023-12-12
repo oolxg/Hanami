@@ -15,6 +15,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(path: "../UITheme"),
+        .package(path: "../Utils"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
         .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "0.8.0")
     ],
@@ -25,6 +26,7 @@ let package = Package(
             name: "UIComponents",
             dependencies: [
                 .product(name: "UITheme", package: "UITheme"),
+                .product(name: "Utils", package: "Utils"),
                 .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "IdentifiedCollections", package: "swift-identified-collections")
             ]

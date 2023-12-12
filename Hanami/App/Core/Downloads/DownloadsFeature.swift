@@ -20,7 +20,7 @@ struct DownloadsFeature: Reducer {
     
     enum Action {
         case initDownloads
-        case cachedMangaFetched(Result<[CoreDataMangaEntry], Never>)
+        case cachedMangaFetched([CoreDataMangaEntry])
         case cachedMangaThumbnailAction(id: UUID, action: MangaThumbnailFeature.Action)
         case sortOrderChanged(SortOrder)
     }
@@ -41,48 +41,44 @@ struct DownloadsFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .initDownloads:
-                return databaseClient
-                    .retrieveAllCachedMangas()
-                    .catchToEffect(Action.cachedMangaFetched)
-                
-            case .cachedMangaFetched(let result):
-                switch result {
-                case .success(let retrievedMangaEntries):
-                    let cachedMangaIDsSet = state.cachedMangaThumbnailStates.ids
-                    let retrievedMangaIDs = retrievedMangaEntries.ids
-                    let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
-                    let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
-                    
-                    state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
-                    
-                    state.mangaEntries = retrievedMangaEntries.asIdentifiedArray
-                    
-                    for entry in retrievedMangaEntries where newMangaIDs.contains(entry.manga.id) {
-                        state.cachedMangaThumbnailStates.append(
-                            MangaThumbnailFeature.State(manga: entry.manga, online: false)
-                        )
-                    }
-                    
-                    let coverArtPaths = state.cachedMangaThumbnailStates.map(\.thumbnailURL).compactMap { $0 }
-                    imageClient.prefetchImages(with: coverArtPaths)
-                    
-                    return .none
-                    
-                case .failure(let error):
-                    logger.error("Failed to retrieve all cached manga from disk: \(error)")
-                    return .none
+                return .run { send in
+                    let cachedManga = await databaseClient.retrieveAllCachedMangas()
+                    await send(.cachedMangaFetched(cachedManga))
                 }
                 
+            case .cachedMangaFetched(let cachedManga):
+                let cachedMangaIDsSet = state.cachedMangaThumbnailStates.ids
+                let retrievedMangaIDs = cachedManga.ids
+                let stateIDsToLeave = cachedMangaIDsSet.intersection(retrievedMangaIDs)
+                let newMangaIDs = retrievedMangaIDs.subtracting(stateIDsToLeave)
+                
+                state.cachedMangaThumbnailStates.removeAll(where: { !stateIDsToLeave.contains($0.id) })
+                
+                state.mangaEntries = cachedManga.asIdentifiedArray
+                
+                for entry in cachedManga where newMangaIDs.contains(entry.manga.id) {
+                    state.cachedMangaThumbnailStates.append(
+                        MangaThumbnailFeature.State(manga: entry.manga, online: false)
+                    )
+                }
+                
+                let coverArtPaths = state.cachedMangaThumbnailStates.map(\.thumbnailURL).compactMap { $0 }
+                imageClient.prefetchImages(with: coverArtPaths)
+                
+                return .none
+
             case .cachedMangaThumbnailAction(_, .offlineMangaAction(.deleteMangaButtonTapped)):
-                return .task { .initDownloads }
-                    .delay(for: .seconds(0.2), scheduler: mainQueue)
-                    .eraseToEffect()
+                return .run { send in
+                    try await Task.sleep(seconds: 0.2)
+                    await send(.initDownloads)
+                }
                 
             case .cachedMangaThumbnailAction(_, .navLinkValueDidChange(false)):
-                return .task { .initDownloads }
-                    .delay(for: .seconds(0.2), scheduler: mainQueue)
-                    .eraseToEffect()
-                
+                return .run { send in
+                    try await Task.sleep(seconds: 0.2)
+                    await send(.initDownloads)
+                }
+
             case .sortOrderChanged(let newSortOrder):
                 state.currentSortOrder = newSortOrder
                 

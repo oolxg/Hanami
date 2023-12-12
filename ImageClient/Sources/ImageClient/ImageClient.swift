@@ -1,10 +1,12 @@
 import Dependencies
+import UIKit
 import Kingfisher
 import Foundation
-import class SwiftUI.UIImage
 import Utils
 
 public struct ImageClient {
+    private init() { }
+    
     public func prefetchImages(with urls: [URL]) {
         ImagePrefetcher(
             urls: urls,
@@ -16,23 +18,24 @@ public struct ImageClient {
     }
     
     public func downloadImage(from url: URL) async -> Result<UIImage, AppError> {
-        let data: Data
-        
-        do {
-            data = try await URLSession.shared.data(from: url).0
-        } catch {
-            if let urlError = error as? URLError {
-                return .failure(AppError.networkError(urlError))
-            } else {
-                return .failure(AppError.unknownError(error))
+        await withCheckedContinuation { continuation in
+            KingfisherManager.shared.retrieveImage(with: url) { result in
+                switch result {
+                case .success(let value):
+                    let data = value.image.pngData()
+                    
+                    if let data, let image = UIImage(data: data) {
+                        continuation.resume(returning: .success(image))
+                        return
+                    }
+                    
+                    continuation.resume(returning: .failure(.imageError("Can't decode image")))
+                    
+                case .failure(let error):
+                    continuation.resume(returning: .failure(AppError.kingfisherError(error)))
+                }
             }
         }
-        
-        guard let image = UIImage(data: data) else {
-            return .failure(AppError.imageError("Failed to decode image."))
-        }
-        
-        return .success(image)
     }
     
     public func clearCache() {

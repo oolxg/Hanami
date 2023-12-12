@@ -27,16 +27,16 @@ struct AppFeature: ReducerProtocol {
                     databaseClient.prepareDatabase().fireAndForget(),
                     
                     .merge(
-                        .task { .rootAction(.downloadsAction(.initDownloads)) },
-                        
-                        .task { .rootAction(.settingsAction(.initSettings)) },
-                        
-                        .task { .rootAction(.searchAction(.updateSearchHistory(nil))) },
-                        
-                        .task { .rootAction(.searchAction(.filtersAction(.fetchFilterTagsIfNeeded))) }
+                        .run { await $0(.rootAction(.downloadsAction(.initDownloads))) },
+                            
+                        .run { await $0(.rootAction(.settingsAction(.initSettings))) },
+                            
+                        .run { await $0(.rootAction(.searchAction(.updateSearchHistory(nil)))) },
+                            
+                        .run { await $0(.rootAction(.searchAction(.filtersAction(.fetchFilterTagsIfNeeded)))) }
                     ),
                     
-                    .task { .rootAction(.makeAuthIfNeeded) }
+                    .run { await $0(.rootAction(.makeAuthIfNeeded)) }
                 )
                 
             case .rootAction:

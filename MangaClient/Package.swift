@@ -12,14 +12,13 @@ let package = Package(
             name: "MangaClient",
             targets: ["MangaClient"]
         )
-    ], 
+    ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
         .package(path: "../ModelKit"),
         .package(path: "../Utils"),
         .package(path: "../CacheClient"),
         .package(path: "../DataTypeExtensions")
-
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -37,6 +36,6 @@ let package = Package(
         .testTarget(
             name: "MangaClientTests",
             dependencies: ["MangaClient"]
-        ),
+        )
     ]
 )

@@ -60,11 +60,15 @@ struct OfflineMangaView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                if viewStore.lastReadChapterAvailable {
-                    continueReadingButton
-                        .frame(maxWidth: .infinity)
-                        .offset(y: 40)
+                VStack {
+                    if viewStore.lastReadChapterAvailable {
+                        continueReadingButton
+                            .frame(maxWidth: .infinity)
+                            .transition(.move(edge: .bottom))
+                            .offset(y: 40)
+                    }
                 }
+                .animation(.linear, value: viewStore.lastReadChapterAvailable)
             }
             .animation(.linear, value: isCoverArtDisappeared)
             .animation(.default, value: viewStore.currentPageIndex)

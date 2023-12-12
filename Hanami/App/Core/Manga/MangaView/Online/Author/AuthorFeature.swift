@@ -26,10 +26,7 @@ struct AuthorFeature: Reducer {
         }
     }
     
-    // Without confirming to Sendable it doesn't compile
-    // indirect because AuthorFeature is inside MangaFeauture
-    // AuthorFeature -> MangaThumbnailFeature -> OnlineMangaFeature -> AuthorFeature -> MangaThumbnailFeature -> ...
-    enum Action: Sendable {
+    enum Action {
         case onAppear
         case authorInfoFetched(Result<Response<Author>, AppError>)
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)
@@ -51,7 +48,6 @@ struct AuthorFeature: Reducer {
                 return .run { [authorID = state.authorID] send in
                     let result = await mangaClient.fetchAuthor(authorID: authorID)
                     await send(.authorInfoFetched(result))
-                    
                 }
                 
             case .authorInfoFetched(let result):
@@ -59,17 +55,14 @@ struct AuthorFeature: Reducer {
                 case .success(let response):
                     state.author = response.data
                     let mangaIDs = state.author!.mangaIDs
-
-                    return .concatenate(
-                        homeClient.fetchMangaByIDs(mangaIDs)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.authorsMangaFetched),
+                    
+                    return .run { send in
+                        let mangaFetchResult = await homeClient.fetchManga(ids: mangaIDs)
+                        await send(.authorsMangaFetched(mangaFetchResult))
                         
-                        .run { send in
-                            let result = await mangaClient.fetchStatistics(for: mangaIDs)
-                            await send(.mangaStatisticsFetched(result))
-                        }
-                    )
+                        let statisticsFetchResult = await mangaClient.fetchStatistics(for: mangaIDs)
+                        await send(.mangaStatisticsFetched(statisticsFetchResult))
+                    }
                     
                 case .failure(let error):
                     logger.error(

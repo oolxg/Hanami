@@ -46,7 +46,7 @@ struct VolumeTabFeature: Reducer {
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
-                        return .task { .userDeletedLastChapterInVolume(mangaID: mangaID) }
+                        return .run { await $0(.userDeletedLastChapterInVolume(mangaID: mangaID)) }
                     }
                 }
                 

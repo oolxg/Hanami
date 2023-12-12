@@ -23,7 +23,9 @@ public struct MangaClient {
         "\(chapterID.uuidString.lowercased())-\(pageIndex)"
     }
     
-    public func fetchChapters(forManga mangaID: UUID, scanlationGroupID: UUID? = nil, translatedLanguage: String? = nil) async -> Result<VolumesContainer, AppError> {
+    private init() { }
+    
+    public func fetchChapters(forMangaWithID mangaID: UUID, scanlationGroupID: UUID? = nil, translatedLanguage: String? = nil) async -> Result<VolumesContainer, AppError> {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "api.mangadex.org"
@@ -44,7 +46,7 @@ public struct MangaClient {
         }
         
         guard let url = components.url else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: VolumesContainer.self)
@@ -64,7 +66,7 @@ public struct MangaClient {
         }
         
         guard let url = components.url else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: MangaStatisticsContainer.self)
@@ -73,7 +75,7 @@ public struct MangaClient {
     public func fetchAllCoverArts(forManga mangaID: UUID) async -> Result<Response<[CoverArtInfo]>, AppError> {
         let mangaIDString = mangaID.uuidString.lowercased()
         guard let url = URL(string: "https://api.mangadex.org/cover?order[volume]=asc&manga[]=\(mangaIDString)&limit=100") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<[CoverArtInfo]>.self)
@@ -82,7 +84,7 @@ public struct MangaClient {
     public func fetchChapterDetails(for chapterID: UUID) async -> Result<Response<ChapterDetails>, AppError> {
         let chapterIDString = chapterID.uuidString.lowercased()
         guard let url = URL(string: "https://api.mangadex.org/chapter/\(chapterIDString)?includes[]=scanlation_group") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<ChapterDetails>.self)
@@ -91,7 +93,7 @@ public struct MangaClient {
     public func fetchScanlationGroup(for scanlationGroupID: UUID) async -> Result<Response<ScanlationGroup>, AppError> {
         let scanlationGroupIDString = scanlationGroupID.uuidString.lowercased()
         guard let url = URL(string: "https://api.mangadex.org/group/\(scanlationGroupIDString)") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<ScanlationGroup>.self)
@@ -100,7 +102,7 @@ public struct MangaClient {
     public func fetchPagesInfo(for chapterID: UUID) async -> Result<ChapterPagesInfo, AppError> {
         let chapterIDString = chapterID.uuidString.lowercased()
         guard let url = URL(string: "https://api.mangadex.org/at-home/server/\(chapterIDString)") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: ChapterPagesInfo.self)
@@ -108,7 +110,7 @@ public struct MangaClient {
 
     public func fetchCoverArtInfo(for coverArtID: UUID) async -> Result<Response<CoverArtInfo>, AppError> {
         guard let url = URL(string: "https://api.mangadex.org/cover/\(coverArtID.uuidString.lowercased())") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<CoverArtInfo>.self)
@@ -116,7 +118,7 @@ public struct MangaClient {
     
     public func fetchAuthor(authorID: UUID) async -> Result<Response<Author>, AppError> {
         guard let url = URL(string: "https://api.mangadex.org/author/\(authorID.uuidString.lowercased())?includes[]=manga") else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<Author>.self)
@@ -141,7 +143,7 @@ public struct MangaClient {
         ]
         
         guard let url = components.url else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<[ChapterDetails]>.self)

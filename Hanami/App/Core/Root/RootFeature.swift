@@ -54,9 +54,9 @@ struct RootFeature: Reducer {
                 
                 switch newTab {
                 case .settings:
-                    return .task { .settingsAction(.recomputeCacheSize) }
+                    return .run { await $0(.settingsAction(.recomputeCacheSize)) }
                 case .downloads:
-                    return .task { .downloadsAction(.initDownloads) }
+                    return .run { await $0(.downloadsAction(.initDownloads)) }
                 default:
                     return .none
                 }
@@ -91,11 +91,10 @@ struct RootFeature: Reducer {
                             
                             await send(.appAuthCompleted(isAuthenticated))
                         } catch {
-                            if let error = error as? AppError {
+                            if error is AppError {
                                 await send(.appAuthCompleted(false))
                             }
                         }
-
                     }
                     .cancellable(id: CancelAuth())
                     
@@ -116,11 +115,10 @@ struct RootFeature: Reducer {
                         
                         await send(.appAuthCompleted(isAuthenticated))
                     } catch {
-                        if let error = error as? AppError {
+                        if error is AppError {
                             await send(.appAuthCompleted(false))
                         }
                     }
-
                 }
                 .cancellable(id: CancelAuth())
                 

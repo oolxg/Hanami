@@ -72,16 +72,13 @@ struct OfflineMangaFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .merge(
-                    databaseClient
-                        .retrieveAllChaptersForManga(mangaID: state.manga.id)
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.cachedChaptersRetrieved),
+                return .run { [mangaID = state.manga.id] send in
+                    let cachedChaptersResult = await databaseClient.retrieveChaptersForManga(mangaID: mangaID)
+                    await send(.cachedChaptersRetrieved(cachedChaptersResult))
                     
-                    databaseClient.getLastReadChapterID(mangaID: state.manga.id)
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.lastReadChapterRetrieved)
-                )
+                    let lastReadChapterIDResult = await databaseClient.getLastReadChapterID(mangaID: mangaID)
+                    await send(.lastReadChapterRetrieved(lastReadChapterIDResult))
+                }
                 
             case .cachedChaptersRetrieved(let result):
                 switch result {
@@ -135,16 +132,17 @@ struct OfflineMangaFeature: Reducer {
                     startFromLastPage: false
                 )
                 
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 
             case .mangaTabButtonTapped(let tab):
                 state.selectedTab = tab
                 return .none
                 
             case .deleteMangaButtonTapped:
-                return databaseClient
-                    .retrieveAllChaptersForManga(mangaID: state.manga.id)
-                    .catchToEffect(Action.chaptersForMangaDeletionRetrieved)
+                return .run { [mangaID = state.manga.id] send in
+                    let cachedChaptersResult = await databaseClient.retrieveChaptersForManga(mangaID: mangaID)
+                    await send(.chaptersForMangaDeletionRetrieved(cachedChaptersResult))
+                }
                 
             case .chaptersForMangaDeletionRetrieved(let result):
                 switch result {
@@ -158,10 +156,9 @@ struct OfflineMangaFeature: Reducer {
                             pagesCount: chapterEntity.pagesCount
                         )
                     }
+                    databaseClient.deleteManga(mangaID: state.manga.id)
                     
-                    return databaseClient
-                        .deleteManga(mangaID: state.manga.id)
-                        .fireAndForget()
+                    return .none
                     
                 case .failure(let error):
                     logger.error(
@@ -201,16 +198,13 @@ struct OfflineMangaFeature: Reducer {
                     startFromLastPage: false
                 )
                                 
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 
             case .mangaReadingViewAction(.userStartedReadingChapter):
-                var effects: [EffectTask<Action>] = [
-                    databaseClient.setLastReadChapterID(
-                        for: state.manga,
-                        chapterID: state.mangaReadingViewState!.chapter.id
-                    )
-                    .fireAndForget()
-                ]
+                databaseClient.setLastReadChapterID(
+                    for: state.manga,
+                    chapterID: state.mangaReadingViewState!.chapter.id
+                )
                 
                 let pages = state.pagesState!.splitIntoPagesVolumeTabStates
                 let chapterIndex = state.mangaReadingViewState?.chapter.attributes.index
@@ -226,12 +220,10 @@ struct OfflineMangaFeature: Reducer {
                 }
                 
                 if let pageIndex {
-                    effects.append(
-                        .task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) }
-                    )
+                    return .run { await $0(.pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex))) }
                 }
                 
-                return .merge(effects)
+                return .none
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
                 defer { state.isMangaReadingViewPresented = false }
@@ -267,13 +259,15 @@ struct OfflineMangaFeature: Reducer {
                     return .none
                 }
                 
-                return .task {
-                    .pagesAction(
-                        .volumeTabAction(
-                            volumeID: info.volumeID,
-                            volumeAction: .chapterAction(
-                                id: info.chapterID,
-                                action: .fetchChapterDetailsIfNeeded
+                return .run { send in
+                    await send(
+                        .pagesAction(
+                            .volumeTabAction(
+                                volumeID: info.volumeID,
+                                volumeAction: .chapterAction(
+                                    id: info.chapterID,
+                                    action: .fetchChapterDetailsIfNeeded
+                                )
                             )
                         )
                     )

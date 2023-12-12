@@ -53,7 +53,7 @@ public struct SearchClient {
             .map { URLQueryItem(name: "status[]", value: $0.name) }
         
         guard let url = components.url else {
-            return .failure(AppError.networkError(URLError(.badURL)))
+            return .failure(.networkError(URLError(.badURL)))
         }
         
         return await URLSession.shared.get(url: url, decodeResponseAs: Response<[Manga]>.self)

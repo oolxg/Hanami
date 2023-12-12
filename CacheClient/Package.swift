@@ -18,7 +18,6 @@ let package = Package(
         .package(url: "https://github.com/hyperoslo/Cache", from: "6.0.0"),
         .package(path: "../Utils"),
         .package(path: "../DataTypeExtensions")
-
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

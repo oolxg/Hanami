@@ -7,10 +7,11 @@
 
 import Foundation
 import LocalAuthentication
+import Kingfisher
 
 public enum AppError: Error {
     case networkError(URLError)
-    case decodingError(DecodingError)
+    case JSONDecodingError(DecodingError)
     case unknownError(Error)
     case notFound
     case databaseError(String?)
@@ -18,6 +19,7 @@ public enum AppError: Error {
     case imageError(String)
     case biometryError(LAError)
     case authError(String)
+    case kingfisherError(KingfisherError)
 }
 
 extension AppError: Equatable {
@@ -29,7 +31,7 @@ extension AppError: Equatable {
         case (.notFound, .notFound):
             return true
             
-        case (.decodingError, .decodingError):
+        case (.JSONDecodingError, .JSONDecodingError):
             return true
             
         case (.unknownError, .unknownError):
@@ -104,7 +106,7 @@ extension AppError: Equatable {
                 return "Some network error occured: \(err.localizedDescription)"
             }
             
-        case .decodingError:
+        case .JSONDecodingError:
             return "Internal error on data decoding"
             
         case .unknownError(let err):
@@ -148,6 +150,9 @@ extension AppError: Equatable {
             default:
                 return "Did not find error code on LAError object"
             }
+            
+        case .kingfisherError(let kfError):
+            return "Kingfisher did thrown an error: \(kfError.localizedDescription)"
         }
     }
 }

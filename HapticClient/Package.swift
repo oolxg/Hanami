@@ -4,34 +4,32 @@
 import PackageDescription
 
 let package = Package(
-    name: "SettingsClient",
+    name: "HapticClient",
     platforms: [.iOS(.v15)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "SettingsClient",
-            targets: ["SettingsClient"]
+            name: "HapticClient",
+            targets: ["HapticClient"]
         )
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
-        .package(path: "../Utils"),
-        .package(path: "../ModelKit")
+        .package(path: "../Utils")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "SettingsClient",
+            name: "HapticClient",
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
-                .product(name: "Utils", package: "Utils"),
-                .product(name: "ModelKit", package: "ModelKit")
+                .product(name: "Utils", package: "Utils")
             ]
         ),
         .testTarget(
-            name: "SettingsClientTests",
-            dependencies: ["SettingsClient"]
+            name: "HapticClientTests",
+            dependencies: ["HapticClient"]
         )
     ]
 )

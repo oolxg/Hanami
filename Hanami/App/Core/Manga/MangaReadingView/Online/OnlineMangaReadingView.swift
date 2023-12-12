@@ -137,7 +137,7 @@ extension OnlineMangaReadingView {
     
     private var backButton: some View {
         Button {
-            ViewStore(store).send(.userLeftMangaReadingView)
+            ViewStore(store, observe: { $0 }).send(.userLeftMangaReadingView)
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)

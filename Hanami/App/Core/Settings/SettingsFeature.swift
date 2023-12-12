@@ -36,7 +36,7 @@ struct SettingsFeature: ReducerProtocol {
         case clearImageCacheButtonTapped
         case clearMangaCacheButtonTapped
         case clearMangaCacheConfirmed
-        case cachedMangaRetrieved(Result<[CoreDataMangaEntry], Never>)
+        case cachedMangaRetrieved([CoreDataMangaEntry])
         case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
@@ -54,14 +54,11 @@ struct SettingsFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .initSettings:
-                return .merge(
-                    .task { .recomputeCacheSize },
-
-                    .run { send in
-                        let result = try await settingsClient.retireveSettingsConfig()
-                        await send(.settingsConfigRetrieved(result))
-                    }
-                )
+                return .run { send in
+                    let result = await settingsClient.retireveSettingsConfig()
+                    await send(.settingsConfigRetrieved(result))
+                    await send(.recomputeCacheSize)
+                }
                 
             case .settingsConfigRetrieved(let result):
                 switch result {
@@ -78,13 +75,8 @@ struct SettingsFeature: ReducerProtocol {
                 
             case .recomputeCacheSize:
                 return .run { send in
-                    let sizeOnDisk = try? await cacheClient.computeCacheSize()
-                    
-                    if let sizeOnDisk {
-                        await send(.cacheSizeComputed(.success(sizeOnDisk)))
-                    } else {
-                        await send(.cacheSizeComputed(.failure(.cacheError("Failed to compute cache size"))))
-                    }
+                    let result = await cacheClient.computeCacheSize()
+                    await send(.cacheSizeComputed(result))
                 }
                     
                 
@@ -107,31 +99,23 @@ struct SettingsFeature: ReducerProtocol {
             case .clearMangaCacheConfirmed:
                 cacheClient.clearCache()
                 
-                return databaseClient.retrieveAllCachedMangas()
-                    .receive(on: mainQueue)
-                    .catchToEffect(Action.cachedMangaRetrieved)
+                return .run { send in
+                    let cachedManga = await databaseClient.retrieveAllCachedMangas()
+                    await send(.cachedMangaRetrieved(cachedManga))
+                }
                 
             case .cancelTapped:
                 state.confirmationDialog = nil
                 return .none
                 
-            case .cachedMangaRetrieved(let result):
-                switch result {
-                case .success(let mangaList):
-                    
-                    for entry in mangaList {
-                        cacheClient.removeAllCachedChapterIDsFromMemory(for: entry.manga.id)
-                    }
-                    
-                    return .merge(
-                        databaseClient.deleteAllMangas().fireAndForget(),
-                        
-                        .task { .recomputeCacheSize }
-                    )
-                    
-                case .failure:
-                    return .none
+            case .cachedMangaRetrieved(let cachedManga):
+                for entry in cachedManga {
+                    cacheClient.removeAllCachedChapterIDsFromMemory(for: entry.manga.id)
                 }
+                
+                databaseClient.deleteAllManga()
+                
+                return .run { await $0(.recomputeCacheSize) }
                 
             case .cacheSizeComputed(let result):
                 switch result {

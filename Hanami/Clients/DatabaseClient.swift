@@ -213,35 +213,27 @@ extension DatabaseClient {
     /// Retrieve all saved in DB manga
     ///
     /// - Returns: `EffectTask<[CoreDataMangaEntry]>` - Effect with either array of saved on device manga(with date of download) or nothing
-    func retrieveAllCachedMangas() -> EffectTask<[CoreDataMangaEntry]> {
-        Future { promise in
-            promise(
-                .success(
-                    batchFetch(entityType: MangaMO.self)
-                        .filter { $0.savedForOfflineReading }
-                        .map { CoreDataMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
-                )
-            )
-        }
-        .eraseToEffect()
+    func retrieveAllCachedMangas() async -> [CoreDataMangaEntry] {
+        await Task {
+            batchFetch(entityType: MangaMO.self)
+                .filter { $0.savedForOfflineReading }
+                .map { CoreDataMangaEntry(manga: $0.toEntity(), addedAt: $0.addedAt) }
+        }.value
     }
     
     /// Delete manga with given ID from DB
     ///
     /// - Parameter mangaID: Manga's id, to be deleted from DB
     /// - Returns: `EffectTask<Never>` - returns nothing
-    func deleteManga(mangaID: UUID) -> EffectTask<Never> {
-        .fireAndForget {
+    func deleteManga(mangaID: UUID) {
+        Task {
             remove(entityType: MangaMO.self, id: mangaID)
             saveContext()
         }
     }
     
-    /// Delete all mangas from DB
-    ///
-    /// - Returns: `EffectTask<Never>` - returns nothing
-    func deleteAllMangas() -> EffectTask<Never> {
-        .fireAndForget {
+    func deleteAllManga() {
+        Task {
             let mangas = batchFetch(entityType: MangaMO.self)
             
             for manga in mangas {
@@ -252,8 +244,8 @@ extension DatabaseClient {
         }
     }
     
-    func setLastReadChapterID(for manga: Manga, chapterID: UUID?) -> EffectTask<Never> {
-        .fireAndForget {
+    func setLastReadChapterID(for manga: Manga, chapterID: UUID?) {
+        Task {
             var mangaMO = fetch(entityType: MangaMO.self, id: manga.id)
             
             if mangaMO.isNil {
@@ -268,18 +260,16 @@ extension DatabaseClient {
             
             saveContext()
         }
-        .eraseToEffect()
     }
     
-    func getLastReadChapterID(mangaID: UUID) -> EffectPublisher<UUID, AppError> {
-        Future { promise in
+    func getLastReadChapterID(mangaID: UUID) async -> Result<UUID, AppError> {
+        await Task {
             guard let chapterID = fetch(entityType: MangaMO.self, id: mangaID)?.lastReadChapterID else {
-                return promise(.failure(.notFound))
+                return .failure(.notFound)
             }
             
-            promise(.success(chapterID))
-        }
-        .eraseToEffect()
+            return .success(chapterID)
+        }.value
     }
 }
 
@@ -290,9 +280,9 @@ extension DatabaseClient {
     /// - Parameter chapterDetails: `ChapterDetails` to be saved in DB
     /// - Parameter pagesCount: count of pages in chapter
     /// - Parameter parentManga: Manga, whom belongs chapter
-    /// - Returns: `EffectTask<Never>` - returns nothing
-    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) -> EffectTask<Never> {
-        .fireAndForget {
+    /// - Returns: Void
+    func saveChapterDetails(_ chapterDetails: ChapterDetails, pagesCount: Int, parentManga manga: Manga) {
+        Task {
             guard fetch(entityType: ChapterDetailsMO.self, id: chapterDetails.id).isNil else {
                 return
             }
@@ -322,21 +312,21 @@ extension DatabaseClient {
     /// - Parameter mangaID: manga's ID, whose chapter need to be retrieved
     /// - Parameter scanlationGroupID: ID of scanlation group - need this if we need to fetch only chapters from specific Scanlation Group
     /// - Returns: `Effect` either with array of `CoreDataChapterEntry` or `AppError.notFound`
-    func retrieveAllChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) -> EffectPublisher<[CoreDataChapterDetailsEntry], AppError> {
-        Future { promise in
+    func retrieveChaptersForManga(mangaID: UUID, scanlationGroupID: UUID? = nil) async -> Result<[CoreDataChapterDetailsEntry], AppError> {
+        await Task {
             guard let manga = fetch(entityType: MangaMO.self, id: mangaID) else {
-                promise(.failure(.notFound))
-                return
+                return .failure(.notFound)
             }
+            
+            var chapterDetailsList = manga.chapterDetailsList
             
             if let scanlationGroupID {
-                let filtered = manga.chapterDetailsList.filter { $0.chapter.scanlationGroupID == scanlationGroupID }
-                return promise(.success(filtered))
+                chapterDetailsList = chapterDetailsList
+                    .filter { $0.chapter.scanlationGroupID == scanlationGroupID }
             }
             
-            return promise(.success(manga.chapterDetailsList))
-        }
-        .eraseToEffect()
+            return .success(manga.chapterDetailsList)
+        }.value
     }
     
     /// Retrieve chapter with given ID from DB
@@ -354,9 +344,9 @@ extension DatabaseClient {
     /// Delete chapter with given ID from DB
     ///
     /// - Parameter chapterID: chapter's `UUID` to be delete
-    /// - Returns: `EffectTask<Never>` - returns nothing, basically...
-    func deleteChapter(chapterID: UUID) -> EffectTask<Never> {
-        .fireAndForget {
+    /// - Returns: Void
+    func deleteChapter(chapterID: UUID) {
+        Task {
             guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
                 return
             }
@@ -373,16 +363,16 @@ extension DatabaseClient {
 
 // MARK: - Search
 extension DatabaseClient {
-    func saveSearchRequest(_ searchRequest: SearchRequest) -> EffectTask<Never> {
-        .fireAndForget {
+    func saveSearchRequest(_ searchRequest: SearchRequest) {
+        Task {
             searchRequest.toManagedObject(in: PersistenceController.shared.container.viewContext)
             
             saveContext()
         }
     }
     
-    func deleteOldSearchRequests(keepLast: Int) -> EffectTask<Never> {
-        .fireAndForget {
+    func deleteOldSearchRequests(keepLast: Int) {
+        Task {
             let allRequests = batchFetch(entityType: SearchRequestMO.self)
             let requestsToStay = allRequests.sorted { $0.date < $1.date }.suffix(keepLast)
 
@@ -396,8 +386,8 @@ extension DatabaseClient {
         }
     }
     
-    func retrieveSearchRequests(suffixLength: Int? = nil) -> EffectTask<[SearchRequest]> {
-        Future { promise in
+    func retrieveSearchRequestsHistory(suffixLength: Int? = nil) async -> [SearchRequest] {
+        await withCheckedContinuation { continuation in
             var requests = batchFetch(entityType: SearchRequestMO.self)
                 .map { $0.toEntity() }
                 .sorted { $0.date < $1.date }
@@ -406,8 +396,7 @@ extension DatabaseClient {
                 requests = requests.suffix(suffixLength)
             }
             
-            promise(.success(requests))
+            continuation.resume(returning: requests)
         }
-        .eraseToEffect()
     }
 }

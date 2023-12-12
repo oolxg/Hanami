@@ -10,6 +10,7 @@ import ComposableArchitecture
 import ModelKit
 import Utils
 import Logger
+import HapticClient
 
 struct FiltersFeature: Reducer {
     struct State: Equatable {

@@ -92,9 +92,11 @@ struct ChapterLoaderFeature: Reducer {
                     "Failed to fetch all chapterDetails: \(error)",
                     context: ["mangaID": "\(state.parentManga.id.uuidString.lowercased())"]
                 )
-                return databaseClient
-                    .retrieveAllChaptersForManga(mangaID: state.parentManga.id)
-                    .catchToEffect(Action.allChapterDetailsRetrievedFromDisk)
+                
+                return .run { [mangaID = state.parentManga.id] send in
+                    let cachedChaptersResult = await databaseClient.retrieveChaptersForManga(mangaID: mangaID)
+                    await send(.allChapterDetailsRetrievedFromDisk(cachedChaptersResult))
+                }
             }
             
         case .allChapterDetailsRetrievedFromDisk(let result):
@@ -137,13 +139,10 @@ struct ChapterLoaderFeature: Reducer {
                 mangaClient.removeCachedPagesForChapter(chapterID, pagesCount: pagesCount)
             }
             
-            return .merge(
-                databaseClient
-                    .deleteChapter(chapterID: chapterID)
-                    .fireAndForget(),
-                
-                .cancel(id: CancelChapterCache(id: chapterID))
-            )
+            databaseClient
+                .deleteChapter(chapterID: chapterID)
+            
+            return .cancel(id: CancelChapterCache(id: chapterID))
             
         case .downloadChapterButtonTapped(let chapter):
             state.cachedChaptersStates.insertOrUpdateByID(
@@ -189,27 +188,25 @@ struct ChapterLoaderFeature: Reducer {
                     )
                 )
                 
-                return .merge(
-                    .run { send in
-                        for (i, pageURL) in pagesURLs.enumerated() {
-                            let result = await imageClient.downloadImage(from: pageURL)
-                            await send(
-                                .chapterPageForCachingFetched(
-                                    result,
-                                    chapter: chapter,
-                                    pageIndex: i
-                                )
-                            )
-                        }
-                    },
-                    
-                    databaseClient.saveChapterDetails(
-                        chapter,
-                        pagesCount: pagesURLs.count,
-                        parentManga: state.parentManga
-                    )
-                    .fireAndForget()
+                databaseClient.saveChapterDetails(
+                    chapter,
+                    pagesCount: pagesURLs.count,
+                    parentManga: state.parentManga
                 )
+
+                
+                return .run { send in
+                    for (i, pageURL) in pagesURLs.enumerated() {
+                        let result = await imageClient.downloadImage(from: pageURL)
+                        await send(
+                            .chapterPageForCachingFetched(
+                                result,
+                                chapter: chapter,
+                                pageIndex: i
+                            )
+                        )
+                    }
+                }
                 .cancellable(id: CancelChapterCache(id: chapter.id))
                 
             case .failure(let error):
@@ -232,13 +229,10 @@ struct ChapterLoaderFeature: Reducer {
                     )
                 )
                 
-                return .merge(
-                    .cancel(id: CancelChapterCache(id: chapter.id)),
-                    
-                    databaseClient
-                        .deleteChapter(chapterID: chapter.id)
-                        .fireAndForget()
-                )
+                databaseClient
+                    .deleteChapter(chapterID: chapter.id)
+                
+                return .cancel(id: CancelChapterCache(id: chapter.id))
             }
             
             
@@ -293,13 +287,9 @@ struct ChapterLoaderFeature: Reducer {
                 mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount)
             }
             
-            return .merge(
-                databaseClient
-                    .deleteChapter(chapterID: chapter.id)
-                    .fireAndForget(),
-                
-                .cancel(id: CancelChapterCache(id: chapter.id))
-            )
+            databaseClient.deleteChapter(chapterID: chapter.id)
+            
+            return .cancel(id: CancelChapterCache(id: chapter.id))
         }
     }
 }

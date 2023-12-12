@@ -46,6 +46,8 @@ public struct CacheClient: DependencyKey {
         )
     }()
     
+    private init() { }
+    
     // MangaID -> set of cached chapterIDs
     private let cachedChapterIDsStorage: MemoryStorage<UUID, Set<UUID>> = {
         let config = MemoryConfig(expiry: .never)
@@ -76,14 +78,14 @@ public struct CacheClient: DependencyKey {
         }
     }
     
-    public func computeCacheSize() async throws -> Double {
-        return try await withCheckedThrowingContinuation { continuation in
+    public func computeCacheSize() async -> Swift.Result<Double, AppError> {
+        await withCheckedContinuation { continuation in
             cacheQueue.async {
                 guard let size = Self.imagesCachePath.sizeOnDisk() else {
-                    continuation.resume(throwing: AppError.cacheError("Can't compute cache size"))
+                    continuation.resume(returning: .failure(AppError.cacheError("Can't compute cache size")))
                     return
                 }
-                continuation.resume(returning: size)
+                continuation.resume(returning: .success(size))
             }
         }
     }

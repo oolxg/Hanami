@@ -14,6 +14,7 @@ import DataTypeExtensions
 import Logger
 import ImageClient
 import SettingsClient
+import HapticClient
 
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: Reducer {
@@ -47,9 +48,7 @@ struct OnlineMangaFeature: Reducer {
         
         // MARK: - Props for MangaReadingView
         var isMangaReadingViewPresented = false
-        var mangaReadingViewState: OnlineMangaReadingFeature.State? {
-            didSet { isMangaReadingViewPresented = mangaReadingViewState.hasValue }
-        }
+        var mangaReadingViewState: OnlineMangaReadingFeature.State?
         // MARK: END Props for MangaReadingView
         
         // MARK: - Props for inner states/views
@@ -127,28 +126,25 @@ struct OnlineMangaFeature: Reducer {
                 let fetchPages = state.pagesState.isNil
                 let fetchStatistics = state.statistics.isNil
                 
-                return .merge(
-                    .run { [manga = state.manga] send in
-                        if fetchAllCoverArts {
-                            let results = await mangaClient.fetchAllCoverArts(forManga: manga.id)
-                            await send(.allCoverArtsInfoFetched(results))
-                        }
-                        
-                        if fetchPages {
-                            let result = await mangaClient.fetchChapters(forManga: manga.id)
-                            await send(.volumesRetrieved(result))
-                        }
-                        
-                        if fetchStatistics {
-                            let result = await mangaClient.fetchStatistics(for: [manga.id])
-                            await send(.mangaStatisticsDownloaded(result))
-                        }
-                    },
+                return .run { [mangaID = state.manga.id] send in
+                    if fetchAllCoverArts {
+                        let result = await mangaClient.fetchAllCoverArts(forManga: mangaID)
+                        await send(.allCoverArtsInfoFetched(result))
+                    }
                     
-                    databaseClient.getLastReadChapterID(mangaID: state.manga.id)
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.lastReadChapterRetrieved)
-                )
+                    if fetchPages {
+                        let result = await mangaClient.fetchChapters(forMangaWithID: mangaID)
+                        await send(.volumesRetrieved(result))
+                    }
+                    
+                    if fetchStatistics {
+                        let result = await mangaClient.fetchStatistics(for: [mangaID])
+                        await send(.mangaStatisticsDownloaded(result))
+                    }
+                    
+                    let lastReadChapterResult = await databaseClient.getLastReadChapterID(mangaID: mangaID)
+                    await send(.lastReadChapterRetrieved(lastReadChapterResult))
+                }
                 
             case .navigationTabButtonTapped(let newTab):
                 state.selectedTab = newTab
@@ -183,7 +179,7 @@ struct OnlineMangaFeature: Reducer {
                 return .run { [mangaID = state.manga.id] send in
                     try await Task.sleep(seconds: 0.7)
                     
-                    let result = await mangaClient.fetchChapters(forManga: mangaID)
+                    let result = await mangaClient.fetchChapters(forMangaWithID: mangaID)
                     await send(.volumesRetrieved(result))
                 }
                 
@@ -203,7 +199,7 @@ struct OnlineMangaFeature: Reducer {
                 }
                 
                 return .run { send in
-                    let result = try await settingsClient.retireveSettingsConfig()
+                    let result = await settingsClient.retireveSettingsConfig()
                     await send(.settingsConfigRetrieved(result))
                 }
                 
@@ -219,14 +215,15 @@ struct OnlineMangaFeature: Reducer {
                     scanlationGroupID: chapter.scanlationGroupID,
                     translatedLanguage: chapter.attributes.translatedLanguage
                 )
+                state.isMangaReadingViewPresented = true
                 
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 
             case .userTappedOnChapterLoaderButton:
                 guard state.chapterLoaderState.isNil else { return .none }
                 
                 state.chapterLoaderState = MangaChapterLoaderFeature.State(manga: state.manga)
-                return .task { .chapterLoaderAcion(.initLoader) }
+                return .run { await $0(.chapterLoaderAcion(.initLoader)) }
             // MARK: - END Actions to be called from view
                 
             case .volumesRetrieved(let result):
@@ -333,8 +330,9 @@ struct OnlineMangaFeature: Reducer {
                         scanlationGroupID: chapter.scanlationGroupID,
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
+                    state.isMangaReadingViewPresented = true
                     
-                    return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                    return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                     
                 case .failure(let error):
                     hud.show(message: "Failed to fetch chapter\n\(error.description)", backgroundColor: .red)
@@ -370,7 +368,7 @@ struct OnlineMangaFeature: Reducer {
                     state._firstChapterOptions!.append(response.data)
                     
                     if state.pagesState!.firstChapterOptionsIDs.count == state._firstChapterOptions?.count {
-                        return .task { .allFirstChaptersRetrieved }
+                        return .run { await $0(.allFirstChaptersRetrieved) }
                     }
                     
                     return .none
@@ -414,8 +412,9 @@ struct OnlineMangaFeature: Reducer {
                         scanlationGroupID: chapter.scanlationGroupID,
                         translatedLanguage: chapter.attributes.translatedLanguage
                     )
+                    state.isMangaReadingViewPresented = true
                     
-                    return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                    return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 }
                 
                 return .none
@@ -452,7 +451,7 @@ struct OnlineMangaFeature: Reducer {
                 // check if we already loaded this manga and if yes, means cover art is cached already, so we don't do it again
                 if !mangaClient.isCoverArtCached(forManga: state.manga.id), let coverArtURL = state.mainCoverArtURL {
                     return .run { send in
-                        let result = try await imageClient.downloadImage(from: coverArtURL)
+                        let result = await imageClient.downloadImage(from: coverArtURL)
                         await send(.coverArtForCachingFetched(result))
                     }
                 }
@@ -491,20 +490,18 @@ struct OnlineMangaFeature: Reducer {
                     scanlationGroupID: chapter.scanlationGroupID,
                     translatedLanguage: chapter.attributes.translatedLanguage
                 )
+                state.isMangaReadingViewPresented = true
                 
-                return .task { .mangaReadingViewAction(.userStartedReadingChapter) }
+                return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 
             case .mangaReadingViewAction(.userStartedReadingChapter):
                 let chapterIndex = state.mangaReadingViewState?.chapterIndex
                 let volumes = state.pagesState!.splitIntoPagesVolumeTabStates
                 
-                var effects: [EffectTask<Action>] = [
-                    databaseClient.setLastReadChapterID(
-                        for: state.manga,
-                        chapterID: state.mangaReadingViewState!.chapterID
-                    )
-                    .fireAndForget()
-                ]
+                databaseClient.setLastReadChapterID(
+                    for: state.manga,
+                    chapterID: state.mangaReadingViewState!.chapterID
+                )
                 
                 var pageIndex: Int?
                 
@@ -518,10 +515,10 @@ struct OnlineMangaFeature: Reducer {
                 }
                 
                 if let pageIndex {
-                    effects.append(.task { .pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex)) })
+                    return .run { await $0(.pagesAction(.pageIndexButtonTapped(newPageIndex: pageIndex))) }
                 }
                 
-                return .merge(effects)
+                return .none
                 
                 
             case .mangaReadingViewAction(.userLeftMangaReadingView):
@@ -553,13 +550,15 @@ struct OnlineMangaFeature: Reducer {
                     return .none
                 }
                 
-                return .task {
-                    .pagesAction(
-                        .volumeTabAction(
-                            volumeID: info.volumeID,
-                            volumeAction: .chapterAction(
-                                id: info.chapterID,
-                                action: .fetchChapterDetailsIfNeeded
+                return .run { send in
+                    await send(
+                        .pagesAction(
+                            .volumeTabAction(
+                                volumeID: info.volumeID,
+                                volumeAction: .chapterAction(
+                                    id: info.chapterID,
+                                    action: .fetchChapterDetailsIfNeeded
+                                )
                             )
                         )
                     )

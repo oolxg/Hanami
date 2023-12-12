@@ -30,7 +30,7 @@ struct FiltersView: View {
         .transition(.opacity)
         .autoBlur(radius: blurRadius)
         .onAppear {
-            ViewStore(store).send(.fetchFilterTagsIfNeeded)
+            ViewStore(store, observe: { $0 }).send(.fetchFilterTagsIfNeeded)
         }
     }
 }

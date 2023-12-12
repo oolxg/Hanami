@@ -13,6 +13,8 @@ import DataTypeExtensions
 import Logger
 import ImageClient
 import HUD
+import HomeClient
+import HapticClient
 
 struct HomeFeature: Reducer {
     struct State: Equatable {
@@ -40,7 +42,6 @@ struct HomeFeature: Reducer {
             WritableKeyPath<State, IdentifiedArrayOf<MangaThumbnailFeature.State>>
         )
         
-        case allSeasonalListsFetched(Result<Response<[CustomMangaList]>, AppError>)
         case seasonalMangaListFetched(Result<Response<CustomMangaList>, AppError>)
         
         case onAppearAwardWinningManga
@@ -66,15 +67,13 @@ struct HomeFeature: Reducer {
             case .onAppear:
                 guard state.latestUpdatesMangaThumbnailStates.isEmpty else { return .none }
                 
-                return .merge(
-                    homeClient.fetchLastUpdates()
-                        .receive(on: mainQueue)
-                        .catchToEffect { .mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) },
+                return .run { send in
+                    let lastUpdateFetchResult = await homeClient.fetchLatestUpdatesManga()
+                    await send(.mangaListFetched(lastUpdateFetchResult, \.latestUpdatesMangaThumbnailStates))
                     
-                    homeClient.fetchAllSeasonalTitlesLists()
-                        .receive(on: mainQueue)
-                        .catchToEffect(Action.allSeasonalListsFetched)
-                )
+                    let seasonalTitlesFetchResult = await homeClient.fetchSeasonalMangaList()
+                    await send(.mangaListFetched(seasonalTitlesFetchResult, \.seasonalMangaThumbnailStates))
+                }
                 
             case .refreshButtonTapped:
                 guard state.lastRefreshDate.isNil || .now - state.lastRefreshDate! > 10 else {
@@ -106,28 +105,18 @@ struct HomeFeature: Reducer {
                 
                 hapticClient.generateNotificationFeedback(style: .success)
                 
-                var effects = [
-                    homeClient.fetchLastUpdates()
-                        .receive(on: mainQueue)
-                        .catchToEffect { Action.mangaListFetched($0, \.latestUpdatesMangaThumbnailStates) }
-                        .cancellable(id: UpdateDebounce(), cancelInFlight: true),
+                return .run { [seasonalListID = state.seasonalMangaListID] send in
+                    let lastUpdateFetchResult = await homeClient.fetchLatestUpdatesManga()
+                    await send(.mangaListFetched(lastUpdateFetchResult, \.latestUpdatesMangaThumbnailStates))
                     
-                    .run { send in
-                        try await Task.sleep(seconds: 3)
-                        
-                        await send(.refreshDelayCompleted)
+                    if let seasonalListID {
+                        let seasonalListFetchResult = await homeClient.fetchCustomMangaList(listID: seasonalListID)
+                        await send(.seasonalMangaListFetched(seasonalListFetchResult))
                     }
-                ]
-                
-                if let seasonalListID = state.seasonalMangaListID {
-                    effects.append(
-                        homeClient.fetchCustomTitlesList(seasonalListID)
-                            .receive(on: mainQueue)
-                            .catchToEffect(Action.seasonalMangaListFetched)
-                    )
+                    
+                    try await Task.sleep(seconds: 3)
+                    await send(.refreshDelayCompleted)
                 }
-                
-                return .merge(effects)
                 
             case .refreshDelayCompleted:
                 state.isRefreshActionInProgress = false
@@ -136,39 +125,17 @@ struct HomeFeature: Reducer {
             case .onAppearAwardWinningManga:
                 guard state.awardWinningMangaThumbnailStates.isEmpty else { return .none }
                 
-                return homeClient.fetchAwardWinningManga()
-                    .receive(on: mainQueue)
-                    .catchToEffect { .mangaListFetched($0, \.awardWinningMangaThumbnailStates) }
+                return .run { send in
+                    let result = await homeClient.fetchAwardWinningManga()
+                    await send(.mangaListFetched(result, \.awardWinningMangaThumbnailStates))
+                }
                 
             case .onAppearMostFollewedManga:
                 guard state.mostFollowedMangaThumbnailStates.isEmpty else { return .none }
                 
-                return homeClient.fetchMostFollowedManga()
-                    .receive(on: mainQueue)
-                    .catchToEffect { .mangaListFetched($0, \.mostFollowedMangaThumbnailStates) }
-                
-            case .allSeasonalListsFetched(let result):
-                switch result {
-                case .success(let response):
-                    guard let seasonaMangalList = homeClient.getCurrentSeasonTitlesListID(response.data) else {
-                        return .none
-                    }
-                    
-                    let seasonalMangaIDs = seasonaMangalList.relationships
-                        .filter { $0.type == .manga }
-                        .map(\.id)
-                    
-                    state.seasonalMangaListID = seasonaMangalList.id
-                    state.seasonalTabName = seasonaMangalList.attributes.name
-                    
-                    return homeClient
-                        .fetchMangaByIDs(seasonalMangaIDs)
-                        .receive(on: mainQueue)
-                        .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
-                    
-                case .failure(let error):
-                    logger.error("Failed to load list of seasonal titles: \(error)")
-                    return .none
+                return .run { send in
+                    let result = await homeClient.fetchMostFollowedManga()
+                    await send(.mangaListFetched(result, \.mostFollowedMangaThumbnailStates))
                 }
                 
             case .mangaListFetched(let result, let keyPath):
@@ -234,12 +201,11 @@ struct HomeFeature: Reducer {
             case .seasonalMangaListFetched(let result):
                 switch result {
                 case .success(let response):
-                    let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
-                    
-                    return homeClient
-                        .fetchMangaByIDs(mangaIDs)
-                        .receive(on: mainQueue)
-                        .catchToEffect { .mangaListFetched($0, \.seasonalMangaThumbnailStates) }
+                    return .run { send in
+                        let mangaIDs = response.data.relationships.filter { $0.type == .manga }.map(\.id)
+                        let result = await homeClient.fetchManga(ids: mangaIDs)
+                        await send(.mangaListFetched(result, \.seasonalMangaThumbnailStates))
+                    }
                     
                 case .failure(let error):
                     logger.error("Failed to load list of seasonal titles: \(error)")

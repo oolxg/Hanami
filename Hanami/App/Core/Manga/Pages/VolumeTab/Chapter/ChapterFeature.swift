@@ -96,7 +96,7 @@ struct ChapterFeature: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .task { .downloaderAction(.retrieveCachedChaptersFromMemory) }
+                return .run { await $0(.downloaderAction(.retrieveCachedChaptersFromMemory)) }
                 
             case .fetchChapterDetailsIfNeeded:
                 var effects: [EffectTask<Action>] = []
@@ -178,10 +178,10 @@ struct ChapterFeature: ReducerProtocol {
                 
                 state.confirmationDialog = nil
                 
-                return .task { .downloaderAction(.chapterDeletionConfirmed(chapterID: chapterID)) }
+                return .run { await $0(.downloaderAction(.chapterDeletionConfirmed(chapterID: chapterID))) }
                 
             case .downloadChapterButtonTapped(let chapter):
-                return .task { .downloaderAction(.downloadChapterButtonTapped(chapter: chapter)) }
+                return .run { await $0(.downloaderAction(.downloadChapterButtonTapped(chapter: chapter))) }
                 
             case .cancelChapterDownloadButtonTapped(let chapterID):
                 state.confirmationDialog = ConfirmationDialogState(
