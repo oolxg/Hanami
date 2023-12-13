@@ -23,6 +23,7 @@ public enum AppError: Error {
 }
 
 extension AppError: Equatable {
+    // swiftlint:disable:next cyclomatic_complexity
     public static func == (lhs: AppError, rhs: AppError) -> Bool {
         switch (lhs, rhs) {
         case (.networkError, .networkError):
@@ -50,6 +51,9 @@ extension AppError: Equatable {
             return true
             
         case (.authError, .authError):
+            return true
+            
+        case (.kingfisherError, .kingfisherError):
             return true
             
         default:

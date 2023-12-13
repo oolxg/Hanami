@@ -208,37 +208,30 @@ extension HomeView {
     
     private var seasonal: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
-            VStack {
-                Text("by oolxg")
-                    .font(.caption2)
-                    .frame(height: 0)
-                    .foregroundColor(.clear)
-                
-                ScrollView {
-                    if viewStore.areSeasonalTitlesFetched {
-                        ForEachStore(
-                            store.scope(
-                                state: \.seasonalMangaThumbnailStates,
-                                action: HomeFeature.Action.seasonalMangaThumbnailAction
-                            )) { thumbnailStore in
-                                MangaThumbnailView(
-                                    store: thumbnailStore,
-                                    blurRadius: blurRadius
-                                )
-                                    .padding(5)
-                            }
-                    } else {
-                        ForEach(0..<20) { _ in
-                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
+            ScrollView {
+                if viewStore.areSeasonalTitlesFetched {
+                    ForEachStore(
+                        store.scope(
+                            state: \.seasonalMangaThumbnailStates,
+                            action: HomeFeature.Action.seasonalMangaThumbnailAction
+                        )) { thumbnailStore in
+                            MangaThumbnailView(
+                                store: thumbnailStore,
+                                blurRadius: blurRadius
+                            )
+                            .padding(5)
                         }
+                } else {
+                    ForEach(0..<20) { _ in
+                        MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                     }
                 }
-                .navigationTitle(viewStore.seasonalMangaTabName)
-                .navigationBarBackButtonHidden(true)
-                .navigationBarTitleDisplayMode(.large)
-                .toolbar {
-                    toolbar { showSeasonal = false }
-                }
+            }
+            .navigationTitle(viewStore.seasonalMangaTabName)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                toolbar { showSeasonal = false }
             }
         }
     }
@@ -282,31 +275,24 @@ extension HomeView {
     }
     
     private var mostFollowed: some View {
-        VStack {
-            Text("by oolxg")
-                .font(.caption2)
-                .frame(height: 0)
-                .foregroundColor(.clear)
-            
-            ScrollView {
-                VStack {
-                    WithViewStore(store, observe: ViewState.init) { viewStore in
-                        if viewStore.areMostFollowedTitlesFetched {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.mostFollowedMangaThumbnailStates,
-                                    action: HomeFeature.Action.mostFollowedMangaThumbnailAction
-                                )) { thumbnailStore in
-                                    MangaThumbnailView(
-                                        store: thumbnailStore,
-                                        blurRadius: blurRadius
-                                    )
-                                        .padding(5)
-                                }
-                        } else {
-                            ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
+        ScrollView {
+            VStack {
+                WithViewStore(store, observe: ViewState.init) { viewStore in
+                    if viewStore.areMostFollowedTitlesFetched {
+                        ForEachStore(
+                            store.scope(
+                                state: \.mostFollowedMangaThumbnailStates,
+                                action: HomeFeature.Action.mostFollowedMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(
+                                    store: thumbnailStore,
+                                    blurRadius: blurRadius
+                                )
+                                .padding(5)
                             }
+                    } else {
+                        ForEach(0..<20) { _ in
+                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                         }
                     }
                 }
@@ -362,31 +348,24 @@ extension HomeView {
     }
     
     private var awardWinning: some View {
-        VStack {
-            Text("by oolxg")
-                .font(.caption2)
-                .frame(height: 0)
-                .foregroundColor(.clear)
-            
-            ScrollView {
-                VStack {
-                    WithViewStore(store, observe: ViewState.init) { viewStore in
-                        if viewStore.areAwardWinningTitlesFetched {
-                            ForEachStore(
-                                store.scope(
-                                    state: \.awardWinningMangaThumbnailStates,
-                                    action: HomeFeature.Action.awardWinningMangaThumbnailAction
-                                )) { thumbnailStore in
-                                    MangaThumbnailView(
-                                        store: thumbnailStore,
-                                        blurRadius: blurRadius
-                                    )
-                                        .padding(5)
-                                }
-                        } else {
-                            ForEach(0..<20) { _ in
-                                MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
+        ScrollView {
+            VStack {
+                WithViewStore(store, observe: ViewState.init) { viewStore in
+                    if viewStore.areAwardWinningTitlesFetched {
+                        ForEachStore(
+                            store.scope(
+                                state: \.awardWinningMangaThumbnailStates,
+                                action: HomeFeature.Action.awardWinningMangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(
+                                    store: thumbnailStore,
+                                    blurRadius: blurRadius
+                                )
+                                .padding(5)
                             }
+                    } else {
+                        ForEach(0..<20) { _ in
+                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                         }
                     }
                 }

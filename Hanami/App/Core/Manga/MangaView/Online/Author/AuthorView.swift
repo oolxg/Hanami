@@ -27,19 +27,12 @@ struct AuthorView: View {
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             NavigationView {
-                VStack {
-                    Text("by oolxg")
-                        .font(.caption2)
-                        .frame(height: 0)
-                        .foregroundColor(.clear)
+                ScrollView {
+                    biograpySection
                     
-                    ScrollView {
-                       biograpySection
-
-                       mangaList
-                    }
-                    .animation(.linear, value: viewStore.author.isNil)
+                    mangaList
                 }
+                .animation(.linear, value: viewStore.author.isNil)
                 .navigationTitle(viewStore.author?.attributes.name ?? "Loading...")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbar { backButton }

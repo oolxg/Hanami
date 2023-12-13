@@ -24,41 +24,34 @@ struct DownloadsView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                Text("by oolxg")
-                    .font(.caption2)
-                    .frame(height: 0)
-                    .foregroundColor(.clear)
-                
-                WithViewStore(store, observe: ViewState.init) { viewStore in
-                    ZStack {
-                        if viewStore.cachedMangaCount == 0 {
-                            Text("Wow, such empty here...")
-                                .font(.title2)
-                                .fontWeight(.black)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding()
-                        } else {
-                            ScrollView {
-                                ForEachStore(
-                                    store.scope(
-                                        state: \.cachedMangaThumbnailStates,
-                                        action: DownloadsFeature.Action.cachedMangaThumbnailAction
-                                    )
-                                ) { thumbnailViewStore in
-                                    MangaThumbnailView(
-                                        store: thumbnailViewStore,
-                                        blurRadius: blurRadius
-                                    )
-                                    .padding(5)
-                                }
+            WithViewStore(store, observe: ViewState.init) { viewStore in
+                ZStack {
+                    if viewStore.cachedMangaCount == 0 {
+                        Text("Wow, such empty here...")
+                            .font(.title2)
+                            .fontWeight(.black)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding()
+                    } else {
+                        ScrollView {
+                            ForEachStore(
+                                store.scope(
+                                    state: \.cachedMangaThumbnailStates,
+                                    action: DownloadsFeature.Action.cachedMangaThumbnailAction
+                                )
+                            ) { thumbnailViewStore in
+                                MangaThumbnailView(
+                                    store: thumbnailViewStore,
+                                    blurRadius: blurRadius
+                                )
+                                .padding(5)
                             }
-                            .transition(.opacity)
                         }
+                        .transition(.opacity)
                     }
-                    .animation(.linear, value: viewStore.cachedMangaCount)
-                    .animation(.linear, value: viewStore.currentSortOrder)
                 }
+                .animation(.linear, value: viewStore.cachedMangaCount)
+                .animation(.linear, value: viewStore.currentSortOrder)
             }
             .navigationTitle("Downloads")
             .toolbar(content: toolbar)

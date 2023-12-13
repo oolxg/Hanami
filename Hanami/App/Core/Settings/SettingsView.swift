@@ -19,34 +19,27 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                Text("by oolxg")
-                    .font(.caption2)
-                    .frame(height: 0)
-                    .foregroundColor(.clear)
+            List {
+                localizationSection
                 
-                List {
-                    localizationSection
-                    
-                    privacySection
-                    
-                    appearanceSection
-                    
-                    storageSection
-                    
-                    Text("About")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                        .onTapGesture { showAboutSheet.toggle() }
-                        .sheet(isPresented: $showAboutSheet) {
-                            AboutView()
-                                .environment(\.colorScheme, colorScheme)
-                        }
-                }
-                .navigationTitle("Settings")
-                .tint(Color.theme.accent)
-                .listStyle(.insetGrouped)
+                privacySection
+                
+                appearanceSection
+                
+                storageSection
+                
+                Text("About")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .onTapGesture { showAboutSheet.toggle() }
+                    .sheet(isPresented: $showAboutSheet) {
+                        AboutView()
+                            .environment(\.colorScheme, colorScheme)
+                    }
             }
+            .navigationTitle("Settings")
+            .tint(Color.theme.accent)
+            .listStyle(.insetGrouped)
         }
     }
 }
