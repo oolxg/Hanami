@@ -12,11 +12,6 @@
   </a>
 </p>
 
-## Important ❗️
-
-<p>My Apple Developer subscription has expired, preventing me from uploading new releases of the app to TestFlight.</p>
-<p>If you enjoy using my app, I kindly request your support through donations.</p>
-
 Screenshots
 -------------
 <div align="center">
