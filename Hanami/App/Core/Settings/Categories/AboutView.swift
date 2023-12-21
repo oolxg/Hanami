@@ -47,7 +47,7 @@ extension AboutView {
                 .clipShape(Circle())
                 .onTapGesture { openURL(Defaults.Links.githubUserLink) }
             
-            Text("Hey-hey 🖖, i'm Oleg!")
+            Text("Hey-hey 🖖, I'm Oleg!")
         }
     }
     

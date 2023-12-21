@@ -30,14 +30,18 @@ struct AppFeature {
                     .merge(
                         .run { await $0(.rootAction(.downloadsAction(.initDownloads))) },
                             
-                        .run { await $0(.rootAction(.settingsAction(.initSettings))) },
+                        .run { send in
+                            await send(.rootAction(.settingsAction(.initSettings)))
+                            
+                            try await Task.sleep(seconds: 0.2)
+                            
+                            await send(.rootAction(.makeAuthIfNeeded))
+                        },
                             
                         .run { await $0(.rootAction(.searchAction(.updateSearchHistory(nil)))) },
                             
                         .run { await $0(.rootAction(.searchAction(.filtersAction(.fetchFilterTagsIfNeeded)))) }
-                    ),
-                    
-                    .run { await $0(.rootAction(.makeAuthIfNeeded)) }
+                    )
                 )
                 
             case .rootAction:

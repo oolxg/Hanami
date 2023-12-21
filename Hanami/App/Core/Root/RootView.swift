@@ -20,7 +20,7 @@ struct RootView: View {
         
         init(state: RootFeature.State) {
             selectedTab = state.selectedTab
-            blurRadius = state.isAppLocked ? state.settingsState.config.blurRadius : 0.00001
+            blurRadius = state.isAppLocked ? state.settingsState.blurRadius : 0.00001
         }
     }
     

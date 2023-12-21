@@ -56,7 +56,7 @@ struct MangaChapterLoaderFeature: Reducer {
         case .settingsConfigRetrieved(let result):
             switch result {
             case .success(let config):
-                state.prefferedLanguage = config.iso639Language.name
+                state.prefferedLanguage = config.readingLanguage.name
                 return .none
                 
             case .failure(let error):

@@ -344,7 +344,7 @@ struct OnlineMangaFeature: Reducer {
             case .settingsConfigRetrieved(let result):
                 switch result {
                 case .success(let config):
-                    state.prefferedLanguage = config.iso639Language
+                    state.prefferedLanguage = config.readingLanguage
                     
                     state._firstChapterOptions = []
 

@@ -16,15 +16,6 @@ import SettingsClient
 @Reducer
 struct SettingsFeature {
     struct State: Equatable {
-        @BindingState var config = SettingsConfig(
-            autolockPolicy: .never,
-            blurRadius: Defaults.Security.minBlurRadius,
-            useHigherQualityImagesForOnlineReading: false,
-            useHigherQualityImagesForCaching: false,
-            colorScheme: .default,
-            readingFormat: SettingsConfig.ReadingFormat.vertical,
-            iso639Language: ISO639Language.deviceLanguage ?? .en
-        )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0
         
@@ -78,13 +69,28 @@ struct SettingsFeature {
             case .settingsConfigRetrieved(let result):
                 switch result {
                 case .success(let config):
-                    state.config = config
+                    state.autolockPolicy = config.autolockPolicy
+                    state.blurRadius = config.blurRadius
+                    state.useHigherQualityImagesForOnlineReading = config.useHigherQualityImagesForOnlineReading
+                    state.useHigherQualityImagesForCaching = config.useHigherQualityImagesForCaching
+                    state.colorScheme = config.colorScheme
+                    state.readingFormat = config.readingFormat
+                    state.readingLanguage = config.readingLanguage
                     return .none
                     
                 case .failure(let error):
                     logger.error("Failed to retrieve settings config: \(error)")
                     // for the case when app launched for the first time
-                    settingsClient.updateSettingsConfig(state.config)
+                    let config = SettingsConfig(
+                        autolockPolicy: state.autolockPolicy,
+                        blurRadius: state.blurRadius,
+                        useHigherQualityImagesForOnlineReading: state.useHigherQualityImagesForOnlineReading,
+                        useHigherQualityImagesForCaching: state.useHigherQualityImagesForCaching,
+                        colorScheme: state.colorScheme,
+                        readingFormat: state.readingFormat,
+                        iso639Language: state.readingLanguage
+                    )
+                    settingsClient.updateSettingsConfig(config)
                     return .none
                 }
                 
@@ -150,22 +156,32 @@ struct SettingsFeature {
                     return .none
                 }
                 
-            case .binding(\.$config):
-                if state.config.autolockPolicy != .never && state.config.blurRadius == Defaults.Security.minBlurRadius {
-                    state.config.blurRadius = Defaults.Security.blurRadiusStep
+            case .binding(\.$autolockPolicy):
+                if state.autolockPolicy != .never && state.blurRadius == Defaults.Security.minBlurRadius {
+                    state.blurRadius = Defaults.Security.blurRadiusStep
                 }
                 
                 fallthrough
                 
-//            case .binding(\.$config):
-//                if state.config.blurRadius == Defaults.Security.minBlurRadius {
-//                    state.config.autolockPolicy = .never
-//                }
-//                
-//                fallthrough
+            case .binding(\.$blurRadius):
+                if state.blurRadius == Defaults.Security.minBlurRadius {
+                    state.autolockPolicy = .never
+                }
+                
+                fallthrough
                 
             case .binding:
-                settingsClient.updateSettingsConfig(state.config)
+                let config = SettingsConfig(
+                    autolockPolicy: state.autolockPolicy,
+                    blurRadius: state.blurRadius,
+                    useHigherQualityImagesForOnlineReading: state.useHigherQualityImagesForOnlineReading,
+                    useHigherQualityImagesForCaching: state.useHigherQualityImagesForCaching,
+                    colorScheme: state.colorScheme,
+                    readingFormat: state.readingFormat,
+                    iso639Language: state.readingLanguage
+                )
+                settingsClient.updateSettingsConfig(config)
+
                 return .none
                 
             case .confirmationDialog:

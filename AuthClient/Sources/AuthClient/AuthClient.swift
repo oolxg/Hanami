@@ -21,7 +21,7 @@ public extension DependencyValues {
 public struct AuthClient {
     private init() { }
     
-    public func makeAuth() async throws -> Bool {
+    public func makeAuth() async -> Result<Void, AppError> {
         let context = LAContext()
         
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) {
@@ -30,14 +30,18 @@ public struct AuthClient {
                     .deviceOwnerAuthenticationWithBiometrics,
                     localizedReason: "To unlock the app"
                 )
-                return success
+                if success {
+                    return .success(())
+                } else {
+                    return .failure(.authError("Failed to authenticate"))
+                }
             } catch let authError as LAError {
-                throw AppError.biometryError(authError)
+                return .failure(.biometryError(authError))
             } catch {
-                throw AppError.unknownError(error)
+                return .failure(.unknownError(error))
             }
         } else {
-            return true
+            return .success(())
         }
     }
 }

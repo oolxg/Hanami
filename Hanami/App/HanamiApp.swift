@@ -31,7 +31,7 @@ struct HanamiApp: App {
         let colorScheme: ColorScheme
         
         init(state: AppFeature.State) {
-            switch state.rootState.settingsState.config.colorScheme {
+            switch state.rootState.settingsState.colorScheme {
             case .light:
                 colorScheme = .light
             case .dark:

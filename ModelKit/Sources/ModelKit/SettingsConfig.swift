@@ -15,7 +15,7 @@ public struct SettingsConfig: Codable, Equatable {
     // 0 - system, 1 - light, 2 - dark
     public var colorScheme: ColorScheme
     public var readingFormat: ReadingFormat
-    public var iso639Language: ISO639Language
+    public var readingLanguage: ISO639Language
     
     public enum ColorScheme: Int, Codable, Equatable {
         case `default`, dark, light
@@ -36,7 +36,7 @@ public struct SettingsConfig: Codable, Equatable {
         self.useHigherQualityImagesForCaching = useHigherQualityImagesForCaching
         self.colorScheme = colorScheme
         self.readingFormat = readingFormat
-        self.iso639Language = iso639Language
+        self.readingLanguage = iso639Language
     }
 }
 

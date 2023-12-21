@@ -32,7 +32,7 @@ struct RootFeature {
     
     enum Action {
         case tabChanged(Tab)
-        case appAuthCompleted(Bool)
+        case appAuthCompleted(Result<Void, AppError>)
         case scenePhaseChanged(ScenePhase)
         case homeAction(HomeFeature.Action)
         case searchAction(SearchFeature.Action)
@@ -74,7 +74,7 @@ struct RootFeature {
                     return .none
                     
                 case .active:
-                    let autolockPolicy = state.settingsState.config.autolockPolicy
+                    let autolockPolicy = state.settingsState.autolockPolicy
                     
                     if autolockPolicy == .never {
                         state.isAppLocked = false
@@ -87,15 +87,8 @@ struct RootFeature {
                     guard state.isAppLocked else { return .none }
                     
                     return .run { send in
-                        do {
-                            let isAuthenticated = try await authClient.makeAuth()
-                            
-                            await send(.appAuthCompleted(isAuthenticated))
-                        } catch {
-                            if error is AppError {
-                                await send(.appAuthCompleted(false))
-                            }
-                        }
+                        let result = await authClient.makeAuth()
+                        await send(.appAuthCompleted(result))
                     }
                     .cancellable(id: CancelAuth())
                     
@@ -105,26 +98,19 @@ struct RootFeature {
                 }
                 
             case .makeAuthIfNeeded:
-                guard state.settingsState.config.autolockPolicy != .never else {
+                guard state.settingsState.autolockPolicy != .never else {
                     state.isAppLocked = false
                     return .none
                 }
                 
                 return .run { send in
-                    do {
-                        let isAuthenticated = try await authClient.makeAuth()
-                        
-                        await send(.appAuthCompleted(isAuthenticated))
-                    } catch {
-                        if error is AppError {
-                            await send(.appAuthCompleted(false))
-                        }
-                    }
+                    let result = await authClient.makeAuth()
+                    await send(.appAuthCompleted(result))
                 }
                 .cancellable(id: CancelAuth())
                 
-            case .appAuthCompleted(let isAuthenticated):
-                if isAuthenticated {
+            case .appAuthCompleted(let result):
+                if case .success = result {
                     state.appLastUsedAt = .now
                     state.isAppLocked = false
                 }
