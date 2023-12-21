@@ -104,10 +104,11 @@ struct RootFeature {
                 }
                 
                 return .run { send in
-                    let result = await authClient.makeAuth()
-                    await send(.appAuthCompleted(result))
+                    await withTaskCancellation(id: CancelAuth()) {
+                        let result = await authClient.makeAuth()
+                        await send(.appAuthCompleted(result))
+                    }
                 }
-                .cancellable(id: CancelAuth())
                 
             case .appAuthCompleted(let result):
                 if case .success = result {
