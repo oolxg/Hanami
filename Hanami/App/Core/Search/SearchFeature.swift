@@ -14,7 +14,8 @@ import Logger
 import HUD
 import HapticClient
 
-struct SearchFeature: ReducerProtocol {
+@Reducer
+struct SearchFeature {
     struct State: Equatable {
         var foundManga: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var filtersState = FiltersFeature.State()
@@ -58,7 +59,7 @@ struct SearchFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
     
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             struct CancelSearch: Hashable { }

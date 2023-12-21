@@ -43,7 +43,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
     @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         struct CancelChapterCache: Hashable { }
 
         switch action {

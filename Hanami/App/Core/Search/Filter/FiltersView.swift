@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import UIComponents
 
+// swiftlint:disable multiple_closures_with_trailing_closure
 struct FiltersView: View {
     let store: StoreOf<FiltersFeature>
     let blurRadius: CGFloat
@@ -16,6 +17,24 @@ struct FiltersView: View {
     @State private var showThemesFiltersPage = false
     @State private var showGenresFiltersPage = false
     
+    private struct ViewState: Equatable {
+        let isAnyFilterApplied: Bool
+        let mangaStatuses: IdentifiedArrayOf<FiltersFeature.MangaStatus>
+        let contentRatings: IdentifiedArrayOf<FiltersFeature.ContentRatings>
+        let publicationDemographics: IdentifiedArrayOf<FiltersFeature.PublicationDemographic>
+        let allTags: IdentifiedArrayOf<FiltersFeature.FiltersTag>
+        let isContentTypesLoaded: Bool
+        
+        init(state: FiltersFeature.State) {
+            isAnyFilterApplied = state.isAnyFilterApplied
+            mangaStatuses = state.mangaStatuses
+            contentRatings = state.contentRatings
+            publicationDemographics = state.publicationDemographics
+            allTags = state.allTags
+            isContentTypesLoaded = !state.contentTypes.isEmpty
+        }
+    }
+
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false) {
@@ -38,7 +57,7 @@ struct FiltersView: View {
 extension FiltersView {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: ViewState.init) { viewStore in
                 if viewStore.isAnyFilterApplied {
                     Button {
                         viewStore.send(.resetFilterButtonPressed)
@@ -53,7 +72,7 @@ extension FiltersView {
     }
     
     private var optionsList: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             VStack(alignment: .leading) {
                 VStack(alignment: .leading) {
                     makeTitle("Status")
@@ -115,7 +134,7 @@ extension FiltersView {
                     .frame(height: 3)
                     .foregroundColor(.theme.darkGray)
                 
-                if !viewStore.contentTypes.isEmpty {
+                if viewStore.isContentTypesLoaded {
                     VStack(alignment: .leading) {
                         makeTitle("Content")
                         
@@ -132,7 +151,7 @@ extension FiltersView {
     }
     
     private var filtersList: some View {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: ViewState.init) { viewStore in
             if !viewStore.allTags.isEmpty {
                 makeNavigationLinkLabel(title: "Format", \.formatTypes, isActive: $showFormatFiltersPage) {
                     makeFiltersViewFor(\.formatTypes, navTitle: "Format", isActive: $showFormatFiltersPage)
@@ -169,7 +188,7 @@ extension FiltersView {
         isActive: Binding<Bool>,
         _ content: @escaping () -> Content
     ) -> some View where Content: View, T: FiltersTagProtocol {
-        WithViewStore(store) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationLink(isActive: isActive) {
                 content()
             } label: {
@@ -214,7 +233,7 @@ extension FiltersView {
                     .navigationTitle(navTitle)
             }
             
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 FlexibleView(
                     data: viewStore.state[keyPath: path],
                     spacing: 10,
@@ -273,3 +292,4 @@ extension FiltersView {
         }
     }
 }
+// swiftlint:enable multiple_closures_with_trailing_closure

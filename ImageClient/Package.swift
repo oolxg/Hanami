@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
         .package(path: "../Utils")
     ],

@@ -15,9 +15,9 @@ protocol CoreDataMigratorProtocol {
 }
 
 class CoreDataMigrator: CoreDataMigratorProtocol {
-    func requiresMigration(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws -> Bool {
+    func requiresMigration(at storeURL: URL, toVersion version: CoreDataMigrationVersion) -> Bool {
         guard let metadata = NSPersistentStoreCoordinator.metadata(at: storeURL) else { return false }
-        return (try CoreDataMigrationVersion.compatibleVersionForStoreMetadata(metadata) != version)
+        return CoreDataMigrationVersion.compatibleVersionForStoreMetadata(metadata) != version
     }
 
     func migrateStore(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws {
@@ -66,7 +66,7 @@ class CoreDataMigrator: CoreDataMigratorProtocol {
         at storeURL: URL, toVersion destinationVersion: CoreDataMigrationVersion
     ) throws -> [CoreDataMigrationStep] {
         guard let metadata = NSPersistentStoreCoordinator.metadata(at: storeURL),
-              let sourceVersion = try CoreDataMigrationVersion.compatibleVersionForStoreMetadata(metadata)
+              let sourceVersion = CoreDataMigrationVersion.compatibleVersionForStoreMetadata(metadata)
         else {
             throw AppError.databaseError("Unknown store version at URL \(storeURL).")
         }
@@ -107,9 +107,10 @@ class CoreDataMigrator: CoreDataMigratorProtocol {
 }
 
 private extension CoreDataMigrationVersion {
-    static func compatibleVersionForStoreMetadata(_ metadata: [String: Any]) throws -> CoreDataMigrationVersion? {
-        let compatibleVersion = try CoreDataMigrationVersion.allCases.first {
-            let model = try NSManagedObjectModel.managedObjectModel(forResource: $0.rawValue)
+    static func compatibleVersionForStoreMetadata(_ metadata: [String: Any]) -> CoreDataMigrationVersion? {
+        let compatibleVersion = CoreDataMigrationVersion.allCases.first {
+            let model = try? NSManagedObjectModel.managedObjectModel(forResource: $0.rawValue)
+            guard let model else { return false }
             return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: metadata)
         }
         return compatibleVersion

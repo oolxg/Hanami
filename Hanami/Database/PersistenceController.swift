@@ -23,67 +23,86 @@ struct PersistenceController {
 }
 
 extension PersistenceController {
-    func prepare(completion: @escaping (Result<Void, AppError>) -> Void) {
-        do {
-           try loadPersistentStore(completion: completion)
-        } catch {
-            completion(.failure(error as? AppError ?? .databaseError("Failed to load PersistentStore")))
-        }
+    @discardableResult
+    func prepare() async -> Result<Void, AppError> {
+        await loadPersistentStore()
     }
-    func rebuild(completion: @escaping (Result<Void, AppError>) -> Void) {
-        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
-            completion(.failure(.databaseError("PersistentContainer was not set up properly.")))
-            return
-        }
-        DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                try NSPersistentStoreCoordinator.destroyStore(at: storeURL)
-            } catch {
-                completion(.failure(error as? AppError ?? .databaseError("Migration error occurred")))
-            }
-            container.loadPersistentStores { _, error in
-                guard error.isNil else {
-                    let message = "Was unable to load store \(String(describing: error))."
-                    completion(.failure(.databaseError(message)))
+    
+    @discardableResult
+    func rebuild() async -> Result<Void, AppError> {
+        await withCheckedContinuation { continuation in
+            Task {
+                guard let storeURL = container.persistentStoreDescriptions.first?.url else {
+                    continuation.resume(
+                        returning: .failure(.databaseError("PersistentContainer was not set up properly."))
+                    )
                     return
                 }
-                completion(.success(()))
-            }
-        }
-    }
-    private func loadPersistentStore(completion: @escaping (Result<Void, AppError>) -> Void) throws {
-        try migrateStoreIfNeeded { result in
-            switch result {
-            case .success:
+                
+                do {
+                    try NSPersistentStoreCoordinator.destroyStore(at: storeURL)
+                } catch {
+                    continuation.resume(
+                        returning: .failure(error as? AppError ?? .databaseError("Migration error occurred"))
+                    )
+                }
                 container.loadPersistentStores { _, error in
                     guard error.isNil else {
                         let message = "Was unable to load store \(String(describing: error))."
-                        completion(.failure(.databaseError(message)))
+                        continuation.resume(returning: .failure(.databaseError(message)))
                         return
                     }
-                    completion(.success(()))
+                    continuation.resume(returning: .success(()))
                 }
-            case .failure(let error):
-                completion(.failure(error))
             }
         }
     }
-    private func migrateStoreIfNeeded(completion: @escaping (Result<Void, AppError>) -> Void) throws {
-        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
-            throw AppError.databaseError("PersistentContainer was not set up properly.")
-        }
-
-        if try migrator.requiresMigration(at: storeURL, toVersion: try CoreDataMigrationVersion.current()) {
-            DispatchQueue.global(qos: .userInitiated).async {
-                do {
-                    try migrator.migrateStore(at: storeURL, toVersion: try CoreDataMigrationVersion.current())
-                } catch {
-                    completion(.failure(error as? AppError ?? .databaseError(nil)))
+    
+    private func loadPersistentStore() async -> Result<Void, AppError> {
+        let result = await migrateStoreIfNeeded()
+        
+        switch result {
+        case .success:
+            return await withCheckedContinuation { continuation in
+                container.loadPersistentStores { _, error in
+                    guard error.isNil else {
+                        let message = "Was unable to load store \(String(describing: error))."
+                        continuation.resume(returning: .failure(.databaseError(message)))
+                        return
+                    }
+                    continuation.resume(returning: .success(()))
                 }
-                completion(.success(()))
+            }
+        case .failure:
+            return result
+        }
+    }
+    
+    private func migrateStoreIfNeeded() async -> Result<Void, AppError> {
+        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
+            return .failure(.databaseError("PersistentContainer was not set up properly."))
+        }
+        
+        guard let currentVersion = try? CoreDataMigrationVersion.current() else {
+            return .failure(.databaseError("Failed to get current CoreData migration version."))
+        }
+        
+        if migrator.requiresMigration(at: storeURL, toVersion: currentVersion) {
+            return await withCheckedContinuation { continuation in
+                Task {
+                    do {
+                        try migrator.migrateStore(
+                            at: storeURL,
+                            toVersion: currentVersion
+                        )
+                        continuation.resume(returning: .success(()))
+                    } catch {
+                        continuation.resume(returning: .failure(error as? AppError ?? .databaseError(nil)))
+                    }
+                }
             }
         } else {
-            completion(.success(()))
+            return .success(())
         }
     }
 }

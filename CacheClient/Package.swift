@@ -14,7 +14,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.6.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
         .package(url: "https://github.com/hyperoslo/Cache", from: "6.0.0"),
         .package(path: "../Utils"),
         .package(path: "../DataTypeExtensions")

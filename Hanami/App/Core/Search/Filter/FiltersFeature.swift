@@ -68,7 +68,7 @@ struct FiltersFeature: Reducer {
     @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> EffectPublisher<Action, Never> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .fetchFilterTagsIfNeeded:
             guard state.allTags.isEmpty else { return .none }

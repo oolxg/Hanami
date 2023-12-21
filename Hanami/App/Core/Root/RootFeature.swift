@@ -13,14 +13,15 @@ import DataTypeExtensions
 import Logger
 import AuthClient
 
-struct RootFeature: Reducer {
+@Reducer
+struct RootFeature {
     struct State: Equatable {
         var homeState = HomeFeature.State()
         var searchState = SearchFeature.State()
         var downloadsState = DownloadsFeature.State()
         var settingsState = SettingsFeature.State()
         
-        var selectedTab: Tab
+        var selectedTab: Tab = .home
         var isAppLocked = true
         var appLastUsedAt: Date?
     }

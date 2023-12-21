@@ -13,20 +13,30 @@ import Utils
 import Logger
 import SettingsClient
 
-struct SettingsFeature: ReducerProtocol {
+@Reducer
+struct SettingsFeature {
     struct State: Equatable {
         @BindingState var config = SettingsConfig(
             autolockPolicy: .never,
             blurRadius: Defaults.Security.minBlurRadius,
             useHigherQualityImagesForOnlineReading: false,
             useHigherQualityImagesForCaching: false,
-            colorScheme: 0,
+            colorScheme: .default,
             readingFormat: SettingsConfig.ReadingFormat.vertical,
             iso639Language: ISO639Language.deviceLanguage ?? .en
         )
         // size of all loaded mangas and coverArts, excluding cache and info in DB
         var usedStorageSpace = 0.0
-        var confirmationDialog: ConfirmationDialogState<Action>?
+        
+        @BindingState var autolockPolicy: AutoLockPolicy = .never
+        @BindingState var blurRadius = Defaults.Security.minBlurRadius
+        @BindingState var useHigherQualityImagesForOnlineReading = false
+        @BindingState var useHigherQualityImagesForCaching = false
+        @BindingState var colorScheme = SettingsConfig.ColorScheme.default
+        @BindingState var readingFormat: SettingsConfig.ReadingFormat = .vertical
+        @BindingState var readingLanguage = ISO639Language.deviceLanguage ?? .en
+        
+        @PresentationState var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
     }
     
     enum Action: BindableAction, Equatable {
@@ -35,11 +45,16 @@ struct SettingsFeature: ReducerProtocol {
         case recomputeCacheSize
         case clearImageCacheButtonTapped
         case clearMangaCacheButtonTapped
-        case clearMangaCacheConfirmed
         case cachedMangaRetrieved([CoreDataMangaEntry])
-        case cancelTapped
         case cacheSizeComputed(Result<Double, AppError>)
         case binding(BindingAction<State>)
+        
+        case confirmationDialog(PresentationAction<ConfirmationDialog>)
+        
+        enum ConfirmationDialog {
+            case clearMangaCacheConfirmed
+            case cancelTapped
+        }
     }
     
     @Dependency(\.settingsClient) private var settingsClient
@@ -49,7 +64,7 @@ struct SettingsFeature: ReducerProtocol {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
             switch action {
@@ -82,12 +97,18 @@ struct SettingsFeature: ReducerProtocol {
                 
             case .clearMangaCacheButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState(
-                    title: TextState("Delete all manga from device?"),
-                    message: TextState("Delete all manga from device?"),
-                    buttons: [
-                        .destructive(TextState("Delete"), action: .send(.clearMangaCacheConfirmed)),
-                        .cancel(TextState("Cancel"), action: .send(.cancelTapped))
-                    ]
+                    title: {
+                        TextState("Delete all manga from device?")
+                    },
+                    actions: {
+                        ButtonState(role: .destructive, action: .clearMangaCacheConfirmed) {
+                            TextState("Delete")
+                        }
+                        
+                        ButtonState(role: .cancel, action: .cancelTapped) {
+                            TextState("Cancel")
+                        }
+                    }
                 )
                 
                 return .none
@@ -96,7 +117,7 @@ struct SettingsFeature: ReducerProtocol {
                 imageClient.clearCache()
                 return .none
                 
-            case .clearMangaCacheConfirmed:
+            case .confirmationDialog(.presented(.clearMangaCacheConfirmed)):
                 cacheClient.clearCache()
                 
                 return .run { send in
@@ -104,7 +125,7 @@ struct SettingsFeature: ReducerProtocol {
                     await send(.cachedMangaRetrieved(cachedManga))
                 }
                 
-            case .cancelTapped:
+            case .confirmationDialog(.presented(.cancelTapped)):
                 state.confirmationDialog = nil
                 return .none
                 
@@ -129,22 +150,25 @@ struct SettingsFeature: ReducerProtocol {
                     return .none
                 }
                 
-            case .binding(\.$config.autolockPolicy):
+            case .binding(\.$config):
                 if state.config.autolockPolicy != .never && state.config.blurRadius == Defaults.Security.minBlurRadius {
                     state.config.blurRadius = Defaults.Security.blurRadiusStep
                 }
                 
                 fallthrough
                 
-            case .binding(\.$config.blurRadius):
-                if state.config.blurRadius == Defaults.Security.minBlurRadius {
-                    state.config.autolockPolicy = .never
-                }
-                
-                fallthrough
+//            case .binding(\.$config):
+//                if state.config.blurRadius == Defaults.Security.minBlurRadius {
+//                    state.config.autolockPolicy = .never
+//                }
+//                
+//                fallthrough
                 
             case .binding:
                 settingsClient.updateSettingsConfig(state.config)
+                return .none
+                
+            case .confirmationDialog:
                 return .none
             }
         }

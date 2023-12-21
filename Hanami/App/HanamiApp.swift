@@ -10,10 +10,9 @@ import ComposableArchitecture
 
 @main
 struct HanamiApp: App {
-    let store: StoreOf<AppFeature> = .init(
-        initialState: AppFeature.State(rootState: .init(selectedTab: .home)),
-        reducer: AppFeature()
-    )
+    private let store = Store(initialState: AppFeature.State(rootState: .init())) {
+        AppFeature()
+    }
     
     init() {
         let appearance = UITabBarAppearance()
@@ -33,11 +32,11 @@ struct HanamiApp: App {
         
         init(state: AppFeature.State) {
             switch state.rootState.settingsState.config.colorScheme {
-            case 1:
+            case .light:
                 colorScheme = .light
-            case 2:
+            case .dark:
                 colorScheme = .dark
-            default:
+            case .default:
                 // `@Environment(\.colorScheme)` doesn't work here, so using `UITraitCollection.current.userInterfaceStyle`
                 if UITraitCollection.current.userInterfaceStyle == .dark {
                     colorScheme = .dark

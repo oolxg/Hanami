@@ -15,7 +15,6 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", exact: "0.58.0"),
          .package(path: "../UIExtensions")
     ],
     targets: [
@@ -24,8 +23,7 @@ let package = Package(
         .target(
             name: "DataTypeExtensions",
             dependencies: [
-                .product(name: "UIExtensions", package: "UIExtensions"),
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+                .product(name: "UIExtensions", package: "UIExtensions")
             ]
         )
     ]

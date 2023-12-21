@@ -90,6 +90,7 @@ struct OnlineMangaFeature: Reducer {
         case lastReadChapterRetrieved(Result<UUID, AppError>)
         case mangaStatisticsDownloaded(Result<MangaStatisticsContainer, AppError>)
         case allCoverArtsInfoFetched(Result<Response<[CoverArtInfo]>, AppError>)
+        // swiftlint:disable:next identifier_name
         case chapterDetailsForReadingContinuationFetched(Result<Response<ChapterDetails>, AppError>)
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case firstChapterOptionRetrieved(Result<Response<ChapterDetails>, AppError>)
@@ -205,7 +206,7 @@ struct OnlineMangaFeature: Reducer {
                 
             case .userTappedOnFirstChapterOption(let chapter):
                 if let url = chapter.attributes.externalURL {
-                    return .fireAndForget { await openURL(url) }
+                    return .run { _ in await openURL(url) }
                 }
                 
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(
@@ -480,7 +481,7 @@ struct OnlineMangaFeature: Reducer {
             switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
                 if let url = chapter.attributes.externalURL {
-                    return .fireAndForget { await openURL(url) }
+                    return .run { _ in await openURL(url) }
                 }
                 
                 state.mangaReadingViewState = OnlineMangaReadingFeature.State(

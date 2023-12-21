@@ -42,7 +42,7 @@ struct MangaChapterLoaderFeature: Reducer {
     @Dependency(\.logger) private var logger
     @Dependency(\.settingsClient) private var settingsClient
 
-    func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .initLoader:
             return .run { [mangaID = state.manga.id] send in

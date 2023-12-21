@@ -19,51 +19,42 @@ extension DependencyValues {
 }
 
 struct DatabaseClient {
-    let prepareDatabase: () -> EffectTask<Never>
-    let dropDatabase: () -> EffectTask<Never>
-    private let saveContext: () -> Void
-    private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
-    
     private static let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.DatabaseClient", qos: .utility)
+    
+    func prepareDatabase() async {
+        await PersistenceController.shared.prepare()
+    }
+    
+    func dropDatabase() async {
+        await PersistenceController.shared.rebuild()
+    }
+    
+    private func saveContext() {
+        let context = PersistenceController.shared.container.viewContext
+        DatabaseClient.queue.sync {
+            guard context.hasChanges else { return }
+            do {
+                try context.save()
+            } catch {
+                fatalError("Unresolved error \(error)")
+            }
+        }
+    }
+    
+    private func materializedObjects(_ context: NSManagedObjectContext, _ predicate: NSPredicate) -> [NSManagedObject] {
+        var objects: [NSManagedObject] = []
+        for object in context.registeredObjects where !object.isFault {
+            guard object.entity.attributesByName.keys.contains("id"),
+                  predicate.evaluate(with: object)
+            else { continue }
+            objects.append(object)
+        }
+        return objects
+    }
 }
 
 extension DatabaseClient: DependencyKey {
-    static let liveValue = DatabaseClient(
-        prepareDatabase: {
-            Future { promise in
-                PersistenceController.shared.prepare(completion: promise)
-            }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .fireAndForget()
-        }, dropDatabase: {
-            Future { promise in
-                PersistenceController.shared.rebuild(completion: promise)
-            }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .fireAndForget()
-        }, saveContext: {
-            let context = PersistenceController.shared.container.viewContext
-            DatabaseClient.queue.sync {
-                guard context.hasChanges else { return }
-                do {
-                    try context.save()
-                } catch {
-                    fatalError("Unresolved error \(error)")
-                }
-            }
-        }, materializedObjects: { context, predicate in
-            var objects: [NSManagedObject] = []
-            for object in context.registeredObjects where !object.isFault {
-                guard object.entity.attributesByName.keys.contains("id"),
-                      predicate.evaluate(with: object)
-                else { continue }
-                objects.append(object)
-            }
-            return objects
-        }
-    )
+    static let liveValue = DatabaseClient()
 }
 
 extension DatabaseClient {

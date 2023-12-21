@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 import UIComponents
 
+// swiftlint:disable multiple_closures_with_trailing_closure
 struct SearchView: View {
     let store: StoreOf<SearchFeature>
     let blurRadius: CGFloat
@@ -95,9 +96,9 @@ struct SearchView: View {
 }
 
 extension SearchView {
-    private var searchBar: some View {
-        WithViewStore(store) { viewStore in
-            SearchBarView(searchText: viewStore.binding(\.$searchText))
+    @MainActor private var searchBar: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            SearchBarView(searchText: viewStore.$searchText)
                 .focused($isSearchFieldFocused)
                 .onTapGesture {
                     isSearchFieldFocused = true
@@ -124,17 +125,17 @@ extension SearchView {
         }
     }
     
-    private var searchOptions: some View {
-        WithViewStore(store) { viewStore in
+    @MainActor private var searchOptions: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             HStack {
                 SortPickerView(
-                    sortOption: viewStore.binding(\.$searchSortOption),
-                    sortOptionOrder: viewStore.binding(\.$searchSortOptionOrder)
+                    sortOption: viewStore.$searchSortOption,
+                    sortOptionOrder: viewStore.$searchSortOptionOrder
                 )
                 
                 Spacer()
                 
-                ResultsCountPicker(count: viewStore.binding(\.$resultsCount))
+                ResultsCountPicker(count: viewStore.$resultsCount)
             }
         }
     }
@@ -417,3 +418,4 @@ extension SearchView {
         }
     }
 }
+// swiftlint:enable multiple_closures_with_trailing_closure

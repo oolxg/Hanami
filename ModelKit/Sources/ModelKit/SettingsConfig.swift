@@ -13,16 +13,20 @@ public struct SettingsConfig: Codable, Equatable {
     public var useHigherQualityImagesForOnlineReading: Bool
     public var useHigherQualityImagesForCaching: Bool
     // 0 - system, 1 - light, 2 - dark
-    public var colorScheme: Int
+    public var colorScheme: ColorScheme
     public var readingFormat: ReadingFormat
     public var iso639Language: ISO639Language
+    
+    public enum ColorScheme: Int, Codable, Equatable {
+        case `default`, dark, light
+    }
     
     public init(
         autolockPolicy: AutoLockPolicy,
         blurRadius: Double,
         useHigherQualityImagesForOnlineReading: Bool,
         useHigherQualityImagesForCaching: Bool,
-        colorScheme: Int,
+        colorScheme: ColorScheme,
         readingFormat: ReadingFormat,
         iso639Language: ISO639Language
     ) {

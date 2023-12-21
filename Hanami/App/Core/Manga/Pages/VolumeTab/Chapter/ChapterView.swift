@@ -45,16 +45,18 @@ struct ChapterView: View {
             .buttonStyle(.plain)
             .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             .padding(5)
-            .confirmationDialog(
-                store.scope(state: \.confirmationDialog),
-                dismiss: .cancelTapped
-            )
             .onAppear {
                 viewStore.send(.onAppear)
             }
             
             Divider()
         }
+        .confirmationDialog(
+            store: store.scope(
+                state: \.$confirmationDialog,
+                action: \.confirmationDialog
+            )
+        )
     }
 }
 
@@ -136,7 +138,7 @@ extension ChapterView {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            ViewStore(store).send(.userTappedOnChapterDetails(chapter))
+            ViewStore(store, observe: { $0 }).send(.userTappedOnChapterDetails(chapter))
         }
     }
     

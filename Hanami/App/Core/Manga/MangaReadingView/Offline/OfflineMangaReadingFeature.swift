@@ -14,7 +14,7 @@ import ImageClient
 import SettingsClient
 import HUD
 
-struct OfflineMangaReadingFeature: ReducerProtocol {
+struct OfflineMangaReadingFeature: Reducer {
     struct State: Equatable {
         init(mangaID: UUID, chapter: ChapterDetails, pagesCount: Int, startFromLastPage: Bool) {
             self.mangaID = mangaID
@@ -66,7 +66,7 @@ struct OfflineMangaReadingFeature: ReducerProtocol {
     @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .userStartedReadingChapter:
             DeviceUtil.disableScreenAutoLock()

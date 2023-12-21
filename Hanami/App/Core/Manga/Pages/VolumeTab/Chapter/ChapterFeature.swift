@@ -12,7 +12,8 @@ import ModelKit
 import Utils
 import Logger
 
-struct ChapterFeature: ReducerProtocol {
+@Reducer
+struct ChapterFeature {
     struct State: Equatable, Identifiable {
         // Chapter basic info
         let chapter: Chapter
@@ -67,7 +68,7 @@ struct ChapterFeature: ReducerProtocol {
         
         var areChaptersShown = false
         
-        var confirmationDialog: ConfirmationDialogState<Action>?
+        @PresentationState var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
     }
     
     struct CancelChapterFetch: Hashable { let id: UUID }
@@ -79,12 +80,17 @@ struct ChapterFeature: ReducerProtocol {
         case userTappedOnChapterDetails(ChapterDetails)
         case chapterDeleteButtonTapped(chapterID: UUID)
         case downloadChapterButtonTapped(chapter: ChapterDetails)
-        case chapterDeletionConfirmed(chapterID: UUID)
         case cancelChapterDownloadButtonTapped(chapterID: UUID)
         case cancelTapped
         
         case chapterDetailsFetched(Result<Response<ChapterDetails>, AppError>)
         case downloaderAction(ChapterLoaderFeature.Action)
+        
+        case confirmationDialog(PresentationAction<ConfirmationDialog>)
+        
+        enum ConfirmationDialog: Equatable {
+            case chapterDeletionConfirmed(chapterID: UUID)
+        }
     }
     
     @Dependency(\.mangaClient) private var mangaClient
@@ -92,14 +98,14 @@ struct ChapterFeature: ReducerProtocol {
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 return .run { await $0(.downloaderAction(.retrieveCachedChaptersFromMemory)) }
                 
             case .fetchChapterDetailsIfNeeded:
-                var effects: [EffectTask<Action>] = []
+                var effects: [Effect<Action>] = []
                 
                 let allChapterIDs = [state.chapter.id] + state.chapter.others
                 
@@ -153,17 +159,16 @@ struct ChapterFeature: ReducerProtocol {
                 }
                 // MARK: - Caching
             case .chapterDeleteButtonTapped(let chapterID):
-                state.confirmationDialog = ConfirmationDialogState(
-                    title: TextState("Delete this chapter from device?"),
-                    message: TextState("Delete this chapter from device?"),
-                    buttons: [
-                        .destructive(
-                            TextState("Delete"),
-                            action: .send(.chapterDeletionConfirmed(chapterID: chapterID))
-                        ),
-                        .cancel(TextState("Cancel"), action: .send(.cancelTapped))
-                    ]
-                )
+                state.confirmationDialog = ConfirmationDialogState(title: {
+                    TextState("Delete this chapter from device?")
+                }, actions: {
+                    ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
+                        TextState("Delete")
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState("Cancel")
+                    }
+                })
                 
                 return .none
                 
@@ -171,7 +176,7 @@ struct ChapterFeature: ReducerProtocol {
                 state.confirmationDialog = nil
                 return .none
                 
-            case .chapterDeletionConfirmed(let chapterID):
+            case .confirmationDialog(.presented(.chapterDeletionConfirmed(let chapterID))):
                 if !state.online {
                     state.chapterDetailsList.remove(id: chapterID)
                 }
@@ -184,22 +189,24 @@ struct ChapterFeature: ReducerProtocol {
                 return .run { await $0(.downloaderAction(.downloadChapterButtonTapped(chapter: chapter))) }
                 
             case .cancelChapterDownloadButtonTapped(let chapterID):
-                state.confirmationDialog = ConfirmationDialogState(
-                    title: TextState("Stop chapter download?"),
-                    message: TextState("Stop chapter download?"),
-                    buttons: [
-                        .destructive(
-                            TextState("Stop download"),
-                            action: .send(.downloaderAction(.chapterDeletionConfirmed(chapterID: chapterID)))
-                        ),
-                        .cancel(TextState("Cancel"), action: .send(.cancelTapped))
-                    ]
-                )
+                state.confirmationDialog = ConfirmationDialogState(title: {
+                    TextState("Stop chapter download?")
+                }, actions: {
+                    ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
+                        TextState("Stop download")
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState("Continue download")
+                    }
+                })
                 
                 return .none
                 // MARK: - Caching END
                 
             case .downloaderAction:
+                return .none
+                
+            case .confirmationDialog:
                 return .none
             }
         }

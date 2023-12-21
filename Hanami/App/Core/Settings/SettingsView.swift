@@ -11,6 +11,7 @@ import Kingfisher
 import Utils
 import ModelKit
 
+// swiftlint:disable multiple_closures_with_trailing_closure
 struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
     @State private var showLocalizationView = false
@@ -45,16 +46,16 @@ struct SettingsView: View {
 }
 
 extension SettingsView {
-    private var localizationSection: some View {
+    @MainActor private var localizationSection: some View {
         Section {
-            WithViewStore(store) { viewStore in
+            WithViewStore(store, observe: { $0 }) { viewStore in
                 HStack(spacing: 7) {
                     Text("Language for manga reading")
                     
                     Spacer()
                     
                     Group {
-                        Text(viewStore.config.iso639Language.name)
+                        Text(viewStore.readingLanguage.name)
                             .foregroundColor(.theme.accent)
                         
                         Image(systemName: "chevron.up.chevron.down")
@@ -66,11 +67,11 @@ extension SettingsView {
                     .onTapGesture { showLocalizationView = true }
                 }
                 .fullScreenCover(isPresented: $showLocalizationView) {
-                    LocalizationSettingsView(selectedLanugauge: viewStore.binding(\.$config.iso639Language))
+                    LocalizationSettingsView(selectedLanugauge: viewStore.$readingLanguage)
                         .environment(\.colorScheme, colorScheme)
                 }
                 
-                Picker("Reading format", selection: viewStore.binding(\.$config.readingFormat)) {
+                Picker("Reading format", selection: viewStore.$readingFormat) {
                     ForEach(SettingsConfig.ReadingFormat.allCases, id: \.self) { readingFormat in
                         Text(readingFormat.rawValue).tag(readingFormat)
                     }
@@ -82,10 +83,10 @@ extension SettingsView {
         }
     }
     
-    private var privacySection: some View {
+    @MainActor private var privacySection: some View {
         Section {
-            WithViewStore(store) { viewStore in
-                Picker("Auto-lock", selection: viewStore.binding(\.$config.autolockPolicy)) {
+            WithViewStore(store, observe: { $0 }) { viewStore in
+                Picker("Auto-lock", selection: viewStore.$autolockPolicy) {
                     ForEach(AutoLockPolicy.allCases) { policy in
                         Text(policy.value)
                             .tag(policy)
@@ -94,7 +95,7 @@ extension SettingsView {
                 .pickerStyle(.menu)
                 
                 Slider(
-                    value: viewStore.binding(\.$config.blurRadius),
+                    value: viewStore.$blurRadius,
                     in: Defaults.Security.minBlurRadius...Defaults.Security.maxBlurRadius,
                     step: Defaults.Security.blurRadiusStep,
                     minimumValueLabel: Image(systemName: "eye"),
@@ -107,15 +108,15 @@ extension SettingsView {
         }
     }
     
-    private var storageSection: some View {
+    @MainActor private var storageSection: some View {
         Section {
-            WithViewStore(store) { viewStore in
-                Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForOnlineReading)) {
+            WithViewStore(store, observe: { $0 }) { viewStore in
+                Toggle(isOn: viewStore.$useHigherQualityImagesForOnlineReading) {
                     Label("Read online manga in higher quality", systemImage: "antenna.radiowaves.left.and.right")
                         .foregroundColor(.theme.foreground)
                 }
                 
-                Toggle(isOn: viewStore.binding(\.$config.useHigherQualityImagesForCaching)) {
+                Toggle(isOn: viewStore.$useHigherQualityImagesForCaching) {
                     Label("Save manga in higher quality", systemImage: "antenna.radiowaves.left.and.right.slash")
                         .foregroundColor(.theme.foreground)
                 }
@@ -143,8 +144,10 @@ extension SettingsView {
                         Label("Delete all manga", systemImage: "trash")
                             .foregroundColor(.red)
                             .confirmationDialog(
-                                store.scope(state: \.confirmationDialog),
-                                dismiss: .cancelTapped
+                                store: store.scope(
+                                    state: \.$confirmationDialog,
+                                    action: \.confirmationDialog
+                                )
                             )
                     }
                 }
@@ -154,10 +157,10 @@ extension SettingsView {
         }
     }
     
-    private var appearanceSection: some View {
+    @MainActor private var appearanceSection: some View {
         Section {
-            WithViewStore(store) { viewStore in
-                Picker("Theme", selection: viewStore.binding(\.$config.colorScheme)) {
+            WithViewStore(store, observe: { $0 }) { viewStore in
+                Picker("Theme", selection: viewStore.$colorScheme) {
                     Text("System").tag(0)
                     
                     Text("Light").tag(1)
@@ -171,3 +174,4 @@ extension SettingsView {
         }
     }
 }
+// swiftlint:enable multiple_closures_with_trailing_closure

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import struct ComposableArchitecture.EffectPublisher
 import Utils
 
 public extension URLSession {

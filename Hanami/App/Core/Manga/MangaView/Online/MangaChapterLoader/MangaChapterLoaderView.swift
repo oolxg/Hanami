@@ -90,7 +90,7 @@ extension MangaChapterLoaderView {
             }
             
             Button {
-                ViewStore(store).send(.downloadButtonTapped(chapter: chapter))
+                ViewStore(store, observe: ViewState.init).send(.downloadButtonTapped(chapter: chapter))
             } label: {
                 Image(systemName: "arrow.down.to.line.circle")
                     .foregroundColor(Color.theme.foreground)

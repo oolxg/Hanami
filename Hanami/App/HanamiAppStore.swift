@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-struct AppFeature: ReducerProtocol {
+@Reducer
+struct AppFeature {
     struct State: Equatable {
         var rootState: RootFeature.State
     }
@@ -19,12 +20,12 @@ struct AppFeature: ReducerProtocol {
     
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { _, action in
             switch action {
             case .initApp:
                 return .concatenate(
-                    databaseClient.prepareDatabase().fireAndForget(),
+                    .run { _ in await databaseClient.prepareDatabase() },
                     
                     .merge(
                         .run { await $0(.rootAction(.downloadsAction(.initDownloads))) },
