@@ -15,6 +15,7 @@ import Logger
 import ImageClient
 import SettingsClient
 import HapticClient
+import HomeClient
 
 // swiftlint:disable:next type_body_length
 struct OnlineMangaFeature: Reducer {
@@ -57,6 +58,11 @@ struct OnlineMangaFeature: Reducer {
         var showAuthorView = false
         // MARK: END Props for inner states/views
         
+        // MARK: - Props for Related tab
+        var relatedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
+        var relatedMangaFetched = false
+        // MARK: END Props for Related tab
+        
         // MARK: - Behavior props
         var lastRefreshedAt: Date?
         // preffered lang for reading manga
@@ -68,11 +74,12 @@ struct OnlineMangaFeature: Reducer {
         case chapters = "Chapters"
         case info = "Info"
         case coverArt = "Art"
+        case related = "Related"
         
         var id: String { rawValue }
     }
     
-    enum Action {
+    enum Action: Sendable {
         // MARK: - Actions to be called from view
         case onAppear
         case navigationTabButtonTapped(Tab)
@@ -95,12 +102,15 @@ struct OnlineMangaFeature: Reducer {
         case settingsConfigRetrieved(Result<SettingsConfig, AppError>)
         case firstChapterOptionRetrieved(Result<Response<ChapterDetails>, AppError>)
         case allFirstChaptersRetrieved
+        case relatedMangaFetched(Result<Response<[Manga]>, AppError>)
+        case statisticForRelatedMangaFetched(Result<MangaStatisticsContainer, AppError>)
         
         // MARK: - Substate actions
         case mangaReadingViewAction(OnlineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
         case authorViewAction(AuthorFeature.Action)
         case chapterLoaderAcion(MangaChapterLoaderFeature.Action)
+        indirect case relatedMangaAction(UUID, MangaThumbnailFeature.Action)
 
         // MARK: - Actions for saving chapters for offline reading
         case coverArtForCachingFetched(Result<UIImage, AppError>)
@@ -113,6 +123,7 @@ struct OnlineMangaFeature: Reducer {
     @Dependency(\.hud) private var hud
     @Dependency(\.openURL) private var openURL
     @Dependency(\.hapticClient) private var hapticClient
+    @Dependency(\.homeClient) private var homeClient
     @Dependency(\.logger) private var logger
     @Dependency(\.mainQueue) private var mainQueue
 
@@ -126,24 +137,31 @@ struct OnlineMangaFeature: Reducer {
                 let fetchAllCoverArts = state.allCoverArtsInfo.isEmpty
                 let fetchPages = state.pagesState.isNil
                 let fetchStatistics = state.statistics.isNil
+                let fetchRelatedManga = state.relatedMangaThumbnailStates.isEmpty
                 
-                return .run { [mangaID = state.manga.id] send in
-                    if fetchAllCoverArts {
-                        let result = await mangaClient.fetchAllCoverArts(forManga: mangaID)
-                        await send(.allCoverArtsInfoFetched(result))
-                    }
-                    
+                return .run { [manga = state.manga] send in
                     if fetchPages {
-                        let result = await mangaClient.fetchChapters(forMangaWithID: mangaID)
+                        let result = await mangaClient.fetchChapters(forMangaWithID: manga.id)
                         await send(.volumesRetrieved(result))
                     }
                     
+                    if fetchRelatedManga {
+                        let relatedMangaIDs = manga.relationships.filter { $0.type == .manga }.map(\.id)
+                        let result = await homeClient.fetchManga(ids: relatedMangaIDs)
+                        await send(.relatedMangaFetched(result))
+                    }
+                    
+                    if fetchAllCoverArts {
+                        let result = await mangaClient.fetchAllCoverArts(forManga: manga.id)
+                        await send(.allCoverArtsInfoFetched(result))
+                    }
+                    
                     if fetchStatistics {
-                        let result = await mangaClient.fetchStatistics(for: [mangaID])
+                        let result = await mangaClient.fetchStatistics(for: [manga.id])
                         await send(.mangaStatisticsDownloaded(result))
                     }
                     
-                    let lastReadChapterResult = await databaseClient.getLastReadChapterID(mangaID: mangaID)
+                    let lastReadChapterResult = await databaseClient.getLastReadChapterID(mangaID: manga.id)
                     await send(.lastReadChapterRetrieved(lastReadChapterResult))
                 }
                 
@@ -420,6 +438,43 @@ struct OnlineMangaFeature: Reducer {
                 
                 return .none
                 
+            case .relatedMangaFetched(let result):
+                switch result {
+                case .success(let response):
+                    state.relatedMangaThumbnailStates = response
+                        .data
+                        .map { .init(manga: $0) }
+                        .asIdentifiedArray
+                    
+                    state.relatedMangaFetched = true
+                    let mangaIDs = response.data.map(\.id)
+                    
+                    return .run { send in
+                        let result = await mangaClient.fetchStatistics(for: mangaIDs)
+                        await send(.statisticForRelatedMangaFetched(result))
+                        
+                    }
+                    
+                case .failure(let error):
+                    logger.error("Failed to fetch related manga to \(state.manga.title). Error: \(error)")
+                    return .none
+                }
+                
+            case .statisticForRelatedMangaFetched(let result):
+                switch result {
+                case .success(let response):
+                    for stat in response.statistics {
+                        state.relatedMangaThumbnailStates[id: stat.key]?.onlineMangaState!.statistics = stat.value
+                    }
+                    return .none
+                    
+                case .failure(let error):
+                    logger.error(
+                        "Failed to fetch statistics for related manga to \(state.manga.title). Error: \(error)"
+                    )
+                    return .none
+                }
+                
             case .showAuthorViewValueDidChange(let newValue):
                 state.showAuthorView = newValue
                 return .none
@@ -441,6 +496,9 @@ struct OnlineMangaFeature: Reducer {
                 return .none
                 
             case .chapterLoaderAcion:
+                return .none
+                
+            case .relatedMangaAction:
                 return .none
             }
         }
@@ -580,6 +638,9 @@ struct OnlineMangaFeature: Reducer {
         }
         .ifLet(\.chapterLoaderState, action: /Action.chapterLoaderAcion) {
             MangaChapterLoaderFeature()
+        }
+        .forEach(\.relatedMangaThumbnailStates, action: /Action.relatedMangaAction) {
+            MangaThumbnailFeature()
         }
     }
 }

@@ -26,7 +26,7 @@ struct AuthorFeature: Reducer {
         }
     }
     
-    enum Action {
+    enum Action: Sendable {
         case onAppear
         case authorInfoFetched(Result<Response<Author>, AppError>)
         case authorsMangaFetched(Result<Response<[Manga]>, AppError>)

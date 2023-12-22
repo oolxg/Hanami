@@ -47,6 +47,7 @@ struct OnlineMangaView: View {
         let isMangaReadingViewPresented: Bool
         let isErrorOccured: Bool
         let showAuthorView: Bool
+        let showRealtedTab: Bool
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
@@ -62,6 +63,7 @@ struct OnlineMangaView: View {
             isMangaReadingViewPresented = state.isMangaReadingViewPresented
             isErrorOccured = state.isErrorOccured
             showAuthorView = state.showAuthorView
+            showRealtedTab = state.relatedMangaFetched && !state.relatedMangaThumbnailStates.isEmpty
         }
     }
     
@@ -350,9 +352,24 @@ extension OnlineMangaView {
                 aboutTab
             case .coverArt:
                 coverArtTab
+            case .related:
+                relatedTab
             }
         }
         .padding(.horizontal, 5)
+    }
+    
+    private var relatedTab: some View {
+        LazyVStack {
+            ForEachStore(
+                store.scope(
+                    state: \.relatedMangaThumbnailStates,
+                    action: OnlineMangaFeature.Action.relatedMangaAction
+                )
+            ) { store in
+                MangaThumbnailView(store: store, blurRadius: blurRadius)
+            }
+        }
     }
     
     private var chaptersNotLoadedView: some View {
@@ -587,7 +604,19 @@ extension OnlineMangaView {
                 backButton
                     .opacity(isCoverArtDisappeared ? 1 : 0)
                 
-                ForEach(OnlineMangaFeature.Tab.allCases, content: makeTabLabel)
+                makeTabLabel(for: .chapters)
+                makeTabLabel(for: .info)
+                makeTabLabel(for: .coverArt)
+                
+                WithViewStore(store, observe: ViewState.init) { viewStore in
+                    VStack {
+                        if viewStore.showRealtedTab {
+                            makeTabLabel(for: .related)
+                                .transition(.opacity)
+                        }
+                    }
+                    .animation(.linear, value: viewStore.showRealtedTab)
+                }
             }
             .offset(x: isCoverArtDisappeared ? 0 : -40)
             .padding(.leading)
