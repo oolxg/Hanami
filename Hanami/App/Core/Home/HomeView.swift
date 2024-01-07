@@ -16,7 +16,7 @@ struct HomeView: View {
     @State private var showAwardWinning = false
     @State private var showMostFollowed = false
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @Dependency(\.networkMonitor) private var networkMonitor
     
     private struct ViewState: Equatable {
         let isRefreshActionInProgress: Bool
@@ -35,7 +35,7 @@ struct HomeView: View {
             seasonalMangaTabName = state.seasonalTabName ?? "Seasonal"
         }
     }
-
+    
     var body: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             if networkMonitor.isConnected || viewStore.areLatestUpdatesFetched {
@@ -129,13 +129,13 @@ struct HomeView: View {
 extension HomeView {
     private var latestUpdates: some View {
         Section {
-            VStack(alignment: .center) {
+            LazyVStack(alignment: .center) {
                 WithViewStore(store, observe: ViewState.init) { viewStore in
                     if viewStore.areLatestUpdatesFetched {
                         ForEachStore(
                             store.scope(
                                 state: \.latestUpdatesMangaThumbnailStates,
-                                action: HomeFeature.Action.lastUpdatesMangaThumbnailAction
+                                action: HomeFeature.Action.mangaThumbnailAction
                             )
                         ) { thumbnailViewStore in
                             MangaThumbnailView(
@@ -209,29 +209,31 @@ extension HomeView {
     private var seasonal: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             ScrollView {
-                if viewStore.areSeasonalTitlesFetched {
-                    ForEachStore(
-                        store.scope(
-                            state: \.seasonalMangaThumbnailStates,
-                            action: HomeFeature.Action.seasonalMangaThumbnailAction
-                        )) { thumbnailStore in
-                            MangaThumbnailView(
-                                store: thumbnailStore,
-                                blurRadius: blurRadius
-                            )
-                            .padding(5)
+                LazyVStack {
+                    if viewStore.areSeasonalTitlesFetched {
+                        ForEachStore(
+                            store.scope(
+                                state: \.seasonalMangaThumbnailStates,
+                                action: HomeFeature.Action.mangaThumbnailAction
+                            )) { thumbnailStore in
+                                MangaThumbnailView(
+                                    store: thumbnailStore,
+                                    blurRadius: blurRadius
+                                )
+                                .padding(5)
+                            }
+                    } else {
+                        ForEach(0..<20) { _ in
+                            MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                         }
-                } else {
-                    ForEach(0..<20) { _ in
-                        MangaThumbnailView.skeleton(colorScheme: colorScheme).padding(5)
                     }
                 }
-            }
-            .navigationTitle(viewStore.seasonalMangaTabName)
-            .navigationBarBackButtonHidden(true)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                toolbar { showSeasonal = false }
+                .navigationTitle(viewStore.seasonalMangaTabName)
+                .navigationBarBackButtonHidden(true)
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    toolbar { showSeasonal = false }
+                }
             }
         }
     }
@@ -276,13 +278,13 @@ extension HomeView {
     
     private var mostFollowed: some View {
         ScrollView {
-            VStack {
+            LazyVStack {
                 WithViewStore(store, observe: ViewState.init) { viewStore in
                     if viewStore.areMostFollowedTitlesFetched {
                         ForEachStore(
                             store.scope(
                                 state: \.mostFollowedMangaThumbnailStates,
-                                action: HomeFeature.Action.mostFollowedMangaThumbnailAction
+                                action: HomeFeature.Action.mangaThumbnailAction
                             )) { thumbnailStore in
                                 MangaThumbnailView(
                                     store: thumbnailStore,
@@ -305,7 +307,7 @@ extension HomeView {
             toolbar { showMostFollowed = false }
         }
         .onAppear {
-            ViewStore(store, observe: { $0 }).send(.onAppearMostFollewedManga)
+            store.send(.onAppearMostFollewedManga)
         }
     }
 }
@@ -349,13 +351,13 @@ extension HomeView {
     
     private var awardWinning: some View {
         ScrollView {
-            VStack {
+            LazyVStack {
                 WithViewStore(store, observe: ViewState.init) { viewStore in
                     if viewStore.areAwardWinningTitlesFetched {
                         ForEachStore(
                             store.scope(
                                 state: \.awardWinningMangaThumbnailStates,
-                                action: HomeFeature.Action.awardWinningMangaThumbnailAction
+                                action: HomeFeature.Action.mangaThumbnailAction
                             )) { thumbnailStore in
                                 MangaThumbnailView(
                                     store: thumbnailStore,
@@ -378,7 +380,7 @@ extension HomeView {
             toolbar { showAwardWinning = false }
         }
         .onAppear {
-            ViewStore(store, observe: { $0 }).send(.onAppearAwardWinningManga)
+            store.send(.onAppearAwardWinningManga)
         }
     }
     

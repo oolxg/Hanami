@@ -54,7 +54,6 @@ struct OnlineMangaFeature: Reducer {
         
         // MARK: - Props for inner states/views
         var authorViewState: AuthorFeature.State?
-        var chapterLoaderState: MangaChapterLoaderFeature.State?
         var showAuthorView = false
         // MARK: END Props for inner states/views
         
@@ -79,7 +78,7 @@ struct OnlineMangaFeature: Reducer {
         var id: String { rawValue }
     }
     
-    enum Action: Sendable {
+    enum Action {
         // MARK: - Actions to be called from view
         case onAppear
         case navigationTabButtonTapped(Tab)
@@ -88,9 +87,9 @@ struct OnlineMangaFeature: Reducer {
         case continueReadingButtonTapped
         case startReadingButtonTapped
         case userTappedOnFirstChapterOption(ChapterDetails)
-        case userTappedOnChapterLoaderButton
         case showAuthorViewValueDidChange(to: Bool)
         case nowReadingViewStateDidUpdate(to: Bool)
+        case userDidTapOnMangaDEXFooter
         
         // MARK: - Actions to be called from reducer
         case volumesRetrieved(Result<VolumesContainer, AppError>)
@@ -109,7 +108,6 @@ struct OnlineMangaFeature: Reducer {
         case mangaReadingViewAction(OnlineMangaReadingFeature.Action)
         case pagesAction(PagesFeature.Action)
         case authorViewAction(AuthorFeature.Action)
-        case chapterLoaderAcion(MangaChapterLoaderFeature.Action)
         indirect case relatedMangaAction(UUID, MangaThumbnailFeature.Action)
 
         // MARK: - Actions for saving chapters for offline reading
@@ -125,7 +123,6 @@ struct OnlineMangaFeature: Reducer {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.homeClient) private var homeClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -146,8 +143,7 @@ struct OnlineMangaFeature: Reducer {
                     }
                     
                     if fetchRelatedManga {
-                        let relatedMangaIDs = manga.relationships.filter { $0.type == .manga }.map(\.id)
-                        let result = await homeClient.fetchManga(ids: relatedMangaIDs)
+                        let result = await homeClient.fetchManga(ids: manga.relatedMangaIDs)
                         await send(.relatedMangaFetched(result))
                     }
                     
@@ -196,9 +192,8 @@ struct OnlineMangaFeature: Reducer {
                 hapticClient.generateFeedback(style: .medium)
                     
                 return .run { [mangaID = state.manga.id] send in
-                    try await Task.sleep(seconds: 0.7)
-                    
                     let result = await mangaClient.fetchChapters(forMangaWithID: mangaID)
+                    try await Task.sleep(seconds: 0.7)
                     await send(.volumesRetrieved(result))
                 }
                 
@@ -238,11 +233,11 @@ struct OnlineMangaFeature: Reducer {
                 
                 return .run { await $0(.mangaReadingViewAction(.userStartedReadingChapter)) }
                 
-            case .userTappedOnChapterLoaderButton:
-                guard state.chapterLoaderState.isNil else { return .none }
+            case .userDidTapOnMangaDEXFooter:
+                return .run { [mangaID = state.manga.id] _ in
+                    await openURL(Defaults.Links.mangaDexTitleLink(mangaID: mangaID))
+                }
                 
-                state.chapterLoaderState = MangaChapterLoaderFeature.State(manga: state.manga)
-                return .run { await $0(.chapterLoaderAcion(.initLoader)) }
             // MARK: - END Actions to be called from view
                 
             case .volumesRetrieved(let result):
@@ -452,7 +447,6 @@ struct OnlineMangaFeature: Reducer {
                     return .run { send in
                         let result = await mangaClient.fetchStatistics(for: mangaIDs)
                         await send(.statisticForRelatedMangaFetched(result))
-                        
                     }
                     
                 case .failure(let error):
@@ -493,9 +487,6 @@ struct OnlineMangaFeature: Reducer {
                 return .none
                 
             case .authorViewAction:
-                return .none
-                
-            case .chapterLoaderAcion:
                 return .none
                 
             case .relatedMangaAction:
@@ -635,9 +626,6 @@ struct OnlineMangaFeature: Reducer {
         }
         .ifLet(\.authorViewState, action: /Action.authorViewAction) {
             AuthorFeature()
-        }
-        .ifLet(\.chapterLoaderState, action: /Action.chapterLoaderAcion) {
-            MangaChapterLoaderFeature()
         }
         .forEach(\.relatedMangaThumbnailStates, action: /Action.relatedMangaAction) {
             MangaThumbnailFeature()

@@ -91,13 +91,12 @@ struct OnlineMangaReadingFeature: Reducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .userStartedReadingChapter:
-                state.isChapterCached = databaseClient.retrieveChapter(chapterID: state.chapterID).hasValue
+                state.isChapterCached = databaseClient.retrieveChapter(byID: state.chapterID).hasValue
                 
                 DeviceUtil.disableScreenAutoLock()
                 

@@ -7,9 +7,16 @@
 
 import Network
 import Combine
+import Dependencies
+
+public extension DependencyValues {
+    var networkMonitor: NetworkMonitor {
+        get { self[NetworkMonitor.self] }
+        set { self[NetworkMonitor.self] = newValue }
+    }
+}
 
 public final class NetworkMonitor: ObservableObject {
-    public static let shared = NetworkMonitor()
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "moe.mkpwnz.Hanami.NetworkMonitor", qos: .background)
     @Published public private(set) var isConnected = true
@@ -23,4 +30,8 @@ public final class NetworkMonitor: ObservableObject {
         
         monitor.start(queue: queue)
     }
+}
+
+extension NetworkMonitor: DependencyKey {
+    public static let liveValue = NetworkMonitor()
 }

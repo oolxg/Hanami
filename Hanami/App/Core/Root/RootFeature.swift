@@ -44,7 +44,6 @@ struct RootFeature {
     
     @Dependency(\.authClient) private var authClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in

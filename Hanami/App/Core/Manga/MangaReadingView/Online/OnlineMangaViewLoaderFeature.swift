@@ -40,7 +40,6 @@ struct OnlineMangaViewLoaderFeature: Reducer {
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.cacheClient) private var cacheClient
-    @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
@@ -48,7 +47,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
 
         switch action {
         case .downloadChapterButtonTapped:
-            if databaseClient.retrieveChapter(chapterID: state.chapterID).isNil {
+            if databaseClient.retrieveChapter(byID: state.chapterID).isNil {
                 return .run { [chapterID = state.chapterID] send in
                     let result = await mangaClient.fetchChapterDetails(for: chapterID)
                     await send(.chapterDetailsFetched(result))
@@ -65,7 +64,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
             
             databaseClient.deleteChapter(chapterID: state.chapterID)
             
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: state.chapterID)?.pagesCount {
+            if let pagesCount = databaseClient.retrieveChapter(byID: state.chapterID)?.pagesCount {
                 mangaClient.removeCachedPagesForChapter(state.chapterID, pagesCount: pagesCount)
             }
             
@@ -142,7 +141,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                 "Failed to fetch image for caching in OnlineMangaViewLoaderFeature: \(error.description)"
             )
             
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
+            if let pagesCount = databaseClient.retrieveChapter(byID: chapter.id)?.pagesCount {
                 mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount)
             }
             

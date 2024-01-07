@@ -96,7 +96,6 @@ struct ChapterFeature {
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -110,7 +109,7 @@ struct ChapterFeature {
                 let allChapterIDs = [state.chapter.id] + state.chapter.others
                 
                 for chapterID in allChapterIDs {
-                    let possiblyCachedChapterEntry = databaseClient.retrieveChapter(chapterID: chapterID)
+                    let possiblyCachedChapterEntry = databaseClient.retrieveChapter(byID: chapterID)
                     
                     if state.chapterDetailsList[id: chapterID].isNil {
                         // if chapter is cached - no need to fetch it from API
@@ -122,11 +121,12 @@ struct ChapterFeature {
                             // chapter is not cached, need to fetch
                             effects.append(
                                 .run { send in
-                                    try await Task.sleep(seconds: 0.3)
-                                    let result = await mangaClient.fetchChapterDetails(for: chapterID)
-                                    await send(.chapterDetailsFetched(result))
+                                    try await withTaskCancellation(id: CancelChapterFetch(id: chapterID), cancelInFlight: true) {
+                                        let result = await mangaClient.fetchChapterDetails(for: chapterID)
+                                        try await Task.sleep(seconds: 0.3)
+                                        await send(.chapterDetailsFetched(result))
+                                    }
                                 }
-                                .cancellable(id: CancelChapterFetch(id: chapterID), cancelInFlight: true)
                             )
                         }
                     }
@@ -159,16 +159,19 @@ struct ChapterFeature {
                 }
                 // MARK: - Caching
             case .chapterDeleteButtonTapped(let chapterID):
-                state.confirmationDialog = ConfirmationDialogState(title: {
-                    TextState("Delete this chapter from device?")
-                }, actions: {
-                    ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
-                        TextState("Delete")
+                state.confirmationDialog = ConfirmationDialogState(
+                    title: {
+                        TextState("Delete this chapter from device?")
+                    },
+                    actions: {
+                        ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
+                            TextState("Delete")
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState("Cancel")
+                        }
                     }
-                    ButtonState(role: .cancel) {
-                        TextState("Cancel")
-                    }
-                })
+                )
                 
                 return .none
                 
@@ -189,16 +192,19 @@ struct ChapterFeature {
                 return .run { await $0(.downloaderAction(.downloadChapterButtonTapped(chapter: chapter))) }
                 
             case .cancelChapterDownloadButtonTapped(let chapterID):
-                state.confirmationDialog = ConfirmationDialogState(title: {
-                    TextState("Stop chapter download?")
-                }, actions: {
-                    ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
-                        TextState("Stop download")
+                state.confirmationDialog = ConfirmationDialogState(
+                    title: {
+                        TextState("Stop chapter download?")
+                    },
+                    actions: {
+                        ButtonState(role: .destructive, action: .chapterDeletionConfirmed(chapterID: chapterID)) {
+                            TextState("Stop download")
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState("Continue download")
+                        }
                     }
-                    ButtonState(role: .cancel) {
-                        TextState("Continue download")
-                    }
-                })
+                )
                 
                 return .none
                 // MARK: - Caching END

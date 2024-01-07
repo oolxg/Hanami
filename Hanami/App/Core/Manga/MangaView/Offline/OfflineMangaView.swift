@@ -11,33 +11,30 @@ import Kingfisher
 import ModelKit
 import Utils
 import UIComponents
+import HUD
 
 struct OfflineMangaView: View {
     let store: StoreOf<OfflineMangaFeature>
     let blurRadius: CGFloat
     @State private var headerOffset: CGFloat = 0
     @State private var showMangaDeletionDialog = false
+    @State private var headerOverlayGradientColor = Color.clear
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var hud = HUD.liveValue
 
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -450
     }
     
     private  struct ViewState: Equatable {
-        let manga: Manga
         let currentPageIndex: Int?
-        let coverArtPath: URL?
-        let selectedTab: OfflineMangaFeature.Tab
         let lastReadChapterAvailable: Bool
         let isMangaReadingViewPresented: Bool
         
         init(state: OfflineMangaFeature.State) {
-            manga = state.manga
             currentPageIndex = state.pagesState?.currentPageIndex
-            coverArtPath = state.coverArtPath
-            selectedTab = state.selectedTab
             lastReadChapterAvailable = state.lastReadChapter.hasValue && state.pagesState.hasValue
             isMangaReadingViewPresented = state.isMangaReadingViewPresented
         }
@@ -92,6 +89,12 @@ struct OfflineMangaView: View {
             )
             .tint(.theme.accent)
             .background(Color.theme.background)
+            .hud(
+                isPresented: $hud.isPresented,
+                message: hud.message,
+                iconName: hud.iconName,
+                backgroundColor: hud.backgroundColor
+            )
         }
     }
 }
@@ -128,13 +131,18 @@ extension OfflineMangaView {
     }
     
     private var header: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.coverArtPath) { viewStore in
             GeometryReader { geo in
                 let minY = geo.frame(in: .named("scroll")).minY
                 let height = geo.size.height + minY
                 
-                KFImage(viewStore.coverArtPath)
+                KFImage(viewStore.state)
                     .onlyFromCache()
+                    .onSuccess { result in
+                        if let avgColor = result.image.averageColor {
+                            headerOverlayGradientColor = Color(uiColor: avgColor)
+                        }
+                    }
                     .resizable()
                     .scaledToFill()
                     .frame(width: geo.size.width, height: height > 0 ? height : 0, alignment: .center)
@@ -147,13 +155,14 @@ extension OfflineMangaView {
     }
     
     private var headerOverlay: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.manga) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
-                    colors: [ .theme.background.opacity(0.1), .theme.background.opacity(0.8) ],
+                    colors: [ headerOverlayGradientColor.opacity(0.1), headerOverlayGradientColor.opacity(0.8) ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                .animation(.linear, value: headerOverlayGradientColor)
                 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
@@ -167,25 +176,21 @@ extension OfflineMangaView {
                     Spacer()
                     
                     HStack {
-                        Text("MANGA")
-                            .font(.callout)
-                            .foregroundColor(.gray)
-                        
                         HStack(spacing: 5) {
                             Circle()
-                                .fill(viewStore.manga.attributes.status.color)
+                                .fill(viewStore.state.attributes.status.color)
                                 .frame(width: 10, height: 10)
                                 // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
-                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                            Text(viewStore.state.attributes.status.rawValue.capitalized)
                                 .foregroundColor(.theme.foreground)
                                 .fontWeight(.semibold)
                         }
                         .font(.subheadline)
                     }
                     
-                    Text(viewStore.manga.title)
+                    Text(viewStore.state.title)
                         .font(.title.bold())
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(5)
@@ -223,7 +228,7 @@ extension OfflineMangaView {
         ) {
             Button("Delete", role: .destructive) {
                 self.dismiss()
-                ViewStore(store, observe: { _ in 0 }).send(.deleteMangaButtonTapped)
+                store.send(.deleteMangaButtonTapped)
             }
             
             Button("Cancel", role: .cancel) {
@@ -248,8 +253,8 @@ extension OfflineMangaView {
     }
     
     private var mangaBodyView: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            switch viewStore.selectedTab {
+        WithViewStore(store, observe: \.selectedTab) { viewStore in
+            switch viewStore.state {
             case .chapters:
                 IfLetStore(
                     store.scope(
@@ -267,18 +272,18 @@ extension OfflineMangaView {
     }
     
     private var aboutTab: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.manga) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
-                if !viewStore.manga.authors.isEmpty {
+                if !viewStore.state.authors.isEmpty {
                     VStack(alignment: .leading) {
-                        Text(viewStore.manga.authors.count > 1 ? "Authors" : "Author")
+                        Text(viewStore.state.authors.count > 1 ? "Authors" : "Author")
                             .font(.headline)
                             .fontWeight(.black)
                         
                         Divider()
                         
                         FlexibleView(
-                            data: viewStore.manga.authors.map(\.attributes.name),
+                            data: viewStore.state.authors.map(\.attributes.name),
                             spacing: 10,
                             alignment: .leading,
                             content: makeChipsView
@@ -287,7 +292,7 @@ extension OfflineMangaView {
                     }
                 }
                 
-                if let description = viewStore.manga.description {
+                if let description = viewStore.state.description {
                     VStack(alignment: .leading) {
                         Text("Description")
                             .font(.headline)
@@ -306,7 +311,7 @@ extension OfflineMangaView {
     }
     
     private var tags: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.manga) { viewStore in
             VStack(alignment: .leading) {
                 Text("Tags")
                     .font(.headline)
@@ -315,14 +320,14 @@ extension OfflineMangaView {
                 Divider()
                 
                 FlexibleView(
-                    data: viewStore.manga.attributes.tags.map(\.name.capitalized),
+                    data: viewStore.state.attributes.tags.map(\.name.capitalized),
                     spacing: 10,
                     alignment: .leading,
                     content: makeChipsView
                 )
                 .padding(.horizontal, 5)
                 
-                if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
+                if let demographic = viewStore.state.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {
                         Text("Demographic")
                             .font(.headline)
@@ -370,7 +375,7 @@ extension OfflineMangaView {
     
     private var continueReadingButton: some View {
         Button {
-            ViewStore(store, observe: { _ in 0 }).send(.continueReadingButtonTapped)
+            store.send(.continueReadingButtonTapped)
         } label: {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.theme.accent)
@@ -388,14 +393,14 @@ extension OfflineMangaView {
     
     /// Makes label for navigation through MangaView
     private func makeTabLabel(for tab: OfflineMangaFeature.Tab) -> some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.selectedTab) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)
-                    .foregroundColor(viewStore.selectedTab == tab ? .theme.foreground : .gray)
+                    .foregroundColor(viewStore.state == tab ? .theme.foreground : .gray)
                 
                 ZStack {
-                    if viewStore.selectedTab == tab {
+                    if viewStore.state == tab {
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
                             .fill(Color.theme.foreground)
                             .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)

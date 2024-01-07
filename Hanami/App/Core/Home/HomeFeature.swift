@@ -47,10 +47,7 @@ struct HomeFeature: Reducer {
         case onAppearAwardWinningManga
         case onAppearMostFollewedManga
         
-        case lastUpdatesMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
-        case seasonalMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
-        case awardWinningMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
-        case mostFollowedMangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
+        case mangaThumbnailAction(UUID, MangaThumbnailFeature.Action)
     }
     
     @Dependency(\.homeClient) private var homeClient
@@ -59,7 +56,6 @@ struct HomeFeature: Reducer {
     @Dependency(\.logger) private var logger
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.imageClient) private var imageClient
-    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -212,29 +208,20 @@ struct HomeFeature: Reducer {
                     return .none
                 }
                 
-            case .lastUpdatesMangaThumbnailAction:
-                return .none
-                
-            case .seasonalMangaThumbnailAction:
-                return .none
-                
-            case .awardWinningMangaThumbnailAction:
-                return .none
-                
-            case .mostFollowedMangaThumbnailAction:
+            case .mangaThumbnailAction:
                 return .none
             }
         }
-        .forEach(\.latestUpdatesMangaThumbnailStates, action: /Action.lastUpdatesMangaThumbnailAction) {
+        .forEach(\.latestUpdatesMangaThumbnailStates, action: /Action.mangaThumbnailAction) {
             MangaThumbnailFeature()
         }
-        .forEach(\.seasonalMangaThumbnailStates, action: /Action.seasonalMangaThumbnailAction) {
+        .forEach(\.seasonalMangaThumbnailStates, action: /Action.mangaThumbnailAction) {
             MangaThumbnailFeature()
         }
-        .forEach(\.awardWinningMangaThumbnailStates, action: /Action.awardWinningMangaThumbnailAction) {
+        .forEach(\.awardWinningMangaThumbnailStates, action: /Action.mangaThumbnailAction) {
             MangaThumbnailFeature()
         }
-        .forEach(\.mostFollowedMangaThumbnailStates, action: /Action.mostFollowedMangaThumbnailAction) {
+        .forEach(\.mostFollowedMangaThumbnailStates, action: /Action.mangaThumbnailAction) {
             MangaThumbnailFeature()
         }
     }

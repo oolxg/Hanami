@@ -16,13 +16,11 @@ struct PagesView: View {
     }
     
     private struct ViewState: Equatable {
-        let showNothingToReadMessage: Bool
         let currentPageIndex: Int
         let pagesCount: Int
         let splitIntoPagesVolumeTabStates: [IdentifiedArrayOf<VolumeTabFeature.State>]
         
         init(state: PagesFeature.State) {
-            showNothingToReadMessage = state.splitIntoPagesVolumeTabStates.isEmpty
             currentPageIndex = state.currentPageIndex
             pagesCount = state.pagesCount
             splitIntoPagesVolumeTabStates = state.splitIntoPagesVolumeTabStates
@@ -30,34 +28,18 @@ struct PagesView: View {
     }
     
     var body: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            if viewStore.showNothingToReadMessage {
-                VStack(spacing: 0) {
-                    Text("Ooops, there's nothing to read")
-                        .font(.title2)
-                        .fontWeight(.black)
-                    
-                    Text("😢")
-                        .font(.title2)
-                        .fontWeight(.black)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding()
-            } else {
-                LazyVStack {
-                    ForEachStore(
-                        store.scope(
-                            state: \.volumeTabStatesOnCurrentPage,
-                            action: PagesFeature.Action.volumeTabAction
-                        ),
-                        content: VolumeTabView.init
-                    )
-                    .animation(.linear, value: viewStore.currentPageIndex)
-                    
-                    footer
-                        .transition(.identity)
-                }
-            }
+        WithViewStore(store, observe: \.currentPageIndex) { viewStore in
+            ForEachStore(
+                store.scope(
+                    state: \.volumeTabStatesOnCurrentPage,
+                    action: PagesFeature.Action.volumeTabAction
+                ),
+                content: VolumeTabView.init
+            )
+            .animation(.linear, value: viewStore.state)
+            
+            footer
+                .transition(.identity)
         }
     }
 }
@@ -155,7 +137,7 @@ extension PagesView {
             .background(bgColor)
             .clipShape(RoundedRectangle(cornerRadius: 6))
             .onTapGesture {
-                ViewStore(store, observe: { $0 }).send(.pageIndexButtonTapped(newPageIndex: pageIndex - 1))
+                store.send(.pageIndexButtonTapped(newPageIndex: pageIndex - 1))
             }
     }
 }

@@ -35,7 +35,6 @@ struct DownloadsFeature: Reducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in

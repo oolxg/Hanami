@@ -66,7 +66,6 @@ struct OfflineMangaFeature: Reducer {
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.hud) private var hud
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -115,7 +114,7 @@ struct OfflineMangaFeature: Reducer {
             case .lastReadChapterRetrieved(let result):
                 switch result {
                 case .success(let lastReadChapterID):
-                    state.lastReadChapter = databaseClient.retrieveChapter(chapterID: lastReadChapterID)
+                    state.lastReadChapter = databaseClient.retrieveChapter(byID: lastReadChapterID)
                     return .none
                     
                 case .failure:
@@ -186,7 +185,7 @@ struct OfflineMangaFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .pagesAction(.volumeTabAction(_, .chapterAction(_, .userTappedOnChapterDetails(let chapter)))):
-                guard let retrievedChapter = databaseClient.retrieveChapter(chapterID: chapter.id) else {
+                guard let retrievedChapter = databaseClient.retrieveChapter(byID: chapter.id) else {
                     hud.show(message: "😢 Error on retrieving saved chapter")
                     return .none
                 }
@@ -259,19 +258,25 @@ struct OfflineMangaFeature: Reducer {
                     return .none
                 }
                 
-                return .run { send in
-                    await send(
+                return ChapterFeature()
+                    .reduce(
+                        into: &state
+                            .pagesState!
+                            .volumeTabStatesOnCurrentPage[id: info.volumeID]!
+                            .chapterStates[id: info.chapterID]!,
+                        action: .fetchChapterDetailsIfNeeded
+                    )
+                    .map {
                         .pagesAction(
                             .volumeTabAction(
                                 volumeID: info.volumeID,
                                 volumeAction: .chapterAction(
                                     id: info.chapterID,
-                                    action: .fetchChapterDetailsIfNeeded
+                                    action: $0
                                 )
                             )
                         )
-                    )
-                }
+                    }
                 
             default:
                 return .none

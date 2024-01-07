@@ -132,6 +132,12 @@ public extension Manga {
             }
     }
     
+    var relatedMangaIDs: [UUID] {
+        relationships
+            .filter { $0.type == .manga }
+            .map(\.id)
+    }
+    
     var coverArtInfo: CoverArtInfo? {
         if let relationship = relationships.first(where: { $0.type == .coverArt }),
            let attributes = relationship.attributes?.value as? CoverArtInfo.Attributes {

@@ -214,7 +214,7 @@ extension OfflineMangaReadingView {
         DragGesture(minimumDistance: 100, coordinateSpace: .local)
             .onEnded { value in
                 if value.translation.height > 100 {
-                    ViewStore(store, observe: { $0 }).send(.userLeftMangaReadingView)
+                    store.send(.userLeftMangaReadingView)
                 }
             }
     }
@@ -247,7 +247,7 @@ extension OfflineMangaReadingView {
     
     private var backButton: some View {
         Button {
-            ViewStore(store, observe: { $0 }).send(.userLeftMangaReadingView)
+            store.send(.userLeftMangaReadingView)
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)

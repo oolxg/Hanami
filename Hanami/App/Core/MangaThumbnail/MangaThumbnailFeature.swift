@@ -48,8 +48,6 @@ struct MangaThumbnailFeature: Reducer {
     
     enum Action {
         case onAppear
-        case thumbnailInfoLoaded(Result<Response<CoverArtInfo>, AppError>)
-        case mangaStatisticsFetched(Result<MangaStatisticsContainer, AppError>)
         case onlineMangaAction(OnlineMangaFeature.Action)
         case offlineMangaAction(OfflineMangaFeature.Action)
         case navLinkValueDidChange(to: Bool)
@@ -57,60 +55,15 @@ struct MangaThumbnailFeature: Reducer {
     
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                guard state.thumbnailURL.isNil else { return .none }
+                guard state.thumbnailURL.isNil, state.online == false else { return .none }
                 
-                if state.online, let coverArtID = state.manga.coverArtID {
-                    return .run { send in
-                        let result = await mangaClient.fetchCoverArtInfo(for: coverArtID)
-                        await send(.thumbnailInfoLoaded(result))
-                    }
-                } else {
-                    state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(for: state.manga.id)
-                    
-                    return .none
-                }
-                
-            case .mangaStatisticsFetched(let result):
-                switch result {
-                case .success(let response):
-                    state.onlineMangaState!.statistics = response.statistics[state.manga.id]
-                    
-                    return .none
-                    
-                case .failure(let error):
-                    logger.error(
-                        "Failed to load manga statistics: \(error)",
-                        context: [
-                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                            "mangaName": "\(state.manga.title)"
-                        ]
-                    )
-                    return .none
-                }
-                
-            case .thumbnailInfoLoaded(let result):
-                switch result {
-                case .success(let response):
-                    state.onlineMangaState!.mainCoverArtURL = response.data.coverArtURL
-                    state.onlineMangaState!.coverArtURL256 = response.data.coverArtURL256
-                    return .none
-                    
-                case .failure(let error):
-                    logger.error(
-                        "Failed to load thumbnail info: \(error)",
-                        context: [
-                            "mangaID": "\(state.manga.id.uuidString.lowercased())",
-                            "mangaName": "\(state.manga.title)"
-                        ]
-                    )
-                    return .none
-                }
+                state.offlineMangaState!.coverArtPath = mangaClient.getCoverArtPath(for: state.manga.id)
+                return .none
                 
             case .offlineMangaAction(.pagesAction(.userDeletedAllCachedChapters)):
                 state.isMangaViewPresented = false

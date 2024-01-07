@@ -189,7 +189,6 @@ struct PagesFeature: Reducer {
         case volumeTabAction(volumeID: UUID, volumeAction: VolumeTabFeature.Action)
     }
     
-    @Dependency(\.mainQueue) private var mainQueue
     @Dependency(\.mangaClient) private var mangaClient
     
     var body: some Reducer<State, Action> {

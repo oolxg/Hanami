@@ -18,7 +18,6 @@ struct FiltersView: View {
     @State private var showGenresFiltersPage = false
     
     private struct ViewState: Equatable {
-        let isAnyFilterApplied: Bool
         let mangaStatuses: IdentifiedArrayOf<FiltersFeature.MangaStatus>
         let contentRatings: IdentifiedArrayOf<FiltersFeature.ContentRatings>
         let publicationDemographics: IdentifiedArrayOf<FiltersFeature.PublicationDemographic>
@@ -26,7 +25,6 @@ struct FiltersView: View {
         let isContentTypesLoaded: Bool
         
         init(state: FiltersFeature.State) {
-            isAnyFilterApplied = state.isAnyFilterApplied
             mangaStatuses = state.mangaStatuses
             contentRatings = state.contentRatings
             publicationDemographics = state.publicationDemographics
@@ -49,7 +47,7 @@ struct FiltersView: View {
         .transition(.opacity)
         .autoBlur(radius: blurRadius)
         .onAppear {
-            ViewStore(store, observe: { $0 }).send(.fetchFilterTagsIfNeeded)
+            store.send(.fetchFilterTagsIfNeeded)
         }
     }
 }
@@ -57,8 +55,8 @@ struct FiltersView: View {
 extension FiltersView {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            WithViewStore(store, observe: ViewState.init) { viewStore in
-                if viewStore.isAnyFilterApplied {
+            WithViewStore(store, observe: \.isAnyFilterApplied) { viewStore in
+                if viewStore.state {
                     Button {
                         viewStore.send(.resetFilterButtonPressed)
                     } label: {

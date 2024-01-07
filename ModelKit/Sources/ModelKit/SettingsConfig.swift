@@ -12,7 +12,6 @@ public struct SettingsConfig: Codable, Equatable {
     public var blurRadius: Double
     public var useHigherQualityImagesForOnlineReading: Bool
     public var useHigherQualityImagesForCaching: Bool
-    // 0 - system, 1 - light, 2 - dark
     public var colorScheme: ColorScheme
     public var readingFormat: ReadingFormat
     public var readingLanguage: ISO639Language

@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import HUD
+import Utils
 
 struct RootView: View {
     let store: StoreOf<RootFeature>
@@ -20,7 +21,7 @@ struct RootView: View {
         
         init(state: RootFeature.State) {
             selectedTab = state.selectedTab
-            blurRadius = state.isAppLocked ? state.settingsState.blurRadius : 0.00001
+            blurRadius = state.isAppLocked ? state.settingsState.blurRadius : Defaults.Security.minBlurRadius
         }
     }
     

@@ -21,21 +21,15 @@ struct MangaThumbnailView: View {
     private struct ViewState: Equatable {
         let online: Bool
         let manga: Manga
-        let mangaStatistics: MangaStatistics?
-        let thumbnailURL: URL?
-        let isMangaViewPresented: Bool
         
         init(state: MangaThumbnailFeature.State) {
             online = state.online
             manga = state.manga
-            mangaStatistics = state.mangaStatistics
-            thumbnailURL = state.thumbnailURL
-            isMangaViewPresented = state.isMangaViewPresented
         }
     }
     
     var body: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.isMangaViewPresented) { viewStore in
             HStack(alignment: .top, spacing: 0) {
                 coverArt
                 
@@ -58,10 +52,10 @@ struct MangaThumbnailView: View {
                     .stroke(lineWidth: 1.5)
                     .fill(colorScheme == .light ? .black : .clear)
             }
+            .onAppear { viewStore.send(.onAppear) }
             .onTapGesture { viewStore.send(.navLinkValueDidChange(to: true)) }
             .fullScreenCover(
                 isPresented: viewStore.binding(
-                    get: \.isMangaViewPresented,
                     send: MangaThumbnailFeature.Action.navLinkValueDidChange
                 )
             ) {
@@ -91,13 +85,12 @@ extension MangaThumbnailView {
                         .font(.footnote)
                 }
             }
-            .onAppear { viewStore.send(.onAppear) }
         }
     }
     
     private var coverArt: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            KFImage(viewStore.thumbnailURL)
+        WithViewStore(store, observe: \.thumbnailURL) { viewStore in
+            KFImage(viewStore.state)
                 .retry(maxCount: 2, interval: .seconds(3))
                 .placeholder {
                     Color.theme.darkGray
@@ -113,8 +106,8 @@ extension MangaThumbnailView {
     }
     
     private var mangaView: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            if viewStore.online {
+        WithViewStore(store, observe: \.online) { viewStore in
+            if viewStore.state {
                 OnlineMangaView(
                     store: store.scope(
                         state: \.onlineMangaState!,
@@ -137,49 +130,53 @@ extension MangaThumbnailView {
     }
     
     private var statistics: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.mangaStatistics) { viewStore in
             WrappingHStack(alignment: .leading, lineSpacing: 10) {
                 HStack(alignment: .top, spacing: 0) {
                     Image(systemName: "star.fill")
 
                     ZStack {
-                        if let rating = viewStore.mangaStatistics?.rating {
+                        if let rating = viewStore.state?.rating {
                             Text(rating.average?.clean(accuracy: 2) ?? rating.bayesian.clean(accuracy: 2))
                         } else {
                             Text(String.placeholder(length: 3))
                         }
                     }
-                    .redacted(if: viewStore.mangaStatistics.isNil)
+                    .redacted(if: viewStore.state.isNil)
                 }
                 
                 HStack(alignment: .top, spacing: 0) {
                     Image(systemName: "bookmark.fill")
 
                     ZStack {
-                        if let followsCount = viewStore.mangaStatistics?.follows.abbreviation {
+                        if let followsCount = viewStore.state?.follows.abbreviation {
                             Text(followsCount)
                         } else {
                             Text(String.placeholder(length: 7))
                                 .redacted(reason: .placeholder)
                         }
                     }
-                    .redacted(if: viewStore.mangaStatistics.isNil)
+                    .redacted(if: viewStore.state.isNil)
                 }
                 
-                HStack(spacing: 5) {
-                    let status = viewStore.manga.attributes.status
-                    
-                    Circle()
-                        .fill(status.color)
-                        .frame(width: 10, height: 10)
-                        .padding(0)
-                    
-                    Text(status.rawValue.capitalized)
-                        .foregroundColor(.theme.foreground)
-                        .fontWeight(.semibold)
-                }
+                mangaStatus
             }
             .font(.footnote)
+        }
+    }
+    
+    private var mangaStatus: some View {
+        WithViewStore(store, observe: \.manga.attributes.status) { viewStore in
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(viewStore.state.color)
+                    .frame(width: 10, height: 10)
+                    .padding(0)
+                
+                Text(viewStore.state.rawValue.capitalized)
+                    .foregroundColor(.theme.foreground)
+                    .fontWeight(.semibold)
+            }
         }
     }
 }

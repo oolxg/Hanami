@@ -57,7 +57,6 @@ struct SearchFeature {
     @Dependency(\.hud) private var hud
     @Dependency(\.mangaClient) private var mangaClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
     
     var body: some Reducer<State, Action> {
         BindingReducer()

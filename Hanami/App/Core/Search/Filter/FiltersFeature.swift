@@ -65,7 +65,6 @@ struct FiltersFeature: Reducer {
     @Dependency(\.hapticClient) private var hapticClient
     @Dependency(\.searchClient) private var searchClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {

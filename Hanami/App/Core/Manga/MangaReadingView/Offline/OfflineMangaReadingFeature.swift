@@ -63,7 +63,6 @@ struct OfflineMangaReadingFeature: Reducer {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
@@ -144,7 +143,7 @@ struct OfflineMangaReadingFeature: Reducer {
                 } else {
                     return .run { await $0(.moveToPreviousChapter) }
                 }
-            // we reached most right book of chapter
+            // we reached most right page of chapter
             } else if newPageIndex == state.mostRightPageIndex {
                 if state.readingFormat == .rightToLeft {
                     return .run { await $0(.moveToPreviousChapter) }
@@ -169,7 +168,7 @@ struct OfflineMangaReadingFeature: Reducer {
             
             let chapter = state.sameScanlationGroupChapters[chapterIndex]
             
-            guard let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(byID: chapter.id)?.pagesCount else {
                 hud.show(message: "🙁 Internal error occured.")
                 return .run { await $0(.userLeftMangaReadingView) }
             }
@@ -199,7 +198,7 @@ struct OfflineMangaReadingFeature: Reducer {
             }
             
             let nextChapter = state.sameScanlationGroupChapters[nextChapterIndex]
-            guard let pagesCount = databaseClient.retrieveChapter(chapterID: nextChapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(byID: nextChapter.id)?.pagesCount else {
                 hud.show(message: "🙁 Internal error occured.")
                 return .run { await $0(.userLeftMangaReadingView) }
             }
@@ -230,7 +229,7 @@ struct OfflineMangaReadingFeature: Reducer {
             
             let previousChapter = state.sameScanlationGroupChapters[previousChapterIndex]
             
-            guard let pagesCount = databaseClient.retrieveChapter(chapterID: previousChapter.id)?.pagesCount else {
+            guard let pagesCount = databaseClient.retrieveChapter(byID: previousChapter.id)?.pagesCount else {
                 hud.show(message: "🙁 Internal error occured.")
                 return .run { await $0(.userLeftMangaReadingView) }
             }

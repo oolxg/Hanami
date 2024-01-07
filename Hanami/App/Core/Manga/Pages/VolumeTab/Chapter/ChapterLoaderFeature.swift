@@ -56,7 +56,6 @@ struct ChapterLoaderFeature: Reducer {
     @Dependency(\.hud) private var hud
     @Dependency(\.logger) private var logger
     @Dependency(\.mangaClient) private var mangaClient
-    @Dependency(\.mainQueue) private var mainQueue
     
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
@@ -135,7 +134,7 @@ struct ChapterLoaderFeature: Reducer {
             
             cacheClient.removeCachedChapterIDFromMemory(for: state.parentManga.id, chapterID: chapterID)
             
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapterID)?.pagesCount {
+            if let pagesCount = databaseClient.retrieveChapter(byID: chapterID)?.pagesCount {
                 mangaClient.removeCachedPagesForChapter(chapterID, pagesCount: pagesCount)
             }
             
@@ -156,12 +155,12 @@ struct ChapterLoaderFeature: Reducer {
             
             // need to retrieve `SettingsConfig` each time, because user can update it and we have no listeners on this updates
             return .run { send in
-                    let settingsConfigResult = await settingsClient.retireveSettingsConfig()
-                    await send(.settingsConfigRetrieved(settingsConfigResult))
-                    
-                    let pagesInfoResult = await mangaClient.fetchPagesInfo(for: chapter.id)
-                    await send(.pagesInfoForChapterCachingFetched(pagesInfoResult, chapter))
-                }
+                let settingsConfigResult = await settingsClient.retireveSettingsConfig()
+                await send(.settingsConfigRetrieved(settingsConfigResult))
+                
+                let pagesInfoResult = await mangaClient.fetchPagesInfo(for: chapter.id)
+                await send(.pagesInfoForChapterCachingFetched(pagesInfoResult, chapter))
+            }
             
         case .settingsConfigRetrieved(let result):
             switch result {
@@ -193,7 +192,6 @@ struct ChapterLoaderFeature: Reducer {
                     pagesCount: pagesURLs.count,
                     parentManga: state.parentManga
                 )
-
                 
                 return .run { send in
                     for (i, pageURL) in pagesURLs.enumerated() {
@@ -234,7 +232,6 @@ struct ChapterLoaderFeature: Reducer {
                 
                 return .cancel(id: CancelChapterCache(id: chapter.id))
             }
-            
             
         case .chapterPageForCachingFetched(.success(let chapterPage), let chapter, let pageIndex):
             let chapterState = state.cachedChaptersStates.first(where: { $0.id == chapter.id })!
@@ -283,7 +280,7 @@ struct ChapterLoaderFeature: Reducer {
                 )
             )
             
-            if let pagesCount = databaseClient.retrieveChapter(chapterID: chapter.id)?.pagesCount {
+            if let pagesCount = databaseClient.retrieveChapter(byID: chapter.id)?.pagesCount {
                 mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount)
             }
             

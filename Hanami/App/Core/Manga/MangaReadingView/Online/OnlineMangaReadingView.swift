@@ -85,9 +85,9 @@ struct OnlineMangaReadingView: View {
 
 extension OnlineMangaReadingView {
     private var verticalReader: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            if !viewStore.pagesURLs.isEmpty {
-                VerticalReaderView(pagesURLs: viewStore.pagesURLs)
+        WithViewStore(store, observe: \.pagesURLs) { viewStore in
+            if let pagesURLs = viewStore.state {
+                VerticalReaderView(pagesURLs: pagesURLs)
             } else {
                 Color.theme.background.frame(maxHeight: .infinity)
             }
@@ -137,7 +137,7 @@ extension OnlineMangaReadingView {
     
     private var backButton: some View {
         Button {
-            ViewStore(store, observe: { $0 }).send(.userLeftMangaReadingView)
+            store.send(.userLeftMangaReadingView)
         } label: {
             Image(systemName: "xmark")
                 .font(.title3)
@@ -263,7 +263,7 @@ extension OnlineMangaReadingView {
         DragGesture(minimumDistance: 100, coordinateSpace: .local)
             .onEnded { value in
                 if value.translation.height > 100 {
-                    ViewStore(store, observe: { $0 }).send(.userLeftMangaReadingView)
+                    store.send(.userLeftMangaReadingView)
                 }
             }
     }

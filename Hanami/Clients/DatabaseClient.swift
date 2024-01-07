@@ -324,7 +324,7 @@ extension DatabaseClient {
     ///
     /// - Parameter chapterID: chapter's `UUID` to be found in DB
     /// - Returns: `CachedChapterEntry?` - nil if nothing was found or struct with `ChapterDetails` and number of pages in this chapter
-    func retrieveChapter(chapterID: UUID) -> CoreDataChapterDetailsEntry? {
+    func retrieveChapter(byID chapterID: UUID) -> CoreDataChapterDetailsEntry? {
         guard let chapterMO = fetch(entityType: ChapterDetailsMO.self, id: chapterID) else {
             return nil
         }

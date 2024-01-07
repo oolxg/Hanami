@@ -51,7 +51,6 @@ struct SettingsFeature {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.logger) private var logger
-    @Dependency(\.mainQueue) private var mainQueue
     @Dependency(\.cacheClient) private var cacheClient
     @Dependency(\.imageClient) private var imageClient
 

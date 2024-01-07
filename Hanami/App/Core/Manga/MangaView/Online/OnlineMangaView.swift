@@ -12,17 +12,19 @@ import PopupView
 import ModelKit
 import UIComponents
 import Utils
+import HUD
 
 struct OnlineMangaView: View {
     private let store: StoreOf<OnlineMangaFeature>
     private let blurRadius: CGFloat
     @State private var headerOffset: CGFloat = 0
     @State private var showFirstChaptersPopup = false
-    @State private var showChapterLoaderSheet = false
+    @State private var headerOverlayGradientColor = Color.clear
     @Namespace private var tabAnimationNamespace
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var hud = HUD.liveValue
     
     private var isCoverArtDisappeared: Bool {
         headerOffset <= -450
@@ -45,9 +47,9 @@ struct OnlineMangaView: View {
         let areChaptersFetched: Bool
         let firstChapterOptions: [ChapterDetails]?
         let isMangaReadingViewPresented: Bool
-        let isErrorOccured: Bool
         let showAuthorView: Bool
-        let showRealtedTab: Bool
+        let showRelatedTab: Bool
+        let relatedMangaCount: Int
         
         init(state: OnlineMangaFeature.State) {
             manga = state.manga
@@ -61,9 +63,9 @@ struct OnlineMangaView: View {
             areChaptersFetched = state.pagesState.hasValue
             firstChapterOptions = state.firstChapterOptions
             isMangaReadingViewPresented = state.isMangaReadingViewPresented
-            isErrorOccured = state.isErrorOccured
             showAuthorView = state.showAuthorView
-            showRealtedTab = state.relatedMangaFetched && !state.relatedMangaThumbnailStates.isEmpty
+            showRelatedTab = state.relatedMangaFetched && !state.relatedMangaThumbnailStates.isEmpty
+            relatedMangaCount = state.relatedMangaThumbnailStates.count
         }
     }
     
@@ -81,17 +83,6 @@ struct OnlineMangaView: View {
                             pinnedNavigation
                         } footer: {
                             footer
-                        }
-                        .sheet(isPresented: $showChapterLoaderSheet) {
-                            IfLetStore(
-                                store.scope(
-                                    state: \.chapterLoaderState,
-                                    action: OnlineMangaFeature.Action.chapterLoaderAcion
-                                )
-                            ) { loaderStore in
-                                MangaChapterLoaderView(store: loaderStore)
-                                    .environment(\.colorScheme, colorScheme)
-                            }
                         }
                     }
                     .onChange(of: viewStore.selectedTab) { _ in
@@ -145,20 +136,26 @@ struct OnlineMangaView: View {
             }
             .tint(.theme.accent)
             .background(Color.theme.background)
+            .hud(
+                isPresented: $hud.isPresented,
+                message: hud.message,
+                iconName: hud.iconName,
+                backgroundColor: hud.backgroundColor
+            )
         }
     }
 }
 
 extension OnlineMangaView {
     private var firstChaptersOptions: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.firstChapterOptions) { viewStore in
             VStack(alignment: .center) {
                 Text("Available chapters")
                     .fontWeight(.bold)
                     .font(.title3)
                     .padding(.bottom, 10)
                 
-                ForEach(viewStore.firstChapterOptions ?? []) { chapter in
+                ForEach(viewStore.state ?? []) { chapter in
                     LazyVStack(alignment: .leading) {
                         HStack(alignment: .bottom) {
                             Text(chapter.chapterName)
@@ -207,22 +204,22 @@ extension OnlineMangaView {
     }
 
     private var footer: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.pagesState.hasValue) { viewStore in
             HStack(spacing: 0) {
                 Text("All information on this page provided by ")
                 
                 Text("MANGADEX")
                     .fontWeight(.semibold)
                     .onTapGesture {
-                        openURL(Defaults.Links.mangaDexTitleLink(mangaID: viewStore.manga.id))
+                        viewStore.send(.userDidTapOnMangaDEXFooter)
                     }
             }
             .font(.caption2)
             .foregroundColor(.gray)
             .padding(.horizontal)
-            .padding(.bottom, viewStore.areChaptersFetched ? 50 : 5)
-            .opacity(viewStore.areChaptersFetched ? 1 : 0)
-            .animation(.linear, value: viewStore.areChaptersFetched)
+            .padding(.bottom, viewStore.state ? 50 : 5)
+            .opacity(viewStore.state ? 1 : 0)
+            .animation(.linear, value: viewStore.state)
         }
     }
     
@@ -251,6 +248,11 @@ extension OnlineMangaView {
                     .placeholder {
                         KFImage(viewStore.thumbnailCoverArtURL)
                             .onlyFromCache()
+                            .onSuccess { result in
+                                if let avgColor = result.image.averageColor {
+                                    headerOverlayGradientColor = Color(uiColor: avgColor)
+                                }
+                            }
                             .resizable()
                             .scaledToFill()
                     }
@@ -267,13 +269,14 @@ extension OnlineMangaView {
     }
     
     private var headerOverlay: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.manga) { viewStore in
             ZStack(alignment: .bottom) {
                 LinearGradient(
-                    colors: [ .theme.background.opacity(0.1), .theme.background.opacity(0.8) ],
+                    colors: [ headerOverlayGradientColor.opacity(0.1), headerOverlayGradientColor.opacity(0.8) ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                .animation(.linear, value: headerOverlayGradientColor)
                 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .bottom) {
@@ -281,33 +284,27 @@ extension OnlineMangaView {
                         
                         Spacer()
                         
-//                        chapterLoaderButton
-                        
                         refreshButton
                     }
                     
                     Spacer()
                     
                     HStack {
-                        Text("MANGA")
-                            .font(.callout)
-                            .foregroundColor(.gray)
-                        
                         HStack(spacing: 5) {
                             Circle()
-                                .fill(viewStore.manga.attributes.status.color)
+                                .fill(viewStore.state.attributes.status.color)
                                 .frame(width: 10, height: 10)
                                 // circle disappears on scroll down, 'drawingGroup' helps to fix it
                                 .drawingGroup()
                             
-                            Text(viewStore.manga.attributes.status.rawValue.capitalized)
+                            Text(viewStore.state.attributes.status.rawValue.capitalized)
                                 .foregroundColor(Color.theme.foreground)
                                 .fontWeight(.semibold)
                         }
                         .font(.subheadline)
                     }
                     
-                    Text(viewStore.manga.title)
+                    Text(viewStore.state.title)
                         .font(.title.bold())
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(5)
@@ -331,8 +328,8 @@ extension OnlineMangaView {
     }
     
     private var mangaBodyView: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            switch viewStore.selectedTab {
+        WithViewStore(store, observe: \.selectedTab) { viewStore in
+            switch viewStore.state {
             case .chapters:
                 IfLetStore(
                     store.scope(
@@ -347,7 +344,6 @@ extension OnlineMangaView {
                     }
                 )
                 .environment(\.colorScheme, colorScheme)
-                .animation(nil, value: viewStore.areChaptersFetched)
             case .info:
                 aboutTab
             case .coverArt:
@@ -360,7 +356,7 @@ extension OnlineMangaView {
     }
     
     private var relatedTab: some View {
-        LazyVStack {
+        LazyVStack(spacing: 10) {
             ForEachStore(
                 store.scope(
                     state: \.relatedMangaThumbnailStates,
@@ -373,8 +369,8 @@ extension OnlineMangaView {
     }
     
     private var chaptersNotLoadedView: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
-            if viewStore.isErrorOccured {
+        WithViewStore(store, observe: \.isErrorOccured) { viewStore in
+            if viewStore.state {
                 errorMessage
             } else {
                 ProgressView()
@@ -385,9 +381,6 @@ extension OnlineMangaView {
     private var errorMessage: some View {
         VStack(alignment: .center) {
             Text("There's some error...")
-                .fontWeight(.bold)
-
-            Text("Sorry...")
                 .fontWeight(.bold)
 
             Text("👉👈")
@@ -517,7 +510,7 @@ extension OnlineMangaView {
     }
     
     private var tags: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.manga) { viewStore in
             VStack(alignment: .leading, spacing: 15) {
                 Text("Tags")
                     .font(.headline)
@@ -526,7 +519,7 @@ extension OnlineMangaView {
                 Divider()
                 
                 FlexibleView(
-                    data: viewStore.manga.attributes.tags,
+                    data: viewStore.state.attributes.tags,
                     spacing: 10,
                     alignment: .leading
                 ) { tag in
@@ -534,7 +527,7 @@ extension OnlineMangaView {
                 }
                 .padding(.horizontal, 5)
                 
-                if let demographic = viewStore.manga.attributes.publicationDemographic?.rawValue {
+                if let demographic = viewStore.state.attributes.publicationDemographic?.rawValue {
                     VStack(alignment: .leading) {
                         Text("Demographic")
                             .font(.headline)
@@ -573,22 +566,9 @@ extension OnlineMangaView {
         .font(.title3)
     }
     
-    private var chapterLoaderButton: some View {
-        Button {
-            ViewStore(store, observe: { _ in 0 }).send(.userTappedOnChapterLoaderButton)
-            showChapterLoaderSheet = true
-        } label: {
-            Image(systemName: "arrow.down.to.line.circle")
-                .foregroundColor(Color.theme.foreground)
-                .padding(.vertical)
-        }
-        .transition(.opacity)
-        .font(.title3)
-    }
-    
     private var refreshButton: some View {
         Button {
-            ViewStore(store, observe: { _ in 0 }).send(.refreshButtonTapped)
+            store.send(.refreshButtonTapped)
         } label: {
             Image(systemName: "arrow.clockwise")
                 .foregroundColor(Color.theme.foreground)
@@ -610,12 +590,12 @@ extension OnlineMangaView {
                 
                 WithViewStore(store, observe: ViewState.init) { viewStore in
                     VStack {
-                        if viewStore.showRealtedTab {
+                        if viewStore.showRelatedTab {
                             makeTabLabel(for: .related)
                                 .transition(.opacity)
                         }
                     }
-                    .animation(.linear, value: viewStore.showRealtedTab)
+                    .animation(.linear, value: viewStore.showRelatedTab)
                 }
             }
             .offset(x: isCoverArtDisappeared ? 0 : -40)
@@ -660,14 +640,14 @@ extension OnlineMangaView {
     
     /// Makes label for navigation through MangaView
     private func makeTabLabel(for tab: OnlineMangaFeature.Tab) -> some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.selectedTab) { viewStore in
             VStack(spacing: 12) {
                 Text(tab.rawValue)
                     .fontWeight(.semibold)
-                    .foregroundColor(viewStore.selectedTab == tab ? .theme.foreground : .gray)
+                    .foregroundColor(viewStore.state == tab ? .theme.foreground : .gray)
                 
                 ZStack {
-                    if viewStore.selectedTab == tab {
+                    if viewStore.state == tab {
                         RoundedRectangle(cornerRadius: 4, style: .continuous)
                             .fill(Color.theme.foreground)
                             .matchedGeometryEffect(id: "tab", in: tabAnimationNamespace)

@@ -35,7 +35,8 @@ struct ChapterView: View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             DisclosureGroup(
                 isExpanded: viewStore.binding(
-                    get: \.areChaptersShown, send: .fetchChapterDetailsIfNeeded
+                    get: \.areChaptersShown,
+                    send: .fetchChapterDetailsIfNeeded
                 )
             ) {
                 disclosureGroupBody
@@ -45,9 +46,7 @@ struct ChapterView: View {
             .buttonStyle(.plain)
             .animation(.linear, value: viewStore.chapterDetailsList.isEmpty)
             .padding(5)
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
+            .onAppear { viewStore.send(.onAppear) }
             
             Divider()
         }
@@ -97,16 +96,16 @@ extension ChapterView {
     }
     
     private var disclosureGroupBody: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        WithViewStore(store, observe: \.chapterDetailsList) { viewStore in
             LazyVStack {
-                if viewStore.chapterDetailsList.isEmpty {
+                if viewStore.state.isEmpty {
                     ProgressView()
                         .frame(width: 40, height: 40)
                         .padding()
                         .transition(.opacity)
                 } else {
                     ForEach(
-                        viewStore.chapterDetailsList,
+                        viewStore.state,
                         content: makeChapterDetailsView
                     )
                     .transition(.opacity)
@@ -138,7 +137,7 @@ extension ChapterView {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            ViewStore(store, observe: { $0 }).send(.userTappedOnChapterDetails(chapter))
+            store.send(.userTappedOnChapterDetails(chapter))
         }
     }
     

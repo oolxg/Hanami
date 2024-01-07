@@ -7,6 +7,7 @@
 
 import Foundation
 import ComposableArchitecture
+@preconcurrency
 import ModelKit
 import Utils
 import Logger
@@ -37,7 +38,6 @@ struct AuthorFeature: Reducer {
     @Dependency(\.homeClient) var homeClient
     @Dependency(\.mangaClient) var mangaClient
     @Dependency(\.logger) var logger
-    @Dependency(\.mainQueue) var mainQueue
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in

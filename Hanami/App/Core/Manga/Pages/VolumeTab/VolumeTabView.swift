@@ -24,10 +24,28 @@ struct VolumeTabView: View {
     }
 
     var body: some View {
-        WithViewStore(store, observe: ViewState.init) { viewStore in
+        Group {
+            volumeHeader
+            
+            ForEachStore(
+                store.scope(
+                    state: \.chapterStates,
+                    action: VolumeTabFeature.Action.chapterAction
+                ),
+                content: ChapterView.init
+            )
+            .padding(.leading, 5)
+        }
+        .padding(.leading, 10)
+    }
+}
+
+extension VolumeTabView {
+    private var volumeHeader: some View {
+        WithViewStore(store, observe: \.volume.volumeName) { viewStore in
             VStack {
                 HStack {
-                    Text(viewStore.volumeName)
+                    Text(viewStore.state)
                         .font(.title2)
                         .fontWeight(.medium)
                     
@@ -42,24 +60,10 @@ struct VolumeTabView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.trailing, 5)
-            
-            VStack {
-                ForEachStore(
-                    store.scope(
-                        state: \.chapterStates,
-                        action: VolumeTabFeature.Action.chapterAction
-                    ),
-                    content: ChapterView.init
-                )
-                .padding(.leading, 5)
-            }
         }
-        .padding(.leading, 10)
     }
-}
-
-extension VolumeTabView {
-    var chapterIndexesList: some View {
+    
+    private var chapterIndexesList: some View {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack {
                 if !viewStore.splitChapterIndexes.isEmpty {

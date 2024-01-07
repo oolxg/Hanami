@@ -161,11 +161,11 @@ extension SettingsView {
         Section {
             WithViewStore(store, observe: { $0 }) { viewStore in
                 Picker("Theme", selection: viewStore.$colorScheme) {
-                    Text("System").tag(0)
+                    Text("System").tag(SettingsConfig.ColorScheme.default)
                     
-                    Text("Light").tag(1)
+                    Text("Light").tag(SettingsConfig.ColorScheme.light)
                     
-                    Text("Dark").tag(2)
+                    Text("Dark").tag(SettingsConfig.ColorScheme.dark)
                 }
                 .pickerStyle(.menu)
             }

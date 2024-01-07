@@ -116,7 +116,7 @@ public struct CacheClient: DependencyKey {
     }
     
     public func retrieveFromMemoryCachedChapters(for mangaID: UUID) async throws -> Set<UUID> {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             cacheQueue.async {
                 if let cachedChapterIDs = try? cachedChapterIDsStorage.object(forKey: mangaID) {
                     continuation.resume(returning: cachedChapterIDs)

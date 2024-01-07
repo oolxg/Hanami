@@ -14,7 +14,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.5.6"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
         .package(path: "../ModelKit")
     ],
     targets: [
@@ -24,7 +24,7 @@ let package = Package(
             name: "HomeClient",
             dependencies: [
                 .product(name: "ModelKit", package: "ModelKit"),
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+                .product(name: "Dependencies", package: "swift-dependencies"),
             ]
         ),
         .testTarget(
