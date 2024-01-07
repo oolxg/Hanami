@@ -24,7 +24,7 @@ let package = Package(
             name: "HomeClient",
             dependencies: [
                 .product(name: "ModelKit", package: "ModelKit"),
-                .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "Dependencies", package: "swift-dependencies")
             ]
         ),
         .testTarget(

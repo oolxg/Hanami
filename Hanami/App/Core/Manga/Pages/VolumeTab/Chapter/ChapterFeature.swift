@@ -121,7 +121,10 @@ struct ChapterFeature {
                             // chapter is not cached, need to fetch
                             effects.append(
                                 .run { send in
-                                    try await withTaskCancellation(id: CancelChapterFetch(id: chapterID), cancelInFlight: true) {
+                                    try await withTaskCancellation(
+                                        id: CancelChapterFetch(id: chapterID),
+                                        cancelInFlight: true
+                                    ) {
                                         let result = await mangaClient.fetchChapterDetails(for: chapterID)
                                         try await Task.sleep(seconds: 0.3)
                                         await send(.chapterDetailsFetched(result))
