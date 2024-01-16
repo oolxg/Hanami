@@ -125,7 +125,7 @@ struct SearchFeature {
                 return .cancel(id: CancelSearch())
                 
             case .searchForManga:
-                guard !state.searchText.isEmpty else {
+                guard !state.searchText.isEmpty || state.filtersState.isAnyFilterApplied else {
                     return .run { await $0(.cancelSearchButtonTapped) }
                 }
                 
@@ -172,7 +172,7 @@ struct SearchFeature {
                     let result = await mangaClient.fetchStatistics(for: response.data.map(\.id))
                     await send(.mangaStatisticsFetched(result))
                     
-                    if let searchParams {
+                    if let searchParams, !searchParams.searchQuery.isEmpty {
                         await send(.updateSearchHistory(searchParams))
                     }
                 }

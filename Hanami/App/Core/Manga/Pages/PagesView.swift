@@ -123,7 +123,7 @@ extension PagesView {
                     .frame(width: 30, height: 30, alignment: .center)
                     .padding(7)
                     .background(Color.theme.accent)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(.rect(cornerRadius: 6))
             }
         }
     }
@@ -135,7 +135,7 @@ extension PagesView {
             .frame(width: 25, height: 25, alignment: .center)
             .padding(7)
             .background(bgColor)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(.rect(cornerRadius: 6))
             .onTapGesture {
                 store.send(.pageIndexButtonTapped(newPageIndex: pageIndex - 1))
             }

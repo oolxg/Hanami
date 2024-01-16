@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-import typealias IdentifiedCollections.IdentifiedArrayOf
 import Utils
 
 public struct VerticalReaderView: View {
@@ -19,7 +18,7 @@ public struct VerticalReaderView: View {
     // MARK: - END scroll view declaration props
     
     @State private var timeOut: CGFloat = 0.3
-    @State private var pages: IdentifiedArrayOf<Page>
+    @State private var pages: [Page]
     
     private struct Page: Identifiable {
         let url: URL?
@@ -30,20 +29,16 @@ public struct VerticalReaderView: View {
     }
     
     public init(pagesURLs: [URL?]) {
-        pages = IdentifiedArrayOf(
-            uniqueElements: pagesURLs
-                .enumerated()
-                .map { Page(url: $1, index: $0, height: 550) }
-        )
+        pages = pagesURLs
+            .enumerated()
+            .map { Page(url: $1, index: $0, height: 550) }
     }
     
     public var body: some View {
         GeometryReader { geo in
             ScrollView(showsIndicators: true) {
                 LazyVStack(spacing: 0) {
-                    ForEach(pages) { page in
-                        cell(for: page)
-                    }
+                    ForEach(pages, content: cell)
                 }
                 .offset { rect in
                     // MARK: Whenever scrolling does resetting timer
@@ -147,7 +142,7 @@ public struct VerticalReaderView: View {
 }
 
 extension View {
-    @ViewBuilder func offset(completion: @escaping (CGRect) -> Void) -> some View {
+    @ViewBuilder internal func offset(completion: @escaping (CGRect) -> Void) -> some View {
         self
             .overlay {
                 GeometryReader { geo in

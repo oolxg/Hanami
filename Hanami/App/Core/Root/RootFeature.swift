@@ -86,10 +86,11 @@ struct RootFeature {
                     guard state.isAppLocked else { return .none }
                     
                     return .run { send in
-                        let result = await authClient.makeAuth()
-                        await send(.appAuthCompleted(result))
+                        await withTaskCancellation(id: CancelAuth(), cancelInFlight: true) {
+                            let result = await authClient.makeAuth()
+                            await send(.appAuthCompleted(result))
+                        }
                     }
-                    .cancellable(id: CancelAuth())
                     
                 @unknown default:
                     logger.info("New ScenePhase arrived!")
@@ -103,7 +104,7 @@ struct RootFeature {
                 }
                 
                 return .run { send in
-                    await withTaskCancellation(id: CancelAuth()) {
+                    await withTaskCancellation(id: CancelAuth(), cancelInFlight: true) {
                         let result = await authClient.makeAuth()
                         await send(.appAuthCompleted(result))
                     }

@@ -93,7 +93,7 @@ struct OfflineMangaFeature: Reducer {
                     state.pagesState = PagesFeature.State(
                         manga: state.manga,
                         chaptersDetailsList: chapters.map(\.chapter),
-                        chaptersPerPages: 10
+                        chaptersPerPage: 10
                     )
                     
                     cacheClient.replaceCachedChaptersInMemory(mangaID: state.manga.id, chapterIDs: chaptersIDsSet)

@@ -656,7 +656,7 @@ extension OnlineMangaView {
                 .padding(.horizontal, 4)
                 .frame(height: 6)
             }
-            .contentShape(Rectangle())
+            .contentShape(.rect)
             .onTapGesture {
                 viewStore.send(.navigationTabButtonTapped(tab), animation: .easeInOut)
             }

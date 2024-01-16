@@ -44,7 +44,6 @@ struct OnlineMangaViewLoaderFeature: Reducer {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         struct CancelChapterCache: Hashable { }
-
         switch action {
         case .downloadChapterButtonTapped:
             if databaseClient.retrieveChapter(byID: state.chapterID).isNil {
@@ -145,8 +144,7 @@ struct OnlineMangaViewLoaderFeature: Reducer {
                 mangaClient.removeCachedPagesForChapter(chapter.id, pagesCount: pagesCount)
             }
             
-            databaseClient
-                .deleteChapter(chapterID: chapter.id)
+            databaseClient.deleteChapter(chapterID: chapter.id)
             
             return .cancel(id: CancelChapterCache())
             

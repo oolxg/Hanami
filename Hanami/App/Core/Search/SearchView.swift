@@ -169,7 +169,7 @@ extension SearchView {
                                 Text(searchRequest.params.searchQuery)
                                     .font(.headline)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
+                                    .contentShape(.rect)
                                     .onTapGesture {
                                         viewStore.send(.userTappedOnSearchHistory(searchRequest))
                                     }

@@ -30,7 +30,7 @@ struct LocalizationSettingsView: View {
                                 .foregroundColor(.theme.accent)
                         }
                     }
-                    .contentShape(Rectangle())
+                    .contentShape(.rect)
                     .onTapGesture {
                         selectedLanugauge = lang
                         dismiss()

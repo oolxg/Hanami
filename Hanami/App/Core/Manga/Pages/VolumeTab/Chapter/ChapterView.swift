@@ -76,22 +76,14 @@ extension ChapterView {
                 
                 Spacer()
                 
-                if viewStore.chaptersCount > 1 {
-                    Text("\(viewStore.chaptersCount) translations")
-                        .foregroundColor(.theme.foreground)
-                        .font(.subheadline)
-                        .fontWeight(.thin)
-                        .padding(.vertical, 3)
-                } else {
-                    Text("1 translation")
-                        .foregroundColor(.theme.foreground)
-                        .font(.subheadline)
-                        .fontWeight(.thin)
-                        .padding(.vertical, 3)
-                }
+                Text("^[\(viewStore.chaptersCount) translation](inflect: true)")
+                    .foregroundColor(.theme.foreground)
+                    .font(.subheadline)
+                    .fontWeight(.thin)
+                    .padding(.vertical, 3)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+            .contentShape(.rect)
         }
     }
     
@@ -104,11 +96,8 @@ extension ChapterView {
                         .padding()
                         .transition(.opacity)
                 } else {
-                    ForEach(
-                        viewStore.state,
-                        content: makeChapterDetailsView
-                    )
-                    .transition(.opacity)
+                    ForEach(viewStore.state, content: makeChapterDetailsView)
+                        .transition(.opacity)
                 }
             }
         }
@@ -135,7 +124,7 @@ extension ChapterView {
                 .fill(Color.theme.foreground)
                 .frame(height: 1.5)
         }
-        .contentShape(Rectangle())
+        .contentShape(.rect)
         .onTapGesture {
             store.send(.userTappedOnChapterDetails(chapter))
         }

@@ -46,7 +46,7 @@ struct MangaThumbnailView: View {
                 }
             }
             .frame(height: 170)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: 12))
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(lineWidth: 1.5)
@@ -221,7 +221,7 @@ extension MangaThumbnailView {
             .frame(maxWidth: .infinity)
         }
         .frame(height: 170)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(lineWidth: 1.5)

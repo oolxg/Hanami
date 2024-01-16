@@ -65,7 +65,7 @@ struct PagesFeature: Reducer {
         }
         
         // MARK: - init for offline usage
-        init(manga: Manga, chaptersDetailsList: [ChapterDetails], chaptersPerPages: Int) {
+        init(manga: Manga, chaptersDetailsList: [ChapterDetails], chaptersPerPage: Int) {
             var volumesDict: [Double?: [ChapterDetails]] = [:]
             
             // splitting chapters into arrays according to 'chapter.attributes.volumeIndex'
@@ -143,7 +143,7 @@ struct PagesFeature: Reducer {
             self.init(
                 manga: manga,
                 mangaVolumes: volumes.map(\.volume),
-                chaptersPerPage: chaptersPerPages,
+                chaptersPerPage: chaptersPerPage,
                 online: false
             )
         }

@@ -40,12 +40,11 @@ struct VolumeTabFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .chapterAction(let chapterStateID, action: .downloaderAction(.chapterDeletionConfirmed)):
-                // we compare it to 1 because this action will fire before chapter deletion from `chapterDetailsList`
                 if state.chapterStates[id: chapterStateID]!.chapterDetailsList.isEmpty {
-                    let mangaID = state.chapterStates[id: chapterStateID]!.parentManga.id
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
+                        let mangaID = state.chapterStates[id: chapterStateID]!.parentManga.id
                         return .run { await $0(.userDeletedLastChapterInVolume(mangaID: mangaID)) }
                     }
                 }

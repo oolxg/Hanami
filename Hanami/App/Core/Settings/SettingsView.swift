@@ -31,7 +31,7 @@ struct SettingsView: View {
                 
                 Text("About")
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
+                    .contentShape(.rect)
                     .onTapGesture { showAboutSheet.toggle() }
                     .sheet(isPresented: $showAboutSheet) {
                         AboutView()
