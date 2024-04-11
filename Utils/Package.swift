@@ -16,7 +16,8 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
          .package(url: "https://github.com/devicekit/DeviceKit", from: "5.0.0"),
-         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1")
+         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
+         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -25,6 +26,7 @@ let package = Package(
             name: "Utils",
             dependencies: [
                 .product(name: "DeviceKit", package: "DeviceKit"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "Kingfisher", package: "Kingfisher")
             ]
         )

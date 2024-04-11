@@ -11,7 +11,8 @@ import ModelKit
 import Logger
 import ImageClient
 
-struct DownloadsFeature: Reducer {
+@Reducer
+struct DownloadsFeature {
     struct State: Equatable {
         var cachedMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var mangaEntries: IdentifiedArrayOf<CoreDataMangaEntry> = []

@@ -12,7 +12,8 @@ import Utils
 import Logger
 import MangaClient
 
-struct MangaThumbnailFeature: Reducer {
+@Reducer
+struct MangaThumbnailFeature {
     struct State: Equatable, Identifiable {
         init(manga: Manga, online: Bool = true) {
             if online {

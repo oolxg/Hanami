@@ -111,7 +111,7 @@ extension MangaThumbnailView {
                 OnlineMangaView(
                     store: store.scope(
                         state: \.onlineMangaState!,
-                        action: MangaThumbnailFeature.Action.onlineMangaAction
+                        action: \.onlineMangaAction
                     ),
                     blurRadius: blurRadius
                 )
@@ -120,7 +120,7 @@ extension MangaThumbnailView {
                 OfflineMangaView(
                     store: store.scope(
                         state: \.offlineMangaState!,
-                        action: MangaThumbnailFeature.Action.offlineMangaAction
+                        action: \.offlineMangaAction
                     ),
                     blurRadius: blurRadius
                 )

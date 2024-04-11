@@ -104,7 +104,7 @@ extension OfflineMangaView {
         IfLetStore(
             store.scope(
                 state: \.mangaReadingViewState,
-                action: OfflineMangaFeature.Action.mangaReadingViewAction
+                action: \.mangaReadingViewAction
             )
         ) { readingStore in
             OfflineMangaReadingView(
@@ -259,7 +259,7 @@ extension OfflineMangaView {
                 IfLetStore(
                     store.scope(
                         state: \.pagesState,
-                        action: OfflineMangaFeature.Action.pagesAction
+                        action: \.pagesAction
                     ),
                     then: PagesView.init
                 )

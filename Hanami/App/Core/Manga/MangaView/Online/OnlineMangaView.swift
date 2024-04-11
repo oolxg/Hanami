@@ -227,7 +227,7 @@ extension OnlineMangaView {
         IfLetStore(
             store.scope(
                 state: \.mangaReadingViewState,
-                action: OnlineMangaFeature.Action.mangaReadingViewAction
+                action: \.mangaReadingViewAction
             )
         ) { readingStore in
             OnlineMangaReadingView(
@@ -334,7 +334,7 @@ extension OnlineMangaView {
                 IfLetStore(
                     store.scope(
                         state: \.pagesState,
-                        action: OnlineMangaFeature.Action.pagesAction
+                        action: \.pagesAction
                     ),
                     then: PagesView.init,
                     else: {
@@ -478,7 +478,7 @@ extension OnlineMangaView {
                             IfLetStore(
                                 store.scope(
                                     state: \.authorViewState,
-                                    action: OnlineMangaFeature.Action.authorViewAction
+                                    action: \.authorViewAction
                                 )
                             ) { authorStore in
                                 AuthorView(

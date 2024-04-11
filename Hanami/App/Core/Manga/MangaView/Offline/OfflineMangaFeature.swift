@@ -12,7 +12,8 @@ import ModelKit
 import Logger
 import HUD
 
-struct OfflineMangaFeature: Reducer {
+@Reducer
+struct OfflineMangaFeature {
     struct State: Equatable {
         let manga: Manga
         var coverArtPath: URL?

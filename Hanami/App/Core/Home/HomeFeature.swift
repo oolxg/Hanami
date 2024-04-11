@@ -16,7 +16,8 @@ import HUD
 import HomeClient
 import HapticClient
 
-struct HomeFeature: Reducer {
+@Reducer
+struct HomeFeature {
     struct State: Equatable {
         var latestUpdatesMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []
         var seasonalMangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []

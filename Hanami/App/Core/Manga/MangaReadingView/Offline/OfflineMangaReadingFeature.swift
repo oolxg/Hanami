@@ -14,7 +14,8 @@ import ImageClient
 import SettingsClient
 import HUD
 
-struct OfflineMangaReadingFeature: Reducer {
+@Reducer
+struct OfflineMangaReadingFeature {
     struct State: Equatable {
         init(mangaID: UUID, chapter: ChapterDetails, pagesCount: Int, startFromLastPage: Bool) {
             self.mangaID = mangaID

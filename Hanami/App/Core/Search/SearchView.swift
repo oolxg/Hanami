@@ -84,7 +84,7 @@ struct SearchView: View {
                     FiltersView(
                         store: store.scope(
                             state: \.filtersState,
-                            action: SearchFeature.Action.filtersAction
+                            action: \.filtersAction
                         ),
                         blurRadius: blurRadius
                     )

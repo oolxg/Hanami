@@ -15,7 +15,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", from: "2.0.0"),
-        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.1.5"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2"),
         .package(path: "../Utils")
     ],
     targets: [

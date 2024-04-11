@@ -25,6 +25,7 @@
 		087DB9E92A79C766002D0277 /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9E82A79C766002D0277 /* PopupView */; };
 		087DB9EC2A79C774002D0277 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EB2A79C774002D0277 /* WrappingHStack */; };
 		087DB9EF2A79CA00002D0277 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 087DB9EE2A79CA00002D0277 /* ComposableArchitecture */; };
+		088252282BBBB03E00962F93 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 088252272BBBB03E00962F93 /* PrivacyInfo.xcprivacy */; };
 		088934AD29C66F3D00AA81D4 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088934AC29C66F3D00AA81D4 /* AboutView.swift */; };
 		089711D02B233F6E00B1DE7A /* CacheClient in Frameworks */ = {isa = PBXBuildFile; productRef = 089711CF2B233F6E00B1DE7A /* CacheClient */; };
 		089711D32B235FC500B1DE7A /* MangaClient in Frameworks */ = {isa = PBXBuildFile; productRef = 089711D22B235FC500B1DE7A /* MangaClient */; };
@@ -130,6 +131,7 @@
 		0859979428F4C4170095422C /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		0859979628F4C4230095422C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		086E3A872AA274E300FE65C8 /* Logger */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Logger; sourceTree = "<group>"; };
+		088252272BBBB03E00962F93 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		088934AC29C66F3D00AA81D4 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		089711CE2B233F2700B1DE7A /* CacheClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = CacheClient; sourceTree = "<group>"; };
 		089711D12B235E5900B1DE7A /* MangaClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MangaClient; sourceTree = "<group>"; };
@@ -462,6 +464,7 @@
 				229F8D88282DB2E900761054 /* App */,
 				224C657F2827204300AAEF2E /* Assets.xcassets */,
 				224C65812827204300AAEF2E /* Preview Content */,
+				088252272BBBB03E00962F93 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Hanami;
 			sourceTree = "<group>";
@@ -670,7 +673,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1340;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					224C65772827204000AAEF2E = {
 						CreatedOnToolsVersion = 13.3.1;
@@ -718,6 +721,7 @@
 			files = (
 				224C65832827204300AAEF2E /* Preview Assets.xcassets in Resources */,
 				224C65802827204300AAEF2E /* Assets.xcassets in Resources */,
+				088252282BBBB03E00962F93 /* PrivacyInfo.xcprivacy in Resources */,
 				33240488313929035E6B311D /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -981,7 +985,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1007,6 +1011,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;
@@ -1023,7 +1028,7 @@
 				CODE_SIGN_ENTITLEMENTS = Hanami/Hanami.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "\"Hanami/Preview Content\"";
 				DEVELOPMENT_TEAM = HJ9678T652;
 				ENABLE_PREVIEWS = YES;
@@ -1049,6 +1054,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = moe.mkpwnz.Hanami;
 				PRODUCT_NAME = "Hanami - Manga Reader";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
 				SWIFT_VERSION = 5.0;

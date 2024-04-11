@@ -12,7 +12,8 @@ import ModelKit
 import Utils
 import Logger
 
-struct AuthorFeature: Reducer {
+@Reducer
+struct AuthorFeature {
     struct State: Equatable, Identifiable {
         var author: Author?
         var mangaThumbnailStates: IdentifiedArrayOf<MangaThumbnailFeature.State> = []

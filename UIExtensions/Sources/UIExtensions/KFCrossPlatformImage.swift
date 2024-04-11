@@ -26,7 +26,7 @@ extension KFCrossPlatformImage {
         ), let outputImage = filter.outputImage else { return nil }
         
         var bitmap = [UInt8](repeating: 0, count: 4)
-        let context = CIContext(options: [.workingColorSpace: kCFNull])
+        let context = CIContext(options: [.workingColorSpace: kCFNull as Any])
         context.render(
             outputImage,
             toBitmap: &bitmap,

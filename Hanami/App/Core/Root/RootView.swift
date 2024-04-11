@@ -31,7 +31,7 @@ struct RootView: View {
                 HomeView(
                     store: store.scope(
                         state: \.homeState,
-                        action: RootFeature.Action.homeAction
+                        action: \.homeAction
                     ),
                     blurRadius: viewStore.blurRadius
                 )
@@ -44,7 +44,7 @@ struct RootView: View {
                 DownloadsView(
                     store: store.scope(
                         state: \.downloadsState,
-                        action: RootFeature.Action.downloadsAction
+                        action: \.downloadsAction
                     ),
                     blurRadius: viewStore.blurRadius
                 )
@@ -58,7 +58,7 @@ struct RootView: View {
                 SearchView(
                     store: store.scope(
                         state: \.searchState,
-                        action: RootFeature.Action.searchAction
+                        action: \.searchAction
                     ),
                     blurRadius: viewStore.blurRadius
                 )
@@ -71,7 +71,7 @@ struct RootView: View {
                 SettingsView(
                     store: store.scope(
                         state: \.settingsState,
-                        action: RootFeature.Action.settingsAction
+                        action: \.settingsAction
                     )
                 )
                 .tabItem {

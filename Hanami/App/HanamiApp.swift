@@ -53,7 +53,7 @@ struct HanamiApp: App {
                 RootView(
                     store: store.scope(
                         state: \.rootState,
-                        action: AppFeature.Action.rootAction
+                        action: \.rootAction
                     )
                 )
                 .environment(\.colorScheme, viewStore.colorScheme)

@@ -37,7 +37,7 @@ struct DownloadsView: View {
                             ForEachStore(
                                 store.scope(
                                     state: \.cachedMangaThumbnailStates,
-                                    action: DownloadsFeature.Action.cachedMangaThumbnailAction
+                                    action: \.cachedMangaThumbnailAction
                                 )
                             ) { thumbnailViewStore in
                                 MangaThumbnailView(

@@ -9,7 +9,8 @@ import Foundation
 import ComposableArchitecture
 import ModelKit
 
-struct PagesFeature: Reducer {
+@Reducer
+struct PagesFeature {
     struct State: Equatable {
         // here we're splitting chapters(not ChapterDetails) into pages, `chaptersPerPage` per page
         init(manga: Manga, mangaVolumes: [MangaVolume], chaptersPerPage: Int, online: Bool) {

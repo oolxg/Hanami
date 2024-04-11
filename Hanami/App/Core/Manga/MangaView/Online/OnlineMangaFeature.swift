@@ -17,8 +17,9 @@ import SettingsClient
 import HapticClient
 import HomeClient
 
+@Reducer
 // swiftlint:disable:next type_body_length
-struct OnlineMangaFeature: Reducer {
+struct OnlineMangaFeature {
     struct State: Equatable {
         // MARK: - Props for view
         let manga: Manga
@@ -78,7 +79,8 @@ struct OnlineMangaFeature: Reducer {
         var id: String { rawValue }
     }
     
-    enum Action {
+    // need `Sendable` in order to fix `Circular reference` compile-time error
+    enum Action: Sendable {
         // MARK: - Actions to be called from view
         case onAppear
         case navigationTabButtonTapped(Tab)
