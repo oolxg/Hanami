@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import class SwiftUI.UIImage
+@preconcurrency
 import ModelKit
 import Utils
 import DataTypeExtensions
