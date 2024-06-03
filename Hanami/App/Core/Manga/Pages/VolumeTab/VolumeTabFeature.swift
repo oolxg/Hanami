@@ -13,11 +13,13 @@ struct VolumeTabFeature: Reducer {
     struct State: Equatable, Identifiable {
         init(volume: MangaVolume, parentManga: Manga, online: Bool) {
             self.volume = volume
+            self.parentMangaID = parentManga.id
             chapterStates = volume.chapters
                 .map { ChapterFeature.State(chapter: $0, parentManga: parentManga, online: online) }
                 .asIdentifiedArray
         }
         
+        let parentMangaID: UUID
         let volume: MangaVolume
         let id = UUID()
         var chapterStates: IdentifiedArrayOf<ChapterFeature.State> = []
@@ -44,8 +46,9 @@ struct VolumeTabFeature: Reducer {
                     state.chapterStates.remove(id: chapterStateID)
                     
                     if state.chapterStates.isEmpty {
-                        let mangaID = state.chapterStates[id: chapterStateID]!.parentManga.id
-                        return .run { await $0(.userDeletedLastChapterInVolume(mangaID: mangaID)) }
+                        return .run { [parentMangaID = state.parentMangaID] send in
+                            await send(.userDeletedLastChapterInVolume(mangaID: parentMangaID))
+                        }
                     }
                 }
                 

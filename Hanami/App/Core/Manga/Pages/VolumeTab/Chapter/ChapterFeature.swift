@@ -191,6 +191,11 @@ struct ChapterFeature {
                 
                 return .run { await $0(.downloaderAction(.chapterDeletionConfirmed(chapterID: chapterID))) }
                 
+            case .confirmationDialog(.dismiss):
+                state.confirmationDialog = nil
+                
+                return .none
+                
             case .downloadChapterButtonTapped(let chapter):
                 return .run { await $0(.downloaderAction(.downloadChapterButtonTapped(chapter: chapter))) }
                 

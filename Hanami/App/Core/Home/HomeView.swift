@@ -341,7 +341,7 @@ extension HomeView {
                 }
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
-                .font()
+                .font(.headline)
                 .padding(.bottom, 10)
                 .padding(.leading, 10)
             }
