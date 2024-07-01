@@ -106,7 +106,10 @@ extension SettingsView {
         } header: {
             Text("Privacy")
         } footer: {
-            Text("Lock App: Require Face ID to enter App\nSlider: Blur Level when App is Inactive")
+            VStack(alignment: .leading) {
+                Text("Lock App: Require Face ID to enter App")
+                Text("Slider: Blur Strength when App is Inactive")
+            }
         }
     }
     
@@ -158,7 +161,10 @@ extension SettingsView {
         } header: {
             Text("Storage and Network")
         } footer: {
-            Text("Read Online or Save in Higher Quality\nClear Cache doesn't remove Downloaded Mangas")
+            VStack(alignment: .leading) {
+                Text("Read Online or Save in Higher Quality")
+                Text("Clear Cache doesn't remove Downloaded Mangas")
+            }
         }
     }
     

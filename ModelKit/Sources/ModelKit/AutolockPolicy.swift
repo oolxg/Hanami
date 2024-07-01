@@ -23,11 +23,11 @@ public enum AutoLockPolicy: Int {
         case .instantly:
             return "Instantly"
         case .sec15:
-            return "15 seconds"
+            return "After 15 sec"
         case .min1:
-            return "1 minute"
+            return "After 1 min"
         case .min5:
-            return "5 minutes"
+            return "After 5 min"
         }
     }
     
