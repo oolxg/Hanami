@@ -50,7 +50,7 @@ extension SettingsView {
         Section {
             WithViewStore(store, observe: { $0 }) { viewStore in
                 HStack(spacing: 7) {
-                    Text("Language for manga reading")
+                    Text("Manga Language")
                     
                     Spacer()
                     
@@ -71,7 +71,7 @@ extension SettingsView {
                         .environment(\.colorScheme, colorScheme)
                 }
                 
-                Picker("Reading format", selection: viewStore.$readingFormat) {
+                Picker("Reading Format", selection: viewStore.$readingFormat) {
                     ForEach(SettingsConfig.ReadingFormat.allCases, id: \.self) { readingFormat in
                         Text(readingFormat.rawValue).tag(readingFormat)
                     }
@@ -86,7 +86,7 @@ extension SettingsView {
     @MainActor private var privacySection: some View {
         Section {
             WithViewStore(store, observe: { $0 }) { viewStore in
-                Picker("Auto-lock", selection: viewStore.$autolockPolicy) {
+                Picker("Lock App", selection: viewStore.$autolockPolicy) {
                     ForEach(AutoLockPolicy.allCases) { policy in
                         Text(policy.value)
                             .tag(policy)
@@ -105,24 +105,30 @@ extension SettingsView {
             }
         } header: {
             Text("Privacy")
+        } footer: {
+            VStack(alignment: .leading) {
+                Text("Lock App: Require Face ID to enter App")
+                Text("Slider: Blur Strength when App is Inactive")
+            }
         }
     }
+    
     
     @MainActor private var storageSection: some View {
         Section {
             WithViewStore(store, observe: { $0 }) { viewStore in
                 Toggle(isOn: viewStore.$useHigherQualityImagesForOnlineReading) {
-                    Label("Read online manga in higher quality", systemImage: "antenna.radiowaves.left.and.right")
+                    Label("Read in HQ", systemImage: "antenna.radiowaves.left.and.right")
                         .foregroundColor(.theme.foreground)
                 }
                 
                 Toggle(isOn: viewStore.$useHigherQualityImagesForCaching) {
-                    Label("Save manga in higher quality", systemImage: "antenna.radiowaves.left.and.right.slash")
+                    Label("Save in HQ", systemImage: "antenna.radiowaves.left.and.right.slash")
                         .foregroundColor(.theme.foreground)
                 }
                 
                 HStack {
-                    Label("Saved manga size", systemImage: "folder.fill")
+                    Label("Downloads", systemImage: "folder")
                         .foregroundColor(.theme.foreground)
                     
                     Spacer()
@@ -133,7 +139,7 @@ extension SettingsView {
                 Button(role: .destructive) {
                     viewStore.send(.clearImageCacheButtonTapped)
                 } label: {
-                    Label("Clear image cache", systemImage: "photo.stack")
+                    Label("Clear Image Cache", systemImage: "photo.stack")
                         .foregroundColor(.red)
                 }
                 
@@ -141,7 +147,7 @@ extension SettingsView {
                     Button(role: .destructive) {
                         viewStore.send(.clearMangaCacheButtonTapped)
                     } label: {
-                        Label("Delete all manga", systemImage: "trash")
+                        Label("Delete All Mangas", systemImage: "trash")
                             .foregroundColor(.red)
                             .confirmationDialog(
                                 store: store.scope(
@@ -154,6 +160,11 @@ extension SettingsView {
             }
         } header: {
             Text("Storage and Network")
+        } footer: {
+            VStack(alignment: .leading) {
+                Text("Read Online or Save in Higher Quality")
+                Text("Clear Cache doesn't remove Downloaded Mangas")
+            }
         }
     }
     
