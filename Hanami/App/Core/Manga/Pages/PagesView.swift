@@ -103,7 +103,8 @@ extension PagesView {
                         send: PagesFeature.Action.pageIndexButtonTapped
                     )
                 ) {
-                    ForEach(0..<viewStore.pagesCount, id: \.self) { pageIndex in
+                    let pagesInterval = (0..<viewStore.pagesCount).reversed()
+                    ForEach(pagesInterval, id: \.self) { pageIndex in
                         let volumeIndexes = viewStore.splitIntoPagesVolumeTabStates[pageIndex]
                             .compactMap { $0.volume.volumeIndex?.clean() }
                             .reversed()
