@@ -49,45 +49,45 @@ extension PagesView {
         WithViewStore(store, observe: ViewState.init) { viewStore in
             HStack {
                 Button {
-                    viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex - 1))
+                    viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex + 1))
                 } label: {
                     Image(systemName: "arrow.left")
                         .foregroundColor(.theme.foreground)
                 }
                 .padding(.horizontal, 5)
-                .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
-                
-                makePageLabel(for: 1)
-                    .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
-                    .disabled(viewStore.currentPageIndex == 0)
-                
-                Text("...")
-                    .font(.headline)
-                    .opacity(viewStore.currentPageIndex - 2 > 0 ? 1 : 0)
-                
-                makePageLabel(for: viewStore.currentPageIndex, bgColor: .theme.darkGray)
-                    .opacity(viewStore.currentPageIndex > 1 ? 1 : 0)
-                
-                pagesPicker
-                
-                makePageLabel(for: viewStore.currentPageIndex + 2, bgColor: .theme.darkGray)
-                    .opacity(viewStore.currentPageIndex + 2 < viewStore.pagesCount ? 1 : 0)
+                .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
+
+                makePageLabel(for: viewStore.pagesCount)
+                    .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
                 
                 Text("...")
                     .font(.headline)
                     .opacity(viewStore.currentPageIndex + 2 < viewStore.pagesCount - 1 ? 1 : 0)
                 
-                makePageLabel(for: viewStore.pagesCount)
-                    .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
+                makePageLabel(for: viewStore.currentPageIndex + 2, bgColor: .theme.darkGray)
+                    .opacity(viewStore.currentPageIndex + 2 < viewStore.pagesCount ? 1 : 0)
                 
+                pagesPicker
+
+                makePageLabel(for: viewStore.currentPageIndex, bgColor: .theme.darkGray)
+                    .opacity(viewStore.currentPageIndex > 1 ? 1 : 0)
+                
+                Text("...")
+                    .font(.headline)
+                    .opacity(viewStore.currentPageIndex - 2 > 0 ? 1 : 0)
+                
+                makePageLabel(for: 1)
+                    .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
+                    .disabled(viewStore.currentPageIndex == 0)
+
                 Button {
-                    viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex + 1))
+                    viewStore.send(.pageIndexButtonTapped(newPageIndex: viewStore.currentPageIndex - 1))
                 } label: {
                     Image(systemName: "arrow.right")
                         .foregroundColor(.theme.foreground)
                 }
                 .padding(.horizontal, 5)
-                .opacity(viewStore.currentPageIndex + 1 != viewStore.pagesCount ? 1 : 0)
+                .opacity(viewStore.currentPageIndex != 0 ? 1 : 0)
             }
             .padding(.bottom, 5)
             .animation(.linear, value: viewStore.currentPageIndex)

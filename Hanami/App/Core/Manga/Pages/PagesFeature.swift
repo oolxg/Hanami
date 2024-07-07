@@ -51,6 +51,8 @@ struct PagesFeature {
                     }
                 }
                 
+                volumesOnPage.reverse()
+                
                 splitIntoPagesVolumeTabStates.append(
                     volumesOnPage
                         .map { VolumeTabFeature.State(volume: $0, parentManga: manga, online: online) }
@@ -63,6 +65,9 @@ struct PagesFeature {
             if !splitIntoPagesVolumeTabStates.isEmpty {
                 volumeTabStatesOnCurrentPage = splitIntoPagesVolumeTabStates.first!
             }
+            
+            currentPageIndex = splitIntoPagesVolumeTabStates.count - 1
+            splitIntoPagesVolumeTabStates.reverse()
         }
         
         // MARK: - init for offline usage
@@ -153,7 +158,7 @@ struct PagesFeature {
         var volumeTabStatesOnCurrentPage: IdentifiedArrayOf<VolumeTabFeature.State> = []
         
         var pagesCount: Int { splitIntoPagesVolumeTabStates.count }
-        var currentPageIndex = 0 {
+        var currentPageIndex: Int {
             willSet {
                 let temp = volumeTabStatesOnCurrentPage
                 volumeTabStatesOnCurrentPage = splitIntoPagesVolumeTabStates[newValue]
